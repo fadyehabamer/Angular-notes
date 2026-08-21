@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">HTTP without the <code>subscribe</code></span><span class="l-ar" dir="auto">HTTP من غير <code>subscribe</code></span></h1>
   <p class="lead"><span class="l-en">Interceptors are functions. Requests can be <b>declared</b> instead of triggered — and the loading flag, the error branch and the race condition you keep hand-writing already exist in the box.</span><span class="l-ar" dir="auto">الـ interceptors بقت functions. والريكويست تقدر <b>تعلن</b> عنه بدل ما تطلقه — والـ loading flag وفرع الايرور وحالة السباق اللي بتكتبها بإيدك كل مرة، كلهم موجودين جاهزين.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">Interceptors are <b>a checkpoint every request passes through</b>, so auth headers and error handling live in one file instead of forty.</span><span class="l-ar" dir="auto">الـ interceptors هي <b>نقطة تفتيش كل طلب بيعدّي منها</b>، فالـ auth headers ومعالجة الأخطاء بتبقى في ملف واحد بدل أربعين.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">Airport security. Every passenger goes through the same gate, and the rules are written once at the gate — not once per passenger.</span><span class="l-ar" dir="auto">أمن المطار. كل مسافر بيعدّي من نفس البوابة، والقواعد مكتوبة مرة واحدة عند البوابة — مش مرة لكل مسافر.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">Attaching tokens, logging, retrying, showing a global spinner, translating server errors into human sentences.</span><span class="l-ar" dir="auto">لما تلزق tokens، أو تسجّل، أو تعيد المحاولة، أو تعرض spinner عام، أو تترجم أخطاء السيرفر لجُمل مفهومة.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><path d="M3.6 12h16.8M12 3.6c2.4 2.6 3.6 5.4 3.6 8.4S14.4 18.2 12 20.4c-2.4-2.2-3.6-5.4-3.6-8.4S9.6 6.2 12 3.6z"/></svg></div>
+      <b><span class="l-en">A request leaves</span><span class="l-ar" dir="auto">الطلب بيخرج</span></b>
+      <p><span class="l-en">Your service calls <code>http.get()</code> and knows nothing about tokens or retries.</span><span class="l-ar" dir="auto">الـ service بينادي <code>http.get()</code> ومش عارف حاجة عن الـ tokens ولا إعادة المحاولة.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 20 6v6c0 5-3.4 8.5-8 9.6C7.4 20.5 4 17 4 12V6z"/></svg></div>
+      <b><span class="l-en">The interceptor edits it</span><span class="l-ar" dir="auto">الـ interceptor بيعدّله</span></b>
+      <p><span class="l-en">Requests are immutable — you <code>clone()</code> with the header added, then pass it on.</span><span class="l-ar" dir="auto">الطلبات ثابتة — بتعمل <code>clone()</code> وتضيف الـ header، وبعدين تمرّره.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 6h5.6l5 6h5.6M3.6 18h5.6l5-6M17.8 9.4 20.4 12l-2.6 2.6"/></svg></div>
+      <b><span class="l-en">They chain in order</span><span class="l-ar" dir="auto">بيتسلسلوا بالترتيب</span></b>
+      <p><span class="l-en">The array order is the execution order. Auth before logging, or your logs miss the header.</span><span class="l-ar" dir="auto">ترتيب الـ array هو ترتيب التنفيذ. الـ auth قبل الـ logging، وإلا السجل هيفوّت الـ header.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 21.6 20H2.4z"/><path d="M12 9.8v4.2M12 17.2h.02"/></svg></div>
+      <b><span class="l-en">Errors come back through</span><span class="l-ar" dir="auto">الأخطاء بترجع من نفس الطريق</span></b>
+      <p><span class="l-en">A 401 can be caught here, refreshed, and retried without a single component knowing.</span><span class="l-ar" dir="auto">خطأ 401 ممكن يتمسك هنا، ويتجدّد التوكن، وتتعاد المحاولة من غير ما أي component يعرف.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="cfg" data-kind="cfg">
@@ -546,6 +590,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en"><code class="i">resource</code>, <code class="i">rxResource</code> and <code class="i">httpResource</code> are <b>developer preview</b> and their option names have already changed once (<code class="i">request</code> → <code class="i">params</code>, <code class="i">loader</code> → <code class="i">stream</code>). Fine in an app you control; be careful in a published library.</span><span class="l-ar" dir="auto"><code class="i">resource</code> و<code class="i">rxResource</code> و<code class="i">httpResource</code> لسه <b>developer preview</b> وأسامي الـ options اتغيرت مرة بالفعل (<code class="i">request</code> بقت <code class="i">params</code>، و<code class="i">loader</code> بقت <code class="i">stream</code>). عادي في تطبيق إنت مسيطر عليه؛ خد بالك في library هتنشرها.</span></li><li><span class="l-en">An <code class="i">HttpRequest</code> is immutable. <code class="i">req.headers.set(...)</code> returns a new object and changes nothing — you must <code class="i">req.clone({...})</code>.</span><span class="l-ar" dir="auto">الـ <code class="i">HttpRequest</code> ثابت. <code class="i">req.headers.set(...)</code> بيرجّع object جديد ومبيغيّرش حاجة — لازم <code class="i">req.clone({...})</code>.</span></li><li><span class="l-en">Interceptor order is the array order, and it applies outward on the response. Put logging first and auth last if you want to log the final request.</span><span class="l-ar" dir="auto">ترتيب الـ interceptors هو ترتيب المصفوفة، وبيتطبق بالعكس على الرد. حط الـ logging الأول والـ auth الآخر لو عايز تسجّل الريكويست النهائي.</span></li><li><span class="l-en"><code class="i">HttpClient</code> completes after one value, so a forgotten <code class="i">subscribe</code> is not a leak — but it <b>is</b> an untracked side effect. Prefer the <code class="i">async</code> pipe, <code class="i">toSignal</code>, or a resource.</span><span class="l-ar" dir="auto"><code class="i">HttpClient</code> بيقفل بعد قيمة واحدة، فالـ <code class="i">subscribe</code> اللي نسيته مش تسريب — بس هو <b>فعلاً</b> side effect مش متتبَّع. الأفضل <code class="i">async</code> pipe أو <code class="i">toSignal</code> أو resource.</span></li><li><span class="l-en">Returning <code class="i">undefined</code> from the URL function means “do not request yet”. That is how you express a search that waits for two characters.</span><span class="l-ar" dir="auto">لو دالة الـ URL رجّعت <code class="i">undefined</code> معناها “متطلبش حاجة دلوقتي”. وكده تعبّر عن بحث مستني حرفين.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">An interceptor must return the chain: <code>return next(req)</code>. Forget that line and every request in your app hangs forever.</span><span class="l-ar" dir="auto">الـ interceptor لازم يرجّع السلسلة: <code>return next(req)</code>. تنسى السطر ده، وكل طلب في تطبيقك هيعلّق للأبد.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

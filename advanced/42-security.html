@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">XSS, sanitization and the bypass that is usually a bug</span><span class="l-ar" dir="auto">XSS والتعقيم والتجاوز اللي غالباً باج</span></h1>
   <p class="lead"><span class="l-en">Angular escapes everything by default, which is why most Angular apps are not vulnerable. The holes are the places you deliberately opened: <code>[innerHTML]</code>, <code>bypassSecurityTrust*</code>, and a URL you built from user input. <b>Every XSS in an Angular app is a line somebody wrote on purpose.</b></span><span class="l-ar" dir="auto">أنجولار بيهرّب كل حاجة افتراضياً، وعشان كده معظم تطبيقات أنجولار مش مخترقة. والثغرات هي الأماكن اللي إنت فتحتها بقصد: <code>[innerHTML]</code> و<code>bypassSecurityTrust*</code> وURL بنيته من مدخلات المستخدم. <b>وكل XSS في تطبيق أنجولار هو سطر حد كتبه عن قصد.</b></span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">Angular <b>escapes everything you put in a template by default</b>, so the usual way to get hacked is to switch that off yourself.</span><span class="l-ar" dir="auto">أنجولار <b>بيهرّب كل حاجة بتحطها في الـ template افتراضياً</b>، فالطريقة المعتادة للاختراق هي إنك تطفّي ده بنفسك.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A letterbox with a grille. Letters go through; hands do not. Removing the grille is a decision, not an accident.</span><span class="l-ar" dir="auto">صندوق خطابات بشبكة. الجوابات بتعدّي، والإيدين لأ. شيل الشبكة قرار، مش صدفة.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">Any time you render text a user or a server typed. Which is every list, every comment, every profile.</span><span class="l-ar" dir="auto">أي وقت بتعرض نص كتبه مستخدم أو سيرفر. يعني كل لستة وكل تعليق وكل بروفايل.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 20 6v6c0 5-3.4 8.5-8 9.6C7.4 20.5 4 17 4 12V6z"/></svg></div>
+      <b><span class="l-en">Interpolation is safe</span><span class="l-ar" dir="auto">الـ interpolation آمن</span></b>
+      <p><span class="l-en"><code>{{ text }}</code> escapes tags. Script tags arrive as visible text, harmlessly.</span><span class="l-ar" dir="auto"><code>{{ text }}</code> بيهرّب التاجات. تاج script بيوصل كنص ظاهر، من غير أي ضرر.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 21.6 20H2.4z"/><path d="M12 9.8v4.2M12 17.2h.02"/></svg></div>
+      <b><span class="l-en">innerHTML is sanitised</span><span class="l-ar" dir="auto">innerHTML بيتنضّف</span></b>
+      <p><span class="l-en">Angular strips dangerous parts, but you have widened the door on purpose.</span><span class="l-ar" dir="auto">أنجولار بيشيل الأجزاء الخطرة، بس إنت وسّعت الباب بإرادتك.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><path d="m9 9 6 6M15 9l-6 6"/></svg></div>
+      <b><span class="l-en">bypass turns it off</span><span class="l-ar" dir="auto">bypass بتطفّي الحماية</span></b>
+      <p><span class="l-en">Now you are the sanitiser. Only ever do this with a constant you wrote.</span><span class="l-ar" dir="auto">دلوقتي إنت المنضّف. ماتعملش كده غير مع قيمة ثابتة إنت كاتبها.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.4" y="10" width="15.2" height="10.4" rx="2.6"/><path d="M7.8 10V7.2a4.2 4.2 0 0 1 8.4 0V10"/></svg></div>
+      <b><span class="l-en">CSP is the backstop</span><span class="l-ar" dir="auto">CSP هي الشبكة الأخيرة</span></b>
+      <p><span class="l-en">A header that refuses to run injected scripts even if one gets through.</span><span class="l-ar" dir="auto">هيدر بيرفض يشغّل أي script متحقون حتى لو عدّى.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="input" data-kind="cfg">
@@ -542,6 +586,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en"><code class="i">sanitize()</code> filters; <code class="i">bypassSecurityTrust*()</code> disables the filter. They sound similar and do opposite things — read the name every time.</span><span class="l-ar" dir="auto"><code class="i">sanitize()</code> بتفلتر؛ و<code class="i">bypassSecurityTrust*()</code> بتقفل الفلتر. الاسمين شبه بعض وبيعملوا العكس — اقرا الاسم كل مرة.</span></li><li><span class="l-en">Writing to <code class="i">nativeElement.innerHTML</code> skips Angular&rsquo;s sanitizer entirely. Use the binding, or <code class="i">Renderer2</code>, or sanitize by hand.</span><span class="l-ar" dir="auto">الكتابة في <code class="i">nativeElement.innerHTML</code> بتتخطى معقّم أنجولار خالص. استعمل الـ binding أو <code class="i">Renderer2</code> أو عقّم بإيدك.</span></li><li><span class="l-en">“It came from our API” is not a safety property. Your API stored whatever some other user typed into it.</span><span class="l-ar" dir="auto">«دي جاية من الـ API بتاعنا» دي مش ضمانة أمان. الـ API بتاعك خزّن اللي مستخدم تاني كتبه.</span></li><li><span class="l-en">A redirect target taken from a query param is an open-redirect vulnerability. Validate it against your own routes before navigating.</span><span class="l-ar" dir="auto">وجهة إعادة التوجيه اللي جاية من query param دي ثغرة open-redirect. تحقق منها قدام الراوتس بتاعتك قبل ما تنقل.</span></li><li><span class="l-en">Angular ships security fixes in <b>patch</b> releases. An app pinned to an old minor is carrying known, published vulnerabilities.</span><span class="l-ar" dir="auto">أنجولار بيطلّع إصلاحات أمنية في إصدارات <b>patch</b>. والتطبيق المثبّت على minor قديم شايل ثغرات معروفة ومنشورة.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">If you are reaching for <code>bypassSecurityTrust…</code>, stop and prove the value cannot come from a user. Usually it can.</span><span class="l-ar" dir="auto">لو بتمد إيدك على <code>bypassSecurityTrust…</code>، قف وأثبت إن القيمة مستحيل تيجي من مستخدم. وغالباً ممكن تيجي.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

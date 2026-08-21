@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">Template-driven forms with <code>ngModel</code></span><span class="l-ar" dir="auto">الفورمز من التمبلت بـ <code>ngModel</code></span></h1>
   <p class="lead"><span class="l-en">Angular has two form systems. This is the small one: you declare the form in the <b>HTML</b> and Angular builds the model for you. It is the right choice for a login box or a contact form — and the wrong one the moment validation gets interesting.</span><span class="l-ar" dir="auto">أنجولار عنده نظامين للفورمز. وده الصغير: بتعلن عن الفورم في الـ <b>HTML</b> وأنجولار بيبني الموديل بدالك. وهو الاختيار الصح لخانة تسجيل دخول أو فورم تواصل — والغلط أول ما الـ validation تبقى معقدة.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">You write <b>plain inputs with <code>ngModel</code></b> and Angular quietly builds the form object behind your back.</span><span class="l-ar" dir="auto">إنت بتكتب <b>خانات عادية فيها <code>ngModel</code></b> وأنجولار بيبني الفورم ورا ضهرك من غير ما تحس.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A paper form with carbon copy underneath. You write on the top sheet; the copy fills itself in.</span><span class="l-ar" dir="auto">ورقة فيها كربون تحتها. إنت بتكتب فوق، والنسخة بتتملي لوحدها.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">Small forms — a login box, a search filter, a settings toggle. Nothing with dynamic fields.</span><span class="l-ar" dir="auto">الفورمات الصغيرة — تسجيل دخول، فلتر بحث، إعداد. مش أي حاجة فيها خانات بتتغيّر.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.4" y="3.8" width="17.2" height="16.4" rx="2.6"/><path d="M7.4 8.8h9.2M7.4 12.8h9.2M7.4 16.8h4.4"/></svg></div>
+      <b><span class="l-en">ngModel on each input</span><span class="l-ar" dir="auto">ngModel على كل خانة</span></b>
+      <p><span class="l-en">Plus a <code>name</code> attribute — without it Angular cannot register the control.</span><span class="l-ar" dir="auto">وكمان <code>name</code> — من غيرها أنجولار مش هيقدر يسجّل الخانة.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.4 12S6 5.4 12 5.4 21.6 12 21.6 12 18 18.6 12 18.6 2.4 12 2.4 12z"/><circle cx="12" cy="12" r="2.8"/></svg></div>
+      <b><span class="l-en">Angular watches state</span><span class="l-ar" dir="auto">أنجولار بيراقب الحالة</span></b>
+      <p><span class="l-en"><code>touched</code>, <code>dirty</code>, <code>valid</code> — all tracked for you, free.</span><span class="l-ar" dir="auto"><code>touched</code> و<code>dirty</code> و<code>valid</code> — كلها متتبّعة بدالك، ببلاش.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><path d="m8.4 12 2.6 2.6 4.6-5.2"/></svg></div>
+      <b><span class="l-en">Validators are attributes</span><span class="l-ar" dir="auto">الفاليديشن attributes</span></b>
+      <p><span class="l-en"><code>required</code>, <code>minlength</code>, <code>email</code> — the same words you already know from HTML.</span><span class="l-ar" dir="auto"><code>required</code> و<code>minlength</code> و<code>email</code> — نفس الكلمات اللي إنت عارفها من HTML.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 21.6 20H2.4z"/><path d="M12 9.8v4.2M12 17.2h.02"/></svg></div>
+      <b><span class="l-en">It outgrows fast</span><span class="l-ar" dir="auto">بيكبر عليها بسرعة</span></b>
+      <p><span class="l-en">No types, no easy programmatic changes, awkward tests. Know when to move on.</span><span class="l-ar" dir="auto">مفيش أنواع، ومش سهل تغيّرها بالكود، والاختبار متعب. اعرف إمتى تسيبها.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="tpl" data-kind="html">
@@ -538,6 +582,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en"><code class="i">ngModel</code> inside a <code class="i">&lt;form&gt;</code> <b>requires</b> a <code class="i">name</code> attribute, or Angular throws at runtime. Outside a form, use <code class="i">[ngModelOptions]="{ standalone: true }"</code>.</span><span class="l-ar" dir="auto"><code class="i">ngModel</code> جوه <code class="i">&lt;form&gt;</code> <b>محتاجة</b> خاصية <code class="i">name</code>، وإلا أنجولار هيرمي ايرور وقت التشغيل. وبره الفورم، استعمل <code class="i">[ngModelOptions]="{ standalone: true }"</code>.</span></li><li><span class="l-en">Forgetting <code class="i">FormsModule</code> fails silently — the input renders, nothing binds, and there is no error message.</span><span class="l-ar" dir="auto">نسيان <code class="i">FormsModule</code> بيفشل في صمت — الـ input بيترسم، ومفيش حاجة بتترابط، ومفيش رسالة خطأ.</span></li><li><span class="l-en"><code class="i">ngModel</code> updates on every keystroke. For a search box use <code class="i">[ngModelOptions]="{ updateOn: 'blur' }"</code> or debounce it.</span><span class="l-ar" dir="auto"><code class="i">ngModel</code> بتتحدث مع كل حرف. ولخانة بحث استعمل <code class="i">[ngModelOptions]="{ updateOn: 'blur' }"</code> أو اعمل لها debounce.</span></li><li><span class="l-en"><code class="i">f.reset()</code> clears values but leaves the form looking touched. <code class="i">f.resetForm()</code> clears both — use that one.</span><span class="l-ar" dir="auto"><code class="i">f.reset()</code> بتمسح القيم بس بتسيب الفورم شكله touched. أما <code class="i">f.resetForm()</code> فبتمسح الاتنين — استعمل دي.</span></li><li><span class="l-en">The moment you need a rule about <b>two</b> fields together — password confirmation, date ranges — stop and switch to reactive forms. Template-driven cannot express it cleanly.</span><span class="l-ar" dir="auto">أول ما تحتاج قاعدة بتخص <b>حقلين</b> مع بعض — تأكيد الباسورد أو نطاق تواريخ — قف وحوّل لـ reactive forms. الطريقة دي مش بتعبّر عنها بشكل نضيف.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">Template-driven is fine until the form gets clever. Dynamic fields or cross-field rules mean it is time for reactive forms.</span><span class="l-ar" dir="auto">الطريقة دي كويسة لحد ما الفورم يبقى معقّد. خانات ديناميكية أو قواعد بين الخانات = وقت الـ reactive forms.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

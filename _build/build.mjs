@@ -33,6 +33,7 @@ const CSS  = readFileSync(join(HERE, 'deck.css'), 'utf8');
   }
 })();
 
+const PLAIN = (await import('./content/plain.mjs')).default;
 const DOC = (await import('./content/typescript.mjs')).default;
 const MAP = (await import('./content/roadmap.mjs')).default;
 
@@ -249,6 +250,18 @@ for (const t of TRACKS) for (const a of t.arts) {
   a.num = String(++seq).padStart(2, '0');
   a.slug = a.num + '-' + base(a.slug);
 }
+/* the beginner layer: plain words + a strip of pictures, keyed by base slug */
+{
+  const noPlain = [], badIcon = [];
+  for (const t of TRACKS) for (const a of t.arts) {
+    a.plain = PLAIN[base(a.slug)];
+    if (!a.plain) { noPlain.push(base(a.slug)); continue; }
+    for (const sp of a.plain.strip) if (!I[sp.i]) badIcon.push(base(a.slug) + ' -> ' + sp.i);
+  }
+  if (noPlain.length) console.warn('  no plain-words entry: ' + noPlain.join(', '));
+  if (badIcon.length) { console.error('unknown icon: ' + badIcon.join(', ')); process.exit(1); }
+}
+
 const FLAT = TRACKS.flatMap(t => t.arts.map(a => ({ ...a, track: t })));
 const href = (a, fromTrack) => (fromTrack ? '../' : '') + a.track.id + '/' + a.slug + '.html';
 
@@ -319,6 +332,33 @@ ${chrome(a.track.id)}
   <h1 class="title">${bi(a.title)}</h1>
   <p class="lead">${bi(a.lead)}</p>
 
+  ${a.plain ? `
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph">${icon('target')}<b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p>${bi(a.plain.say)}</p>
+    </div>
+    <div class="pc">
+      <div class="ph">${icon('compare')}<b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p>${bi(a.plain.like)}</p>
+    </div>
+    <div class="pc">
+      <div class="ph">${icon('hand')}<b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p>${bi(a.plain.when)}</p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in ${a.plain.strip.length} pictures</span><span class="l-ar">الفكرة كلها في ${a.plain.strip.length} صور</span></p>
+  <div class="strip">${a.plain.strip.map(sp => `
+    <div class="sp">
+      <div class="plate">${icon(sp.i)}</div>
+      <b>${bi(sp.t)}</b>
+      <p>${bi(sp.p)}</p>
+    </div>`).join('')}
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>` : ''}
+
   <div class="stage">${svg}${rows}</div>
 
   <div class="stepbar">
@@ -344,6 +384,14 @@ ${chrome(a.track.id)}
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul>${a.gotchas.map(g => `<li>${bi(g)}</li>`).join('')}</ul>
   </div>
+
+  ${a.plain ? `
+  <div class="oneline">${icon('pin')}
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p>${bi(a.plain.one)}</p>
+    </div>
+  </div>` : ''}
 
   <nav class="pager">
     ${prev ? `<a class="pv" href="${href(prev, true)}"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b>${bi(prev.title)}</b></a>` : '<div class="void"></div>'}
@@ -594,19 +642,41 @@ ${chrome('typescript', '')}
 const $ = (s, r = document) => r.querySelector(s);
 ${UI_JS}
 
-/* highlight the section you are reading */
+/* highlight the section you are reading.
+   Position-based, not IntersectionObserver: after clicking a link the previous
+   section still overlaps the observation band by a few pixels, and picking the
+   first intersecting one left the rail a step behind until you nudged the page. */
 const links = new Map([...document.querySelectorAll('[data-rail]')].map(a => [a.dataset.rail, a]));
 const secs = [...document.querySelectorAll('.sec')];
-const seen = new Set();
-const spy = new IntersectionObserver(entries => {
-  for (const e of entries) {
-    if (e.isIntersecting) seen.add(e.target.id); else seen.delete(e.target.id);
+const LINE = 92;                      /* the reading line, just under the sticky bar */
+
+function markActive(id){
+  links.forEach((a, key) => a.classList.toggle('on', key === id));
+}
+function spy(){
+  if (!secs.length) return;
+  let current = secs[0];
+  for (const sec of secs) {
+    if (sec.getBoundingClientRect().top - LINE <= 0) current = sec; else break;
   }
-  const first = secs.find(sec => seen.has(sec.id));
-  links.forEach(a => a.classList.remove('on'));
-  if (first) { const a = links.get(first.id); if (a) a.classList.add('on'); }
-}, { rootMargin: '-70px 0px -60% 0px' });
-secs.forEach(sec => spy.observe(sec));
+  /* the last section is often too short to ever cross the line */
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) current = secs[secs.length - 1];
+  markActive(current.id);
+}
+
+/* a click should light up immediately, not after the scroll settles */
+links.forEach((a, id) => a.addEventListener('click', () => markActive(id)));
+
+let spying = false;
+addEventListener('scroll', () => {
+  if (spying) return;
+  spying = true;
+  requestAnimationFrame(() => { spying = false; spy(); });
+}, { passive: true });
+addEventListener('resize', spy);
+addEventListener('hashchange', () => requestAnimationFrame(spy));
+addEventListener('load', spy);   /* the browser applies #hash after parsing */
+spy();
 </script>
 </body>
 </html>`;
@@ -727,7 +797,7 @@ function index() {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Angular Signal — contents</title>
-<meta name="description" content="A bilingual Angular magazine: fifteen topics across beginner, intermediate and advanced tracks, in English and Egyptian Arabic.">
+<meta name="description" content="A bilingual Angular magazine: forty-eight topics across beginner, intermediate and advanced tracks, in English and Egyptian Arabic. Light and dark.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="${FONTS}" rel="stylesheet">
@@ -777,7 +847,7 @@ ${BOOT}
 <body>
 <header class="top"><div class="top-in">
   <a class="home" href="index.html"><b>The Angular Signal</b><span class="l-en">issue 01</span><span class="l-ar">العدد 01</span></a>
-  <nav class="tracknav">${TRACKS.map(t => `<a href="${t.id}/${t.arts[0].slug}.html" style="--c:var(${t.ink})"><i></i>${bi(t.name)}</a>`).join('')}</nav>
+  <nav class="tracknav">${trackNav('index', '')}</nav>
   <div class="top-right">
     ${SWITCHES}
   </div>
@@ -792,8 +862,8 @@ ${BOOT}
       <span dir="ltr">English / مصري</span>
     </div>
     <h1><span class="l-en">Angular, one <em>idea</em><br>at a time</span><span class="l-ar">أنجولار، <em>فكرة</em><br>واحدة في المرة</span></h1>
-    <p class="intro l-en">Fifteen topics, each one its own page: the concept, an animated diagram of where the value actually travels, the real files line by line, a feature you would genuinely build, and the traps. Read it in English or flip to Egyptian Arabic — the switch is top right, and it stays switched.</p>
-    <p class="intro l-ar" dir="auto">خمستاشر موضوع، كل واحد في صفحة لوحده: الفكرة، ورسمة متحركة بتوريك القيمة بتمشي فين بالظبط، والملفات الحقيقية سطر سطر، وفيتشر إنت فعلاً هتبنيه، والفخاخ اللي مستنياك. اقرا بالإنجليزي أو لُف على المصري — السويتش فوق على الشمال، وبيفضل محفوظ.</p>
+    <p class="intro l-en">Forty-eight topics, each one its own page: plain words and a strip of pictures first, then the concept, an animated diagram of where the value actually travels, the real files line by line, a feature you would genuinely build, and the traps. Read it in English or flip to Egyptian Arabic — the switch is top right, and it stays switched.</p>
+    <p class="intro l-ar" dir="auto">تمانية وأربعين موضوع، كل واحد في صفحة لوحده: الشرح بالبلدي وشوية صور الأول، وبعدين الفكرة، ورسمة متحركة بتوريك القيمة بتمشي فين بالظبط، والملفات الحقيقية سطر سطر، وفيتشر إنت فعلاً هتبنيه، والفخاخ اللي مستنياك. اقرا بالإنجليزي أو لُف على المصري — السويتش فوق على الشمال، وبيفضل محفوظ.</p>
   </div>
 
   <div class="tgrid">${cols}</div>
@@ -813,9 +883,9 @@ ${BOOT}
 
   <div class="foot">
     <div><b><span class="l-en">How to read a page</span><span class="l-ar">إزاي تقرا الصفحة</span></b>
-      <p><span class="l-en">The diagram plays itself once. Click a dot, press &larr; / &rarr;, or hit R to replay — each step lights the wire and highlights the exact lines involved.</span><span class="l-ar" dir="auto">الرسمة بتشتغل لوحدها مرة. دوس على نقطة، أو استعمل &larr; / &rarr;، أو اضغط R للإعادة — كل خطوة بتنوّر السلك وبتعلّم على السطور المعنية بالظبط.</span></p></div>
-    <div><b><span class="l-en">Both editions</span><span class="l-ar">النسختين</span></b>
-      <p><span class="l-en">Every page carries the English and the Egyptian Arabic text. Code, file names and diagrams stay left to right in both.</span><span class="l-ar" dir="auto">كل صفحة فيها النص بالإنجليزي وبالمصري. الكود وأسماء الملفات والرسومات بتفضل من الشمال لليمين في الاتنين.</span></p></div>
+      <p><span class="l-en">Top to bottom: plain words, then the idea as a strip of pictures, then the wiring. The diagram plays itself once — click a dot, press &larr; / &rarr;, or hit R to replay, and each step lights the wire and highlights the exact lines involved.</span><span class="l-ar" dir="auto">من فوق لتحت: الشرح بالبلدي، وبعدين الفكرة في شوية صور، وبعدين التوصيلات. الرسمة بتشتغل لوحدها مرة — دوس على نقطة، أو استعمل &larr; / &rarr;، أو اضغط R للإعادة، وكل خطوة بتنوّر السلك وبتعلّم على السطور المعنية بالظبط.</span></p></div>
+    <div><b><span class="l-en">Two languages, two skins</span><span class="l-ar">لغتين وشكلين</span></b>
+      <p><span class="l-en">Every page carries the English and the Egyptian Arabic text, and comes in light or dark. Both switches are top right and both are remembered. Code, file names and diagrams stay left to right whatever you pick.</span><span class="l-ar" dir="auto">كل صفحة فيها النص بالإنجليزي وبالمصري، وبتيجي فاتحة أو غامقة. السويتشين فوق على الشمال والاتنين بيتحفظوا. والكود وأسماء الملفات والرسومات بتفضل من الشمال لليمين في أي اختيار.</span></p></div>
     <div><b><span class="l-en">Companion</span><span class="l-ar">ملف مصاحب</span></b>
       <p><span class="l-en">Chasing a value between two components? <a href="angular-data-flow.html">Angular data flow</a> covers the nine communication channels in the same format.</span><span class="l-ar" dir="auto">بتدوّر على قيمة بين اتنين components؟ ملف <a href="angular-data-flow.html">Angular data flow</a> بيغطي التسع قنوات بنفس الشكل ده.</span></p></div>
   </div>

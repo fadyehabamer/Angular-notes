@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">Routes are data, guards are functions</span><span class="l-ar" dir="auto">الـ routes مجرد داتا، والـ guards مجرد functions</span></h1>
   <p class="lead"><span class="l-en">A route config is a plain array you read top to bottom. Lazy loading is one property. Guards are functions that can <code>inject()</code> anything — and the difference between <code>canMatch</code> and <code>canActivate</code> decides whether an unauthorised user <b>downloads your admin bundle</b>.</span><span class="l-ar" dir="auto">ملف الـ routes مصفوفة عادية تقراها من فوق لتحت. الـ lazy loading سطر واحد. والـ guards functions تقدر تعمل <code>inject()</code> لأي حاجة — والفرق بين <code>canMatch</code> و<code>canActivate</code> هو اللي بيحدد هل اللي مش مصرّح له <b>هينزّل bundle الأدمن</b> ولا لأ.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">Routes are <b>just an array of objects</b>, and guards are <b>just functions that return true or false</b>. There is no magic here.</span><span class="l-ar" dir="auto">الـ routes مجرد <b>array من الـ objects</b>، والـ guards مجرد <b>دوال بترجّع true أو false</b>. مفيش سحر هنا.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A building directory plus a security guard at the lift. The list says which floor; the guard decides whether you get on.</span><span class="l-ar" dir="auto">دليل مبنى وحارس أمن عند الأسانسير. اللستة بتقول أنهي دور، والحارس بيقرر تركب ولا لأ.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">Login-only pages, admin areas, unsaved-changes warnings, and screens that need data before they draw.</span><span class="l-ar" dir="auto">الصفحات اللي للمسجّلين بس، ومناطق الأدمن، وتحذير التغييرات غير المحفوظة، والشاشات المحتاجة داتا قبل ما ترسم.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.8" y="2.6" width="6.4" height="5" rx="1.6"/><rect x="2.4" y="16.4" width="6.4" height="5" rx="1.6"/><rect x="15.2" y="16.4" width="6.4" height="5" rx="1.6"/><path d="M12 7.6v4.4M5.6 16.4V12h12.8v4.4"/></svg></div>
+      <b><span class="l-en">Children nest routes</span><span class="l-ar" dir="auto">children بتعشّش الـ routes</span></b>
+      <p><span class="l-en">A child route renders into the <em>parent's</em> outlet, so shared chrome stays on screen.</span><span class="l-ar" dir="auto">الـ route الابن بيترسم في outlet <em>الأب</em>، فالإطار المشترك بيفضل على الشاشة.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="7.4" cy="15.6" r="3.6"/><path d="m10 13.2 10-10M17 5.8l2.6 2.6M14.6 8.2l2.6 2.6"/></svg></div>
+      <b><span class="l-en">Params come from the URL</span><span class="l-ar" dir="auto">الـ params من الـ URL</span></b>
+      <p><span class="l-en"><code>:id</code> in the path, and with input binding it lands straight in an <code>input()</code>.</span><span class="l-ar" dir="auto"><code>:id</code> في المسار، ومع الـ input binding بتوصل مباشرة لـ <code>input()</code>.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 20 6v6c0 5-3.4 8.5-8 9.6C7.4 20.5 4 17 4 12V6z"/></svg></div>
+      <b><span class="l-en">canActivate says yes or no</span><span class="l-ar" dir="auto">canActivate بتقول أيوة أو لأ</span></b>
+      <p><span class="l-en">Return <code>true</code>, <code>false</code>, or a <code>UrlTree</code> to redirect somewhere else.</span><span class="l-ar" dir="auto">رجّع <code>true</code> أو <code>false</code> أو <code>UrlTree</code> عشان تحوّله لمكان تاني.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6c0 1.8-3.6 3.2-8 3.2S4 7.8 4 6s3.6-3.2 8-3.2S20 4.2 20 6z"/><path d="M4 6v12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2V6M4 12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2"/></svg></div>
+      <b><span class="l-en">resolve pre-loads data</span><span class="l-ar" dir="auto">resolve بتجيب الداتا الأول</span></b>
+      <p><span class="l-en">Data arrives before the component does. Costs you a slower click, buys you no flicker.</span><span class="l-ar" dir="auto">الداتا بتوصل قبل الـ component. بتكلّفك ضغطة أبطأ، وبتوفّرلك رعشة الشاشة.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="cfg" data-kind="cfg">
@@ -542,6 +586,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en"><code class="i">canActivate</code> runs <b>after</b> the lazy chunk downloads. For role-gated features use <code class="i">canMatch</code> so the bundle is never even requested.</span><span class="l-ar" dir="auto"><code class="i">canActivate</code> بيشتغل <b>بعد</b> ما الـ chunk ينزل. للحاجات المربوطة بصلاحيات استعمل <code class="i">canMatch</code> عشان الـ bundle ميتطلبش أصلاً.</span></li><li><span class="l-en">Route order matters. <code class="i">**</code> must be last, and a <code class="i">path: ''</code> without <code class="i">pathMatch: 'full'</code> matches everything.</span><span class="l-ar" dir="auto">ترتيب الراوتس مهم. <code class="i">**</code> لازم تبقى الأخيرة، و<code class="i">path: ''</code> من غير <code class="i">pathMatch: 'full'</code> بيطابق كل حاجة.</span></li><li><span class="l-en">Reading <code class="i">route.snapshot.params</code> once is the classic bug: navigating <code class="i">/user/1</code> → <code class="i">/user/2</code> reuses the component and the snapshot never changes. Use input binding or <code class="i">paramMap</code>.</span><span class="l-ar" dir="auto">قراية <code class="i">route.snapshot.params</code> مرة واحدة دي الباج الكلاسيكي: التنقل من <code class="i">/user/1</code> لـ <code class="i">/user/2</code> بيعيد استخدام نفس الـ component والـ snapshot مبيتغيرش. استعمل input binding أو <code class="i">paramMap</code>.</span></li><li><span class="l-en"><code class="i">withComponentInputBinding()</code> only fills inputs whose <b>name matches</b> the param, query param or data key. A typo is silent.</span><span class="l-ar" dir="auto"><code class="i">withComponentInputBinding()</code> بيملا بس الـ inputs اللي <b>اسمها مطابق</b> للـ param أو الـ query param أو مفتاح الـ data. أي غلطة إملائية بتعدي بالسكوت.</span></li><li><span class="l-en">Query params arrive as strings. <code class="i">input(1, { transform: numberAttribute })</code> saves you a pile of <code class="i">+x</code> conversions.</span><span class="l-ar" dir="auto">الـ query params بتوصل strings. و<code class="i">input(1, { transform: numberAttribute })</code> بيوفر عليك كومة تحويلات <code class="i">+x</code>.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">A guard is a function you can unit-test in isolation. If yours is hard to test, it is doing too much.</span><span class="l-ar" dir="auto">الـ guard دالة تقدر تختبرها لوحدها. لو بتاعك صعب تختبره، يبقى بيعمل حاجات كتير أوي.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

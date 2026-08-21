@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">Custom schematics and builders</span><span class="l-ar" dir="auto">schematics و builders مخصصة</span></h1>
   <p class="lead"><span class="l-en"><code>ng generate component</code> is a schematic — a program that edits your project. You can write your own, so “create a feature” becomes one command instead of a page in a wiki that people follow differently. This is how a convention becomes <b>enforceable</b> instead of aspirational.</span><span class="l-ar" dir="auto"><code>ng generate component</code> ده schematic — برنامج بيعدّل مشروعك. وتقدر تكتب بتاعك، فـ«اعمل فيتشر» تبقى أمر واحد بدل صفحة في wiki كل واحد بيطبقها بطريقة. وكده الـ convention بيبقى <b>قابل للفرض</b> بدل ما يبقى أمنية.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">A schematic is <b>your own <code>ng generate</code></b> — a script that writes files the way your team has agreed to write them.</span><span class="l-ar" dir="auto">الـ schematic هو <b><code>ng generate</code> بتاعك إنت</b> — سكريبت بيكتب ملفات بالطريقة اللي فريقك اتفق عليها.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A rubber stamp for paperwork. Everyone's form comes out identical, and nobody has to remember the layout.</span><span class="l-ar" dir="auto">ختم للورق. فورم كل واحد بيطلع زي التاني، ومحدش محتاج يفتكر الشكل.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">When the same folder shape has been copy-pasted four times and drifted three different ways.</span><span class="l-ar" dir="auto">لما نفس شكل الفولدر يتنسخ أربع مرات ويختلف بتلات طرق.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2.6h8.2L18.6 7v14.4H6z"/><path d="M14.2 2.6V7h4.4M9 12.4h6M9 16.4h6"/></svg></div>
+      <b><span class="l-en">Templates with holes</span><span class="l-ar" dir="auto">قوالب فيها فراغات</span></b>
+      <p><span class="l-en">Files with placeholders like <code>__name@dasherize__</code> in the filename itself.</span><span class="l-ar" dir="auto">ملفات فيها فراغات زي <code>__name@dasherize__</code> في اسم الملف نفسه.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 20.4 14.8 9.2M13 2.8v3M18.6 5.4l-2.1 2.1M21.2 11h-3M17 2.4l.9 2 2 .9-2 .9-.9 2-.9-2-2-.9 2-.9z"/></svg></div>
+      <b><span class="l-en">A rule builds a tree</span><span class="l-ar" dir="auto">القاعدة بتبني شجرة</span></b>
+      <p><span class="l-en">You return a virtual file tree. Nothing touches disk until it all succeeds.</span><span class="l-ar" dir="auto">بترجّع شجرة ملفات افتراضية. مفيش حاجة بتتكتب على الديسك لحد ما كله ينجح.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.4v3M12 18.6v3M21.6 12h-3M5.4 12h-3M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1M18.8 18.8l-2.1-2.1M7.3 7.3 5.2 5.2"/></svg></div>
+      <b><span class="l-en">schema.json asks</span><span class="l-ar" dir="auto">schema.json بيسأل</span></b>
+      <p><span class="l-en">Declares the options, their types and their prompts. The CLI does the asking.</span><span class="l-ar" dir="auto">بيعلن الخيارات وأنواعها والأسئلة. والـ CLI بيسأل بدالك.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 11.4a8.2 8.2 0 1 0-.7 4.2M20.2 5v6.4h-6.4"/></svg></div>
+      <b><span class="l-en">Migrations edit code</span><span class="l-ar" dir="auto">الترحيلات بتعدّل الكود</span></b>
+      <p><span class="l-en">The same machinery that upgrades a whole codebase on <code>ng update</code>.</span><span class="l-ar" dir="auto">نفس الآلية اللي بتطوّر مشروع كامل مع <code>ng update</code>.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="coll" data-kind="cfg">
@@ -542,6 +586,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en">Test with <code class="i">--dry-run</code> first. It prints every file it would create or change without touching disk.</span><span class="l-ar" dir="auto">اختبر بـ <code class="i">--dry-run</code> الأول. بيطبع كل ملف هيعمله أو يغيّره من غير ما يلمس الديسك.</span></li><li><span class="l-en">Template files should end in <code class="i">.template</code> so the TypeScript compiler does not try to build them as source.</span><span class="l-ar" dir="auto">ملفات القوالب لازم تنتهي بـ <code class="i">.template</code> عشان الـ TypeScript compiler ميحاولش يبنيها كمصدر.</span></li><li><span class="l-en">Editing an existing file by string replacement is brittle. For anything beyond a simple insert, parse with the TypeScript AST instead of regex.</span><span class="l-ar" dir="auto">تعديل ملف موجود باستبدال نصوص ده هش. وأي حاجة أكبر من إدخال بسيط، حلّلها بـ TypeScript AST مش بـ regex.</span></li><li><span class="l-en">A schematic is a build-time tool, so it belongs in <code class="i">devDependencies</code>. Shipping it as a runtime dependency bloats every install.</span><span class="l-ar" dir="auto">الـ schematic أداة وقت build، فمكانه <code class="i">devDependencies</code>. وشحنه كاعتمادية وقت تشغيل بيضخّم كل تثبيت.</span></li><li><span class="l-en">Most teams need a schematic and never need a custom <b>builder</b>. If an npm script does the job, write the npm script.</span><span class="l-ar" dir="auto">معظم الفرق محتاجة schematic ومش محتاجة <b>builder</b> مخصص أبداً. لو npm script بيعمل الشغل، اكتب الـ npm script.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">Schematics also <em>edit</em> existing code, which is exactly how <code>ng update</code> migrates your app between versions.</span><span class="l-ar" dir="auto">الـ schematics بتـ<em>عدّل</em> كود موجود كمان، وده بالظبط إزاي <code>ng update</code> بينقل تطبيقك بين الإصدارات.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

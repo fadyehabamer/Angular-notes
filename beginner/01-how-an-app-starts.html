@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">How an Angular page actually appears</span><span class="l-ar" dir="auto">إزاي صفحة أنجولار بتظهر فعلاً</span></h1>
   <p class="lead"><span class="l-en">Your whole app has <b>one</b> HTML file, and it is almost empty. Everything you see in the browser is JavaScript putting things inside it. Four files do this, always in the same order — and once you can name them, nothing about Angular is mysterious again.</span><span class="l-ar" dir="auto">تطبيقك كله فيه ملف HTML <b>واحد</b>، وهو تقريباً فاضي. وكل اللي بتشوفه في البراوزر ده جافاسكريبت بيحط حاجات جواه. أربع ملفات بيعملوا كده، ودايماً بنفس الترتيب — وأول ما تعرف تسمّيهم، مفيش حاجة في أنجولار هتفضل غامضة.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">Your entire app is <b>one HTML file with one empty tag in it</b>. Angular fills that tag in, then keeps it up to date forever.</span><span class="l-ar" dir="auto">التطبيق كله عبارة عن <b>ملف HTML واحد فيه تاج فاضي</b>. أنجولار بيملا التاج ده، وبعد كده بيفضل يحدّثه على طول.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A picture frame on a wall. The wall is <code>index.html</code>, the frame is <code>&lt;app-root&gt;</code>, and Angular is the person who keeps swapping the picture inside it — without ever taking the frame down.</span><span class="l-ar" dir="auto">برواز معلّق على الحيطة. الحيطة هي <code>index.html</code>، والبرواز هو <code>&lt;app-root&gt;</code>، وأنجولار هو اللي بيغيّر الصورة اللي جواه — من غير ما ينزّل البرواز نفسه.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">Never directly. But every bug that starts with <b>nothing shows up at all</b> ends in this file, so read it once.</span><span class="l-ar" dir="auto">مش هتلمسه بإيدك أبداً. بس أي مشكلة بتبدأ بـ <b>مفيش أي حاجة ظاهرة</b> بتنتهي في الملف ده، فاقراه مرة.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2.6h8.2L18.6 7v14.4H6z"/><path d="M14.2 2.6V7h4.4M9 12.4h6M9 16.4h6"/></svg></div>
+      <b><span class="l-en">The browser gets one file</span><span class="l-ar" dir="auto">المتصفح بياخد ملف واحد</span></b>
+      <p><span class="l-en"><code>index.html</code> arrives almost empty — one <code>&lt;app-root&gt;</code> tag and one script tag. That is the whole page.</span><span class="l-ar" dir="auto"><code>index.html</code> بيوصل شبه فاضي — تاج <code>&lt;app-root&gt;</code> وتاج script. دي الصفحة كلها.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.6 2.4 4 13.6h6.6L10 21.6 20 10.4h-6.6z"/></svg></div>
+      <b><span class="l-en">main.ts starts the engine</span><span class="l-ar" dir="auto">main.ts بيشغّل الموتور</span></b>
+      <p><span class="l-en"><code>bootstrapApplication(App)</code> hands Angular your root component and says: take it from here.</span><span class="l-ar" dir="auto"><code>bootstrapApplication(App)</code> بيسلّم أنجولار الـ component الرئيسي ويقوله: كمّل إنت.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.4" y="5" width="17.2" height="14" rx="2.6"/><path d="M3.4 9.4h17.2"/></svg></div>
+      <b><span class="l-en">The root component draws</span><span class="l-ar" dir="auto">الـ component بيرسم</span></b>
+      <p><span class="l-en">Angular reads the template, builds real DOM out of it, and drops it inside the empty tag.</span><span class="l-ar" dir="auto">أنجولار بيقرا الـ template، بيبني منه DOM حقيقي، وبيحطه جوه التاج الفاضي.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 11.4a8.2 8.2 0 1 0-.7 4.2M20.2 5v6.4h-6.4"/></svg></div>
+      <b><span class="l-en">Then it never reloads</span><span class="l-ar" dir="auto">وبعد كده مفيش reload</span></b>
+      <p><span class="l-en">No more page loads, ever. From now on Angular edits that DOM in place — that is what makes it feel instant.</span><span class="l-ar" dir="auto">مفيش تحميل صفحة تاني خالص. من هنا ورايح أنجولار بيعدّل الـ DOM في مكانه — وده اللي بيخليه سريع كده.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e4"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="idx" data-kind="html">
@@ -546,6 +590,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en">There is only <b>one</b> HTML file in the whole project. A new “page” is a component plus a route — you never create a second <code class="i">.html</code> page and link to it.</span><span class="l-ar" dir="auto">فيه ملف HTML <b>واحد</b> بس في المشروع كله. الـ «صفحة» الجديدة هي component مع route — عمرك ما هتعمل ملف <code class="i">.html</code> تاني وتعمل له لينك.</span></li><li><span class="l-en">A blank white page with no errors almost always means a crash inside a component. Open the browser console first — Angular prints the reason there, not in the terminal.</span><span class="l-ar" dir="auto">الصفحة البيضا من غير أخطاء معناها في الغالب كراش جوه component. افتح كونسول البراوزر الأول — أنجولار بيطبع السبب هناك، مش في الترمينال.</span></li><li><span class="l-en"><code class="i">&lt;base href="/"&gt;</code> in <code class="i">index.html</code> is what makes routing work. Deleting it breaks every link in a way that is very hard to diagnose.</span><span class="l-ar" dir="auto"><code class="i">&lt;base href="/"&gt;</code> اللي في <code class="i">index.html</code> هو اللي بيخلي الـ routing يشتغل. مسحه بيكسر كل اللينكات بطريقة صعب جداً تكتشفها.</span></li><li><span class="l-en">Do not add <code class="i">&lt;script&gt;</code> tags to <code class="i">index.html</code> by hand. The build injects them, with the right filenames and hashes.</span><span class="l-ar" dir="auto">متضيفش <code class="i">&lt;script&gt;</code> في <code class="i">index.html</code> بإيدك. الـ build بيحطهم بالأسماء والهاشات الصح.</span></li><li><span class="l-en">Recent Angular versions generate <code class="i">app.ts</code> with the class <code class="i">App</code>. Older projects and most tutorials use <code class="i">app.component.ts</code> and <code class="i">AppComponent</code>. Both are correct — only the file naming changed.</span><span class="l-ar" dir="auto">إصدارات أنجولار الجديدة بتولّد <code class="i">app.ts</code> والكلاس اسمه <code class="i">App</code>. والمشاريع القديمة ومعظم الشروحات بتستخدم <code class="i">app.component.ts</code> و<code class="i">AppComponent</code>. الاتنين صح — اللي اتغير هو تسمية الملفات بس.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en"><code>index.html</code> is the only page you will ever have. Everything else is Angular putting things inside <code>&lt;app-root&gt;</code>.</span><span class="l-ar" dir="auto"><code>index.html</code> هو الصفحة الوحيدة اللي هتملكها. أي حاجة تانية هي أنجولار بيحط حاجات جوه <code>&lt;app-root&gt;</code>.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

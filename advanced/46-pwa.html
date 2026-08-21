@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">PWAs and the Angular service worker</span><span class="l-ar" dir="auto">الـ PWA وservice worker بتاع أنجولار</span></h1>
   <p class="lead"><span class="l-en">A service worker is a script that sits between your app and the network. Angular ships a configurable one, so you declare <b>what to cache in a JSON file</b> instead of writing fetch handlers. The result: the app opens instantly on a repeat visit, and keeps working on a bad connection.</span><span class="l-ar" dir="auto">الـ service worker سكريبت بيقعد بين تطبيقك والشبكة. وأنجولار بييجي بواحد قابل للإعداد، فبتعلن <b>هتخزّن إيه في ملف JSON</b> بدل ما تكتب معالجات fetch. والنتيجة: التطبيق بيفتح فوراً في الزيارة التانية، وبيفضل شغال على نت وحش.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">A PWA is <b>your web app with a service worker</b> — a small script that caches files so the app still opens offline.</span><span class="l-ar" dir="auto">الـ PWA هو <b>تطبيق الويب بتاعك مع service worker</b> — سكريبت صغير بيخزّن الملفات فالتطبيق بيفتح حتى من غير نت.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A shopkeeper who keeps a copy of everything in the back room. The delivery lorry is late? The shelves are still full.</span><span class="l-ar" dir="auto">صاحب محل بيحتفظ بنسخة من كل حاجة في المخزن. العربية اتأخرت؟ الرفوف لسه مليانة.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">Field apps, poor connectivity, or anything a user opens more than once a day on a phone.</span><span class="l-ar" dir="auto">تطبيقات الميدان، والنت الضعيف، أو أي حاجة المستخدم بيفتحها أكتر من مرة في اليوم على موبايل.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2.8v6.2M15 2.8v6.2M6.4 9h11.2v3.2a5.6 5.6 0 0 1-11.2 0zM12 17.8v3.4"/></svg></div>
+      <b><span class="l-en">ng add installs it</span><span class="l-ar" dir="auto">ng add بيركّبه</span></b>
+      <p><span class="l-en">One command adds the worker, the manifest and the icons. No hand wiring.</span><span class="l-ar" dir="auto">أمر واحد بيضيف الـ worker والـ manifest والأيقونات. من غير توصيل بإيدك.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6c0 1.8-3.6 3.2-8 3.2S4 7.8 4 6s3.6-3.2 8-3.2S20 4.2 20 6z"/><path d="M4 6v12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2V6M4 12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2"/></svg></div>
+      <b><span class="l-en">Files get cached</span><span class="l-ar" dir="auto">الملفات بتتخزّن</span></b>
+      <p><span class="l-en">App shell first, then whatever you list. Data caching is configured separately.</span><span class="l-ar" dir="auto">هيكل التطبيق الأول، وبعدين اللي تحدده. تخزين الداتا بيتظبط لوحده.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 19a4.6 4.6 0 0 1-.3-9.2 6.2 6.2 0 0 1 11.8 1.7A4.1 4.1 0 0 1 17.6 19z"/></svg></div>
+      <b><span class="l-en">Offline still opens</span><span class="l-ar" dir="auto">بيفتح من غير نت</span></b>
+      <p><span class="l-en">The shell loads from cache. What you show without data is a design decision.</span><span class="l-ar" dir="auto">الهيكل بيتحمّل من الكاش. واللي هتعرضه من غير داتا ده قرار تصميم.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.2 9.4a6.2 6.2 0 1 0-12.4 0c0 5.2-2 6.2-2 6.2h16.4s-2-1-2-6.2"/><path d="M10.3 19.4a2.2 2.2 0 0 0 3.4 0"/></svg></div>
+      <b><span class="l-en">Updates need a prompt</span><span class="l-ar" dir="auto">التحديثات محتاجة إشعار</span></b>
+      <p><span class="l-en">Detect the new version, tell the user, reload on their word. Never silently.</span><span class="l-ar" dir="auto">اكتشف النسخة الجديدة، قول للمستخدم، واعمل reload بموافقته. مش في السر.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="cfg" data-kind="cfg">
@@ -542,6 +586,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en">The service worker <b>does not run under <code class="i">ng serve</code></b>. Test it with a production build served by a static server, or you will conclude it is broken.</span><span class="l-ar" dir="auto">الـ service worker <b>مش بيشتغل مع <code class="i">ng serve</code></b>. اختبره بـ build إنتاج مقدّم من سيرفر ثابت، وإلا هتستنتج إنه بايظ.</span></li><li><span class="l-en">Without <code class="i">SwUpdate</code>, a user with an open tab runs your old version indefinitely. Shipping a PWA without update handling is shipping a bug.</span><span class="l-ar" dir="auto">من غير <code class="i">SwUpdate</code>، المستخدم اللي فاتح تاب بيفضل على نسختك القديمة للأبد. ونشر PWA من غير التعامل مع التحديث ده نشر باج.</span></li><li><span class="l-en"><code class="i">strategy: "performance"</code> on an endpoint whose data matters will show stale data confidently. Use <code class="i">freshness</code> with a timeout unless the data really is static.</span><span class="l-ar" dir="auto"><code class="i">strategy: "performance"</code> على endpoint داتاه مهمة هيوري داتا قديمة بثقة. استعمل <code class="i">freshness</code> مع timeout إلا لو الداتا ثابتة فعلاً.</span></li><li><span class="l-en">Only <code class="i">GET</code> requests are cached. A <code class="i">POST</code> made offline simply fails — real offline writes need a queue you build yourself (IndexedDB plus a sync on reconnect).</span><span class="l-ar" dir="auto">الـ <code class="i">GET</code> بس هو اللي بيتخزّن. والـ <code class="i">POST</code> من غير نت بيفشل وخلاص — والكتابة الحقيقية من غير نت محتاجة طابور تبنيه بنفسك (IndexedDB مع مزامنة عند رجوع الاتصال).</span></li><li><span class="l-en">Debug in DevTools → Application → Service Workers. “Update on reload” and “Unregister” will save you hours of confusion during development.</span><span class="l-ar" dir="auto">صحّح في DevTools ← Application ← Service Workers. و«Update on reload» و«Unregister» هيوفروا عليك ساعات لخبطة أثناء التطوير.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">The service worker serves the <em>old</em> version until it is told otherwise. Handle <code>SwUpdate</code> or users will report bugs you already fixed.</span><span class="l-ar" dir="auto">الـ service worker بيقدّم النسخة <em>القديمة</em> لحد ما حد يقوله غير كده. اتعامل مع <code>SwUpdate</code> وإلا المستخدمين هيبلّغوا عن مشاكل إنت مصلّحها.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

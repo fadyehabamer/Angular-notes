@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">Testing a component without a browser</span><span class="l-ar" dir="auto">تختبر component من غير براوزر</span></h1>
   <p class="lead"><span class="l-en">A test is a second opinion about whether your code does what you think. Angular gives you a real component, a real template and a fake everything-else. Start with three kinds of test and ignore the rest until you need them.</span><span class="l-ar" dir="auto">التست ده رأي تاني في إن كودك بيعمل اللي إنت فاكره ولا لأ. أنجولار بيديك component حقيقي وتمبلت حقيقي وكل حاجة تانية مزيفة. ابدأ بتلات أنواع تستات وتجاهل الباقي لحد ما تحتاجه.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">A unit test is <b>a small program that runs your component and checks what it did</b> — no browser, no clicking.</span><span class="l-ar" dir="auto">اختبار الوحدة هو <b>برنامج صغير بيشغّل الـ component بتاعك ويشوف عمل إيه</b> — من غير متصفح ولا ضغط بالماوس.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">Testing a light switch on the workbench with a battery, instead of installing it in a house and flipping the breaker.</span><span class="l-ar" dir="auto">تجرّب مفتاح النور على الترابيزة ببطارية، بدل ما تركّبه في بيت وتنزّل الكهربا.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">On logic that has rules: prices, permissions, validation, date maths. Not on markup that changes weekly.</span><span class="l-ar" dir="auto">على المنطق اللي ليه قواعد: الأسعار والصلاحيات والتحقق وحسابات التواريخ. مش على markup بيتغيّر كل أسبوع.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.4 2.6v7L3.9 19a2 2 0 0 0 1.8 3h12.6a2 2 0 0 0 1.8-3l-5.5-9.4v-7M7.8 2.6h8.4M6.4 15.2h11.2"/></svg></div>
+      <b><span class="l-en">TestBed builds a mini app</span><span class="l-ar" dir="auto">TestBed بيبني تطبيق مصغّر</span></b>
+      <p><span class="l-en">Real DI, real template, no browser window. It is faster than it sounds.</span><span class="l-ar" dir="auto">DI حقيقي، وtemplate حقيقي، من غير شباك متصفح. أسرع مما تتخيّل.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 8h13.6l-3.2-3.2M20.4 16H6.8l3.2 3.2"/></svg></div>
+      <b><span class="l-en">Fake the outside</span><span class="l-ar" dir="auto">زيّف اللي بره</span></b>
+      <p><span class="l-en">Provide a stub service instead of hitting a real API. Tests must not use the network.</span><span class="l-ar" dir="auto">وفّر service مزيف بدل ما تضرب API حقيقي. الاختبارات ماينفعش تستعمل الشبكة.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 2.6v3M4.4 5.4l2.1 2.1M2.6 12h3M19.6 5.4l-2.1 2.1M12.6 10.8l8.4 3.2-3.8 1.4-1.4 3.8z"/></svg></div>
+      <b><span class="l-en">Act like a user</span><span class="l-ar" dir="auto">اتصرّف زي المستخدم</span></b>
+      <p><span class="l-en">Dispatch a click, set an input value, then let change detection settle.</span><span class="l-ar" dir="auto">اطلق click، وحط قيمة في input، وبعدين سيب الـ change detection يستقر.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><path d="m8.4 12 2.6 2.6 4.6-5.2"/></svg></div>
+      <b><span class="l-en">Assert the outcome</span><span class="l-ar" dir="auto">تأكّد من النتيجة</span></b>
+      <p><span class="l-en">What is on screen, or what the service was called with. Never the internals.</span><span class="l-ar" dir="auto">اللي على الشاشة، أو الـ service اتنادى بإيه. مش التفاصيل الداخلية.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="spec" data-kind="cfg">
@@ -542,6 +586,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en">Test what a user can observe — rendered text, clicks, emitted events. Tests that assert on private fields break every time you refactor and prove nothing.</span><span class="l-ar" dir="auto">اختبر اللي المستخدم يقدر يشوفه — النص المرسوم، والكليكات، والأحداث المبعوتة. التستات اللي بتتأكد من الحقول الخاصة بتتكسر مع كل إعادة هيكلة ومش بتثبت حاجة.</span></li><li><span class="l-en">Under zoneless, <code class="i">await fixture.whenStable()</code> replaces <code class="i">fixture.detectChanges()</code>. And <code class="i">fakeAsync</code> / <code class="i">tick()</code> depend on zone.js — they do not work zoneless.</span><span class="l-ar" dir="auto">مع الـ zoneless، <code class="i">await fixture.whenStable()</code> بتحل محل <code class="i">fixture.detectChanges()</code>. و<code class="i">fakeAsync</code> و<code class="i">tick()</code> بيعتمدوا على zone.js — فمش شغالين zoneless.</span></li><li><span class="l-en">A test that fakes everything tests only the fakes. Fake what is slow, remote or random; keep your own code real.</span><span class="l-ar" dir="auto">التست اللي بيزيّف كل حاجة بيختبر المزيّف بس. زيّف اللي بطيء أو بعيد أو عشوائي؛ وسيب كودك إنت حقيقي.</span></li><li><span class="l-en"><code class="i">http.verify()</code> in an <code class="i">afterEach</code> catches requests you never answered — a common source of tests that pass individually and fail together.</span><span class="l-ar" dir="auto"><code class="i">http.verify()</code> في <code class="i">afterEach</code> بتمسك الريكويستات اللي مردتش عليها — سبب شائع لتستات بتنجح لوحدها وبتفشل مع بعض.</span></li><li><span class="l-en">Do not chase a coverage percentage. Ten tests on the logic that handles money are worth more than two hundred on getters.</span><span class="l-ar" dir="auto">متجريش ورا نسبة تغطية. عشر تستات على المنطق اللي بيتعامل مع الفلوس أهم من ميتين تست على getters.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">Test what the component <em>does</em>, not how it is built. A test that breaks when you rename a private field is a liability.</span><span class="l-ar" dir="auto">اختبر الـ component <em>بيعمل إيه</em>، مش إزاي متبني. الاختبار اللي بيقع لما تغيّر اسم property خاصة ده عبء.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

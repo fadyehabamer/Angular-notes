@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Angular Signal — contents</title>
-<meta name="description" content="A bilingual Angular magazine: fifteen topics across beginner, intermediate and advanced tracks, in English and Egyptian Arabic.">
+<meta name="description" content="A bilingual Angular magazine: forty-eight topics across beginner, intermediate and advanced tracks, in English and Egyptian Arabic. Light and dark.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Cairo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -493,7 +495,7 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
 <body>
 <header class="top"><div class="top-in">
   <a class="home" href="index.html"><b>The Angular Signal</b><span class="l-en">issue 01</span><span class="l-ar">العدد 01</span></a>
-  <nav class="tracknav"><a href="beginner/01-how-an-app-starts.html" style="--c:var(--beg)"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="intermediate/16-forms.html" style="--c:var(--int)"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="advanced/28-change-detection.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a></nav>
+  <nav class="tracknav"><a href="roadmap.html" style="--c:var(--beg)"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="beginner/01-how-an-app-starts.html" style="--c:var(--beg)"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="intermediate/16-forms.html" style="--c:var(--int)"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="advanced/28-change-detection.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
   <div class="top-right">
     <div class="seg" role="group" aria-label="Language">
         <button id="b-en" aria-pressed="true">EN</button>
@@ -515,8 +517,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
       <span dir="ltr">English / مصري</span>
     </div>
     <h1><span class="l-en">Angular, one <em>idea</em><br>at a time</span><span class="l-ar">أنجولار، <em>فكرة</em><br>واحدة في المرة</span></h1>
-    <p class="intro l-en">Fifteen topics, each one its own page: the concept, an animated diagram of where the value actually travels, the real files line by line, a feature you would genuinely build, and the traps. Read it in English or flip to Egyptian Arabic — the switch is top right, and it stays switched.</p>
-    <p class="intro l-ar" dir="auto">خمستاشر موضوع، كل واحد في صفحة لوحده: الفكرة، ورسمة متحركة بتوريك القيمة بتمشي فين بالظبط، والملفات الحقيقية سطر سطر، وفيتشر إنت فعلاً هتبنيه، والفخاخ اللي مستنياك. اقرا بالإنجليزي أو لُف على المصري — السويتش فوق على الشمال، وبيفضل محفوظ.</p>
+    <p class="intro l-en">Forty-eight topics, each one its own page: plain words and a strip of pictures first, then the concept, an animated diagram of where the value actually travels, the real files line by line, a feature you would genuinely build, and the traps. Read it in English or flip to Egyptian Arabic — the switch is top right, and it stays switched.</p>
+    <p class="intro l-ar" dir="auto">تمانية وأربعين موضوع، كل واحد في صفحة لوحده: الشرح بالبلدي وشوية صور الأول، وبعدين الفكرة، ورسمة متحركة بتوريك القيمة بتمشي فين بالظبط، والملفات الحقيقية سطر سطر، وفيتشر إنت فعلاً هتبنيه، والفخاخ اللي مستنياك. اقرا بالإنجليزي أو لُف على المصري — السويتش فوق على الشمال، وبيفضل محفوظ.</p>
   </div>
 
   <div class="tgrid">
@@ -755,9 +757,9 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
 
   <div class="foot">
     <div><b><span class="l-en">How to read a page</span><span class="l-ar">إزاي تقرا الصفحة</span></b>
-      <p><span class="l-en">The diagram plays itself once. Click a dot, press &larr; / &rarr;, or hit R to replay — each step lights the wire and highlights the exact lines involved.</span><span class="l-ar" dir="auto">الرسمة بتشتغل لوحدها مرة. دوس على نقطة، أو استعمل &larr; / &rarr;، أو اضغط R للإعادة — كل خطوة بتنوّر السلك وبتعلّم على السطور المعنية بالظبط.</span></p></div>
-    <div><b><span class="l-en">Both editions</span><span class="l-ar">النسختين</span></b>
-      <p><span class="l-en">Every page carries the English and the Egyptian Arabic text. Code, file names and diagrams stay left to right in both.</span><span class="l-ar" dir="auto">كل صفحة فيها النص بالإنجليزي وبالمصري. الكود وأسماء الملفات والرسومات بتفضل من الشمال لليمين في الاتنين.</span></p></div>
+      <p><span class="l-en">Top to bottom: plain words, then the idea as a strip of pictures, then the wiring. The diagram plays itself once — click a dot, press &larr; / &rarr;, or hit R to replay, and each step lights the wire and highlights the exact lines involved.</span><span class="l-ar" dir="auto">من فوق لتحت: الشرح بالبلدي، وبعدين الفكرة في شوية صور، وبعدين التوصيلات. الرسمة بتشتغل لوحدها مرة — دوس على نقطة، أو استعمل &larr; / &rarr;، أو اضغط R للإعادة، وكل خطوة بتنوّر السلك وبتعلّم على السطور المعنية بالظبط.</span></p></div>
+    <div><b><span class="l-en">Two languages, two skins</span><span class="l-ar">لغتين وشكلين</span></b>
+      <p><span class="l-en">Every page carries the English and the Egyptian Arabic text, and comes in light or dark. Both switches are top right and both are remembered. Code, file names and diagrams stay left to right whatever you pick.</span><span class="l-ar" dir="auto">كل صفحة فيها النص بالإنجليزي وبالمصري، وبتيجي فاتحة أو غامقة. السويتشين فوق على الشمال والاتنين بيتحفظوا. والكود وأسماء الملفات والرسومات بتفضل من الشمال لليمين في أي اختيار.</span></p></div>
     <div><b><span class="l-en">Companion</span><span class="l-ar">ملف مصاحب</span></b>
       <p><span class="l-en">Chasing a value between two components? <a href="angular-data-flow.html">Angular data flow</a> covers the nine communication channels in the same format.</span><span class="l-ar" dir="auto">بتدوّر على قيمة بين اتنين components؟ ملف <a href="angular-data-flow.html">Angular data flow</a> بيغطي التسع قنوات بنفس الشكل ده.</span></p></div>
   </div>

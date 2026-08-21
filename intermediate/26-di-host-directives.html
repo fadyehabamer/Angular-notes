@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">Injection tokens and host directives</span><span class="l-ar" dir="auto">الـ Injection tokens والـ host directives</span></h1>
   <p class="lead"><span class="l-en">Two tools for building things other people extend. <code>InjectionToken</code> lets you inject a value that is not a class — config, a strategy, a list of plugins. <code>hostDirectives</code> lets a component <b>wear</b> behaviour it did not write, without inheritance and without a wrapper element.</span><span class="l-ar" dir="auto">أداتين لبناء حاجات ناس تانية هتوسّعها. <code>InjectionToken</code> بيخليك تعمل inject لقيمة مش كلاس — إعدادات، أو استراتيجية، أو لستة plugins. و<code>hostDirectives</code> بيخلي الـ component <b>يلبس</b> سلوك مكتبوش، من غير وراثة ومن غير عنصر ملفوف حواليه.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">An injection token lets you <b>inject things that are not classes</b> — a URL, a config object, a flag.</span><span class="l-ar" dir="auto">الـ injection token بيخليك <b>تحقن حاجات مش classes</b> — زي URL أو object إعدادات أو flag.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A named hook on the wall. Anyone can hang something on it, and anyone can take what is hanging there — as long as they know the name.</span><span class="l-ar" dir="auto">شمّاعة عليها اسم. أي حد يقدر يعلّق عليها حاجة، وأي حد ياخد اللي معلّق — طالما عارف الاسم.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">API base URLs, feature flags, per-environment config, and swapping a real service for a fake one in tests.</span><span class="l-ar" dir="auto">عناوين الـ API، وflags المزايا، وإعدادات كل بيئة، وتبديل service حقيقي بواحد مزيف في الاختبارات.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="7.4" cy="15.6" r="3.6"/><path d="m10 13.2 10-10M17 5.8l2.6 2.6M14.6 8.2l2.6 2.6"/></svg></div>
+      <b><span class="l-en">A token is a key</span><span class="l-ar" dir="auto">الـ token مفتاح</span></b>
+      <p><span class="l-en"><code>new InjectionToken&lt;string&gt;('apiUrl')</code>. Unique, typed, and impossible to collide.</span><span class="l-ar" dir="auto"><code>new InjectionToken&lt;string&gt;('apiUrl')</code>. فريد، وله نوع، ومستحيل يتضارب.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2.8v6.2M15 2.8v6.2M6.4 9h11.2v3.2a5.6 5.6 0 0 1-11.2 0zM12 17.8v3.4"/></svg></div>
+      <b><span class="l-en">Provide a value</span><span class="l-ar" dir="auto">وفّر قيمة</span></b>
+      <p><span class="l-en"><code>{ provide: API_URL, useValue: '...' }</code> in the app config, once.</span><span class="l-ar" dir="auto"><code>{ provide: API_URL, useValue: '...' }</code> في إعدادات التطبيق، مرة واحدة.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.8" y="2.6" width="6.4" height="5" rx="1.6"/><rect x="2.4" y="16.4" width="6.4" height="5" rx="1.6"/><rect x="15.2" y="16.4" width="6.4" height="5" rx="1.6"/><path d="M12 7.6v4.4M5.6 16.4V12h12.8v4.4"/></svg></div>
+      <b><span class="l-en">Injectors nest</span><span class="l-ar" dir="auto">الـ injectors متداخلة</span></b>
+      <p><span class="l-en">A component-level provider shadows the root one for that subtree only.</span><span class="l-ar" dir="auto">provider على مستوى الـ component بيغطي على بتاع الـ root في الفرع ده بس.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 9.2 5-9.2 5-9.2-5z"/><path d="m3.4 13.2 8.6 4.8 8.6-4.8"/></svg></div>
+      <b><span class="l-en">hostDirectives compose</span><span class="l-ar" dir="auto">hostDirectives بتركّب</span></b>
+      <p><span class="l-en">Reuse behaviour by declaration instead of by inheritance. Much easier to unpick later.</span><span class="l-ar" dir="auto">إعادة استخدام السلوك بالإعلان بدل الوراثة. أسهل بكتير إنك تفكّها بعدين.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="tok" data-kind="cfg">
@@ -546,6 +590,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en">Give every token a description string. <code class="i">new InjectionToken('APP_CONFIG')</code> is what appears in the error when a provider is missing — an empty one produces an unreadable message.</span><span class="l-ar" dir="auto">ادي كل توكن وصف نصي. <code class="i">new InjectionToken('APP_CONFIG')</code> ده اللي بيظهر في الايرور لما provider يكون ناقص — والفاضي بيطلّع رسالة مش مفهومة.</span></li><li><span class="l-en">A token with a <code class="i">factory</code> is tree-shakable and always has a default. A token without one throws <b>NG0201: No provider</b> the first time somebody injects it.</span><span class="l-ar" dir="auto">التوكن اللي معاه <code class="i">factory</code> بيبقى tree-shakable وليه قيمة افتراضية دايماً. واللي من غيرها بيرمي <b>NG0201: No provider</b> أول ما حد يعمل له inject.</span></li><li><span class="l-en"><code class="i">hostDirectives</code> cannot be conditional — they apply to every instance. For opt-in behaviour, use a normal directive the consumer applies themselves.</span><span class="l-ar" dir="auto"><code class="i">hostDirectives</code> مينفعش تبقى مشروطة — بتتطبق على كل نسخة. ولو عايز سلوك اختياري، استعمل directive عادي المستخدم بيطبقه بنفسه.</span></li><li><span class="l-en">Inputs of a host directive are <b>not</b> exposed by default. List them in <code class="i">inputs: []</code>, optionally renaming, or the consumer cannot reach them.</span><span class="l-ar" dir="auto">الـ inputs بتاعة الـ host directive <b>مش</b> متاحة بشكل افتراضي. حطها في <code class="i">inputs: []</code>، وسمّيها من جديد لو حبيت، وإلا المستخدم مش هيوصلها.</span></li><li><span class="l-en">A service in a component’s <code class="i">providers</code> is created per instance. That is the right tool for state scoped to one dialog — and a bug when you wanted app-wide state.</span><span class="l-ar" dir="auto">الـ service اللي في <code class="i">providers</code> بتاعة component بتتعمل لكل نسخة. دي الأداة الصح لحالة مربوطة بـ dialog واحد — وباج لو كنت عايز حالة للتطبيق كله.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">Host directives let a component <b>wear another directive's behaviour</b> without the template having to know.</span><span class="l-ar" dir="auto">الـ host directives بتخلي الـ component <b>يلبس سلوك directive تاني</b> من غير ما الـ template يعرف.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

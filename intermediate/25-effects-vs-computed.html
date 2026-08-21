@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en"><code>effect()</code> is not a cheaper <code>computed()</code></span><span class="l-ar" dir="auto"><code>effect()</code> مش نسخة أرخص من <code>computed()</code></span></h1>
   <p class="lead"><span class="l-en">The single most common mistake in signal code. <code>computed()</code> derives a value and hands it back; <code>effect()</code> derives nothing and exists only to push something into the world outside the graph. <b>If what you want at the end is a value, you do not want an effect.</b></span><span class="l-ar" dir="auto">أشهر غلطة في الكود اللي بيستخدم signals. <code>computed()</code> بيشتق قيمة ويرجّعهالك؛ و<code>effect()</code> مبيشتقش حاجة وموجود بس عشان يدفع حاجة لبرّه الرسم البياني. <b>لو اللي عايزه في الآخر قيمة، يبقى إنت مش عايز effect.</b></span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en"><code>computed()</code> <b>makes a new value</b> from other signals. <code>effect()</code> <b>makes something happen</b> outside Angular.</span><span class="l-ar" dir="auto"><code>computed()</code> <b>بتعمل قيمة جديدة</b> من signals تانية. و<code>effect()</code> <b>بتخلي حاجة تحصل</b> بره أنجولار.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A calculator versus a doorman. The calculator gives you a number when you ask. The doorman opens the door when someone arrives.</span><span class="l-ar" dir="auto">آلة حاسبة مقابل بواب. الآلة بتدّيك رقم لما تسأل. والبواب بيفتح الباب لما حد يوصل.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">Deriving a total, a filtered list, a label — <code>computed</code>. Logging, localStorage, a chart library — <code>effect</code>.</span><span class="l-ar" dir="auto">لما تحسب إجمالي أو لستة مفلترة أو عنوان — <code>computed</code>. للتسجيل أو localStorage أو مكتبة رسوم — <code>effect</code>.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2v17.6M6.4 5.4h11.2M4.2 15 7 8.4 9.8 15a2.8 2.8 0 0 1-5.6 0zM14.2 15 17 8.4 19.8 15a2.8 2.8 0 0 1-5.6 0zM8.4 20.8h7.2"/></svg></div>
+      <b><span class="l-en">computed is a value</span><span class="l-ar" dir="auto">computed قيمة</span></b>
+      <p><span class="l-en">Lazy and cached. If nobody reads it, it never runs. Read it twice, it computes once.</span><span class="l-ar" dir="auto">كسولة ومتخزّنة. لو محدش قراها، عمرها ما هتشتغل. اقراها مرتين، بتتحسب مرة.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.6 2.4 4 13.6h6.6L10 21.6 20 10.4h-6.6z"/></svg></div>
+      <b><span class="l-en">effect is an action</span><span class="l-ar" dir="auto">effect فعل</span></b>
+      <p><span class="l-en">Runs after the fact, every time any signal it read has changed.</span><span class="l-ar" dir="auto">بتشتغل بعد الحدث، كل ما أي signal قرتها تتغيّر.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg></div>
+      <b><span class="l-en">Tracking is automatic</span><span class="l-ar" dir="auto">التتبّع أوتوماتيك</span></b>
+      <p><span class="l-en">Whatever you read while it runs becomes a dependency. Nothing to declare.</span><span class="l-ar" dir="auto">أي حاجة بتقراها وهي شغالة بتبقى dependency. مفيش حاجة تعلنها.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 21.6 20H2.4z"/><path d="M12 9.8v4.2M12 17.2h.02"/></svg></div>
+      <b><span class="l-en">Effects can loop</span><span class="l-ar" dir="auto">الـ effects ممكن تلف</span></b>
+      <p><span class="l-en">Write to a signal you also read and you have built an infinite loop by hand.</span><span class="l-ar" dir="auto">اكتب في signal إنت بتقراها، وتبقى عملت لوب لا نهائية بإيدك.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="src" data-kind="svc">
@@ -538,6 +582,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en"><code class="i">effect()</code> needs an injection context — a field initializer or a constructor. To create one later, pass <code class="i">{ injector }</code> explicitly.</span><span class="l-ar" dir="auto"><code class="i">effect()</code> محتاج injection context — عند تعريف field أو جوه constructor. ولو عايز تعمله بعدين، مرّر <code class="i">{ injector }</code> بنفسك.</span></li><li><span class="l-en">Effects are destroyed with their component or service. You do not clean them up by hand; that is what <code class="i">onCleanup</code> is for <b>between runs</b>.</span><span class="l-ar" dir="auto">الـ effects بتتدمّر مع الـ component أو الـ service بتاعتها. مش بتنضفها بإيدك؛ و<code class="i">onCleanup</code> ده للتنضيف <b>بين التشغيلات</b>.</span></li><li><span class="l-en">Everything read inside an effect becomes a dependency — including a read hidden inside a helper method you call.</span><span class="l-ar" dir="auto">أي حاجة بتتقرا جوه effect بتبقى dependency — حتى القراية المخبية جوه method مساعدة إنت بتناديها.</span></li><li><span class="l-en">A <code class="i">computed</code> must be pure. Calling an API or writing another signal inside one produces a value that depends on who looked and when.</span><span class="l-ar" dir="auto">الـ <code class="i">computed</code> لازم تبقى نضيفة. لو نادیت API أو كتبت في signal تانية من جواها، القيمة هتعتمد على مين بصّ وإمتى.</span></li><li><span class="l-en">Legitimate effect work: persistence, analytics, focus management, and driving an imperative third-party library — a chart, a map, a canvas.</span><span class="l-ar" dir="auto">الشغل المشروع للـ effect: التخزين، والـ analytics، وإدارة الـ focus، وتشغيل library خارجية بتاخد أوامر — chart أو map أو canvas.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">If you are writing to a signal inside an <code>effect</code>, ninety percent of the time it should have been a <code>computed</code>.</span><span class="l-ar" dir="auto">لو بتكتب في signal جوه <code>effect</code>، تسعين في المية إنها كان المفروض تكون <code>computed</code>.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

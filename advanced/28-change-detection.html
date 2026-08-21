@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">What actually makes Angular re-render</span><span class="l-ar" dir="auto">إيه اللي بيخلي أنجولار يرندر تاني فعلاً</span></h1>
   <p class="lead"><span class="l-en">Change detection is neither magic nor continuous. Something schedules a check, Angular walks the component tree, and each component is either <b>dirty</b> or <b>skipped</b>. Knowing exactly five things mark a component dirty is the whole subject.</span><span class="l-ar" dir="auto">الـ change detection لا سحر ولا شغال على طول. حاجة بتجدول فحص، وأنجولار بيمشي على شجرة الـ components، وكل واحد يا <b>dirty</b> يا <b>بيتعدّى</b>. ومعرفة إن خمس حاجات بالظبط هي اللي بتعلّمه dirty دي الموضوع كله.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">Change detection is Angular <b>walking the component tree asking &quot;did anything change?&quot;</b> and updating the DOM where it did.</span><span class="l-ar" dir="auto">الـ change detection هو أنجولار وهو <b>بيلف على شجرة الـ components ويسأل «في حاجة اتغيّرت؟»</b> ويحدّث الـ DOM في اللي اتغيّر.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A night watchman doing rounds. The old way was checking every door on every round. Signals hand him a list of exactly which doors moved.</span><span class="l-ar" dir="auto">غفير بيعمل جولة. الطريقة القديمة إنه يفحص كل باب في كل جولة. الـ signals بتدّيله لستة بالأبواب اللي اتحركت بالظبط.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">You do not call it. You feel it — as a slow list, a jumpy scroll, or a value on screen that refuses to update.</span><span class="l-ar" dir="auto">إنت مش بتناديه. إنت بتحسّه — في لستة بطيئة، أو scroll بينطط، أو قيمة على الشاشة رافضة تتحدّث.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.2 9.4a6.2 6.2 0 1 0-12.4 0c0 5.2-2 6.2-2 6.2h16.4s-2-1-2-6.2"/><path d="M10.3 19.4a2.2 2.2 0 0 0 3.4 0"/></svg></div>
+      <b><span class="l-en">Something happens</span><span class="l-ar" dir="auto">حاجة بتحصل</span></b>
+      <p><span class="l-en">A click, a timer, a response. Historically Zone.js noticed all of these for you.</span><span class="l-ar" dir="auto">ضغطة، أو تايمر، أو رد. زمان Zone.js كان بياخد باله من دول كلهم.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.8" y="2.6" width="6.4" height="5" rx="1.6"/><rect x="2.4" y="16.4" width="6.4" height="5" rx="1.6"/><rect x="15.2" y="16.4" width="6.4" height="5" rx="1.6"/><path d="M12 7.6v4.4M5.6 16.4V12h12.8v4.4"/></svg></div>
+      <b><span class="l-en">Angular walks the tree</span><span class="l-ar" dir="auto">أنجولار بيلف على الشجرة</span></b>
+      <p><span class="l-en">Top to bottom, comparing each binding's current value against its last one.</span><span class="l-ar" dir="auto">من فوق لتحت، بيقارن قيمة كل binding دلوقتي بآخر قيمة ليها.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4.8h18l-7.2 8.4v6.4l-3.6 1.6v-8z"/></svg></div>
+      <b><span class="l-en">OnPush prunes branches</span><span class="l-ar" dir="auto">OnPush بتقص فروع</span></b>
+      <p><span class="l-en">A component is skipped entirely unless an input changed or an event fired inside it.</span><span class="l-ar" dir="auto">الـ component بيتساب خالص إلا لو input اتغيّر أو حدث اتطلق جواه.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg></div>
+      <b><span class="l-en">Signals go straight there</span><span class="l-ar" dir="auto">الـ signals بتروح على طول</span></b>
+      <p><span class="l-en">No walking at all — the signal already knows exactly which views read it.</span><span class="l-ar" dir="auto">مفيش لفّان خالص — الـ signal عارفة بالظبط أنهي views قرتها.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="root" data-kind="ts">
@@ -538,6 +582,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en"><code class="i">push()</code>, <code class="i">splice()</code> and property mutation are invisible to <code class="i">OnPush</code>. Replace the reference, or hold the value in a signal.</span><span class="l-ar" dir="auto"><code class="i">push()</code> و<code class="i">splice()</code> وتعديل الخصائص كلهم مش مرئيين لـ <code class="i">OnPush</code>. بدّل الـ reference، أو حط القيمة في signal.</span></li><li><span class="l-en">A third-party callback (a chart library, a map SDK) runs outside Angular. Set a signal from it and the update lands — no <code class="i">NgZone.run</code> required.</span><span class="l-ar" dir="auto">أي callback من library خارجية (chart أو map SDK) بيشتغل بره أنجولار. حط signal من جواه والتحديث هيوصل — من غير <code class="i">NgZone.run</code>.</span></li><li><span class="l-en"><code class="i">OnPush</code> everywhere plus signals for state is not an optimisation you apply later. It is the shape the framework now expects.</span><span class="l-ar" dir="auto"><code class="i">OnPush</code> في كل حتة مع signals للحالة دي مش تحسينة بتعملها بعدين. دي الشكل اللي الفريمورك بقى متوقعه.</span></li><li><span class="l-en">Measure instead of guessing: <code class="i">ng.profiler.timeChangeDetection()</code> in the console, or record a profile in Angular DevTools.</span><span class="l-ar" dir="auto">قِس بدل ما تخمّن: <code class="i">ng.profiler.timeChangeDetection()</code> في الكونسول، أو سجّل profile في Angular DevTools.</span></li><li><span class="l-en">A <code class="i">setInterval</code> you forgot about costs a full tree walk on every tick under zone.js — a common cause of a mysteriously warm laptop.</span><span class="l-ar" dir="auto"><code class="i">setInterval</code> نسيته بيكلّفك لفة كاملة على الشجرة كل تكة تحت zone.js — سبب شائع للاب توب اللي بيسخن من غير سبب واضح.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en"><code>OnPush</code> plus signals means Angular checks only the components that actually read something that changed.</span><span class="l-ar" dir="auto"><code>OnPush</code> مع الـ signals معناها إن أنجولار بيفحص بس الـ components اللي قرت حاجة اتغيّرت فعلاً.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

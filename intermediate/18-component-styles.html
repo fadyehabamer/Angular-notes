@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">Why your CSS does not reach the child</span><span class="l-ar" dir="auto">ليه الـ CSS بتاعك مش واصل للابن</span></h1>
   <p class="lead"><span class="l-en">Styles written in a component file apply to <b>that component only</b>. This surprises everybody once, and it is deliberate: it is what stops a class named <code>.card</code> in one feature from silently restyling a different <code>.card</code> across the app.</span><span class="l-ar" dir="auto">الاستايلات اللي بتتكتب في ملف component بتتطبق على <b>الـ component ده بس</b>. ودي بتفاجئ الكل مرة، وهي مقصودة: هي اللي بتمنع class اسمه <code>.card</code> في فيتشر إنه يغيّر شكل <code>.card</code> تاني في التطبيق من غير ما حد ياخد باله.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">Your component's CSS is <b>locked inside that component</b>. It does not leak out, and it does not reach in.</span><span class="l-ar" dir="auto">الـ CSS بتاع الـ component <b>مقفول جواه</b>. مش بيتسرّب لبره، ومش بيوصل لجوه.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A hotel room. You can repaint your own room freely, and it never changes the room next door — that is the point of the walls.</span><span class="l-ar" dir="auto">أوضة في فندق. تقدر تدهن أوضتك زي ما إنت عايز، ومش هيتغيّر حاجة في الأوضة اللي جنبك — ودي فايدة الحيطان.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">Every time you write CSS. And especially the first time you shout <em>why is my style not applying?</em></span><span class="l-ar" dir="auto">في كل مرة تكتب CSS. وخصوصاً أول مرة تزعّق <em>ليه الستايل مش شغال؟</em></span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.4" y="10" width="15.2" height="10.4" rx="2.6"/><path d="M7.8 10V7.2a4.2 4.2 0 0 1 8.4 0V10"/></svg></div>
+      <b><span class="l-en">Emulated by default</span><span class="l-ar" dir="auto">Emulated افتراضياً</span></b>
+      <p><span class="l-en">Not real Shadow DOM — a rewritten selector. Cheaper, and DevTools stays readable.</span><span class="l-ar" dir="auto">مش Shadow DOM حقيقي — selector متعاد كتابته. أرخص، والـ DevTools بيفضل مقروء.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 20 6v6c0 5-3.4 8.5-8 9.6C7.4 20.5 4 17 4 12V6z"/></svg></div>
+      <b><span class="l-en">Children are protected</span><span class="l-ar" dir="auto">الأبناء محميين</span></b>
+      <p><span class="l-en">Your CSS stops at the child's tag. Its insides belong to it, not to you.</span><span class="l-ar" dir="auto">الـ CSS بتاعك بيقف عند تاج الابن. جواه ملكه هو، مش ملكك.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="7.4" cy="15.6" r="3.6"/><path d="m10 13.2 10-10M17 5.8l2.6 2.6M14.6 8.2l2.6 2.6"/></svg></div>
+      <b><span class="l-en">::ng-deep breaks in</span><span class="l-ar" dir="auto">::ng-deep بتخترق</span></b>
+      <p><span class="l-en">It works, it is deprecated, and it is global. Always pair it with <code>:host</code>.</span><span class="l-ar" dir="auto">بتشتغل، وبتتشال قريب، وعامة على المشروع كله. دايماً حطها مع <code>:host</code>.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 20.4 14.8 9.2M13 2.8v3M18.6 5.4l-2.1 2.1M21.2 11h-3M17 2.4l.9 2 2 .9-2 .9-.9 2-.9-2-2-.9 2-.9z"/></svg></div>
+      <b><span class="l-en">Custom properties pass</span><span class="l-ar" dir="auto">الـ custom properties بتعدّي</span></b>
+      <p><span class="l-en">CSS variables cross the boundary by design. This is the clean way to theme a child.</span><span class="l-ar" dir="auto">متغيرات الـ CSS بتعدّي الحدود بتصميمها. دي الطريقة النضيفة إنك تنسّق ابن.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="css" data-kind="cfg">
@@ -546,6 +590,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en">A style in a component file will <b>never</b> reach inside a child component. That is the feature, not a bug — reach for CSS custom properties instead.</span><span class="l-ar" dir="auto">الاستايل اللي في ملف component <b>عمره ما</b> هيوصل جوه component ابن. ودي ميزة مش باج — استعمل CSS custom properties بدالها.</span></li><li><span class="l-en"><code class="i">::ng-deep</code> is deprecated and it leaks: once a rule pierces the boundary it applies <b>globally</b>, not just under your component. Scope it with <code class="i">:host</code> at minimum.</span><span class="l-ar" dir="auto"><code class="i">::ng-deep</code> مهجورة وبتسرّب: أول ما قاعدة تخترق الحاجز بتتطبق <b>عالمياً</b>، مش تحت الـ component بتاعك بس. على الأقل احصرها بـ <code class="i">:host</code>.</span></li><li><span class="l-en"><code class="i">ViewEncapsulation.None</code> makes that component&rsquo;s styles global, permanently, for the whole app. It is almost never the right answer.</span><span class="l-ar" dir="auto"><code class="i">ViewEncapsulation.None</code> بتخلي استايلات الـ component دي عامة، بشكل دائم، للتطبيق كله. وتقريباً عمرها ما بتكون الحل الصح.</span></li><li><span class="l-en">A component has no display value of its own — a custom element is <code class="i">display: inline</code> by default. Set <code class="i">:host { display: block }</code> or your widths and margins will be ignored.</span><span class="l-ar" dir="auto">الـ component مالوش قيمة display خاصة بيه — العنصر المخصص بيبقى <code class="i">display: inline</code> افتراضياً. حط <code class="i">:host { display: block }</code> وإلا العرض والهوامش هيتجاهلوا.</span></li><li><span class="l-en"><code class="i">[style.color]="null"</code> removes the inline style. Returning <code class="i">''</code> or <code class="i">undefined</code> also works — but <code class="i">null</code> is the explicit way to say “no value”.</span><span class="l-ar" dir="auto"><code class="i">[style.color]="null"</code> بتشيل الاستايل الـ inline. و<code class="i">''</code> أو <code class="i">undefined</code> بيشتغلوا كمان — بس <code class="i">null</code> هي الطريقة الصريحة اللي معناها «مفيش قيمة».</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">Angular adds a hidden attribute to your elements and rewrites your selectors to match it. That is the whole trick.</span><span class="l-ar" dir="auto">أنجولار بيضيف attribute مخفي لعناصرك وبيعيد كتابة الـ selectors عشان تطابقه. دي الحيلة كلها.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

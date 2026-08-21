@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">Signals: state that announces itself</span><span class="l-ar" dir="auto">الـ Signals: حالة بتبلّغ عن نفسها</span></h1>
   <p class="lead"><span class="l-en">A plain property is silent — change it and Angular has to ask every binding in the app whether anything moved. A signal is not silent: <b>reading registers the reader, writing notifies exactly those readers</b>. Everything modern in Angular is downstream of that one sentence.</span><span class="l-ar" dir="auto">الـ property العادية ساكتة — تغيّرها وأنجولار لازم يسأل كل binding في التطبيق: اتحرك عندك حاجة؟ الـ signal مش ساكتة: <b>القراية بتسجّل مين قرا، والكتابة بتبلّغ اللي قروا بالظبط</b>. كل حاجة حديثة في أنجولار نازلة من الجملة دي.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">A signal is <b>a box with a value in it</b> that tells Angular the moment the value changes.</span><span class="l-ar" dir="auto">الـ signal هو <b>صندوق جواه قيمة</b>، وبيقول لأنجولار في نفس اللحظة اللي القيمة بتتغيّر فيها.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A doorbell on a box. Anyone who cares wires themselves to the bell, instead of opening the box every five seconds to check whether anything changed.</span><span class="l-ar" dir="auto">جرس على الصندوق. اللي مهتم بيوصّل نفسه بالجرس، بدل ما يفتح الصندوق كل خمس ثواني يشوف اتغيّر ولا لأ.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">For any value that changes and is shown on screen. In a modern Angular app, that is nearly all of them.</span><span class="l-ar" dir="auto">لأي قيمة بتتغيّر وبتتعرض على الشاشة. في أنجولار الحديث، دي تقريباً كل القيم.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.4" y="5" width="17.2" height="14" rx="2.6"/><path d="M3.4 9.4h17.2"/></svg></div>
+      <b><span class="l-en">signal() makes the box</span><span class="l-ar" dir="auto"><code>signal()</code> بتعمل الصندوق</span></b>
+      <p><span class="l-en"><code>const count = signal(0)</code>. One value, one place, one owner.</span><span class="l-ar" dir="auto"><code>const count = signal(0)</code>. قيمة واحدة، مكان واحد، مالك واحد.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.4 12S6 5.4 12 5.4 21.6 12 21.6 12 18 18.6 12 18.6 2.4 12 2.4 12z"/><circle cx="12" cy="12" r="2.8"/></svg></div>
+      <b><span class="l-en">Reading registers you</span><span class="l-ar" dir="auto">القراية بتسجّلك</span></b>
+      <p><span class="l-en">Calling <code>count()</code> inside a template quietly writes your name on the bell.</span><span class="l-ar" dir="auto">لما بتنادي <code>count()</code> جوه template، اسمك بيتكتب على الجرس من غير ما تحس.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.2 9.4a6.2 6.2 0 1 0-12.4 0c0 5.2-2 6.2-2 6.2h16.4s-2-1-2-6.2"/><path d="M10.3 19.4a2.2 2.2 0 0 0 3.4 0"/></svg></div>
+      <b><span class="l-en">set() rings the bell</span><span class="l-ar" dir="auto"><code>set()</code> بتدق الجرس</span></b>
+      <p><span class="l-en"><code>set</code> replaces the value, <code>update</code> changes it based on the old one.</span><span class="l-ar" dir="auto"><code>set</code> بتستبدل القيمة، و<code>update</code> بتغيّرها بناءً على القديمة.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 11.4a8.2 8.2 0 1 0-.7 4.2M20.2 5v6.4h-6.4"/></svg></div>
+      <b><span class="l-en">Only listeners redraw</span><span class="l-ar" dir="auto">اللي سامع بس بيترسم</span></b>
+      <p><span class="l-en">Not the page, not the component — just the exact pieces that read that signal.</span><span class="l-ar" dir="auto">مش الصفحة، ولا الـ component، الحتت اللي قرت الـ signal دي بس.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="store" data-kind="svc">
@@ -542,6 +586,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en"><b>Forgetting the parentheses.</b> <code class="i">@if (count)</code> tests the function object, which is always truthy. <code class="i">{{ count }}</code> prints the function source.</span><span class="l-ar" dir="auto"><b>نسيان القوسين.</b> <code class="i">@if (count)</code> بيختبر الـ function object، وده دايماً truthy. و<code class="i">{{ count }}</code> بيطبع كود الـ function.</span></li><li><span class="l-en"><code class="i">.set()</code> compares by reference. <code class="i">items().push(x)</code> then <code class="i">.set(items())</code> is the same array — nothing updates. Build a new one.</span><span class="l-ar" dir="auto"><code class="i">.set()</code> بيقارن بالـ reference. لو عملت <code class="i">items().push(x)</code> وبعدين <code class="i">.set(items())</code> دي نفس الـ array — مفيش حاجة هتتحدث. ابني واحدة جديدة.</span></li><li><span class="l-en">Never <code class="i">.set()</code> what you could <code class="i">computed()</code>. If a value is a function of other values, it has no business being stored.</span><span class="l-ar" dir="auto">عمرك ما تعمل <code class="i">.set()</code> لحاجة كان ممكن تبقى <code class="i">computed()</code>. لو القيمة دالة في قيم تانية، مالهاش لازمة تتخزن.</span></li><li><span class="l-en">Values that never change after construction do not need to be signals. Wrapping everything is noise, not architecture.</span><span class="l-ar" dir="auto">القيم اللي مش بتتغير بعد الإنشاء مش محتاجة تبقى signals. لف كل حاجة في signal ده دوشة مش تصميم.</span></li><li><span class="l-en">A <code class="i">computed</code> must be pure. Calling an API or writing another signal inside one gives you a value that changes depending on who looked at it and when.</span><span class="l-ar" dir="auto">الـ <code class="i">computed</code> لازم تبقى نضيفة. لو نادیت API أو كتبت في signal تانية من جواها، القيمة هتتغير حسب مين بصّ عليها وإمتى.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">Read it with <code>count()</code>, change it with <code>count.set(5)</code>. The brackets are not decoration — without them you get the box, not the value.</span><span class="l-ar" dir="auto">اقراه بـ <code>count()</code>، وغيّره بـ <code>count.set(5)</code>. الأقواس مش زينة — من غيرها بتاخد الصندوق نفسه مش القيمة.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

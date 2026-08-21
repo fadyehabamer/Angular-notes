@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">Lifecycle: what runs, and when</span><span class="l-ar" dir="auto">دورة الحياة: إيه اللي بيشتغل، وإمتى</span></h1>
   <p class="lead"><span class="l-en">A component is created, rendered, updated many times, then destroyed. Older Angular gave you eight hooks for those moments. Modern Angular quietly replaced most of them — you now need <b>three</b>, and one of those is only for talking to code that is not Angular.</span><span class="l-ar" dir="auto">الـ component بيتعمل، وبيترندر، وبيتحدّث مرات كتير، وبعدين بيتدمّر. أنجولار القديم كان بيديك تمن hooks للحظات دي. وأنجولار الحديث استبدل معظمهم في هدوء — دلوقتي محتاج <b>تلاتة</b> بس، وواحد فيهم بس عشان تكلّم كود مش أنجولار.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">Lifecycle hooks are <b>methods Angular calls for you</b> at fixed moments: created, drawn, updated, destroyed.</span><span class="l-ar" dir="auto">الـ lifecycle hooks هي <b>ميثودز أنجولار بيناديها بدالك</b> في لحظات ثابتة: اتعمل، اترسم، اتحدّث، اتمسح.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A shop's opening and closing routine. Unlock at nine, put the sign out, cash up at six, lock the door. Same order, every single day.</span><span class="l-ar" dir="auto">روتين فتح وقفل المحل. تفتح الساعة تسعة، تحط اللافتة، تحسب الساعة ستة، تقفل الباب. نفس الترتيب كل يوم.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">Starting a timer, opening a socket, measuring an element — and above all, cleaning those up again.</span><span class="l-ar" dir="auto">لما تبدأ تايمر، أو تفتح socket، أو تقيس عنصر — وأهم من ده كله، لما تنضّفهم بعد كده.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.6 2.4 4 13.6h6.6L10 21.6 20 10.4h-6.6z"/></svg></div>
+      <b><span class="l-en">constructor — too early</span><span class="l-ar" dir="auto">constructor — بدري أوي</span></b>
+      <p><span class="l-en">Inputs are not set yet. Only use it for <code>inject()</code> and cheap field setup.</span><span class="l-ar" dir="auto">الـ inputs لسه ماتحطتش. استعمله بس للـ <code>inject()</code> والإعدادات البسيطة.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><path d="m8.4 12 2.6 2.6 4.6-5.2"/></svg></div>
+      <b><span class="l-en">ngOnInit — inputs ready</span><span class="l-ar" dir="auto">ngOnInit — الـ inputs جاهزة</span></b>
+      <p><span class="l-en">Runs once, after the first set of inputs. This is where fetching belongs.</span><span class="l-ar" dir="auto">بتشتغل مرة واحدة بعد أول inputs. هنا مكان جلب الداتا.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.4 12S6 5.4 12 5.4 21.6 12 21.6 12 18 18.6 12 18.6 2.4 12 2.4 12z"/><circle cx="12" cy="12" r="2.8"/></svg></div>
+      <b><span class="l-en">ngAfterViewInit — DOM exists</span><span class="l-ar" dir="auto">ngAfterViewInit — الـ DOM موجود</span></b>
+      <p><span class="l-en">The only safe place to measure or reach a child element. Not before.</span><span class="l-ar" dir="auto">المكان الوحيد الآمن إنك تقيس أو توصل لعنصر ابن. مش قبل كده.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><path d="m9 9 6 6M15 9l-6 6"/></svg></div>
+      <b><span class="l-en">ngOnDestroy — clean up</span><span class="l-ar" dir="auto">ngOnDestroy — نضّف</span></b>
+      <p><span class="l-en">Clear timers, close sockets, unsubscribe. Or use <code>DestroyRef</code> and let Angular do it.</span><span class="l-ar" dir="auto">امسح التايمرات، اقفل الـ sockets، الغِ الاشتراكات. أو استعمل <code>DestroyRef</code> وسيب أنجولار يعملها.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="cmp" data-kind="ts">
@@ -554,6 +598,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en">The constructor runs before <b>anything</b> is rendered. Reading <code class="i">viewChild()</code> or touching the DOM there gives you <code class="i">undefined</code>.</span><span class="l-ar" dir="auto">الـ constructor بيشتغل قبل ما <b>أي حاجة</b> تترسم. وقراية <code class="i">viewChild()</code> أو لمس الـ DOM هناك هتديك <code class="i">undefined</code>.</span></li><li><span class="l-en"><code class="i">ngAfterViewInit</code> also runs on the server during SSR, where there is no DOM. <code class="i">afterNextRender</code> does not — prefer it.</span><span class="l-ar" dir="auto"><code class="i">ngAfterViewInit</code> بيشتغل كمان على السيرفر أثناء الـ SSR، واللي مفيهوش DOM. أما <code class="i">afterNextRender</code> فلأ — فضّله.</span></li><li><span class="l-en">Lifecycle hooks are matched <b>by name</b>. Misspell <code class="i">ngOnInit</code> as <code class="i">ngOninit</code> and it silently never runs. Implementing <code class="i">OnInit</code> makes the compiler check it.</span><span class="l-ar" dir="auto">الـ lifecycle hooks بتتطابق <b>بالاسم</b>. لو كتبت <code class="i">ngOnInit</code> غلط <code class="i">ngOninit</code> مش هتشتغل وهتسكت. ولو عملت <code class="i">implements OnInit</code> الـ compiler هيتأكد.</span></li><li><span class="l-en">Anything you start — a timer, a listener, a subscription, a third-party widget — you stop. This is where memory leaks in Angular come from.</span><span class="l-ar" dir="auto">أي حاجة بتبدأها — تايمر أو listener أو subscription أو ويدجت خارجية — بتقفلها. ومن هنا بتيجي تسريبات الذاكرة في أنجولار.</span></li><li><span class="l-en"><code class="i">afterNextRender</code> runs once; <code class="i">afterEveryRender</code> runs after every single render. The second one is a performance trap unless you genuinely need it.</span><span class="l-ar" dir="auto"><code class="i">afterNextRender</code> بيشتغل مرة؛ و<code class="i">afterEveryRender</code> بيشتغل بعد كل رندر. والتاني ده فخ أداء إلا لو محتاجه فعلاً.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en"><code>ngOnInit</code> starts things, <code>ngOnDestroy</code> stops them. Skipping the second one is exactly what a memory leak is.</span><span class="l-ar" dir="auto"><code>ngOnInit</code> بتبدأ الحاجات، و<code>ngOnDestroy</code> بتوقّفها. إنك تنسى التانية ده بالظبط معنى تسريب الذاكرة.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

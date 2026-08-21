@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">Property, attribute, event and two-way binding</span><span class="l-ar" dir="auto">ربط الـ property والـ attribute والحدث والاتجاهين</span></h1>
   <p class="lead"><span class="l-en"><code>[x]</code> sends data <b>in</b>, <code>(x)</code> sends events <b>out</b>, and <code>[(x)]</code> does both. Getting these four right — and knowing when a property is not an attribute — removes most of the "why is my binding not working" questions.</span><span class="l-ar" dir="auto"><code>[x]</code> بتبعت داتا <b>جوه</b>، و<code>(x)</code> بتبعت أحداث <b>بره</b>، و<code>[(x)]</code> بتعمل الاتنين. وإتقان الأربعة دول — ومعرفة إمتى الـ property مش attribute — بيشيل معظم أسئلة «ليه الـ binding مش شغال».</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">Binding is a <b>live wire</b> between your class and your HTML, so you never touch the DOM with your own hands.</span><span class="l-ar" dir="auto">الـ binding هو <b>سلك حي</b> بين الـ class والـ HTML، عشان متلمسش الـ DOM بإيدك أبداً.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A thermostat taped to a thermometer. Change one and the other moves by itself. Nobody walks across the room to adjust anything.</span><span class="l-ar" dir="auto">ترموستات ملزوق في ترمومتر. تغيّر واحد يتحرّك التاني لوحده. محدش بيقوم من مكانه يظبط حاجة.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">Every input box, every disabled button, every class that changes with state. Which is all day, every day.</span><span class="l-ar" dir="auto">كل خانة إدخال، وكل زرار بيتقفل، وكل class بيتغيّر مع الحالة. يعني طول اليوم.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 12h15.6M13.4 6.2 19.6 12l-6.2 5.8"/></svg></div>
+      <b><span class="l-en">[prop] goes down</span><span class="l-ar" dir="auto">[prop] بتنزل</span></b>
+      <p><span class="l-en">Class to DOM. Angular re-runs the expression whenever the value it reads changes.</span><span class="l-ar" dir="auto">من الـ class للـ DOM. أنجولار بيعيد حساب التعبير كل ما القيمة تتغيّر.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 2.6v3M4.4 5.4l2.1 2.1M2.6 12h3M19.6 5.4l-2.1 2.1M12.6 10.8l8.4 3.2-3.8 1.4-1.4 3.8z"/></svg></div>
+      <b><span class="l-en">(event) goes up</span><span class="l-ar" dir="auto">(event) بتطلع</span></b>
+      <p><span class="l-en">DOM to class. The browser fires, your method runs, state changes, the screen catches up.</span><span class="l-ar" dir="auto">من الـ DOM للـ class. المتصفح بيطلق الحدث، الميثود بتشتغل، الحالة بتتغيّر، والشاشة بتلحق.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 8h13.6l-3.2-3.2M20.4 16H6.8l3.2 3.2"/></svg></div>
+      <b><span class="l-en">[( )] is both</span><span class="l-ar" dir="auto">[( )] الاتنين</span></b>
+      <p><span class="l-en">Banana in a box. <code>[(ngModel)]</code> is literally <code>[ngModel]</code> plus <code>(ngModelChange)</code>.</span><span class="l-ar" dir="auto">الموزة في الصندوق. <code>[(ngModel)]</code> حرفياً هي <code>[ngModel]</code> زائد <code>(ngModelChange)</code>.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 21.6 20H2.4z"/><path d="M12 9.8v4.2M12 17.2h.02"/></svg></div>
+      <b><span class="l-en">attr. for attributes</span><span class="l-ar" dir="auto">attr. للـ attributes</span></b>
+      <p><span class="l-en">Some things (<code>colspan</code>, <code>aria-*</code>) are HTML attributes, not DOM properties. Those need <code>[attr.x]</code>.</span><span class="l-ar" dir="auto">في حاجات زي <code>colspan</code> و<code>aria-*</code> دي attributes مش properties، فمحتاجة <code>[attr.x]</code>.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="ts" data-kind="ts">
@@ -538,6 +582,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en"><b>Missing brackets.</b> <code class="i">value="term()"</code> puts the literal text <code class="i">term()</code> in the box. If a binding shows your code on screen, this is why.</span><span class="l-ar" dir="auto"><b>الأقواس الناقصة.</b> <code class="i">value="term()"</code> بتحط النص الحرفي <code class="i">term()</code> في الخانة. لو binding بيوريك كودك على الشاشة، ده السبب.</span></li><li><span class="l-en"><b>NG0303: Can&rsquo;t bind to X</b> means either the property does not exist (try <code class="i">[attr.X]</code>) or the component that declares it is missing from <code class="i">imports</code>.</span><span class="l-ar" dir="auto"><b>NG0303: Can&rsquo;t bind to X</b> معناها يا إن الـ property مش موجودة (جرّب <code class="i">[attr.X]</code>) يا إن الـ component اللي بيعلنها ناقص من <code class="i">imports</code>.</span></li><li><span class="l-en"><code class="i">$event.target</code> is typed as <code class="i">EventTarget</code>, which has no <code class="i">.value</code>. Use <code class="i">$any($event.target).value</code>, or better, a template reference: <code class="i">#box</code> then <code class="i">box.value</code>.</span><span class="l-ar" dir="auto"><code class="i">$event.target</code> نوعها <code class="i">EventTarget</code>، ومالهاش <code class="i">.value</code>. استعمل <code class="i">$any($event.target).value</code>، أو الأحسن، template reference: <code class="i">#box</code> وبعدين <code class="i">box.value</code>.</span></li><li><span class="l-en">Two-way binding needs an exact name pair — <code class="i">x</code> and <code class="i">xChange</code> — or a single <code class="i">model()</code>. Any other naming fails silently.</span><span class="l-ar" dir="auto">الـ two-way محتاج زوج أسماء بالظبط — <code class="i">x</code> و<code class="i">xChange</code> — أو <code class="i">model()</code> واحدة. وأي تسمية تانية بتفشل في صمت.</span></li><li><span class="l-en">An event handler may do real work; a template expression may not. <code class="i">(click)="x = 5"</code> is fine. <code class="i">{{ x = 5 }}</code> is an error.</span><span class="l-ar" dir="auto">معالج الحدث ينفع يعمل شغل حقيقي؛ أما تعبير التمبلت فلأ. <code class="i">(click)="x = 5"</code> عادي. و<code class="i">{{ x = 5 }}</code> ايرور.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">Data flows down with <code>[ ]</code>, events fly up with <code>( )</code>, and <code>[( )]</code> is only ever both at once.</span><span class="l-ar" dir="auto">الداتا بتنزل بـ <code>[ ]</code>، والأحداث بتطلع بـ <code>( )</code>، و<code>[( )]</code> مش أكتر من الاتنين مع بعض.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">NgRx, SignalStore and friends</span><span class="l-ar" dir="auto">NgRx و SignalStore وأخواتهم</span></h1>
   <p class="lead"><span class="l-en">State libraries buy you two things: an <b>enforced convention</b> across a large team, and a <b>devtools timeline</b> that answers “why did this change?”. They cost bundle size and ceremony. Know what you are buying before you adopt one — and know that most apps genuinely do not need it.</span><span class="l-ar" dir="auto">مكتبات الحالة بتشتري لك حاجتين: <b>convention مفروض</b> على فريق كبير، و<b>خط زمني في الـ devtools</b> بيجاوب على «ليه ده اتغير؟». وتمنهم حجم bundle ومراسم. اعرف بتشتري إيه قبل ما تعتمد واحدة — واعرف إن معظم التطبيقات فعلاً مش محتاجاها.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">State libraries add <b>rules about how data may change</b> — actions, reducers, devtools — on top of what a service already does.</span><span class="l-ar" dir="auto">مكتبات الحالة بتضيف <b>قواعد لطريقة تغيير الداتا</b> — actions وreducers وdevtools — فوق اللي الـ service بيعمله أصلاً.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A ledger instead of a notebook. Slower to write in, but you can prove exactly who changed what and when.</span><span class="l-ar" dir="auto">دفتر حسابات بدل نوتة. أبطأ في الكتابة، بس تقدر تثبت مين غيّر إيه وإمتى بالظبط.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">Large teams, complex flows, or when you genuinely need time-travel debugging. Not for a to-do list.</span><span class="l-ar" dir="auto">الفرق الكبيرة، والتدفقات المعقّدة، أو لما تحتاج فعلاً debugging بالرجوع في الزمن. مش لتطبيق مهام.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.2 9.4a6.2 6.2 0 1 0-12.4 0c0 5.2-2 6.2-2 6.2h16.4s-2-1-2-6.2"/><path d="M10.3 19.4a2.2 2.2 0 0 0 3.4 0"/></svg></div>
+      <b><span class="l-en">An action describes</span><span class="l-ar" dir="auto">الـ action بيوصف</span></b>
+      <p><span class="l-en">Just a named event: <em>product added to cart</em>. It changes nothing by itself.</span><span class="l-ar" dir="auto">مجرد حدث ليه اسم: <em>منتج اتضاف للعربة</em>. مش بيغيّر حاجة بنفسه.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.4v3M12 18.6v3M21.6 12h-3M5.4 12h-3M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1M18.8 18.8l-2.1-2.1M7.3 7.3 5.2 5.2"/></svg></div>
+      <b><span class="l-en">A reducer decides</span><span class="l-ar" dir="auto">الـ reducer بيقرر</span></b>
+      <p><span class="l-en">Old state plus action equals new state. A pure function, trivially testable.</span><span class="l-ar" dir="auto">الحالة القديمة + الحدث = حالة جديدة. دالة نقية، اختبارها سهل جداً.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.4 12S6 5.4 12 5.4 21.6 12 21.6 12 18 18.6 12 18.6 2.4 12 2.4 12z"/><circle cx="12" cy="12" r="2.8"/></svg></div>
+      <b><span class="l-en">A selector reads</span><span class="l-ar" dir="auto">الـ selector بيقرا</span></b>
+      <p><span class="l-en">Components subscribe to slices, so they never see the shape of the whole store.</span><span class="l-ar" dir="auto">الـ components بتشترك في أجزاء، فمابتشوفش شكل المخزن كله.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7.4" y="7.8" width="9.2" height="12.4" rx="4.6"/><path d="M9 6.8a3 3 0 0 1 6 0M3.8 11h3.6M16.6 11h3.6M3.8 16.2h3.6M16.6 16.2h3.6M6 5.6l2 2M18 5.6l-2 2"/></svg></div>
+      <b><span class="l-en">Devtools replay</span><span class="l-ar" dir="auto">الـ devtools بتعيد</span></b>
+      <p><span class="l-en">Step backwards through every action. This is the feature people actually pay for.</span><span class="l-ar" dir="auto">ارجع خطوة بخطوة في كل حدث. دي الميزة اللي الناس بتدفع عشانها فعلاً.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="cmp" data-kind="ts">
@@ -538,6 +582,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en">Do not adopt a state library because the app “feels big”. Adopt it when you can <b>name</b> the problem it solves — usually “I cannot trace why this changed”.</span><span class="l-ar" dir="auto">متعتمدش مكتبة حالة عشان التطبيق «حاسس إنه كبير». اعتمدها لما تقدر ت<b>سمّي</b> المشكلة اللي بتحلها — وغالباً بتبقى «مش عارف أتتبع ليه ده اتغير».</span></li><li><span class="l-en">Never put derived data in the store. Compute it in a selector or a <code class="i">computed</code> — a stored total is a stored bug.</span><span class="l-ar" dir="auto">عمرك ما تحط داتا مشتقة في الـ store. احسبها في selector أو <code class="i">computed</code> — الإجمالي المخزّن ده باج مخزّن.</span></li><li><span class="l-en">Reducers must be <b>pure</b>: no HTTP, no <code class="i">Date.now()</code>, no random. All of that belongs in an effect, or devtools replay lies to you.</span><span class="l-ar" dir="auto">الـ reducers لازم تكون <b>نضيفة</b>: مفيش HTTP ولا <code class="i">Date.now()</code> ولا عشوائية. كل ده مكانه الـ effects، وإلا إعادة الـ devtools هتكدب عليك.</span></li><li><span class="l-en">Not all state is global. Form drafts, open/closed panels and hover state belong in the component — putting them in a global store is pure overhead.</span><span class="l-ar" dir="auto">مش كل حالة عامة. مسودات الفورمز والبانلز المفتوحة وحالة الـ hover مكانها الـ component — وحطها في store عام ده حِمل زيادة وبس.</span></li><li><span class="l-en">Migrating from a plain signal service to SignalStore later is genuinely easy — the public shape is the same. That is a strong reason to start simple.</span><span class="l-ar" dir="auto">التحويل من signal service عادية لـ SignalStore بعدين سهل فعلاً — الشكل العام واحد. وده سبب قوي إنك تبدأ بسيط.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">Start with a signal service. Move to a library when you can name the specific pain it removes — not before.</span><span class="l-ar" dir="auto">ابدأ بـ service فيه signals. وانتقل لمكتبة لما تقدر تسمّي الوجع اللي هتشيله بالظبط — مش قبل كده.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

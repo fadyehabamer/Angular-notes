@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">Observable, Subject, BehaviorSubject</span><span class="l-ar" dir="auto">Observable و Subject و BehaviorSubject</span></h1>
   <p class="lead"><span class="l-en">RxJS models <b>values arriving over time</b>. An Observable is a recipe that does nothing until someone subscribes. A Subject is an Observable you can also push into. Understanding those two sentences explains ninety percent of the RxJS you will meet in Angular.</span><span class="l-ar" dir="auto">RxJS بيمثّل <b>قيم بتوصل عبر الزمن</b>. الـ Observable وصفة مبتعملش حاجة لحد ما حد يعمل subscribe. والـ Subject هو Observable تقدر تدفع فيه كمان. وفهم الجملتين دول بيشرح تسعين في المية من الـ RxJS اللي هتقابله في أنجولار.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">An Observable is <b>a stream of values over time</b> — like an array, except the items arrive whenever they feel like it.</span><span class="l-ar" dir="auto">الـ Observable هو <b>مجرى قيم على مدار الوقت</b> — زي الـ array، بس العناصر بتوصل لما تحب هي.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A water pipe. Nothing flows until you open a tap, and if two people open two taps, water is pumped twice.</span><span class="l-ar" dir="auto">ماسورة مياه. مفيش حاجة بتجري لحد ما تفتح حنفية، ولو اتنين فتحوا حنفيتين، المياه بتتضخ مرتين.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">Anything that arrives over time: HTTP responses, keystrokes, websocket messages, router events.</span><span class="l-ar" dir="auto">أي حاجة بتوصل مع الوقت: ردود HTTP، وضغطات الكيبورد، ورسايل الـ websocket، وأحداث الراوتر.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.2V12l3.2 2"/></svg></div>
+      <b><span class="l-en">Nothing until subscribe</span><span class="l-ar" dir="auto">مفيش حاجة قبل subscribe</span></b>
+      <p><span class="l-en">An Observable is a recipe, not a meal. Subscribing is what turns the stove on.</span><span class="l-ar" dir="auto">الـ Observable وصفة، مش أكلة. الـ subscribe هو اللي بيولّع البوتاجاز.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 12h5.2M8.8 12l4.6-6h6.6M8.8 12l4.6 6h6.6M17.6 3.4 20.4 6l-2.8 2.6M17.6 15.4 20.4 18l-2.8 2.6"/></svg></div>
+      <b><span class="l-en">Cold means private</span><span class="l-ar" dir="auto">بارد يعني خاص</span></b>
+      <p><span class="l-en">Two subscribers to one HTTP observable means two real network requests.</span><span class="l-ar" dir="auto">اتنين subscribe على نفس الـ HTTP observable معناها طلبين شبكة حقيقيين.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 6h5.6l5 6h5.6M3.6 18h5.6l5-6M17.8 9.4 20.4 12l-2.6 2.6"/></svg></div>
+      <b><span class="l-en">Subject means shared</span><span class="l-ar" dir="auto">Subject يعني مشترك</span></b>
+      <p><span class="l-en">One run, many listeners. You can also push into it yourself with <code>next()</code>.</span><span class="l-ar" dir="auto">تشغيل واحد وسامعين كتير. وتقدر تدفع فيه بنفسك بـ <code>next()</code>.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6c0 1.8-3.6 3.2-8 3.2S4 7.8 4 6s3.6-3.2 8-3.2S20 4.2 20 6z"/><path d="M4 6v12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2V6M4 12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2"/></svg></div>
+      <b><span class="l-en">BehaviorSubject remembers</span><span class="l-ar" dir="auto">BehaviorSubject بيفتكر</span></b>
+      <p><span class="l-en">It holds the last value, so a late subscriber is not left staring at nothing.</span><span class="l-ar" dir="auto">بيمسك آخر قيمة، فاللي اشترك متأخر مايفضلش قاعد يبص في الفاضي.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="obs" data-kind="svc">
@@ -538,6 +582,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en">A plain <code class="i">Subject</code> has no current value. Subscribe after the value was pushed and you get nothing, forever. Use <code class="i">BehaviorSubject</code> for state.</span><span class="l-ar" dir="auto">الـ <code class="i">Subject</code> العادي مالوش قيمة حالية. واعمل subscribe بعد ما القيمة اتدفعت وهتاخد لا حاجة، للأبد. استعمل <code class="i">BehaviorSubject</code> للحالة.</span></li><li><span class="l-en">An <code class="i">error</code> kills the stream permanently. Recover <b>inside</b> the pipe with <code class="i">catchError</code>, before the error reaches the outer subscriber.</span><span class="l-ar" dir="auto">الـ <code class="i">error</code> بيقتل الستريم للأبد. تعافى <b>جوه</b> الـ pipe بـ <code class="i">catchError</code>، قبل ما الايرور يوصل للمشترك البرّاني.</span></li><li><span class="l-en">Streams that never complete — <code class="i">valueChanges</code>, <code class="i">router.events</code>, <code class="i">fromEvent</code> — leak unless you use <code class="i">takeUntilDestroyed()</code>.</span><span class="l-ar" dir="auto">الستريمز اللي عمرها ما بتقفل — <code class="i">valueChanges</code> و<code class="i">router.events</code> و<code class="i">fromEvent</code> — بتسرّب إلا لو استعملت <code class="i">takeUntilDestroyed()</code>.</span></li><li><span class="l-en">Never expose the Subject itself. Publish <code class="i">.asObservable()</code>, or anyone can call <code class="i">.next()</code> on your state from anywhere.</span><span class="l-ar" dir="auto">عمرك ما تعرض الـ Subject نفسه. انشر <code class="i">.asObservable()</code>، وإلا أي حد يقدر ينادي <code class="i">.next()</code> على حالتك من أي مكان.</span></li><li><span class="l-en">For new code, reach for signals first. Use RxJS when the question is about <b>time, order or cancellation</b> — debounce, retry, switchMap, websockets.</span><span class="l-ar" dir="auto">للكود الجديد، ابدأ بالـ signals. واستعمل RxJS لما السؤال يكون عن <b>الزمن أو الترتيب أو الإلغاء</b> — debounce وretry وswitchMap والـ websockets.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">A plain <code>Observable</code> is cold — each subscriber gets its own private run. A <code>Subject</code> is hot — everyone shares one.</span><span class="l-ar" dir="auto">الـ <code>Observable</code> العادي بارد — كل مشترك بياخد تشغيل خاص بيه. والـ <code>Subject</code> ساخن — الكل بيتشارك واحد.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

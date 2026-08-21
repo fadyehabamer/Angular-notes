@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">Template syntax and interpolation</span><span class="l-ar" dir="auto">صياغة التمبلت والـ interpolation</span></h1>
   <p class="lead"><span class="l-en">An Angular template is HTML with four extra powers. <code>{{ }}</code> prints a value, <code>[ ]</code> sets a property, <code>( )</code> listens for an event, and <code>#name</code> labels an element. <b>Everything else you will ever write in a template is one of those four.</b></span><span class="l-ar" dir="auto">تمبلت أنجولار ده HTML بأربع قدرات زيادة. <code>{{ }}</code> بتطبع قيمة، و<code>[ ]</code> بتحط property، و<code>( )</code> بتسمع لحدث، و<code>#name</code> بتسمّي عنصر. <b>وأي حاجة تانية هتكتبها في تمبلت هي واحدة من الأربعة دول.</b></span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">Template syntax is the <b>small set of extra symbols</b> you write inside HTML so Angular knows which bits to fill in.</span><span class="l-ar" dir="auto">الـ template syntax هي <b>شوية رموز زيادة</b> بتكتبها جوه الـ HTML عشان أنجولار يعرف الحتت اللي هيملاها.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">Mail merge in a word processor. You write <em>Dear {{name}}</em> once, and the printer swaps in a real name on every letter.</span><span class="l-ar" dir="auto">زي الـ mail merge في الوورد. بتكتب <em>عزيزي {{name}}</em> مرة واحدة، والطابعة بتحط اسم حقيقي في كل جواب.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">In every template you will ever write. This is the alphabet — everything later is spelling.</span><span class="l-ar" dir="auto">في كل template هتكتبه في حياتك. دي الأبجدية، وأي حاجة بعد كده هي مجرد تهجّي.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2.6h8.2L18.6 7v14.4H6z"/><path d="M14.2 2.6V7h4.4M9 12.4h6M9 16.4h6"/></svg></div>
+      <b><span class="l-en">Plain HTML stays plain</span><span class="l-ar" dir="auto">الـ HTML العادي زي ما هو</span></b>
+      <p><span class="l-en">Ninety percent of a template is ordinary HTML that Angular does not touch at all.</span><span class="l-ar" dir="auto">تسعين في المية من الـ template هو HTML عادي أنجولار مش بيلمسه خالص.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg></div>
+      <b><span class="l-en">{{ }} prints a value</span><span class="l-ar" dir="auto">{{ }} بتطبع قيمة</span></b>
+      <p><span class="l-en">Interpolation. Whatever is inside is read from the class and turned into text.</span><span class="l-ar" dir="auto">الـ interpolation. اللي جوه بيتقرا من الـ class ويتحوّل لنص.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 12h15.6M13.4 6.2 19.6 12l-6.2 5.8"/></svg></div>
+      <b><span class="l-en">[ ] pushes data in</span><span class="l-ar" dir="auto">[ ] بتدخّل داتا</span></b>
+      <p><span class="l-en"><code>[disabled]=&quot;busy()&quot;</code> sets a real DOM property, not a string. Booleans stay booleans.</span><span class="l-ar" dir="auto"><code>[disabled]=&quot;busy()&quot;</code> بتظبط property حقيقي في الـ DOM، مش نص. الـ boolean بيفضل boolean.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 2.6v3M4.4 5.4l2.1 2.1M2.6 12h3M19.6 5.4l-2.1 2.1M12.6 10.8l8.4 3.2-3.8 1.4-1.4 3.8z"/></svg></div>
+      <b><span class="l-en">( ) catches events out</span><span class="l-ar" dir="auto">( ) بتمسك الأحداث</span></b>
+      <p><span class="l-en"><code>(click)=&quot;save()&quot;</code> runs your method. <code>$event</code> is the real browser event.</span><span class="l-ar" dir="auto"><code>(click)=&quot;save()&quot;</code> بتشغّل الميثود بتاعتك. و<code>$event</code> هو الحدث الحقيقي من المتصفح.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="ts" data-kind="ts">
@@ -542,6 +586,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en"><code class="i">{{ }}</code> outputs <b>text</b>, always. To render HTML you need <code class="i">[innerHTML]</code>, which Angular sanitizes — and which you should be nervous about.</span><span class="l-ar" dir="auto"><code class="i">{{ }}</code> بتطلّع <b>نص</b>، دايماً. وعشان ترندر HTML محتاج <code class="i">[innerHTML]</code>، واللي أنجولار بيعقّمه — واللي المفروض تبقى قلقان منه.</span></li><li><span class="l-en">Calling a <b>method</b> in a template runs it on every change detection pass. Use a <code class="i">computed()</code> or a pipe instead.</span><span class="l-ar" dir="auto">إنك تنادي <b>method</b> في تمبلت بيشغّلها في كل دورة change detection. استعمل <code class="i">computed()</code> أو pipe بدل كده.</span></li><li><span class="l-en">Signals need parentheses: <code class="i">{{ name() }}</code>. <code class="i">{{ name }}</code> prints the function source and <code class="i">&#64;if (name)</code> is always true.</span><span class="l-ar" dir="auto">الـ signals محتاجة قوسين: <code class="i">{{ name() }}</code>. أما <code class="i">{{ name }}</code> فبتطبع كود الدالة، و<code class="i">&#64;if (name)</code> بتبقى true دايماً.</span></li><li><span class="l-en">Template expressions cannot see globals. If you need <code class="i">Math.max</code> or <code class="i">window</code>, expose it as a class field or a computed.</span><span class="l-ar" dir="auto">تعبيرات التمبلت مش شايفة الـ globals. لو محتاج <code class="i">Math.max</code> أو <code class="i">window</code>، اعرضهم كحقل في الكلاس أو computed.</span></li><li><span class="l-en"><code class="i">&#64;let</code> cannot be reassigned and is only visible after its declaration, inside the same block. It is a name, not a variable.</span><span class="l-ar" dir="auto"><code class="i">&#64;let</code> مينفعش تتغير وبتبقى ظاهرة بس بعد تعريفها، وجوه نفس البلوك. هي اسم، مش متغير.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en"><code>{{ }}</code> prints a value, <code>[ ]</code> sets a property, <code>( )</code> listens for an event. Everything else is built on those three.</span><span class="l-ar" dir="auto"><code>{{ }}</code> بتطبع قيمة، و<code>[ ]</code> بتظبط property، و<code>( )</code> بتسمع event. أي حاجة تانية مبنية على التلاتة دول.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

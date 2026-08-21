@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en">Zoneless: deleting the thing that guessed for you</span><span class="l-ar" dir="auto">Zoneless: تشيل الحاجة اللي كانت بتخمّن بدالك</span></h1>
   <p class="lead"><span class="l-en"><code>zone.js</code> monkey-patched every async browser API so it could tell Angular “something might have happened”. Signals removed the need to guess. Going zoneless drops about <b>13 kB</b> of polyfill and replaces guesswork with notification — but it is only safe once your state genuinely lives in signals.</span><span class="l-ar" dir="auto"><code>zone.js</code> كان بيلبّس نفسه على كل async API في البراوزر عشان يقول لأنجولار “يمكن حصلت حاجة”. الـ signals شالت الحاجة للتخمين. وإنك تشتغل zoneless بيشيل حوالي <b>13 كيلوبايت</b> polyfill ويستبدل التخمين بالتبليغ — بس ده مأمون بس لما حالتك تكون فعلاً عايشة في signals.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en">Zoneless means <b>deleting the library that used to guess when to re-render</b>, because signals now tell Angular directly.</span><span class="l-ar" dir="auto">الـ zoneless معناها <b>إنك تشيل المكتبة اللي كانت بتخمّن إمتى تعيد الرسم</b>، لأن الـ signals بقت بتقول لأنجولار على طول.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">Removing a smoke detector that beeped at every piece of toast, because every appliance now has its own alarm wired in.</span><span class="l-ar" dir="auto">تشيل حساس دخان كان بيزعّق مع كل توست، لأن كل جهاز بقى فيه إنذار خاص بيه.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">New apps: turn it on from day one. Existing apps: after your state is on signals, not before.</span><span class="l-ar" dir="auto">التطبيقات الجديدة: شغّلها من أول يوم. القديمة: بعد ما حالتك تبقى على signals، مش قبل.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><path d="m9 9 6 6M15 9l-6 6"/></svg></div>
+      <b><span class="l-en">Zone.js goes away</span><span class="l-ar" dir="auto">Zone.js بيمشي</span></b>
+      <p><span class="l-en">It patched every browser API to notice activity. That patching had a real cost.</span><span class="l-ar" dir="auto">كان بيعدّل كل APIs المتصفح عشان ياخد باله من أي نشاط. والتعديل ده كان بيكلّف فعلاً.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 18c3 0 3-12 6-12s3 12 6 12 3-8 6.4-8"/></svg></div>
+      <b><span class="l-en">Signals notify instead</span><span class="l-ar" dir="auto">الـ signals بتبلّغ بدله</span></b>
+      <p><span class="l-en">A precise notification beats a global guess, every single time.</span><span class="l-ar" dir="auto">إشعار دقيق أحسن من تخمين عام، في كل مرة.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 21.6 20H2.4z"/><path d="M12 9.8v4.2M12 17.2h.02"/></svg></div>
+      <b><span class="l-en">Untracked state breaks</span><span class="l-ar" dir="auto">الحالة غير المتتبَّعة بتقع</span></b>
+      <p><span class="l-en">A plain class field mutated in a callback will simply not appear on screen.</span><span class="l-ar" dir="auto">property عادية بتتغيّر في callback مش هتظهر على الشاشة أصلاً.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><path d="m8.4 12 2.6 2.6 4.6-5.2"/></svg></div>
+      <b><span class="l-en">Migrate gradually</span><span class="l-ar" dir="auto">انقل بالتدريج</span></b>
+      <p><span class="l-en">Run the hybrid scheduler first, fix what breaks, then drop the polyfill.</span><span class="l-ar" dir="auto">شغّل الـ hybrid scheduler الأول، صلّح اللي بيقع، وبعدين شيل الـ polyfill.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="boot" data-kind="cfg">
@@ -546,6 +590,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en">Zoneless failures are <b>silent</b>. There is no error — a value simply stops reaching the screen. Audit for plain mutable fields before you flip the switch.</span><span class="l-ar" dir="auto">أعطال الـ zoneless <b>صامتة</b>. مفيش ايرور — القيمة بتبطل توصل الشاشة وخلاص. راجع الـ fields العادية القابلة للتعديل قبل ما تقلب السويتش.</span></li><li><span class="l-en">Check your dependencies. A UI library that internally relies on zone patching will misbehave; most modern ones no longer do.</span><span class="l-ar" dir="auto">راجع المكتبات اللي بتستخدمها. أي UI library بتعتمد جوّاها على تلبيس الـ zone هتغلط؛ ومعظم الحديث منها مبقاش بيعمل كده.</span></li><li><span class="l-en">In tests, <code class="i">fakeAsync</code> and <code class="i">tick()</code> depend on zone.js. Zoneless tests use <code class="i">await fixture.whenStable()</code> instead.</span><span class="l-ar" dir="auto">في التستات، <code class="i">fakeAsync</code> و<code class="i">tick()</code> بيعتمدوا على zone.js. تستات الـ zoneless بتستعمل <code class="i">await fixture.whenStable()</code> بدالهم.</span></li><li><span class="l-en"><code class="i">NgZone.run</code> and <code class="i">runOutsideAngular</code> still exist and are harmless, but they become no-ops. Deleting them is cleanup, not a fix.</span><span class="l-ar" dir="auto"><code class="i">NgZone.run</code> و<code class="i">runOutsideAngular</code> لسه موجودين ومش ضارين، بس بيبقوا من غير أثر. ومسحهم تنضيف، مش إصلاح.</span></li><li><span class="l-en">You get most of the benefit before you remove the zone: OnPush plus signals already gives targeted invalidation. Zoneless is the last step, not the first.</span><span class="l-ar" dir="auto">إنت بتاخد معظم الفايدة قبل ما تشيل الـ zone: OnPush مع الـ signals بيدوك targeted invalidation أصلاً. الـ zoneless آخر خطوة مش أولها.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">Zoneless is a smaller bundle and fewer surprise re-renders — but only if your state actually lives in signals.</span><span class="l-ar" dir="auto">الـ zoneless معناها حزمة أصغر وإعادة رسم أقل مفاجآت — بس بشرط إن حالتك تكون فعلاً في signals.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

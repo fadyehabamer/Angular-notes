@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en"><code>@defer</code>: shipping less on first paint</span><span class="l-ar" dir="auto"><code>@defer</code>: تشحن أقل في أول رسمة</span></h1>
   <p class="lead"><span class="l-en">Everything inside a <code>@defer</code> block — the component, its imports, its transitive dependencies — is cut into a separate chunk at build time and fetched when a trigger fires. It is <code>loadComponent</code> for a piece of a template, and it is the fastest way to shrink a first paint.</span><span class="l-ar" dir="auto">أي حاجة جوه بلوك <code>@defer</code> — الـ component والـ imports بتوعه وكل اللي متعلق بيهم — بتتقص في chunk منفصل وقت الـ build وبتتجاب لما المشغّل يشتغل. ده <code>loadComponent</code> بس لجزء من تمبلت، وهو أسرع طريقة تصغّر بيها أول رسمة.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en"><code>@defer</code> is <b>lazy loading for a block of template</b> instead of a whole route.</span><span class="l-ar" dir="auto"><code>@defer</code> هو <b>تحميل كسول لجزء من الـ template</b> بدل route كامل.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A magazine where the heavy fold-out poster is only printed if you turn to that page.</span><span class="l-ar" dir="auto">مجلة البوستر الكبير اللي جواها مابيتطبعش غير لو فتحت الصفحة دي.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">Charts, maps, rich editors, comment threads — anything heavy that lives below the fold.</span><span class="l-ar" dir="auto">الرسوم البيانية والخرايط والمحرّرات والتعليقات — أي حاجة تقيلة تحت حدود الشاشة.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.4" y="5" width="17.2" height="14" rx="2.6"/><path d="M3.4 9.4h17.2"/></svg></div>
+      <b><span class="l-en">Wrap the heavy part</span><span class="l-ar" dir="auto">لُف الجزء التقيل</span></b>
+      <p><span class="l-en">Everything inside the block — and its imports — is cut into a separate file.</span><span class="l-ar" dir="auto">كل اللي جوه البلوك — وimports بتاعته — بيتقص في ملف منفصل.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.4 12S6 5.4 12 5.4 21.6 12 21.6 12 18 18.6 12 18.6 2.4 12 2.4 12z"/><circle cx="12" cy="12" r="2.8"/></svg></div>
+      <b><span class="l-en">Choose a trigger</span><span class="l-ar" dir="auto">اختار مشغّل</span></b>
+      <p><span class="l-en"><code>on viewport</code>, <code>on interaction</code>, <code>on hover</code>, <code>on timer</code>.</span><span class="l-ar" dir="auto"><code>on viewport</code> أو <code>on interaction</code> أو <code>on hover</code> أو <code>on timer</code>.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 9.2 5-9.2 5-9.2-5z"/><path d="m3.4 13.2 8.6 4.8 8.6-4.8"/></svg></div>
+      <b><span class="l-en">Four blocks total</span><span class="l-ar" dir="auto">أربع بلوكات</span></b>
+      <p><span class="l-en"><code>@placeholder</code>, <code>@loading</code>, <code>@error</code>, and the deferred body itself.</span><span class="l-ar" dir="auto"><code>@placeholder</code> و<code>@loading</code> و<code>@error</code> والجسم المؤجّل نفسه.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 21.6 20H2.4z"/><path d="M12 9.8v4.2M12 17.2h.02"/></svg></div>
+      <b><span class="l-en">Layout shift is the trap</span><span class="l-ar" dir="auto">اهتزاز التخطيط هو الفخ</span></b>
+      <p><span class="l-en">A zero-height placeholder trades a slow load for a jumping page. Reserve the space.</span><span class="l-ar" dir="auto">placeholder بارتفاع صفر بيبدّل التحميل البطيء بصفحة بتنطط. احجز المساحة.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="tpl" data-kind="html">
@@ -538,6 +582,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en">A deferred component must be used <b>only</b> inside defer blocks. Reference it anywhere eagerly and it lands back in the main bundle — silently undoing the whole thing.</span><span class="l-ar" dir="auto">الـ component المؤجّل لازم يتستخدم <b>بس</b> جوه بلوكات الـ defer. لو اتذكر في أي مكان تاني بشكل عادي هيرجع للـ bundle الأساسي — وهيلغي الحكاية كلها في صمت.</span></li><li><span class="l-en">Always give <code class="i">@placeholder</code> the height of what is coming. A placeholder that is the wrong size causes layout shift, which is a Core Web Vital.</span><span class="l-ar" dir="auto">دايماً ادي <code class="i">@placeholder</code> ارتفاع الحاجة اللي جاية. الـ placeholder بالحجم الغلط بيسبب layout shift، وده من الـ Core Web Vitals.</span></li><li><span class="l-en"><code class="i">on viewport</code> and <code class="i">on interaction</code> need something to observe. With no <code class="i">@placeholder</code> and no element reference, there is nothing to watch.</span><span class="l-ar" dir="auto"><code class="i">on viewport</code> و<code class="i">on interaction</code> محتاجين حاجة يراقبوها. من غير <code class="i">@placeholder</code> ومن غير إشارة لعنصر، مفيش حاجة يتراقب.</span></li><li><span class="l-en">Do not defer above-the-fold content. Deferring the hero image trades a small bundle for a visibly slower page.</span><span class="l-ar" dir="auto">متأجّلش المحتوى اللي فوق في الشاشة. تأجيل صورة الـ hero بيبدّل bundle صغير بصفحة أبطأ بشكل واضح.</span></li><li><span class="l-en"><code class="i">@error</code> catches the chunk failing to download — a real case on a flaky connection. Write something useful there, not a blank space.</span><span class="l-ar" dir="auto"><code class="i">@error</code> بيمسك فشل تنزيل الـ chunk — وده بيحصل فعلاً على نت ضعيف. اكتب فيه حاجة مفيدة، مش فراغ.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">Always write a <code>@placeholder</code> with roughly the right height, or the page will jump when the real thing lands.</span><span class="l-ar" dir="auto">دايماً اكتب <code>@placeholder</code> بارتفاع قريب من الحقيقي، وإلا الصفحة هتنطط لما المحتوى يوصل.</span></p>
+    </div>
   </div>
 
   <nav class="pager">

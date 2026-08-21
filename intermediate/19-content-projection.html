@@ -86,6 +86,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px
 .kick span,.cover-top span{unicode-bidi:isolate}
 /* diagrams and code always read left-to-right */
 .stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
 
 /* ---------- top bar ---------- */
 .top{
@@ -477,6 +479,48 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <h1 class="title"><span class="l-en"><code>&lt;ng-content&gt;</code>: markup that comes from outside</span><span class="l-ar" dir="auto"><code>&lt;ng-content&gt;</code>: ماركب جاي من بره</span></h1>
   <p class="lead"><span class="l-en">Sooner or later you want a card, a modal or a tab strip — a component whose <em>contents</em> are supplied by whoever uses it. That is content projection, and it is what makes a component library possible instead of forty nearly-identical components.</span><span class="l-ar" dir="auto">عاجلاً أو آجلاً هتحتاج card أو modal أو tabs — component <em>محتواه</em> بييجي من اللي بيستخدمه. ده اسمه content projection، وهو اللي بيخلي عمل مكتبة components ممكن، بدل أربعين component شبه بعض.</span></p>
 
+  
+  <div class="plain">
+    <div class="pc say">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3"/></svg><b><span class="l-en">What it actually is</span><span class="l-ar">هي إيه بالظبط</span></b></div>
+      <p><span class="l-en"><code>&lt;ng-content&gt;</code> is <b>a hole you leave in your component</b> so the parent can drop its own markup into it.</span><span class="l-ar" dir="auto"><code>&lt;ng-content&gt;</code> هي <b>فتحة بتسيبها في الـ component</b> عشان الأب يحط فيها الـ markup بتاعه.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6" width="7.4" height="12" rx="2"/><rect x="13.8" y="6" width="7.4" height="12" rx="2"/><path d="M12 3.2v17.6" stroke-dasharray="2 3"/></svg><b><span class="l-en">Think of it like</span><span class="l-ar">اعتبرها زي</span></b></div>
+      <p><span class="l-en">A picture frame you sell empty. You made the frame; the buyer decides what photo goes in it.</span><span class="l-ar" dir="auto">برواز بتبيعه فاضي. إنت عملت البرواز، والزبون هو اللي بيقرر الصورة اللي هتتحط فيه.</span></p>
+    </div>
+    <div class="pc">
+      <div class="ph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 11.4V5.6a1.8 1.8 0 0 1 3.6 0v5M11.8 10.6V4.4a1.8 1.8 0 0 1 3.6 0v6.4M15.4 10.8V6.2a1.8 1.8 0 0 1 3.6 0v8.4c0 4-2.9 7-6.9 7-3.4 0-5-1.6-6.5-4.2l-1.5-2.5c-.7-1.2 1-2.6 2.2-1.4l1.7 1.8"/></svg><b><span class="l-en">You reach for it when</span><span class="l-ar">هتحتاجها لما</span></b></div>
+      <p><span class="l-en">Cards, dialogs, panels, layouts — any component whose <em>shape</em> is fixed but whose <em>contents</em> vary.</span><span class="l-ar" dir="auto">الكروت والديالوجات واللوحات والتخطيطات — أي component <em>شكله</em> ثابت و<em>محتواه</em> بيتغيّر.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">The whole idea in 4 pictures</span><span class="l-ar">الفكرة كلها في 4 صور</span></p>
+  <div class="strip">
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.4" y="5" width="17.2" height="14" rx="2.6"/><path d="M3.4 9.4h17.2"/></svg></div>
+      <b><span class="l-en">Leave a hole</span><span class="l-ar" dir="auto">سيب فتحة</span></b>
+      <p><span class="l-en">One bare <code>&lt;ng-content /&gt;</code> catches everything the parent wrote inside your tag.</span><span class="l-ar" dir="auto"><code>&lt;ng-content /&gt;</code> واحدة بتمسك كل اللي الأب كتبه جوه التاج بتاعك.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 12h5.2M8.8 12l4.6-6h6.6M8.8 12l4.6 6h6.6M17.6 3.4 20.4 6l-2.8 2.6M17.6 15.4 20.4 18l-2.8 2.6"/></svg></div>
+      <b><span class="l-en">Or several, by selector</span><span class="l-ar" dir="auto">أو كذا واحدة بـ selector</span></b>
+      <p><span class="l-en"><code>select=&quot;[header]&quot;</code> routes matching elements to that slot only.</span><span class="l-ar" dir="auto"><code>select=&quot;[header]&quot;</code> بتوجّه العناصر المطابقة للفتحة دي بس.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.8"/><path d="M4.6 20.6a7.4 7.4 0 0 1 14.8 0"/></svg></div>
+      <b><span class="l-en">The parent still owns it</span><span class="l-ar" dir="auto">الأب لسه بيملكه</span></b>
+      <p><span class="l-en">Its expressions read the parent's data. Your component never sees those values.</span><span class="l-ar" dir="auto">تعبيراته بتقرا داتا الأب. الـ component بتاعك عمره ما هيشوف القيم دي.</span></p>
+    </div>
+    <div class="sp">
+      <div class="plate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 21.6 20H2.4z"/><path d="M12 9.8v4.2M12 17.2h.02"/></svg></div>
+      <b><span class="l-en">It renders even if hidden</span><span class="l-ar" dir="auto">بيترسم حتى لو مخفي</span></b>
+      <p><span class="l-en">Projected content is built by the parent regardless. Use <code>ng-template</code> if that is expensive.</span><span class="l-ar" dir="auto">المحتوى بيتبني عند الأب على أي حال. لو ده مكلّف، استعمل <code>ng-template</code>.</span></p>
+    </div>
+  </div>
+
+  <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
+
   <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="outer" data-kind="html">
@@ -538,6 +582,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
     <ul><li><span class="l-en">Projected content is created by the <b>caller</b>, not the wrapper. Its bindings and event handlers belong to the caller&rsquo;s component — which is usually exactly what you want.</span><span class="l-ar" dir="auto">المحتوى المُسقط بيتعمل بواسطة <b>المستخدم</b> مش الغلاف. والـ bindings والـ handlers بتوعه بتاعة component المستخدم — وده عادةً بالظبط اللي إنت عايزه.</span></li><li><span class="l-en">Content is projected <b>once</b>. Putting <code class="i">&lt;ng-content /&gt;</code> in two places does not duplicate it — only the last one receives it. Use <code class="i">ng-template</code> + <code class="i">ngTemplateOutlet</code> if you genuinely need it twice.</span><span class="l-ar" dir="auto">المحتوى بيتسقط <b>مرة واحدة</b>. ولو حطيت <code class="i">&lt;ng-content /&gt;</code> في مكانين مش هيتكرر — الأخير بس هو اللي هياخده. استعمل <code class="i">ng-template</code> مع <code class="i">ngTemplateOutlet</code> لو محتاجه مرتين فعلاً.</span></li><li><span class="l-en">Content inside a <code class="i">&#64;if</code> that is false is <b>still created</b> by the caller, just not displayed. For expensive content, project a template instead.</span><span class="l-ar" dir="auto">المحتوى اللي جوه <code class="i">&#64;if</code> بقيمة false <b>لسه بيتعمل</b> من المستخدم، بس مش بيتعرض. ولو المحتوى تقيل، اسقط template بدل كده.</span></li><li><span class="l-en"><code class="i">select</code> takes a CSS selector: <code class="i">[slot=actions]</code>, <code class="i">.danger</code>, <code class="i">h2</code>. It matches only <b>direct children</b> of the component tag.</span><span class="l-ar" dir="auto"><code class="i">select</code> بياخد CSS selector: <code class="i">[slot=actions]</code> أو <code class="i">.danger</code> أو <code class="i">h2</code>. وبيطابق <b>الأبناء المباشرين</b> بس لتاج الـ component.</span></li><li><span class="l-en">Styling projected content from the wrapper does not work by default — encapsulation scopes styles to the component that <em>declared</em> the markup. Style it from the caller.</span><span class="l-ar" dir="auto">تنسيق المحتوى المُسقط من الغلاف مش بيشتغل افتراضياً — التغليف بيحصر الاستايلات على الـ component اللي <em>أعلن</em> الماركب. نسّقه من عند المستخدم.</span></li></ul>
+  </div>
+
+  
+  <div class="oneline"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4s7.2-6.3 7.2-11.2a7.2 7.2 0 1 0-14.4 0C4.8 15.1 12 21.4 12 21.4z"/><circle cx="12" cy="10" r="2.6"/></svg>
+    <div>
+      <b class="lbl"><span class="l-en">If you remember one thing</span><span class="l-ar">لو هتفتكر حاجة واحدة</span></b>
+      <p><span class="l-en">Projected content belongs to the <b>parent</b>, not to you. Its bindings, its styles and its lifecycle are all the parent's.</span><span class="l-ar" dir="auto">المحتوى المُمرّر ملك <b>الأب</b>، مش ملكك. الـ bindings والستايلات ودورة الحياة كلها بتاعته.</span></p>
+    </div>
   </div>
 
   <nav class="pager">
