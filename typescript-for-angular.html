@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TypeScript for Angular</title>
+<meta name="description" content="Angular is written in TypeScript, so every Angular file you open is a TypeScript file. The good news: you do not need the whole language. This page covers the parts that actually a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Cairo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--c:var(--ts)}
+/* ============================================================
+   Two skins, one set of names. Light is the default; the top-bar
+   switch stamps data-theme="dark" on the root element, and only the
+   below change. Never hard-code a colour outside these blocks.
+   ============================================================ */
+:root{
+  color-scheme:light;
+  /* surfaces */
+  --bg:#f3f4fb; --bg2:#eaecf7; --card:#ffffff; --card2:#f7f8fd; --code:#fbfbff;
+  --line:rgba(23,27,64,.14); --line2:rgba(23,27,64,.08);
+  --sunk:rgba(23,27,64,.03); --sunk2:rgba(23,27,64,.05); --hover:rgba(23,27,64,.05);
+  --chip:rgba(23,27,64,.065); --chipink:#3a3f70;
+  --topbg:rgba(248,249,254,.84);
+  --wire:rgba(23,27,64,.24); --dotbg:rgba(23,27,64,.17);
+  --nodesh:0 12px 26px -20px rgba(23,27,64,.55), inset 0 1px 0 #fff;
+  --glow1:9%; --glow2:5%;
+  /* ink */
+  --ink:#12142c; --mut:#4d5480; --dim:#767d9f; --onc:#ffffff;
+  /* track accents — darkened so they carry on paper */
+  --beg:#0c9280;    /* track 1 */
+  --int:#5b3ad4;    /* track 2 */
+  --adv:#c60059;    /* track 3 */
+  --ts:#1566cc; --html:#c04d1a; --svc:#8a5f00; --cfg:#5b3ad4;
+  /* syntax */
+  --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
+  --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
+  --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0b0d1c; --bg2:#101430; --card:#141935; --card2:#171d3d; --code:transparent;
+  --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.055);
+  --sunk:rgba(255,255,255,.03); --sunk2:rgba(255,255,255,.05); --hover:rgba(255,255,255,.04);
+  --chip:rgba(255,255,255,.07); --chipink:#cfd6ff;
+  --topbg:rgba(8,10,22,.72);
+  --wire:rgba(255,255,255,.13); --dotbg:rgba(255,255,255,.16);
+  --nodesh:0 10px 26px -18px #000, inset 0 1px 0 rgba(255,255,255,.05);
+  --glow1:16%; --glow2:8%;
+  --ink:#eceefb; --mut:#98a0c8; --dim:#69719e; --onc:#0b0d1c;
+  --beg:#2ee6c5; --int:#8b6cff; --adv:#ff2e88;
+  --ts:#4a9eff; --html:#ff7a45; --svc:#ffb020; --cfg:#8b6cff;
+  --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
+  --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
+  --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:
+    radial-gradient(1100px 700px at 78% -10%,color-mix(in srgb,var(--c) var(--glow1),transparent),transparent 62%),
+    radial-gradient(900px 600px at 4% 108%,color-mix(in srgb,var(--adv) var(--glow2),transparent),transparent 62%),
+    var(--bg);
+  color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--c);color:var(--onc)}
+:focus-visible{outline:2px solid var(--c);outline-offset:3px;border-radius:6px}
+a{color:var(--c)}
+code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+
+/* ---------- language ---------- */
+:root[data-lang="en"] .l-ar{display:none !important}
+:root[data-lang="ar"] .l-en{display:none !important}
+:root[dir="rtl"]{
+  --disp:'Cairo','IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+}
+:root[dir="rtl"] h1.title{line-height:1.32;letter-spacing:0}
+:root[dir="rtl"] .lead{font-size:15px;line-height:1.75}
+:root[dir="rtl"] .num,:root[dir="rtl"] .badge{letter-spacing:.04em}
+/* keep neighbouring runs from reordering each other in RTL */
+.kick span,.cover-top span{unicode-bidi:isolate}
+/* diagrams and code always read left-to-right */
+.stage,.files,pre,.mono{direction:ltr}
+
+/* ---------- top bar ---------- */
+.top{
+  position:sticky;top:0;z-index:40;background:var(--topbg);
+  backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);
+  border-bottom:1px solid var(--line2);
+}
+.top-in{
+  max-width:1220px;margin:0 auto;padding:9px clamp(16px,3.4vw,40px);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.home{
+  display:inline-flex;align-items:baseline;gap:9px;text-decoration:none;white-space:nowrap;
+}
+.home b{
+  font-family:var(--disp);font-weight:800;font-size:15.5px;letter-spacing:-.02em;
+  background:linear-gradient(92deg,#e40035,#f20089 45%,#9717e2);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.home span{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase}
+.tracknav{display:flex;gap:4px;flex-wrap:wrap;margin-inline-start:6px}
+.tracknav a{
+  font-size:12.5px;font-weight:600;text-decoration:none;color:var(--dim);
+  padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.tracknav a i{width:7px;height:7px;border-radius:99px;background:currentColor;display:block;flex:none}
+.tracknav a:hover{color:var(--mut);background:var(--hover)}
+.tracknav a[aria-current="page"]{color:var(--onc);background:var(--c)}
+.top-right{display:flex;align-items:center;gap:8px;margin-inline-start:auto}
+.seg{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:var(--hover)}
+.seg button{
+  appearance:none;border:0;background:none;cursor:pointer;padding:5px 12px;
+  font-family:var(--body);font-size:12.5px;font-weight:600;color:var(--dim);line-height:1.5;
+}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--c);color:var(--onc)}
+
+/* ---------- article shell ---------- */
+.page{max-width:1220px;margin:0 auto;padding:clamp(24px,3.6vw,44px) clamp(16px,3.4vw,40px) 0}
+.eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.num{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.16em}
+/* a numeric counter must not be reordered by the bidi algorithm */
+.num.seq{direction:ltr;unicode-bidi:isolate}
+:root[dir="rtl"] .num:not(.seq){font-family:var(--body);letter-spacing:0;font-size:12.5px}
+.badge{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;border:1px solid currentColor;color:var(--c);
+  background:color-mix(in srgb,var(--c) 12%,transparent);
+}
+:root[dir="rtl"] .badge{font-family:var(--body);font-weight:600;text-transform:none;font-size:11.5px}
+h1.title{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.03em;line-height:1.02;
+  font-size:clamp(28px,4vw,46px);margin:0 0 10px;text-wrap:balance;
+}
+h1.title code{font-family:var(--mono);font-size:.82em;font-weight:600;color:var(--c);letter-spacing:0}
+.lead{color:var(--mut);max-width:74ch;margin:0 0 22px;font-size:15.5px;text-wrap:pretty}
+.lead b{color:var(--ink);font-weight:600}
+
+/* ---------- stage / diagram ---------- */
+.stage{position:relative;margin:6px 0 4px;padding:26px 8px;display:flex;flex-direction:column;gap:74px}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.row{display:flex;justify-content:center;gap:clamp(28px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
+.node{
+  background:linear-gradient(180deg,var(--card2),var(--card));
+  border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:172px;
+  box-shadow:var(--nodesh);
+  transition:border-color .3s,box-shadow .3s,transform .3s;
+}
+.node .role{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:3px;font-family:var(--mono)}
+:root[dir="rtl"] .node .role{font-family:var(--body);font-size:11px;letter-spacing:0;text-transform:none}
+:root[dir="rtl"] .home span{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .fc-h .tag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .pager a em{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .stepbar .cap span.n{direction:ltr;unicode-bidi:isolate}
+.node .file{font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--ink);white-space:nowrap;display:block}
+.node[data-kind="ts"] .file b{color:var(--ts)}
+.node[data-kind="html"] .file b{color:var(--html)}
+.node[data-kind="svc"] .file b{color:var(--svc)}
+.node[data-kind="cfg"] .file b{color:var(--cfg)}
+.node.active{border-color:color-mix(in srgb,var(--c) 65%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent),0 0 34px -8px var(--c);transform:translateY(-2px)}
+.edge path.wire{fill:none;stroke:var(--wire);stroke-width:1.6}
+.edge path.head{fill:var(--wire);stroke:none}
+.edge.lit path.head{fill:var(--c)}
+.edge path.flow{fill:none;stroke:var(--c);stroke-width:2.2;stroke-dasharray:5 9;opacity:0;stroke-linecap:round}
+.edge.lit path.wire{stroke:color-mix(in srgb,var(--c) 40%,transparent)}
+.edge.lit path.flow{opacity:1;animation:march 1s linear infinite}
+@keyframes march{to{stroke-dashoffset:-28}}
+.edge text{font-family:var(--mono);font-size:10.5px;fill:var(--dim);paint-order:stroke;stroke:var(--bg);stroke-width:5px;stroke-linejoin:round}
+.edge.lit text{fill:var(--c)}
+.packet{opacity:0}
+.packet rect{fill:var(--c)}
+.packet text{font-family:var(--mono);font-size:11px;font-weight:600;fill:var(--onc);stroke:none}
+
+/* ---------- step bar ---------- */
+.stepbar{
+  display:flex;align-items:center;gap:14px;margin:8px 0 22px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk);
+}
+.stepbar .dots{display:flex;gap:6px;flex-shrink:0}
+.stepbar .dot{width:7px;height:7px;border-radius:99px;background:var(--dotbg);cursor:pointer;border:0;padding:0;transition:.2s}
+.stepbar .dot.on{background:var(--c);box-shadow:0 0 10px -1px var(--c);transform:scale(1.25)}
+.stepbar .cap{flex:1;min-width:0;font-size:14px;color:var(--ink);text-wrap:pretty}
+.stepbar .cap span.n{color:var(--dim);font-family:var(--mono);font-size:11px;margin-inline-end:8px}
+.iconbtn{
+  background:var(--sunk2);border:1px solid var(--line);color:var(--mut);
+  border-radius:8px;padding:5px 11px;font-family:var(--mono);font-size:11px;cursor:pointer;white-space:nowrap;
+}
+.iconbtn:hover{color:var(--ink);border-color:color-mix(in srgb,var(--c) 55%,transparent)}
+
+/* ---------- code cards ---------- */
+.sechead{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:28px 0 12px}
+:root[dir="rtl"] .sechead{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.files{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:14px}
+.fc{background:var(--card);border:1px solid var(--line2);border-radius:12px;overflow:hidden;transition:border-color .3s;min-width:0}
+.fc.active{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.fc-h{
+  display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid var(--line2);
+  background:var(--sunk);font-family:var(--mono);font-size:11.5px;color:var(--mut);
+}
+.fc-h .d{width:7px;height:7px;border-radius:99px;flex-shrink:0}
+.fc[data-lang="ts"] .d{background:var(--ts)}
+.fc[data-lang="html"] .d{background:var(--html)}
+.fc[data-lang="json"] .d{background:var(--svc)}
+.fc[data-lang="bash"] .d{background:var(--beg)}
+.fc-h .tag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:var(--mono);font-size:12.2px;line-height:1.72;scrollbar-width:thin}
+.ln{display:block;padding:0 15px;white-space:pre;border-left:2px solid transparent;transition:background .25s,border-color .25s}
+.ln.hl{background:color-mix(in srgb,var(--c) 13%,transparent);border-left-color:var(--c)}
+.t-key{color:var(--t-key)}.t-str{color:var(--t-str)}.t-com{color:var(--t-com);font-style:italic}
+.t-dec{color:var(--t-dec)}.t-tag{color:var(--t-tag)}.t-bind{color:var(--t-bind)}.t-num{color:var(--t-num)}
+.t-fn{color:var(--t-fn)}.t-type{color:var(--t-type)}.t-attr{color:var(--t-attr)}.t-punc{color:var(--t-punc)}
+
+/* ---------- real example ---------- */
+.example{margin-top:26px;padding-top:18px;border-top:1px solid var(--line2)}
+.exhead{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:7px}
+.extag{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);border:1px solid currentColor;border-radius:99px;padding:3px 9px;
+  background:color-mix(in srgb,var(--c) 12%,transparent);white-space:nowrap;
+}
+:root[dir="rtl"] .extag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+.exhead b{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--ink)}
+.exlead{margin:0 0 14px;color:var(--mut);font-size:14px;max-width:82ch;text-wrap:pretty}
+
+/* ---------- gotchas ---------- */
+.gotchas{margin-top:22px;border-top:1px solid var(--line2);padding-top:16px}
+.gotchas h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 10px;font-weight:500}
+:root[dir="rtl"] .gotchas h4{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.gotchas ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:9px 22px}
+.gotchas li{position:relative;padding-inline-start:20px;font-size:13.6px;color:var(--mut);text-wrap:pretty}
+.gotchas li::before{content:"!";position:absolute;inset-inline-start:0;top:0;font-family:var(--mono);font-size:11px;color:var(--c);font-weight:700}
+.gotchas li b{color:var(--ink);font-weight:600}
+
+/* ---------- pager ---------- */
+.pager{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin:34px 0 0;padding:22px 0 46px;border-top:1px solid var(--line2);
+}
+.pager a{
+  display:flex;flex-direction:column;gap:4px;text-decoration:none;padding:14px 16px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--card);transition:.22s;min-width:0;
+}
+.pager a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.pager a em{font-family:var(--mono);font-style:normal;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.pager a b{font-size:14.5px;color:var(--ink);font-weight:600;line-height:1.35;text-wrap:pretty}
+.pager a.nx{text-align:end;align-items:flex-end}
+.pager .void{border:1px dashed var(--line2);border-radius:12px;opacity:.35}
+@media (max-width:600px){.pager{grid-template-columns:1fr}.pager a.nx{text-align:start;align-items:flex-start}}
+
+@media (max-width:900px){
+  .row{gap:16px}
+  .node{min-width:0;flex:1 1 auto}
+  .stage{gap:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+
+/* ================= reference-document layout (TypeScript page) ============ */
+.doc{display:grid;grid-template-columns:212px minmax(0,1fr);gap:clamp(20px,3.4vw,54px);align-items:start}
+@media (max-width:940px){.doc{grid-template-columns:1fr}}
+.doc-rail{position:sticky;top:70px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;scrollbar-width:thin}
+@media (max-width:940px){.doc-rail{position:static;max-height:none;border-bottom:1px solid var(--line2);padding-bottom:14px}}
+.doc-rail b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;font-weight:500}
+:root[dir="rtl"] .doc-rail b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.doc-rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.doc-rail a{
+  display:grid;grid-template-columns:1.6rem 1fr;gap:8px;align-items:baseline;
+  text-decoration:none;color:var(--dim);font-size:13px;line-height:1.35;
+  padding:6px 9px;border-radius:7px;transition:.16s;
+}
+.doc-rail a em{font-family:var(--mono);font-style:normal;font-size:10.5px;opacity:.7}
+.doc-rail a:hover{color:var(--ink);background:var(--hover)}
+.doc-rail a.on{color:var(--onc);background:var(--c)}
+.doc-rail a.on em{opacity:.75}
+
+.sec{padding-block:clamp(26px,3.6vw,44px);border-top:1px solid var(--line2);scroll-margin-top:74px}
+.sec:first-child{border-top:0;padding-top:6px}
+.sec-kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--c);margin-bottom:8px}
+:root[dir="rtl"] .sec-kick{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.sec h2{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.028em;line-height:1.08;
+  font-size:clamp(23px,3vw,33px);margin:0 0 10px;text-wrap:balance;
+}
+:root[dir="rtl"] .sec h2{letter-spacing:0;line-height:1.4}
+.sec h2 code{font-family:var(--mono);font-size:.8em;font-weight:600;color:var(--c);letter-spacing:0}
+.sec > .sec-lead{color:var(--mut);max-width:74ch;margin:0 0 4px;font-size:15px;text-wrap:pretty}
+.sec > .sec-lead b{color:var(--ink);font-weight:600}
+.sec p{max-width:74ch;text-wrap:pretty;color:var(--mut)}
+.sec p b{color:var(--ink);font-weight:600}
+.sec > p{margin:18px 0 0}
+.sec .code{margin-top:18px}
+.sec ul{margin:16px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;max-width:74ch}
+.sec ul li{padding-inline-start:20px;position:relative;color:var(--mut);text-wrap:pretty}
+.sec ul li::before{content:"";position:absolute;inset-inline-start:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--c);opacity:.6}
+
+.code{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--card);min-width:0}
+.code .fc-h{background:var(--sunk)}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;margin-top:18px}
+.code.bad{border-color:color-mix(in srgb,var(--adv) 42%,transparent)}
+.code.bad .fc-h{background:color-mix(in srgb,var(--adv) 10%,transparent)}
+.code.bad .fc-h .d{background:var(--adv)}
+.code.good{border-color:color-mix(in srgb,var(--beg) 42%,transparent)}
+.code.good .fc-h{background:color-mix(in srgb,var(--beg) 10%,transparent)}
+.code.good .fc-h .d{background:var(--beg)}
+.code .flag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.code.bad .flag{color:var(--adv)}
+.code.good .flag{color:var(--beg)}
+:root[dir="rtl"] .code .flag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+
+.note{
+  margin-top:20px;max-width:76ch;background:color-mix(in srgb,var(--c) 8%,transparent);
+  border-inline-start:3px solid var(--c);border-radius:0 9px 9px 0;padding:13px 16px;
+}
+:root[dir="rtl"] .note{border-radius:9px 0 0 9px}
+.note b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .note b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.note p{margin:0;font-size:14.2px;color:var(--mut)}
+
+.dtbl-wrap{overflow-x:auto;border:1px solid var(--line2);border-radius:12px;margin-top:18px;background:var(--card)}
+.dtbl{width:100%;border-collapse:collapse;font-size:13.6px;min-width:640px}
+.dtbl th{
+  text-align:start;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);font-weight:500;padding:10px 14px;border-bottom:1px solid var(--line);
+  background:var(--sunk);white-space:nowrap;
+}
+:root[dir="rtl"] .dtbl th{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px;font-weight:600}
+.dtbl td{padding:11px 14px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--mut);line-height:1.55}
+.dtbl tr:last-child td{border-bottom:0}
+.dtbl td:first-child{color:var(--ink);font-family:var(--mono);font-size:12px}
+
+/* ========================= roadmap page ========================= */
+.verdict{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin:26px 0 8px}
+.verdict div{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.verdict b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:8px;font-weight:600}
+:root[dir="rtl"] .verdict b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.verdict p{margin:0;color:var(--mut);font-size:14.2px;line-height:1.6;text-wrap:pretty}
+
+.phase{position:relative;padding:0 0 0 clamp(22px,3vw,42px);margin-top:clamp(24px,3.4vw,38px)}
+:root[dir="rtl"] .phase{padding:0 clamp(22px,3vw,42px) 0 0}
+.phase::before{content:"";position:absolute;inset-inline-start:0;top:6px;bottom:0;width:2px;background:linear-gradient(180deg,var(--c),transparent)}
+.phase-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.phase-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 8px;font-weight:600;direction:ltr}
+.phase-h h3{margin:0;font-family:var(--disp);font-weight:800;font-size:clamp(20px,2.6vw,27px);letter-spacing:-.02em;color:var(--ink)}
+:root[dir="rtl"] .phase-h h3{letter-spacing:0;line-height:1.4}
+.phase-when{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em;direction:ltr;unicode-bidi:isolate}
+.phase-goal{margin:0 0 14px;color:var(--mut);max-width:72ch;font-size:14.6px;text-wrap:pretty}
+.phase-list{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:14px}
+.phase-list a{
+  display:grid;grid-template-columns:1.8rem 1fr;gap:9px;align-items:baseline;text-decoration:none;
+  padding:8px 11px;border-radius:8px;border:1px solid var(--line2);background:var(--card);transition:.18s;min-width:0;
+}
+.phase-list a em{font-family:var(--mono);font-style:normal;font-size:10.5px;color:var(--dim)}
+.phase-list a span{font-size:13.6px;color:var(--ink);line-height:1.35;text-wrap:pretty}
+.phase-list a span code{font-family:var(--mono);font-size:.86em;color:var(--c)}
+.phase-list a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.phase-build{
+  border-inline-start:3px solid var(--c);background:color-mix(in srgb,var(--c) 7%,transparent);
+  border-radius:0 9px 9px 0;padding:12px 15px;max-width:72ch;
+}
+:root[dir="rtl"] .phase-build{border-radius:9px 0 0 9px}
+.phase-build b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .phase-build b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.phase-build p{margin:0;color:var(--mut);font-size:14px;line-height:1.6;text-wrap:pretty}
+
+.gap{margin-top:16px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.gap section{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.gap h4{margin:0 0 10px;font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.3;text-wrap:pretty}
+.gap ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.gap li{padding-inline-start:19px;position:relative;font-size:13.4px;color:var(--mut);line-height:1.5;text-wrap:pretty}
+.gap li::before{content:"○";position:absolute;inset-inline-start:0;top:0;font-size:10px;color:var(--c);opacity:.7}
+.gap li code{font-family:var(--mono);font-size:.88em;background:var(--chip);padding:1px 4px;border-radius:3px;color:var(--chipink)}
+
+.advice{margin-top:16px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.advice div{border-top:2px solid var(--c);padding-top:12px;min-width:0}
+.advice b{display:block;font-family:var(--disp);font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px;letter-spacing:-.015em}
+:root[dir="rtl"] .advice b{letter-spacing:0}
+.advice p{margin:0;color:var(--mut);font-size:13.8px;line-height:1.6;text-wrap:pretty}
+
+/* ---------- theme switch (icon segment) ---------- */
+.seg.ico button{padding:5px 10px;display:grid;place-items:center}
+.seg.ico svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block}
+@media (max-width:820px){.seg.ico{order:2}}
+
+/* ================= beginner scaffolding on every topic ================= */
+/* three plain-language cards that sit above the technical diagram */
+.plain{display:grid;gap:12px;grid-template-columns:1.4fr 1fr 1fr;margin:2px 0 26px}
+@media (max-width:900px){.plain{grid-template-columns:1fr}}
+.pc{
+  border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);
+  min-width:0;display:flex;flex-direction:column;gap:9px;
+}
+.pc.say{background:color-mix(in srgb,var(--c) 7%,var(--card));border-color:color-mix(in srgb,var(--c) 26%,transparent)}
+.pc .ph{display:flex;align-items:center;gap:8px}
+.pc .ph svg{width:16px;height:16px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pc .ph b{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);font-weight:600}
+:root[dir="rtl"] .pc .ph b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.pc p{margin:0;font-size:14.2px;color:var(--mut);line-height:1.62;text-wrap:pretty}
+.pc p b{color:var(--ink);font-weight:600}
+.pc p code{font-family:var(--mono);font-size:.87em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+.pc.say p{font-size:16px;color:var(--ink)}
+
+/* the idea, as a strip of pictures */
+.strip{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(188px,1fr));margin:2px 0 4px}
+.sp{position:relative;border:1px solid var(--line2);border-radius:14px;padding:15px 16px 14px;background:var(--card);min-width:0}
+.sp .plate{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:11px;
+  background:color-mix(in srgb,var(--c) 13%,transparent);border:1px solid color-mix(in srgb,var(--c) 20%,transparent);
+}
+.sp .plate svg{width:21px;height:21px;stroke:var(--c);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sp b{display:block;font-size:14.5px;color:var(--ink);font-weight:600;margin-bottom:4px;line-height:1.32;text-wrap:pretty}
+.sp p{margin:0;font-size:13.3px;color:var(--mut);line-height:1.55;text-wrap:pretty}
+.sp p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+.sp::after{
+  content:"";position:absolute;top:30px;right:-15px;width:11px;height:11px;
+  border-top:1.6px solid var(--line);border-right:1.6px solid var(--line);
+  transform:rotate(45deg);z-index:2;
+}
+:root[dir="rtl"] .sp::after{right:auto;left:-15px;transform:rotate(-135deg)}
+.sp:last-child::after{display:none}
+@media (max-width:760px){.sp::after{display:none}}
+
+/* the single sentence worth memorising */
+.oneline{
+  margin-top:26px;display:flex;gap:14px;align-items:flex-start;border-radius:14px;padding:16px 19px;
+  border:1px solid color-mix(in srgb,var(--c) 30%,transparent);
+  background:color-mix(in srgb,var(--c) 8%,transparent);
+}
+.oneline > svg{width:22px;height:22px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin-top:3px}
+.oneline b.lbl{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .oneline b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.oneline p{margin:0;font-size:15px;color:var(--ink);line-height:1.62;text-wrap:pretty;max-width:78ch}
+.oneline p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+</style>
+<script>
+(function(){var r=document.documentElement;try{
+if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
+r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
+}catch(e){r.dataset.theme='light';}})();
+</script>
+</head>
+<body>
+<header class="top"><div class="top-in">
+    <a class="home" href="index.html"><b>The Angular Signal</b><span class="l-en">contents</span><span class="l-ar">المحتويات</span></a>
+    <nav class="tracknav"><a href="roadmap.html" style="--c:var(--beg)"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="beginner/01-how-an-app-starts.html" style="--c:var(--beg)"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="intermediate/16-forms.html" style="--c:var(--int)"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="advanced/28-change-detection.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="typescript-for-angular.html" style="--c:var(--ts)" aria-current="page"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
+    <div class="top-right">
+      <div class="seg" role="group" aria-label="Language">
+        <button id="b-en" aria-pressed="true">EN</button>
+        <button id="b-ar" aria-pressed="false" lang="ar">مصري</button>
+      </div>
+      <div class="seg ico" role="group" aria-label="Theme">
+        <button id="b-lt" aria-pressed="true" title="Light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.2v2.3M12 19.5v2.3M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.2 12h2.3M19.5 12h2.3M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button>
+        <button id="b-dk" aria-pressed="false" title="Dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.7 6.7 0 0 0 11.1 11.1z"/></svg></button>
+      </div>
+    </div>
+  </div></header>
+<main class="page" id="page">
+  <div class="eyebrow">
+    <span class="num seq">00</span>
+    <span class="badge"><span class="l-en">Prerequisite</span><span class="l-ar">قبل ما تبدأ</span></span>
+    <span class="num"><span class="l-en">Read this first</span><span class="l-ar">اقرا دي الأول</span></span>
+  </div>
+  <h1 class="title"><span class="l-en">TypeScript, only the parts Angular uses</span><span class="l-ar" dir="auto">TypeScript، بس الأجزاء اللي أنجولار بيستخدمها</span></h1>
+  <p class="lead"><span class="l-en">Angular is written in TypeScript, so every Angular file you open is a TypeScript file. The good news: you do not need the whole language. This page covers the parts that actually appear in Angular code, in the order you meet them — starting from <b>zero</b>. If you can read JavaScript, you can read this.</span><span class="l-ar" dir="auto">أنجولار مكتوب بـ TypeScript، فأي ملف أنجولار هتفتحه هو ملف TypeScript. والخبر الحلو: مش محتاج اللغة كلها. الصفحة دي فيها الأجزاء اللي بتظهر فعلاً في كود أنجولار، بالترتيب اللي هتقابلهم بيه — من <b>الصفر</b>. لو بتعرف تقرا جافاسكريبت، تقدر تقرا ده.</span></p>
+
+  <div class="doc">
+    <nav class="doc-rail">
+      <b><span class="l-en">On this page</span><span class="l-ar">في الصفحة دي</span></b>
+      <ol><li><a href="#why" data-rail="why"><em>01</em><span><span class="l-en">TypeScript is JavaScript with labels</span><span class="l-ar" dir="auto">TypeScript هو جافاسكريبت مع لافتات</span></span></a></li><li><a href="#basics" data-rail="basics"><em>02</em><span><span class="l-en">The types you will actually type</span><span class="l-ar" dir="auto">الأنواع اللي هتكتبها فعلاً</span></span></a></li><li><a href="#shapes" data-rail="shapes"><em>03</em><span><span class="l-en">interface and type: naming a shape</span><span class="l-ar" dir="auto">interface و type: تسمية الشكل</span></span></a></li><li><a href="#null" data-rail="null"><em>04</em><span><span class="l-en">null, undefined, and “possibly undefined”</span><span class="l-ar" dir="auto">null و undefined و «possibly undefined»</span></span></a></li><li><a href="#functions" data-rail="functions"><em>05</em><span><span class="l-en">Functions, parameters and return types</span><span class="l-ar" dir="auto">الدوال والمعاملات وأنواع الإرجاع</span></span></a></li><li><a href="#classes" data-rail="classes"><em>06</em><span><span class="l-en">Classes, and the parts Angular cares about</span><span class="l-ar" dir="auto">الكلاسات، والأجزاء اللي أنجولار بيهتم بيها</span></span></a></li><li><a href="#generics" data-rail="generics"><em>07</em><span><span class="l-en">Generics: the &lt;angle brackets&gt; everywhere in Angular</span><span class="l-ar" dir="auto">الـ Generics: الـ &lt;أقواس&gt; اللي في كل حتة في أنجولار</span></span></a></li><li><a href="#utility" data-rail="utility"><em>08</em><span><span class="l-en">Utility types you will reach for</span><span class="l-ar" dir="auto">أنواع جاهزة هتحتاجها</span></span></a></li><li><a href="#narrowing" data-rail="narrowing"><em>09</em><span><span class="l-en">Narrowing: convincing the compiler</span><span class="l-ar" dir="auto">التضييق: تقنع الـ compiler</span></span></a></li><li><a href="#modules" data-rail="modules"><em>10</em><span><span class="l-en">import and export</span><span class="l-ar" dir="auto">import و export</span></span></a></li><li><a href="#decorators" data-rail="decorators"><em>11</em><span><span class="l-en">Decorators: what &#64;Component actually is</span><span class="l-ar" dir="auto">الـ Decorators: &#64;Component ده إيه بالظبط</span></span></a></li><li><a href="#angular-types" data-rail="angular-types"><em>12</em><span><span class="l-en">The same TypeScript, in real Angular files</span><span class="l-ar" dir="auto">نفس الـ TypeScript، في ملفات أنجولار حقيقية</span></span></a></li><li><a href="#errors" data-rail="errors"><em>13</em><span><span class="l-en">The six errors you will actually hit</span><span class="l-ar" dir="auto">الست غلطات اللي هتقابلك فعلاً</span></span></a></li><li><a href="#config" data-rail="config"><em>14</em><span><span class="l-en">The tsconfig lines that change your life</span><span class="l-ar" dir="auto">سطور الـ tsconfig اللي بتغيّر حياتك</span></span></a></li></ol>
+    </nav>
+    <div>
+      <section class="sec" id="why">
+        <div class="sec-kick"><span class="l-en">Start here</span><span class="l-ar" dir="auto">ابدأ من هنا</span></div>
+        <h2><span class="l-en">TypeScript is JavaScript with labels</span><span class="l-ar" dir="auto">TypeScript هو جافاسكريبت مع لافتات</span></h2>
+        <p class="sec-lead"><span class="l-en">Every line of JavaScript you already know is valid TypeScript. TypeScript adds one thing: you can say what kind of value a variable holds, and the editor checks it <b>before you run the code</b>.</span><span class="l-ar" dir="auto">كل سطر جافاسكريبت إنت عارفه هو TypeScript صحيح. TypeScript بيضيف حاجة واحدة: تقدر تقول القيمة نوعها إيه، والمحرر بيتأكد <b>قبل ما تشغّل الكود</b>.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>the whole idea<span class="tag"><span class="l-en">compare</span><span class="l-ar" dir="auto">قارن</span></span></div>
+        <pre><span class="ln"><i class="t-com">// JavaScript — nothing stops you until it explodes at runtime</i></span><span class="ln"><i class="t-key">let</i> price = <i class="t-num">100</i>;</span><span class="ln">price = <i class="t-str">'one hundred'</i>;        <i class="t-com">// fine today, crash tomorrow</i></span><span class="ln"> </span><span class="ln"><i class="t-com">// TypeScript — the same line, caught while you type</i></span><span class="ln"><i class="t-key">let</i> price: <i class="t-key">number</i> = <i class="t-num">100</i>;</span><span class="ln">price = <i class="t-str">'one hundred'</i>;        <i class="t-com">// Type 'string' is not assignable to type 'number'</i></span></pre>
+      </div><p><span class="l-en">That <code>: number</code> is a <b>type annotation</b>. It produces no code — the browser never sees it. It exists purely so the compiler and your editor can catch mistakes and offer autocomplete.</span><span class="l-ar" dir="auto">الـ <code>: number</code> دي اسمها <b>type annotation</b>. مش بتنتج كود — البراوزر عمره ما بيشوفها. موجودة بس عشان الـ compiler والمحرر يمسكوا الغلطات ويقترحوا عليك.</span></p><div class="note"><b class="lbl"><span class="l-en">You will annotate less than you think</span><span class="l-ar" dir="auto">هتكتب أنواع أقل مما تتخيل</span></b><p><span class="l-en">TypeScript <b>infers</b> most types. <code>let price = 100</code> is already a <code>number</code> — writing <code>: number</code> there adds nothing. Annotate function parameters and public APIs; let everything else be inferred.</span><span class="l-ar" dir="auto">TypeScript بـ<b>يستنتج</b> معظم الأنواع. <code>let price = 100</code> هو أصلاً <code>number</code> — كتابة <code>: number</code> هنا مش بتضيف حاجة. اكتب الأنواع في معاملات الدوال والواجهات العامة، وسيب الباقي يتستنتج.</span></p></div>
+      </section>
+      <section class="sec" id="basics">
+        <div class="sec-kick"><span class="l-en">The vocabulary</span><span class="l-ar" dir="auto">المفردات</span></div>
+        <h2><span class="l-en">The types you will actually type</span><span class="l-ar" dir="auto">الأنواع اللي هتكتبها فعلاً</span></h2>
+        <p class="sec-lead"><span class="l-en">There are about eight of these and they cover almost everything in an Angular app.</span><span class="l-ar" dir="auto">فيه حوالي تمنية بس، وبيغطوا تقريباً كل حاجة في تطبيق أنجولار.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>basic-types.ts<span class="tag"><span class="l-en">the whole set</span><span class="l-ar" dir="auto">المجموعة كلها</span></span></div>
+        <pre><span class="ln"><i class="t-key">let</i> name: <i class="t-key">string</i> = <i class="t-str">'Mona'</i>;</span><span class="ln"><i class="t-key">let</i> age: <i class="t-key">number</i> = <i class="t-num">30</i>;              <i class="t-com">// no separate int/float — just number</i></span><span class="ln"><i class="t-key">let</i> isAdmin: <i class="t-key">boolean</i> = <i class="t-key">false</i>;</span><span class="ln"> </span><span class="ln"><i class="t-key">let</i> tags: <i class="t-key">string</i>[] = [<i class="t-str">'sale'</i>, <i class="t-str">'new'</i>];        <i class="t-com">// array of strings</i></span><span class="ln"><i class="t-key">let</i> scores: <i class="t-type">Array</i>&lt;<i class="t-key">number</i>&gt; = [<i class="t-num">1</i>, <i class="t-num">2</i>, <i class="t-num">3</i>];       <i class="t-com">// the same thing, other syntax</i></span><span class="ln"> </span><span class="ln"><i class="t-key">let</i> pair: [<i class="t-key">string</i>, <i class="t-key">number</i>] = [<i class="t-str">'age'</i>, <i class="t-num">30</i>];    <i class="t-com">// tuple: fixed length and order</i></span><span class="ln"> </span><span class="ln"><i class="t-key">let</i> nothing: <i class="t-key">null</i> = <i class="t-key">null</i>;</span><span class="ln"><i class="t-key">let</i> missing: <i class="t-key">undefined</i> = <i class="t-key">undefined</i>;</span><span class="ln"> </span><span class="ln"><i class="t-key">let</i> anything: <i class="t-key">any</i> = <i class="t-str">'whatever'</i>;    <i class="t-com">// turns OFF checking — avoid</i></span><span class="ln"><i class="t-key">let</i> safe: <i class="t-key">unknown</i> = <i class="t-str">'whatever'</i>;    <i class="t-com">// unknown until you check it — prefer this</i></span></pre>
+      </div><div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>any switches the compiler off<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><i class="t-key">function</i> <i class="t-fn">total</i>(items: <i class="t-key">any</i>) {</span><span class="ln">  <i class="t-key">return</i> items.<i class="t-fn">redcue</i>((a, b) =&gt; a + b);   <i class="t-com">// typo — nobody warns you</i></span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-com">// any means "stop checking". Every bug downstream is now invisible.</i></span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>say what you mean<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><i class="t-key">function</i> <i class="t-fn">total</i>(items: <i class="t-key">number</i>[]) {</span><span class="ln">  <i class="t-key">return</i> items.<i class="t-fn">reduce</i>((a, b) =&gt; a + b, <i class="t-num">0</i>);   <i class="t-com">// typo would be caught</i></span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-com">// if you genuinely do not know the type yet, use unknown,</i></span><span class="ln"><i class="t-com">// which forces you to check before using it.</i></span></pre>
+      </div>
+    </div><div class="note"><b class="lbl"><span class="l-en">The one rule about any</span><span class="l-ar" dir="auto">قاعدة واحدة عن any</span></b><p><span class="l-en">Every <code>any</code> is a hole in the net. It is sometimes the pragmatic answer, but treat it as a note saying <em>I will come back to this</em> — not as a solution.</span><span class="l-ar" dir="auto">كل <code>any</code> دي فتحة في الشبكة. أحياناً بتبقى الحل العملي، بس اعتبرها ملحوظة معناها <em>هرجعلها بعدين</em> — مش حل.</span></p></div>
+      </section>
+      <section class="sec" id="shapes">
+        <div class="sec-kick"><span class="l-en">Describing objects</span><span class="l-ar" dir="auto">وصف الـ objects</span></div>
+        <h2><span class="l-en"><code>interface</code> and <code>type</code>: naming a shape</span><span class="l-ar" dir="auto"><code>interface</code> و <code>type</code>: تسمية الشكل</span></h2>
+        <p class="sec-lead"><span class="l-en">Almost every object in an Angular app has a name for its shape — a <code>User</code>, an <code>Order</code>, a <code>Product</code>. You write it once and use it everywhere.</span><span class="l-ar" dir="auto">تقريباً كل object في تطبيق أنجولار ليه اسم لشكله — <code>User</code> أو <code>Order</code> أو <code>Product</code>. بتكتبه مرة وتستخدمه في كل حتة.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>models/user.ts<span class="tag"><span class="l-en">a real Angular file</span><span class="l-ar" dir="auto">ملف أنجولار حقيقي</span></span></div>
+        <pre><span class="ln"><i class="t-key">export</i> <i class="t-key">interface</i> <i class="t-type">User</i> {</span><span class="ln">  id: <i class="t-key">string</i>;</span><span class="ln">  name: <i class="t-key">string</i>;</span><span class="ln">  email: <i class="t-key">string</i>;</span><span class="ln">  age?: <i class="t-key">number</i>;                    <i class="t-com">// ? = optional, may be missing</i></span><span class="ln">  <i class="t-key">readonly</i> createdAt: <i class="t-key">string</i>;      <i class="t-com">// cannot be reassigned after creation</i></span><span class="ln">  roles: <i class="t-key">string</i>[];</span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-com">// now the shape has a name you can use anywhere</i></span><span class="ln"><i class="t-key">const</i> mona: <i class="t-type">User</i> = {</span><span class="ln">  id: <i class="t-str">'u1'</i>,</span><span class="ln">  name: <i class="t-str">'Mona'</i>,</span><span class="ln">  email: <i class="t-str">'mona@shop.eg'</i>,</span><span class="ln">  createdAt: <i class="t-str">'2026-01-04'</i>,</span><span class="ln">  roles: [<i class="t-str">'admin'</i>],</span><span class="ln">};                                 <i class="t-com">// age omitted — allowed, it is optional</i></span></pre>
+      </div><p><span class="l-en"><code>type</code> does the same job and a bit more. The practical rule: use <code>interface</code> for object shapes, and <code>type</code> when you need a union or an alias for something that is not an object.</span><span class="l-ar" dir="auto"><code>type</code> بتعمل نفس الشغل وزيادة شوية. القاعدة العملية: استعمل <code>interface</code> لأشكال الـ objects، و<code>type</code> لما تحتاج union أو اسم بديل لحاجة مش object.</span></p>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>when to use type<span class="tag"><span class="l-en">unions</span><span class="l-ar" dir="auto">الاتحادات</span></span></div>
+        <pre><span class="ln"><i class="t-com">// a union: the value is exactly one of these, and nothing else</i></span><span class="ln"><i class="t-key">type</i> <i class="t-type">Status</i> = <i class="t-str">'idle'</i> | <i class="t-str">'loading'</i> | <i class="t-str">'ready'</i> | <i class="t-str">'error'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-key">let</i> s: <i class="t-type">Status</i> = <i class="t-str">'loading'</i>;</span><span class="ln">s = <i class="t-str">'loadng'</i>;        <i class="t-com">// caught — typos in strings become compile errors</i></span><span class="ln"> </span><span class="ln"><i class="t-com">// unions of objects work too</i></span><span class="ln"><i class="t-key">type</i> <i class="t-type">Result</i> =</span><span class="ln">  | { ok: <i class="t-key">true</i>; data: <i class="t-type">User</i> }</span><span class="ln">  | { ok: <i class="t-key">false</i>; error: <i class="t-key">string</i> };</span><span class="ln"> </span><span class="ln"><i class="t-com">// combine shapes</i></span><span class="ln"><i class="t-key">type</i> <i class="t-type">Timestamped</i> = { createdAt: <i class="t-key">string</i>; updatedAt: <i class="t-key">string</i> };</span><span class="ln"><i class="t-key">type</i> <i class="t-type">Post</i> = { title: <i class="t-key">string</i> } &amp; <i class="t-type">Timestamped</i>;   <i class="t-com">// &amp; = has both</i></span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">Why this matters in Angular</span><span class="l-ar" dir="auto">ليه ده مهم في أنجولار</span></b><p><span class="l-en">A literal union like <code>Status</code> is how you get autocomplete on a component input and how the compiler stops you writing <code>'loadng'</code>. It replaces <code>enum</code> in most modern Angular code.</span><span class="l-ar" dir="auto">الـ union النصي زي <code>Status</code> هو اللي بيديك اقتراحات في input الـ component، وبيمنعك تكتب <code>'loadng'</code>. وهو بديل <code>enum</code> في معظم كود أنجولار الحديث.</span></p></div>
+      </section>
+      <section class="sec" id="null">
+        <div class="sec-kick"><span class="l-en">The number one error</span><span class="l-ar" dir="auto">الايرور رقم واحد</span></div>
+        <h2><span class="l-en"><code>null</code>, <code>undefined</code>, and “possibly undefined”</span><span class="l-ar" dir="auto"><code>null</code> و <code>undefined</code> و «possibly undefined»</span></h2>
+        <p class="sec-lead"><span class="l-en">Angular projects ship with <code>strict</code> mode on. That means TypeScript refuses to let you use a value that <em>might</em> be missing, until you prove it is there. This is the error every beginner meets on day one.</span><span class="l-ar" dir="auto">مشاريع أنجولار بتيجي و<code>strict</code> mode مفتوح. ومعناها إن TypeScript مش هيسيبك تستخدم قيمة <em>ممكن</em> تكون ناقصة، لحد ما تثبت إنها موجودة. ودي الغلطة اللي كل مبتدئ بيقابلها أول يوم.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>the error, and the four ways out<span class="tag"><span class="l-en">read this twice</span><span class="l-ar" dir="auto">اقراها مرتين</span></span></div>
+        <pre><span class="ln"><i class="t-key">const</i> user: <i class="t-type">User</i> | <i class="t-key">undefined</i> = <i class="t-fn">findUser</i>(<i class="t-str">'u1'</i>);</span><span class="ln"> </span><span class="ln">console.<i class="t-fn">log</i>(user.name);        <i class="t-com">// ✗ 'user' is possibly 'undefined'</i></span><span class="ln"> </span><span class="ln"><i class="t-com">// 1. check first — the compiler follows your if statement</i></span><span class="ln"><i class="t-key">if</i> (user) {</span><span class="ln">  console.<i class="t-fn">log</i>(user.name);      <i class="t-com">// ✓ inside here it cannot be undefined</i></span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-com">// 2. optional chaining — returns undefined instead of throwing</i></span><span class="ln">console.<i class="t-fn">log</i>(user?.name);       <i class="t-com">// ✓</i></span><span class="ln"> </span><span class="ln"><i class="t-com">// 3. a fallback value with ??  (only fires on null/undefined)</i></span><span class="ln"><i class="t-key">const</i> label = user?.name ?? <i class="t-str">'Guest'</i>;   <i class="t-com">// ✓</i></span><span class="ln"> </span><span class="ln"><i class="t-com">// 4. the non-null assertion — you SWEAR it is there</i></span><span class="ln">console.<i class="t-fn">log</i>(user!.name);       <i class="t-com">// ✓ compiles, and crashes if you were wrong</i></span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">About that exclamation mark</span><span class="l-ar" dir="auto">بخصوص علامة التعجب دي</span></b><p><span class="l-en"><code>!</code> does not check anything — it silences the compiler. Every <code>!</code> you write is a promise you are making with no evidence. Use options 1–3 first; reach for <code>!</code> only when you can explain out loud why it can never be null.</span><span class="l-ar" dir="auto"><code>!</code> مش بتتأكد من حاجة — بتسكّت الـ compiler بس. كل <code>!</code> بتكتبها هي وعد منك من غير دليل. استعمل الحلول 1 لـ 3 الأول؛ ومتلجأش لـ <code>!</code> غير لما تقدر تقول بصوت عالي ليه دي مستحيل تكون null.</span></p></div><p><span class="l-en">Note the difference between <code>??</code> and <code>||</code>. <code>||</code> fires on any falsy value, so <code>0</code> and <code>''</code> get replaced too. <code>??</code> fires only on <code>null</code> and <code>undefined</code> — which is almost always what you meant.</span><span class="l-ar" dir="auto">خد بالك من الفرق بين <code>??</code> و<code>||</code>. <code>||</code> بتشتغل مع أي قيمة falsy، فـ <code>0</code> و<code>''</code> بيتبدلوا كمان. أما <code>??</code> فبتشتغل بس مع <code>null</code> و<code>undefined</code> — وده تقريباً دايماً اللي كنت تقصده.</span></p>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>the difference that bites<span class="tag"><span class="l-en">?? vs ||</span><span class="l-ar" dir="auto">?? مقابل ||</span></span></div>
+        <pre><span class="ln"><i class="t-key">const</i> qty = <i class="t-num">0</i>;</span><span class="ln"> </span><span class="ln">qty || <i class="t-num">1</i>;     <i class="t-com">// → 1   … 0 is falsy, so it was replaced. Probably a bug.</i></span><span class="ln">qty ?? <i class="t-num">1</i>;     <i class="t-com">// → 0   … 0 is a real value, kept. Probably what you wanted.</i></span></pre>
+      </div>
+      </section>
+      <section class="sec" id="functions">
+        <div class="sec-kick"><span class="l-en">Behaviour</span><span class="l-ar" dir="auto">السلوك</span></div>
+        <h2><span class="l-en">Functions, parameters and return types</span><span class="l-ar" dir="auto">الدوال والمعاملات وأنواع الإرجاع</span></h2>
+        <p class="sec-lead"><span class="l-en">Parameters are where annotations earn their keep — TypeScript cannot infer what a caller will hand you.</span><span class="l-ar" dir="auto">المعاملات هي المكان اللي الأنواع بتثبت فيه فايدتها — TypeScript مش بيقدر يستنتج المتصل هيديك إيه.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>functions.ts<span class="tag"><span class="l-en">every form</span><span class="l-ar" dir="auto">كل الأشكال</span></span></div>
+        <pre><span class="ln"><i class="t-com">// annotate the parameters; the return type is usually inferred</i></span><span class="ln"><i class="t-key">function</i> <i class="t-fn">greet</i>(name: <i class="t-key">string</i>) {</span><span class="ln">  <i class="t-key">return</i> <i class="t-str">`Hello ${name}`</i>;         <i class="t-com">// inferred as string</i></span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-com">// optional parameter, and one with a default</i></span><span class="ln"><i class="t-key">function</i> <i class="t-fn">price</i>(amount: <i class="t-key">number</i>, currency = <i class="t-str">'EGP'</i>, discount?: <i class="t-key">number</i>) {</span><span class="ln">  <i class="t-key">const</i> off = discount ?? <i class="t-num">0</i>;</span><span class="ln">  <i class="t-key">return</i> <i class="t-str">`${amount - off} ${currency}`</i>;</span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-com">// arrow function — the form you see most in Angular</i></span><span class="ln"><i class="t-key">const</i> double = (n: <i class="t-key">number</i>): <i class="t-key">number</i> =&gt; n * <i class="t-num">2</i>;</span><span class="ln"> </span><span class="ln"><i class="t-com">// a function that returns nothing</i></span><span class="ln"><i class="t-key">function</i> <i class="t-fn">log</i>(message: <i class="t-key">string</i>): <i class="t-key">void</i> {</span><span class="ln">  console.<i class="t-fn">log</i>(message);</span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-com">// a function passed as a value — describe its shape</i></span><span class="ln"><i class="t-key">function</i> <i class="t-fn">onEach</i>(items: <i class="t-key">string</i>[], fn: (item: <i class="t-key">string</i>, index: <i class="t-key">number</i>) =&gt; <i class="t-key">void</i>) {</span><span class="ln">  items.<i class="t-fn">forEach</i>(fn);</span><span class="ln">}</span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">Where you meet this in Angular</span><span class="l-ar" dir="auto">هتقابل ده فين في أنجولار</span></b><p><span class="l-en"><code>(item: string, index: number) =&gt; void</code> is exactly the shape you write for a route guard, an HTTP interceptor, or the callback in <code>.map()</code>. Angular is full of functions passed as values.</span><span class="l-ar" dir="auto"><code>(item: string, index: number) =&gt; void</code> ده بالظبط الشكل اللي بتكتبه لـ route guard أو HTTP interceptor أو الـ callback جوه <code>.map()</code>. أنجولار مليان دوال بتتمرر كقيم.</span></p></div>
+      </section>
+      <section class="sec" id="classes">
+        <div class="sec-kick"><span class="l-en">Where components live</span><span class="l-ar" dir="auto">مكان الـ components</span></div>
+        <h2><span class="l-en">Classes, and the parts Angular cares about</span><span class="l-ar" dir="auto">الكلاسات، والأجزاء اللي أنجولار بيهتم بيها</span></h2>
+        <p class="sec-lead"><span class="l-en">Every Angular component and service is a class. You need four things from classes: fields, a constructor, access modifiers, and <code>readonly</code>.</span><span class="l-ar" dir="auto">كل component وservice في أنجولار هو كلاس. ومحتاج أربع حاجات من الكلاسات: الحقول، والـ constructor، ومحددات الوصول، و<code>readonly</code>.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>classes.ts<span class="tag"><span class="l-en">the four things</span><span class="l-ar" dir="auto">الأربع حاجات</span></span></div>
+        <pre><span class="ln"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Cart</i> {</span><span class="ln">  <i class="t-com">// a field with an initial value — its type is inferred</i></span><span class="ln">  items: <i class="t-type">Item</i>[] = [];</span><span class="ln"> </span><span class="ln">  <i class="t-com">// public (the default): anyone may read and write it</i></span><span class="ln">  <i class="t-key">public</i> currency = <i class="t-str">'EGP'</i>;</span><span class="ln"> </span><span class="ln">  <i class="t-com">// private: only code inside this class may touch it</i></span><span class="ln">  <i class="t-key">private</i> secret = <i class="t-str">'abc'</i>;</span><span class="ln"> </span><span class="ln">  <i class="t-com">// protected: this class and anything that extends it</i></span><span class="ln">  <i class="t-key">protected</i> internalId = <i class="t-num">0</i>;</span><span class="ln"> </span><span class="ln">  <i class="t-com">// readonly: set once, never reassigned</i></span><span class="ln">  <i class="t-key">readonly</i> createdAt = <i class="t-key">new</i> <i class="t-fn">Date</i>();</span><span class="ln"> </span><span class="ln">  <i class="t-com">// a method</i></span><span class="ln">  <i class="t-fn">add</i>(item: <i class="t-type">Item</i>) {</span><span class="ln">    <i class="t-key">this</i>.items = [...<i class="t-key">this</i>.items, item];</span><span class="ln">  }</span><span class="ln"> </span><span class="ln">  <i class="t-com">// a getter — reads like a field, runs like a method</i></span><span class="ln">  <i class="t-key">get</i> <i class="t-fn">count</i>() {</span><span class="ln">    <i class="t-key">return</i> <i class="t-key">this</i>.items.length;</span><span class="ln">  }</span><span class="ln">}</span></pre>
+      </div><p><span class="l-en">Angular components use exactly this and little else. You will see <code>readonly</code> on almost every line of a modern component — because a signal, an input or an injected service is created once and never reassigned.</span><span class="l-ar" dir="auto">الـ components في أنجولار بتستخدم ده بالظبط ومش أكتر. وهتشوف <code>readonly</code> في كل سطر تقريباً في component حديث — لإن الـ signal أو الـ input أو الـ service المحقونة بتتعمل مرة واحدة وعمرها ما بتتغير.</span></p>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>what it looks like in Angular<span class="tag"><span class="l-en">joining up</span><span class="l-ar" dir="auto">التوصيل</span></span></div>
+        <pre><span class="ln"><i class="t-dec">@Component</i>({ selector: <i class="t-str">'app-cart'</i>, template: <i class="t-str">`…`</i> })</span><span class="ln"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">CartComponent</i> {</span><span class="ln">  <i class="t-com">// injected once, never reassigned → readonly</i></span><span class="ln">  <i class="t-key">private</i> <i class="t-key">readonly</i> store = <i class="t-fn">inject</i>(<i class="t-type">CartStore</i>);</span><span class="ln"> </span><span class="ln">  <i class="t-com">// created once; the VALUE inside changes, the signal does not</i></span><span class="ln">  <i class="t-key">readonly</i> items = signal&lt;<i class="t-type">Item</i>[]&gt;([]);</span><span class="ln"> </span><span class="ln">  <i class="t-com">// a plain method, called from the template</i></span><span class="ln">  <i class="t-fn">add</i>(item: <i class="t-type">Item</i>) {</span><span class="ln">    <i class="t-key">this</i>.items.<i class="t-fn">update</i>(list =&gt; [...list, item]);</span><span class="ln">  }</span><span class="ln">}</span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">readonly is not the same as const</span><span class="l-ar" dir="auto">readonly مش زي const</span></b><p><span class="l-en"><code>readonly items = signal([])</code> means you cannot do <code>this.items = somethingElse</code>. It does <b>not</b> freeze what is inside — <code>items.set([...])</code> still works, and that is exactly the point.</span><span class="l-ar" dir="auto"><code>readonly items = signal([])</code> معناها إنك مش هتقدر تعمل <code>this.items = حاجة تانية</code>. لكنها <b>مش</b> بتجمّد اللي جوه — <code>items.set([...])</code> لسه شغالة، وده بالظبط المقصود.</span></p></div>
+      </section>
+      <section class="sec" id="generics">
+        <div class="sec-kick"><span class="l-en">The scary-looking one</span><span class="l-ar" dir="auto">اللي شكله مخيف</span></div>
+        <h2><span class="l-en">Generics: the <code>&lt;angle brackets&gt;</code> everywhere in Angular</span><span class="l-ar" dir="auto">الـ Generics: الـ <code>&lt;أقواس&gt;</code> اللي في كل حتة في أنجولار</span></h2>
+        <p class="sec-lead"><span class="l-en"><code>signal&lt;Item[]&gt;([])</code>, <code>input.required&lt;string&gt;()</code>, <code>http.get&lt;User&gt;(…)</code> — the same idea three times. A generic is a <b>type you fill in later</b>, like a parameter but for types.</span><span class="l-ar" dir="auto"><code>signal&lt;Item[]&gt;([])</code> و<code>input.required&lt;string&gt;()</code> و<code>http.get&lt;User&gt;(…)</code> — نفس الفكرة تلات مرات. الـ generic هو <b>نوع بتملاه بعدين</b>، زي المعامل بالظبط بس للأنواع.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>building the intuition<span class="tag"><span class="l-en">from scratch</span><span class="l-ar" dir="auto">من الصفر</span></span></div>
+        <pre><span class="ln"><i class="t-com">// a box that holds one thing. what thing? you decide when you use it.</i></span><span class="ln"><i class="t-key">class</i> <i class="t-type">Box</i>&lt;<i class="t-type">T</i>&gt; {</span><span class="ln">  <i class="t-fn">constructor</i>(<i class="t-key">public</i> value: <i class="t-type">T</i>) {}</span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-key">const</i> a = <i class="t-key">new</i> <i class="t-type">Box</i>&lt;<i class="t-key">string</i>&gt;(<i class="t-str">'hello'</i>);   <i class="t-com">// T is string</i></span><span class="ln"><i class="t-key">const</i> b = <i class="t-key">new</i> <i class="t-type">Box</i>&lt;<i class="t-key">number</i>&gt;(<i class="t-num">42</i>);        <i class="t-com">// T is number</i></span><span class="ln"> </span><span class="ln">a.value.<i class="t-fn">toUpperCase</i>();   <i class="t-com">// ✓ TypeScript knows it is a string</i></span><span class="ln">b.value.<i class="t-fn">toUpperCase</i>();   <i class="t-com">// ✗ numbers do not have toUpperCase</i></span><span class="ln"> </span><span class="ln"><i class="t-com">// T is just a name. You will also see U, K, V — no meaning, convention only.</i></span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>the same thing, in Angular<span class="tag"><span class="l-en">you already use these</span><span class="l-ar" dir="auto">إنت بتستخدمهم أصلاً</span></span></div>
+        <pre><span class="ln"><i class="t-com">// "a signal holding an array of Item"</i></span><span class="ln"><i class="t-key">readonly</i> items = signal&lt;<i class="t-type">Item</i>[]&gt;([]);</span><span class="ln"> </span><span class="ln"><i class="t-com">// "a required input holding a string"</i></span><span class="ln"><i class="t-key">readonly</i> name = input.required&lt;<i class="t-key">string</i>&gt;();</span><span class="ln"> </span><span class="ln"><i class="t-com">// "this GET will return a User" — so response.name autocompletes</i></span><span class="ln"><i class="t-key">this</i>.http.<i class="t-key">get</i>&lt;<i class="t-type">User</i>&gt;(<i class="t-str">'/api/users/1'</i>);</span><span class="ln"> </span><span class="ln"><i class="t-com">// "an output that emits a string" — so $event is typed in the parent</i></span><span class="ln"><i class="t-key">readonly</i> removed = output&lt;<i class="t-key">string</i>&gt;();</span><span class="ln"> </span><span class="ln"><i class="t-com">// often you can omit it, because it is inferred from the argument</i></span><span class="ln"><i class="t-key">readonly</i> count = <i class="t-fn">signal</i>(<i class="t-num">0</i>);        <i class="t-com">// TypeScript already knows: number</i></span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">Read it out loud</span><span class="l-ar" dir="auto">اقراها بصوت عالي</span></b><p><span class="l-en"><code>signal&lt;Item[]&gt;([])</code> reads as “a signal <em>of</em> Item array, starting empty”. Once you hear the word <em>of</em>, generics stop being intimidating.</span><span class="l-ar" dir="auto"><code>signal&lt;Item[]&gt;([])</code> بتتقري «signal <em>بتاعة</em> array من Item، وبتبدأ فاضية». أول ما تسمع كلمة <em>بتاعة</em>، الـ generics بتبطّل تخوّف.</span></p></div>
+      </section>
+      <section class="sec" id="utility">
+        <div class="sec-kick"><span class="l-en">Free shortcuts</span><span class="l-ar" dir="auto">اختصارات ببلاش</span></div>
+        <h2><span class="l-en">Utility types you will reach for</span><span class="l-ar" dir="auto">أنواع جاهزة هتحتاجها</span></h2>
+        <p class="sec-lead"><span class="l-en">TypeScript ships types that build new shapes out of existing ones. These five cover nearly every real case.</span><span class="l-ar" dir="auto">TypeScript بييجي معاه أنواع بتبني أشكال جديدة من أشكال موجودة. الخمسة دول بيغطوا تقريباً كل حالة حقيقية.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>utility-types.ts<span class="tag"><span class="l-en">all five</span><span class="l-ar" dir="auto">الخمسة</span></span></div>
+        <pre><span class="ln"><i class="t-key">interface</i> <i class="t-type">User</i> { id: <i class="t-key">string</i>; name: <i class="t-key">string</i>; email: <i class="t-key">string</i>; age: <i class="t-key">number</i>; }</span><span class="ln"> </span><span class="ln"><i class="t-com">// every field optional — the shape of a PATCH request body</i></span><span class="ln"><i class="t-key">type</i> <i class="t-type">UserPatch</i> = <i class="t-type">Partial</i>&lt;<i class="t-type">User</i>&gt;;</span><span class="ln"><i class="t-com">// { id?: string; name?: string; email?: string; age?: number }</i></span><span class="ln"> </span><span class="ln"><i class="t-com">// keep only these fields — the shape of a list row</i></span><span class="ln"><i class="t-key">type</i> <i class="t-type">UserRow</i> = <i class="t-type">Pick</i>&lt;<i class="t-type">User</i>, <i class="t-str">'id'</i> | <i class="t-str">'name'</i>&gt;;</span><span class="ln"><i class="t-com">// { id: string; name: string }</i></span><span class="ln"> </span><span class="ln"><i class="t-com">// everything except these — the shape of a create form</i></span><span class="ln"><i class="t-key">type</i> <i class="t-type">NewUser</i> = <i class="t-type">Omit</i>&lt;<i class="t-type">User</i>, <i class="t-str">'id'</i>&gt;;</span><span class="ln"><i class="t-com">// { name: string; email: string; age: number }</i></span><span class="ln"> </span><span class="ln"><i class="t-com">// nothing can be reassigned</i></span><span class="ln"><i class="t-key">type</i> <i class="t-type">FrozenUser</i> = <i class="t-type">Readonly</i>&lt;<i class="t-type">User</i>&gt;;</span><span class="ln"> </span><span class="ln"><i class="t-com">// a dictionary: keys of one type, values of another</i></span><span class="ln"><i class="t-key">type</i> <i class="t-type">PricesBySku</i> = <i class="t-type">Record</i>&lt;<i class="t-key">string</i>, <i class="t-key">number</i>&gt;;</span><span class="ln"><i class="t-com">// { 'sku-1': 100, 'sku-2': 250, … }</i></span></pre>
+      </div><p><span class="l-en">These matter because they keep one source of truth. When a field is added to <code>User</code>, every shape derived from it updates automatically — nothing to remember, nothing to forget.</span><span class="l-ar" dir="auto">دي مهمة لإنها بتحافظ على مصدر واحد للحقيقة. لما حقل يتضاف لـ <code>User</code>، كل الأشكال المشتقة منه بتتحدث لوحدها — مفيش حاجة تفتكرها ولا حاجة تنساها.</span></p>
+      </section>
+      <section class="sec" id="narrowing">
+        <div class="sec-kick"><span class="l-en">Proving it</span><span class="l-ar" dir="auto">إثبات النوع</span></div>
+        <h2><span class="l-en">Narrowing: convincing the compiler</span><span class="l-ar" dir="auto">التضييق: تقنع الـ compiler</span></h2>
+        <p class="sec-lead"><span class="l-en">When a value could be several things, TypeScript follows your <code>if</code> statements and works out which one it is inside each branch. This is called narrowing, and it is why you rarely need casts.</span><span class="l-ar" dir="auto">لما القيمة تقدر تكون كذا حاجة، TypeScript بيتابع الـ <code>if</code> بتاعتك ويحدد هي إيه جوه كل فرع. ده اسمه narrowing، وعشان كده نادراً ما تحتاج تعمل cast.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>narrowing.ts<span class="tag"><span class="l-en">four ways</span><span class="l-ar" dir="auto">أربع طرق</span></span></div>
+        <pre><span class="ln"><i class="t-key">function</i> <i class="t-fn">show</i>(value: <i class="t-key">string</i> | <i class="t-key">number</i> | <i class="t-key">null</i>) {</span><span class="ln">  <i class="t-key">if</i> (value === <i class="t-key">null</i>) <i class="t-key">return</i> <i class="t-str">'—'</i>;</span><span class="ln">  <i class="t-com">//  value is string | number from here on</i></span><span class="ln"> </span><span class="ln">  <i class="t-key">if</i> (<i class="t-key">typeof</i> value === <i class="t-str">'number'</i>) {</span><span class="ln">    <i class="t-key">return</i> value.<i class="t-fn">toFixed</i>(<i class="t-num">2</i>);      <i class="t-com">// ✓ it is a number in this branch</i></span><span class="ln">  }</span><span class="ln"> </span><span class="ln">  <i class="t-key">return</i> value.<i class="t-fn">trim</i>();            <i class="t-com">// ✓ only string is left</i></span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-com">// discriminated union — one shared field decides which shape it is</i></span><span class="ln"><i class="t-key">type</i> <i class="t-type">Result</i> =</span><span class="ln">  | { ok: <i class="t-key">true</i>;  data: <i class="t-type">User</i> }</span><span class="ln">  | { ok: <i class="t-key">false</i>; error: <i class="t-key">string</i> };</span><span class="ln"> </span><span class="ln"><i class="t-key">function</i> <i class="t-fn">handle</i>(r: <i class="t-type">Result</i>) {</span><span class="ln">  <i class="t-key">if</i> (r.ok) <i class="t-key">return</i> r.data.name;   <i class="t-com">// ✓ TypeScript knows data exists</i></span><span class="ln">  <i class="t-key">return</i> r.error;                 <i class="t-com">// ✓ and here, error exists</i></span><span class="ln">}</span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">This is how resource status works</span><span class="l-ar" dir="auto">كده بتشتغل حالة الـ resource</span></b><p><span class="l-en">Angular&rsquo;s <code>status()</code> being <code>'idle' | 'loading' | 'resolved' | 'error'</code> is a discriminated union. Checking it in a template with <code>&#64;if</code> narrows it exactly the same way.</span><span class="l-ar" dir="auto">الـ <code>status()</code> في أنجولار لما تكون <code>'idle' | 'loading' | 'resolved' | 'error'</code> دي discriminated union. وفحصها في التمبلت بـ <code>&#64;if</code> بيضيّقها بنفس الطريقة بالظبط.</span></p></div><div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>casting past the problem<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><i class="t-key">const</i> el = document.<i class="t-fn">querySelector</i>(<i class="t-str">'.chart'</i>) <i class="t-key">as</i> <i class="t-type">HTMLCanvasElement</i>;</span><span class="ln">el.<i class="t-fn">getContext</i>(<i class="t-str">'2d'</i>);</span><span class="ln"> </span><span class="ln"><i class="t-com">// 'as' tells the compiler to trust you. If .chart is missing,</i></span><span class="ln"><i class="t-com">// el is null at runtime and this line throws.</i></span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>check, then use<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><i class="t-key">const</i> el = document.<i class="t-fn">querySelector</i>(<i class="t-str">'.chart'</i>);</span><span class="ln"> </span><span class="ln"><i class="t-key">if</i> (el <i class="t-key">instanceof</i> <i class="t-type">HTMLCanvasElement</i>) {</span><span class="ln">  el.<i class="t-fn">getContext</i>(<i class="t-str">'2d'</i>);     <i class="t-com">// ✓ proven, not promised</i></span><span class="ln">}</span></pre>
+      </div>
+    </div>
+      </section>
+      <section class="sec" id="modules">
+        <div class="sec-kick"><span class="l-en">Files talking</span><span class="l-ar" dir="auto">الملفات بتتكلم</span></div>
+        <h2><span class="l-en"><code>import</code> and <code>export</code></span><span class="l-ar" dir="auto"><code>import</code> و <code>export</code></span></h2>
+        <p class="sec-lead"><span class="l-en">Every file is its own island. Nothing is shared unless you <code>export</code> it, and nothing arrives unless you <code>import</code> it. Angular files are almost entirely made of these two lines.</span><span class="l-ar" dir="auto">كل ملف جزيرة لوحده. مفيش حاجة بتتشارك غير لما تعمل لها <code>export</code>، ومفيش حاجة بتوصل غير لما تعمل لها <code>import</code>. وملفات أنجولار كلها تقريباً مبنية على السطرين دول.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>models/user.ts<span class="tag"><span class="l-en">exporting</span><span class="l-ar" dir="auto">التصدير</span></span></div>
+        <pre><span class="ln"><i class="t-key">export</i> <i class="t-key">interface</i> <i class="t-type">User</i> { id: <i class="t-key">string</i>; name: <i class="t-key">string</i>; }</span><span class="ln"> </span><span class="ln"><i class="t-key">export</i> <i class="t-key">function</i> <i class="t-fn">fullName</i>(u: <i class="t-type">User</i>) { <i class="t-key">return</i> u.name.<i class="t-fn">trim</i>(); }</span><span class="ln"> </span><span class="ln"><i class="t-key">export</i> <i class="t-key">const</i> <i class="t-type">MAX_USERS</i> = <i class="t-num">100</i>;</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>user-list.component.ts<span class="tag"><span class="l-en">importing</span><span class="l-ar" dir="auto">الاستيراد</span></span></div>
+        <pre><span class="ln"><i class="t-com">// from a package installed in node_modules</i></span><span class="ln"><i class="t-key">import</i> { <i class="t-type">Component</i>, signal } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-com">// from your own files — a relative path, no .ts extension</i></span><span class="ln"><i class="t-key">import</i> { <i class="t-type">User</i>, fullName, <i class="t-type">MAX_USERS</i> } <i class="t-key">from</i> <i class="t-str">'./models/user'</i>;</span><span class="ln"><i class="t-key">import</i> { <i class="t-type">UserCard</i> } <i class="t-key">from</i> <i class="t-str">'../shared/user-card.component'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-com">// rename on the way in, when two names collide</i></span><span class="ln"><i class="t-key">import</i> { <i class="t-type">User</i> <i class="t-key">as</i> <i class="t-type">ApiUser</i> } <i class="t-key">from</i> <i class="t-str">'./api/types'</i>;</span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">Two names you will see</span><span class="l-ar" dir="auto">اسمين هتشوفهم</span></b><p><span class="l-en"><code>&#64;angular/core</code> starts with <code>&#64;</code> because it is a <em>scoped package</em> — an npm naming convention, nothing to do with decorators. And <code>./</code> means “next to this file”, <code>../</code> means “one folder up”.</span><span class="l-ar" dir="auto"><code>&#64;angular/core</code> بيبدأ بـ <code>&#64;</code> لإنه <em>scoped package</em> — ده اصطلاح تسمية في npm، ومالوش دعوة بالـ decorators. و<code>./</code> معناها «جنب الملف ده»، و<code>../</code> معناها «فولدر لفوق».</span></p></div>
+      </section>
+      <section class="sec" id="decorators">
+        <div class="sec-kick"><span class="l-en">The @ symbol</span><span class="l-ar" dir="auto">علامة @</span></div>
+        <h2><span class="l-en">Decorators: what <code>&#64;Component</code> actually is</span><span class="l-ar" dir="auto">الـ Decorators: <code>&#64;Component</code> ده إيه بالظبط</span></h2>
+        <p class="sec-lead"><span class="l-en">A decorator is a function you attach to a class to add information about it. <code>&#64;Component({...})</code> does not change your class — it records metadata that Angular reads later.</span><span class="l-ar" dir="auto">الـ decorator دالة بتلزقها على كلاس عشان تضيف معلومات عنه. <code>&#64;Component({...})</code> مش بيغيّر الكلاس بتاعك — بيسجّل metadata أنجولار بيقراها بعدين.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>what you write vs what it means<span class="tag"><span class="l-en">demystified</span><span class="l-ar" dir="auto">من غير غموض</span></span></div>
+        <pre><span class="ln"><i class="t-dec">@Component</i>({</span><span class="ln">  selector: <i class="t-str">'app-user-card'</i>,</span><span class="ln">  template: <i class="t-str">'&lt;h3&gt;{{ name() }}&lt;/h3&gt;'</i>,</span><span class="ln">})</span><span class="ln"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">UserCard</i> {</span><span class="ln">  <i class="t-key">readonly</i> name = input.required&lt;<i class="t-key">string</i>&gt;();</span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-com">// Read it as: "this is an ordinary class, AND Angular should know</i></span><span class="ln"><i class="t-com">//  it answers to &lt;app-user-card&gt; and renders that template."</i></span><span class="ln"><i class="t-com">//</i></span><span class="ln"><i class="t-com">// The object inside the brackets is just an object. That is why</i></span><span class="ln"><i class="t-com">// selector, template and imports are written with : and ,</i></span></pre>
+      </div><p><span class="l-en">The four you will meet: <code>&#64;Component</code> on a component, <code>&#64;Directive</code> on a directive, <code>&#64;Injectable</code> on a service, and <code>&#64;Pipe</code> on a pipe. Modern Angular has replaced most of the others — <code>&#64;Input</code> and <code>&#64;Output</code> are now the functions <code>input()</code> and <code>output()</code>.</span><span class="l-ar" dir="auto">الأربعة اللي هتقابلهم: <code>&#64;Component</code> على الـ component، و<code>&#64;Directive</code> على الـ directive، و<code>&#64;Injectable</code> على الـ service، و<code>&#64;Pipe</code> على الـ pipe. وأنجولار الحديث استبدل معظم الباقي — <code>&#64;Input</code> و<code>&#64;Output</code> بقوا الدوال <code>input()</code> و<code>output()</code>.</span></p>
+      </section>
+      <section class="sec" id="angular-types">
+        <div class="sec-kick"><span class="l-en">Putting it together</span><span class="l-ar" dir="auto">نجمّعها مع بعض</span></div>
+        <h2><span class="l-en">The same TypeScript, in real Angular files</span><span class="l-ar" dir="auto">نفس الـ TypeScript، في ملفات أنجولار حقيقية</span></h2>
+        <p class="sec-lead"><span class="l-en">Nothing new here — this is every idea above, in the places you will actually meet them.</span><span class="l-ar" dir="auto">مفيش حاجة جديدة هنا — دي كل الأفكار اللي فوق، في الأماكن اللي هتقابلهم فيها فعلاً.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>typed HTTP<span class="tag"><span class="l-en">generic + interface</span><span class="l-ar" dir="auto">generic + interface</span></span></div>
+        <pre><span class="ln"><i class="t-key">export</i> <i class="t-key">interface</i> <i class="t-type">Product</i> { id: <i class="t-key">string</i>; title: <i class="t-key">string</i>; price: <i class="t-key">number</i>; }</span><span class="ln"> </span><span class="ln"><i class="t-com">// the generic tells TypeScript what comes back,</i></span><span class="ln"><i class="t-com">// so p.title autocompletes and p.titel is an error</i></span><span class="ln"><i class="t-key">this</i>.http.<i class="t-key">get</i>&lt;<i class="t-type">Product</i>[]&gt;(<i class="t-str">'/api/products'</i>)</span><span class="ln">    .<i class="t-fn">subscribe</i>(list =&gt; list.<i class="t-fn">forEach</i>(p =&gt; console.<i class="t-fn">log</i>(p.title)));</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>typed component API<span class="tag"><span class="l-en">generics + unions</span><span class="l-ar" dir="auto">generics + unions</span></span></div>
+        <pre><span class="ln"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Badge</i> {</span><span class="ln">  <i class="t-com">// a literal union: only these four strings are accepted</i></span><span class="ln">  <i class="t-key">readonly</i> kind = input&lt;<i class="t-str">'info'</i> | <i class="t-str">'success'</i> | <i class="t-str">'warning'</i> | <i class="t-str">'error'</i>&gt;(<i class="t-str">'info'</i>);</span><span class="ln"> </span><span class="ln">  <i class="t-com">// required, so the compiler forces the caller to pass it</i></span><span class="ln">  <i class="t-key">readonly</i> label = input.required&lt;<i class="t-key">string</i>&gt;();</span><span class="ln"> </span><span class="ln">  <i class="t-com">// the emitted value is typed, so $event is typed in the parent</i></span><span class="ln">  <i class="t-key">readonly</i> dismissed = output&lt;<i class="t-key">void</i>&gt;();</span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>typed service<span class="tag"><span class="l-en">class + readonly + private</span><span class="l-ar" dir="auto">class + readonly + private</span></span></div>
+        <pre><span class="ln"><i class="t-dec">@Injectable</i>({ providedIn: <i class="t-str">'root'</i> })</span><span class="ln"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">CartStore</i> {</span><span class="ln">  <i class="t-key">private</i> <i class="t-key">readonly</i> _items = signal&lt;<i class="t-type">Item</i>[]&gt;([]);</span><span class="ln">  <i class="t-key">readonly</i> items = <i class="t-key">this</i>._items.<i class="t-fn">asReadonly</i>();</span><span class="ln"> </span><span class="ln">  <i class="t-key">readonly</i> total = <i class="t-fn">computed</i>(() =&gt;</span><span class="ln">    <i class="t-key">this</i>.<i class="t-fn">_items</i>().<i class="t-fn">reduce</i>((sum, i) =&gt; sum + i.price, <i class="t-num">0</i>));</span><span class="ln"> </span><span class="ln">  <i class="t-fn">add</i>(item: <i class="t-type">Item</i>): <i class="t-key">void</i> {</span><span class="ln">    <i class="t-key">this</i>._items.<i class="t-fn">update</i>(list =&gt; [...list, item]);</span><span class="ln">  }</span><span class="ln">}</span></pre>
+      </div>
+      </section>
+      <section class="sec" id="errors">
+        <div class="sec-kick"><span class="l-en">Survival kit</span><span class="l-ar" dir="auto">شنطة الإسعافات</span></div>
+        <h2><span class="l-en">The six errors you will actually hit</span><span class="l-ar" dir="auto">الست غلطات اللي هتقابلك فعلاً</span></h2>
+        <p class="sec-lead"><span class="l-en">TypeScript error messages are long but honest. Here is what each of the common ones is really telling you.</span><span class="l-ar" dir="auto">رسايل أخطاء TypeScript طويلة بس صادقة. وده معنى كل واحدة من الشائعة فعلاً.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">The message</span><span class="l-ar" dir="auto">الرسالة</span></th><th><span class="l-en">What it means</span><span class="l-ar" dir="auto">معناها</span></th><th><span class="l-en">The fix</span><span class="l-ar" dir="auto">الحل</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en">Object is possibly 'undefined'</span><span class="l-ar" dir="auto">Object is possibly 'undefined'</span></td><td><span class="l-en">The value might not be there and you used it anyway</span><span class="l-ar" dir="auto">القيمة ممكن متكونش موجودة وإنت استخدمتها</span></td><td><span class="l-en"><code>if (x)</code>, or <code>x?.y</code>, or <code>x ?? fallback</code></span><span class="l-ar" dir="auto"><code>if (x)</code> أو <code>x?.y</code> أو <code>x ?? بديل</code></span></td></tr><tr><td><span class="l-en">Type 'string' is not assignable to type 'number'</span><span class="l-ar" dir="auto">Type 'string' is not assignable to type 'number'</span></td><td><span class="l-en">You put the wrong kind of value in</span><span class="l-ar" dir="auto">حطيت نوع قيمة غلط</span></td><td><span class="l-en">Convert it (<code>Number(x)</code>) or fix the declared type</span><span class="l-ar" dir="auto">حوّلها (<code>Number(x)</code>) أو صلّح النوع المعلن</span></td></tr><tr><td><span class="l-en">Property 'x' does not exist on type 'Y'</span><span class="l-ar" dir="auto">Property 'x' does not exist on type 'Y'</span></td><td><span class="l-en">A typo, or the interface is missing that field</span><span class="l-ar" dir="auto">غلطة إملائية، أو الحقل ناقص من الـ interface</span></td><td><span class="l-en">Check the spelling, then check the interface</span><span class="l-ar" dir="auto">راجع الإملاء، وبعدين راجع الـ interface</span></td></tr><tr><td><span class="l-en">Cannot find module './x' or its type declarations</span><span class="l-ar" dir="auto">Cannot find module './x' or its type declarations</span></td><td><span class="l-en">Wrong path, wrong case, or the file does not exist</span><span class="l-ar" dir="auto">مسار غلط، أو حروف كابيتال غلط، أو الملف مش موجود</span></td><td><span class="l-en">Paths are case-sensitive on CI even if not on your Mac</span><span class="l-ar" dir="auto">المسارات حساسة لحالة الحروف على الـ CI حتى لو مش كده على الماك</span></td></tr><tr><td><span class="l-en">Property 'x' has no initializer and is not definitely assigned</span><span class="l-ar" dir="auto">Property 'x' has no initializer and is not definitely assigned</span></td><td><span class="l-en">A strict-mode field with no starting value</span><span class="l-ar" dir="auto">حقل في strict mode من غير قيمة بداية</span></td><td><span class="l-en">Give it a value, mark it <code>?</code>, or use <code>input.required()</code></span><span class="l-ar" dir="auto">ادّيله قيمة، أو حطله <code>?</code>، أو استعمل <code>input.required()</code></span></td></tr><tr><td><span class="l-en">Argument of type 'X' is not assignable to parameter of type 'Y'</span><span class="l-ar" dir="auto">Argument of type 'X' is not assignable to parameter of type 'Y'</span></td><td><span class="l-en">You passed the wrong thing into a function</span><span class="l-ar" dir="auto">مرّرت حاجة غلط لدالة</span></td><td><span class="l-en">Read the second half of the message — it names the missing field</span><span class="l-ar" dir="auto">اقرا النص التاني من الرسالة — بيقولك الحقل الناقص إيه</span></td></tr></tbody>
+    </table></div><div class="note"><b class="lbl"><span class="l-en">How to read a long error</span><span class="l-ar" dir="auto">إزاي تقرا ايرور طويل</span></b><p><span class="l-en">Read the <b>last</b> line first. TypeScript nests its explanation, and the innermost line is the actual mismatch — usually one field name.</span><span class="l-ar" dir="auto">اقرا <b>آخر</b> سطر الأول. TypeScript بيعشّش الشرح، وأعمق سطر هو الاختلاف الحقيقي — وغالباً بيبقى اسم حقل واحد.</span></p></div>
+      </section>
+      <section class="sec" id="config">
+        <div class="sec-kick"><span class="l-en">The settings</span><span class="l-ar" dir="auto">الإعدادات</span></div>
+        <h2><span class="l-en">The <code>tsconfig</code> lines that change your life</span><span class="l-ar" dir="auto">سطور الـ <code>tsconfig</code> اللي بتغيّر حياتك</span></h2>
+        <p class="sec-lead"><span class="l-en"><code>ng new</code> already sets these correctly. Know what they do so you understand why the compiler behaves the way it does — and so you never turn them off to make an error go away.</span><span class="l-ar" dir="auto"><code>ng new</code> بيظبطهم صح أصلاً. اعرف بيعملوا إيه عشان تفهم الـ compiler بيتصرف كده ليه — وعشان عمرك ما تقفلهم بس عشان ايرور يختفي.</span></p>
+        
+      <div class="code" data-lang="json">
+        <div class="fc-h"><span class="d"></span>tsconfig.json<span class="tag"><span class="l-en">what matters</span><span class="l-ar" dir="auto">المهم</span></span></div>
+        <pre><span class="ln">{</span><span class="ln">  "compilerOptions": {</span><span class="ln">    "strict": true,                     // turns on all the checks below</span><span class="ln">    "noImplicitAny": true,              // an untyped parameter is an error</span><span class="ln">    "strictNullChecks": true,           // null and undefined are real types</span><span class="ln">    "noUnusedLocals": true,             // dead variables are errors</span><span class="ln">    "paths": {</span><span class="ln">      "@app/*": ["src/app/*"]           // import from '@app/models/user'</span><span class="ln">    }</span><span class="ln">  },</span><span class="ln">  "angularCompilerOptions": {</span><span class="ln">    "strictTemplates": true             // type-checks your HTML too</span><span class="ln">  }</span><span class="ln">}</span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">strictTemplates is the good one</span><span class="l-ar" dir="auto">strictTemplates هي الحلوة</span></b><p><span class="l-en">With it on, passing a <code>string</code> to an input declared as <code>number</code> is an error <b>in the HTML file</b>. Your templates get the same safety as your classes. Never turn it off.</span><span class="l-ar" dir="auto">لما تكون مفتوحة، إنك تمرّر <code>string</code> لـ input معلن <code>number</code> بيبقى ايرور <b>في ملف الـ HTML</b>. فالتمبلتس بتاخد نفس الأمان بتاع الكلاسات. عمرك ما تقفلها.</span></p></div><p><span class="l-en">If an error is annoying, the answer is almost never to relax the config. Strict mode is the reason a large Angular app stays refactorable — every rule you switch off is a category of bug you agreed to find at runtime instead.</span><span class="l-ar" dir="auto">لو ايرور مضايقك، الحل تقريباً عمره ما بيكون إنك تخفف الإعدادات. الـ strict mode هو السبب إن تطبيق أنجولار الكبير يفضل قابل لإعادة الهيكلة — وكل قاعدة بتقفلها دي نوعية باجات وافقت تكتشفها وقت التشغيل بدل كده.</span></p>
+      </section></div>
+  </div>
+
+  <nav class="pager">
+    <div class="void"></div>
+    <a class="nx" href="beginner/01-how-an-app-starts.html">
+      <em><span class="l-en">Start the magazine</span><span class="l-ar">ابدأ المجلة</span> &rarr;</em>
+      <b><span class="l-en">How an Angular page actually appears</span><span class="l-ar" dir="auto">إزاي صفحة أنجولار بتظهر فعلاً</span></b>
+    </a>
+  </nav>
+</main>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+/* ---------- language + theme, shared by every page ---------- */
+function _g(id){ return document.getElementById(id); }
+function syncUI(){
+  const r = document.documentElement;
+  const l = r.dataset.lang === 'ar' ? 'ar' : 'en';
+  const t = r.dataset.theme === 'dark' ? 'dark' : 'light';
+  const set = (id, on) => { const b = _g(id); if (b) b.setAttribute('aria-pressed', String(on)); };
+  set('b-en', l === 'en'); set('b-ar', l === 'ar');
+  set('b-lt', t === 'light'); set('b-dk', t === 'dark');
+}
+function setLang(l){
+  const r = document.documentElement;
+  r.dataset.lang = l;
+  r.dir  = l === 'ar' ? 'rtl' : 'ltr';
+  r.lang = l === 'ar' ? 'ar-EG' : 'en';
+  try { localStorage.setItem('tas-lang', l); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+function setTheme(t){
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('tas-theme', t); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+_g('b-en').onclick = () => setLang('en');
+_g('b-ar').onclick = () => setLang('ar');
+_g('b-lt').onclick = () => setTheme('light');
+_g('b-dk').onclick = () => setTheme('dark');
+syncUI();
+
+/* highlight the section you are reading */
+const links = new Map([...document.querySelectorAll('[data-rail]')].map(a => [a.dataset.rail, a]));
+const secs = [...document.querySelectorAll('.sec')];
+const seen = new Set();
+const spy = new IntersectionObserver(entries => {
+  for (const e of entries) {
+    if (e.isIntersecting) seen.add(e.target.id); else seen.delete(e.target.id);
+  }
+  const first = secs.find(sec => seen.has(sec.id));
+  links.forEach(a => a.classList.remove('on'));
+  if (first) { const a = links.get(first.id); if (a) a.classList.add('on'); }
+}, { rootMargin: '-70px 0px -60% 0px' });
+secs.forEach(sec => spy.observe(sec));
+</script>
+</body>
+</html>

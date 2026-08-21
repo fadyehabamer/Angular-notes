@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PWAs and the Angular service worker — The Angular Signal</title>
+<meta name="description" content="A service worker is a script that sits between your app and the network. Angular ships a configurable one, so you declare what to cache in a JSON file instead of writing fetch hand">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Cairo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--c:var(--adv)}
+/* ============================================================
+   Two skins, one set of names. Light is the default; the top-bar
+   switch stamps data-theme="dark" on the root element, and only the
+   below change. Never hard-code a colour outside these blocks.
+   ============================================================ */
+:root{
+  color-scheme:light;
+  /* surfaces */
+  --bg:#f3f4fb; --bg2:#eaecf7; --card:#ffffff; --card2:#f7f8fd; --code:#fbfbff;
+  --line:rgba(23,27,64,.14); --line2:rgba(23,27,64,.08);
+  --sunk:rgba(23,27,64,.03); --sunk2:rgba(23,27,64,.05); --hover:rgba(23,27,64,.05);
+  --chip:rgba(23,27,64,.065); --chipink:#3a3f70;
+  --topbg:rgba(248,249,254,.84);
+  --wire:rgba(23,27,64,.24); --dotbg:rgba(23,27,64,.17);
+  --nodesh:0 12px 26px -20px rgba(23,27,64,.55), inset 0 1px 0 #fff;
+  --glow1:9%; --glow2:5%;
+  /* ink */
+  --ink:#12142c; --mut:#4d5480; --dim:#767d9f; --onc:#ffffff;
+  /* track accents — darkened so they carry on paper */
+  --beg:#0c9280;    /* track 1 */
+  --int:#5b3ad4;    /* track 2 */
+  --adv:#c60059;    /* track 3 */
+  --ts:#1566cc; --html:#c04d1a; --svc:#8a5f00; --cfg:#5b3ad4;
+  /* syntax */
+  --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
+  --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
+  --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0b0d1c; --bg2:#101430; --card:#141935; --card2:#171d3d; --code:transparent;
+  --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.055);
+  --sunk:rgba(255,255,255,.03); --sunk2:rgba(255,255,255,.05); --hover:rgba(255,255,255,.04);
+  --chip:rgba(255,255,255,.07); --chipink:#cfd6ff;
+  --topbg:rgba(8,10,22,.72);
+  --wire:rgba(255,255,255,.13); --dotbg:rgba(255,255,255,.16);
+  --nodesh:0 10px 26px -18px #000, inset 0 1px 0 rgba(255,255,255,.05);
+  --glow1:16%; --glow2:8%;
+  --ink:#eceefb; --mut:#98a0c8; --dim:#69719e; --onc:#0b0d1c;
+  --beg:#2ee6c5; --int:#8b6cff; --adv:#ff2e88;
+  --ts:#4a9eff; --html:#ff7a45; --svc:#ffb020; --cfg:#8b6cff;
+  --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
+  --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
+  --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:
+    radial-gradient(1100px 700px at 78% -10%,color-mix(in srgb,var(--c) var(--glow1),transparent),transparent 62%),
+    radial-gradient(900px 600px at 4% 108%,color-mix(in srgb,var(--adv) var(--glow2),transparent),transparent 62%),
+    var(--bg);
+  color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--c);color:var(--onc)}
+:focus-visible{outline:2px solid var(--c);outline-offset:3px;border-radius:6px}
+a{color:var(--c)}
+code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+
+/* ---------- language ---------- */
+:root[data-lang="en"] .l-ar{display:none !important}
+:root[data-lang="ar"] .l-en{display:none !important}
+:root[dir="rtl"]{
+  --disp:'Cairo','IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+}
+:root[dir="rtl"] h1.title{line-height:1.32;letter-spacing:0}
+:root[dir="rtl"] .lead{font-size:15px;line-height:1.75}
+:root[dir="rtl"] .num,:root[dir="rtl"] .badge{letter-spacing:.04em}
+/* keep neighbouring runs from reordering each other in RTL */
+.kick span,.cover-top span{unicode-bidi:isolate}
+/* diagrams and code always read left-to-right */
+.stage,.files,pre,.mono{direction:ltr}
+
+/* ---------- top bar ---------- */
+.top{
+  position:sticky;top:0;z-index:40;background:var(--topbg);
+  backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);
+  border-bottom:1px solid var(--line2);
+}
+.top-in{
+  max-width:1220px;margin:0 auto;padding:9px clamp(16px,3.4vw,40px);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.home{
+  display:inline-flex;align-items:baseline;gap:9px;text-decoration:none;white-space:nowrap;
+}
+.home b{
+  font-family:var(--disp);font-weight:800;font-size:15.5px;letter-spacing:-.02em;
+  background:linear-gradient(92deg,#e40035,#f20089 45%,#9717e2);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.home span{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase}
+.tracknav{display:flex;gap:4px;flex-wrap:wrap;margin-inline-start:6px}
+.tracknav a{
+  font-size:12.5px;font-weight:600;text-decoration:none;color:var(--dim);
+  padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.tracknav a i{width:7px;height:7px;border-radius:99px;background:currentColor;display:block;flex:none}
+.tracknav a:hover{color:var(--mut);background:var(--hover)}
+.tracknav a[aria-current="page"]{color:var(--onc);background:var(--c)}
+.top-right{display:flex;align-items:center;gap:8px;margin-inline-start:auto}
+.seg{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:var(--hover)}
+.seg button{
+  appearance:none;border:0;background:none;cursor:pointer;padding:5px 12px;
+  font-family:var(--body);font-size:12.5px;font-weight:600;color:var(--dim);line-height:1.5;
+}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--c);color:var(--onc)}
+
+/* ---------- article shell ---------- */
+.page{max-width:1220px;margin:0 auto;padding:clamp(24px,3.6vw,44px) clamp(16px,3.4vw,40px) 0}
+.eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.num{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.16em}
+/* a numeric counter must not be reordered by the bidi algorithm */
+.num.seq{direction:ltr;unicode-bidi:isolate}
+:root[dir="rtl"] .num:not(.seq){font-family:var(--body);letter-spacing:0;font-size:12.5px}
+.badge{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;border:1px solid currentColor;color:var(--c);
+  background:color-mix(in srgb,var(--c) 12%,transparent);
+}
+:root[dir="rtl"] .badge{font-family:var(--body);font-weight:600;text-transform:none;font-size:11.5px}
+h1.title{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.03em;line-height:1.02;
+  font-size:clamp(28px,4vw,46px);margin:0 0 10px;text-wrap:balance;
+}
+h1.title code{font-family:var(--mono);font-size:.82em;font-weight:600;color:var(--c);letter-spacing:0}
+.lead{color:var(--mut);max-width:74ch;margin:0 0 22px;font-size:15.5px;text-wrap:pretty}
+.lead b{color:var(--ink);font-weight:600}
+
+/* ---------- stage / diagram ---------- */
+.stage{position:relative;margin:6px 0 4px;padding:26px 8px;display:flex;flex-direction:column;gap:74px}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.row{display:flex;justify-content:center;gap:clamp(28px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
+.node{
+  background:linear-gradient(180deg,var(--card2),var(--card));
+  border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:172px;
+  box-shadow:var(--nodesh);
+  transition:border-color .3s,box-shadow .3s,transform .3s;
+}
+.node .role{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:3px;font-family:var(--mono)}
+:root[dir="rtl"] .node .role{font-family:var(--body);font-size:11px;letter-spacing:0;text-transform:none}
+:root[dir="rtl"] .home span{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .fc-h .tag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .pager a em{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .stepbar .cap span.n{direction:ltr;unicode-bidi:isolate}
+.node .file{font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--ink);white-space:nowrap;display:block}
+.node[data-kind="ts"] .file b{color:var(--ts)}
+.node[data-kind="html"] .file b{color:var(--html)}
+.node[data-kind="svc"] .file b{color:var(--svc)}
+.node[data-kind="cfg"] .file b{color:var(--cfg)}
+.node.active{border-color:color-mix(in srgb,var(--c) 65%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent),0 0 34px -8px var(--c);transform:translateY(-2px)}
+.edge path.wire{fill:none;stroke:var(--wire);stroke-width:1.6}
+.edge path.head{fill:var(--wire);stroke:none}
+.edge.lit path.head{fill:var(--c)}
+.edge path.flow{fill:none;stroke:var(--c);stroke-width:2.2;stroke-dasharray:5 9;opacity:0;stroke-linecap:round}
+.edge.lit path.wire{stroke:color-mix(in srgb,var(--c) 40%,transparent)}
+.edge.lit path.flow{opacity:1;animation:march 1s linear infinite}
+@keyframes march{to{stroke-dashoffset:-28}}
+.edge text{font-family:var(--mono);font-size:10.5px;fill:var(--dim);paint-order:stroke;stroke:var(--bg);stroke-width:5px;stroke-linejoin:round}
+.edge.lit text{fill:var(--c)}
+.packet{opacity:0}
+.packet rect{fill:var(--c)}
+.packet text{font-family:var(--mono);font-size:11px;font-weight:600;fill:var(--onc);stroke:none}
+
+/* ---------- step bar ---------- */
+.stepbar{
+  display:flex;align-items:center;gap:14px;margin:8px 0 22px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk);
+}
+.stepbar .dots{display:flex;gap:6px;flex-shrink:0}
+.stepbar .dot{width:7px;height:7px;border-radius:99px;background:var(--dotbg);cursor:pointer;border:0;padding:0;transition:.2s}
+.stepbar .dot.on{background:var(--c);box-shadow:0 0 10px -1px var(--c);transform:scale(1.25)}
+.stepbar .cap{flex:1;min-width:0;font-size:14px;color:var(--ink);text-wrap:pretty}
+.stepbar .cap span.n{color:var(--dim);font-family:var(--mono);font-size:11px;margin-inline-end:8px}
+.iconbtn{
+  background:var(--sunk2);border:1px solid var(--line);color:var(--mut);
+  border-radius:8px;padding:5px 11px;font-family:var(--mono);font-size:11px;cursor:pointer;white-space:nowrap;
+}
+.iconbtn:hover{color:var(--ink);border-color:color-mix(in srgb,var(--c) 55%,transparent)}
+
+/* ---------- code cards ---------- */
+.sechead{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:28px 0 12px}
+:root[dir="rtl"] .sechead{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.files{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:14px}
+.fc{background:var(--card);border:1px solid var(--line2);border-radius:12px;overflow:hidden;transition:border-color .3s;min-width:0}
+.fc.active{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.fc-h{
+  display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid var(--line2);
+  background:var(--sunk);font-family:var(--mono);font-size:11.5px;color:var(--mut);
+}
+.fc-h .d{width:7px;height:7px;border-radius:99px;flex-shrink:0}
+.fc[data-lang="ts"] .d{background:var(--ts)}
+.fc[data-lang="html"] .d{background:var(--html)}
+.fc[data-lang="json"] .d{background:var(--svc)}
+.fc[data-lang="bash"] .d{background:var(--beg)}
+.fc-h .tag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:var(--mono);font-size:12.2px;line-height:1.72;scrollbar-width:thin}
+.ln{display:block;padding:0 15px;white-space:pre;border-left:2px solid transparent;transition:background .25s,border-color .25s}
+.ln.hl{background:color-mix(in srgb,var(--c) 13%,transparent);border-left-color:var(--c)}
+.t-key{color:var(--t-key)}.t-str{color:var(--t-str)}.t-com{color:var(--t-com);font-style:italic}
+.t-dec{color:var(--t-dec)}.t-tag{color:var(--t-tag)}.t-bind{color:var(--t-bind)}.t-num{color:var(--t-num)}
+.t-fn{color:var(--t-fn)}.t-type{color:var(--t-type)}.t-attr{color:var(--t-attr)}.t-punc{color:var(--t-punc)}
+
+/* ---------- real example ---------- */
+.example{margin-top:26px;padding-top:18px;border-top:1px solid var(--line2)}
+.exhead{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:7px}
+.extag{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);border:1px solid currentColor;border-radius:99px;padding:3px 9px;
+  background:color-mix(in srgb,var(--c) 12%,transparent);white-space:nowrap;
+}
+:root[dir="rtl"] .extag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+.exhead b{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--ink)}
+.exlead{margin:0 0 14px;color:var(--mut);font-size:14px;max-width:82ch;text-wrap:pretty}
+
+/* ---------- gotchas ---------- */
+.gotchas{margin-top:22px;border-top:1px solid var(--line2);padding-top:16px}
+.gotchas h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 10px;font-weight:500}
+:root[dir="rtl"] .gotchas h4{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.gotchas ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:9px 22px}
+.gotchas li{position:relative;padding-inline-start:20px;font-size:13.6px;color:var(--mut);text-wrap:pretty}
+.gotchas li::before{content:"!";position:absolute;inset-inline-start:0;top:0;font-family:var(--mono);font-size:11px;color:var(--c);font-weight:700}
+.gotchas li b{color:var(--ink);font-weight:600}
+
+/* ---------- pager ---------- */
+.pager{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin:34px 0 0;padding:22px 0 46px;border-top:1px solid var(--line2);
+}
+.pager a{
+  display:flex;flex-direction:column;gap:4px;text-decoration:none;padding:14px 16px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--card);transition:.22s;min-width:0;
+}
+.pager a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.pager a em{font-family:var(--mono);font-style:normal;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.pager a b{font-size:14.5px;color:var(--ink);font-weight:600;line-height:1.35;text-wrap:pretty}
+.pager a.nx{text-align:end;align-items:flex-end}
+.pager .void{border:1px dashed var(--line2);border-radius:12px;opacity:.35}
+@media (max-width:600px){.pager{grid-template-columns:1fr}.pager a.nx{text-align:start;align-items:flex-start}}
+
+@media (max-width:900px){
+  .row{gap:16px}
+  .node{min-width:0;flex:1 1 auto}
+  .stage{gap:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+
+/* ================= reference-document layout (TypeScript page) ============ */
+.doc{display:grid;grid-template-columns:212px minmax(0,1fr);gap:clamp(20px,3.4vw,54px);align-items:start}
+@media (max-width:940px){.doc{grid-template-columns:1fr}}
+.doc-rail{position:sticky;top:70px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;scrollbar-width:thin}
+@media (max-width:940px){.doc-rail{position:static;max-height:none;border-bottom:1px solid var(--line2);padding-bottom:14px}}
+.doc-rail b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;font-weight:500}
+:root[dir="rtl"] .doc-rail b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.doc-rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.doc-rail a{
+  display:grid;grid-template-columns:1.6rem 1fr;gap:8px;align-items:baseline;
+  text-decoration:none;color:var(--dim);font-size:13px;line-height:1.35;
+  padding:6px 9px;border-radius:7px;transition:.16s;
+}
+.doc-rail a em{font-family:var(--mono);font-style:normal;font-size:10.5px;opacity:.7}
+.doc-rail a:hover{color:var(--ink);background:var(--hover)}
+.doc-rail a.on{color:var(--onc);background:var(--c)}
+.doc-rail a.on em{opacity:.75}
+
+.sec{padding-block:clamp(26px,3.6vw,44px);border-top:1px solid var(--line2);scroll-margin-top:74px}
+.sec:first-child{border-top:0;padding-top:6px}
+.sec-kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--c);margin-bottom:8px}
+:root[dir="rtl"] .sec-kick{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.sec h2{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.028em;line-height:1.08;
+  font-size:clamp(23px,3vw,33px);margin:0 0 10px;text-wrap:balance;
+}
+:root[dir="rtl"] .sec h2{letter-spacing:0;line-height:1.4}
+.sec h2 code{font-family:var(--mono);font-size:.8em;font-weight:600;color:var(--c);letter-spacing:0}
+.sec > .sec-lead{color:var(--mut);max-width:74ch;margin:0 0 4px;font-size:15px;text-wrap:pretty}
+.sec > .sec-lead b{color:var(--ink);font-weight:600}
+.sec p{max-width:74ch;text-wrap:pretty;color:var(--mut)}
+.sec p b{color:var(--ink);font-weight:600}
+.sec > p{margin:18px 0 0}
+.sec .code{margin-top:18px}
+.sec ul{margin:16px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;max-width:74ch}
+.sec ul li{padding-inline-start:20px;position:relative;color:var(--mut);text-wrap:pretty}
+.sec ul li::before{content:"";position:absolute;inset-inline-start:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--c);opacity:.6}
+
+.code{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--card);min-width:0}
+.code .fc-h{background:var(--sunk)}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;margin-top:18px}
+.code.bad{border-color:color-mix(in srgb,var(--adv) 42%,transparent)}
+.code.bad .fc-h{background:color-mix(in srgb,var(--adv) 10%,transparent)}
+.code.bad .fc-h .d{background:var(--adv)}
+.code.good{border-color:color-mix(in srgb,var(--beg) 42%,transparent)}
+.code.good .fc-h{background:color-mix(in srgb,var(--beg) 10%,transparent)}
+.code.good .fc-h .d{background:var(--beg)}
+.code .flag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.code.bad .flag{color:var(--adv)}
+.code.good .flag{color:var(--beg)}
+:root[dir="rtl"] .code .flag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+
+.note{
+  margin-top:20px;max-width:76ch;background:color-mix(in srgb,var(--c) 8%,transparent);
+  border-inline-start:3px solid var(--c);border-radius:0 9px 9px 0;padding:13px 16px;
+}
+:root[dir="rtl"] .note{border-radius:9px 0 0 9px}
+.note b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .note b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.note p{margin:0;font-size:14.2px;color:var(--mut)}
+
+.dtbl-wrap{overflow-x:auto;border:1px solid var(--line2);border-radius:12px;margin-top:18px;background:var(--card)}
+.dtbl{width:100%;border-collapse:collapse;font-size:13.6px;min-width:640px}
+.dtbl th{
+  text-align:start;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);font-weight:500;padding:10px 14px;border-bottom:1px solid var(--line);
+  background:var(--sunk);white-space:nowrap;
+}
+:root[dir="rtl"] .dtbl th{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px;font-weight:600}
+.dtbl td{padding:11px 14px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--mut);line-height:1.55}
+.dtbl tr:last-child td{border-bottom:0}
+.dtbl td:first-child{color:var(--ink);font-family:var(--mono);font-size:12px}
+
+/* ========================= roadmap page ========================= */
+.verdict{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin:26px 0 8px}
+.verdict div{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.verdict b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:8px;font-weight:600}
+:root[dir="rtl"] .verdict b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.verdict p{margin:0;color:var(--mut);font-size:14.2px;line-height:1.6;text-wrap:pretty}
+
+.phase{position:relative;padding:0 0 0 clamp(22px,3vw,42px);margin-top:clamp(24px,3.4vw,38px)}
+:root[dir="rtl"] .phase{padding:0 clamp(22px,3vw,42px) 0 0}
+.phase::before{content:"";position:absolute;inset-inline-start:0;top:6px;bottom:0;width:2px;background:linear-gradient(180deg,var(--c),transparent)}
+.phase-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.phase-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 8px;font-weight:600;direction:ltr}
+.phase-h h3{margin:0;font-family:var(--disp);font-weight:800;font-size:clamp(20px,2.6vw,27px);letter-spacing:-.02em;color:var(--ink)}
+:root[dir="rtl"] .phase-h h3{letter-spacing:0;line-height:1.4}
+.phase-when{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em;direction:ltr;unicode-bidi:isolate}
+.phase-goal{margin:0 0 14px;color:var(--mut);max-width:72ch;font-size:14.6px;text-wrap:pretty}
+.phase-list{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:14px}
+.phase-list a{
+  display:grid;grid-template-columns:1.8rem 1fr;gap:9px;align-items:baseline;text-decoration:none;
+  padding:8px 11px;border-radius:8px;border:1px solid var(--line2);background:var(--card);transition:.18s;min-width:0;
+}
+.phase-list a em{font-family:var(--mono);font-style:normal;font-size:10.5px;color:var(--dim)}
+.phase-list a span{font-size:13.6px;color:var(--ink);line-height:1.35;text-wrap:pretty}
+.phase-list a span code{font-family:var(--mono);font-size:.86em;color:var(--c)}
+.phase-list a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.phase-build{
+  border-inline-start:3px solid var(--c);background:color-mix(in srgb,var(--c) 7%,transparent);
+  border-radius:0 9px 9px 0;padding:12px 15px;max-width:72ch;
+}
+:root[dir="rtl"] .phase-build{border-radius:9px 0 0 9px}
+.phase-build b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .phase-build b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.phase-build p{margin:0;color:var(--mut);font-size:14px;line-height:1.6;text-wrap:pretty}
+
+.gap{margin-top:16px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.gap section{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.gap h4{margin:0 0 10px;font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.3;text-wrap:pretty}
+.gap ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.gap li{padding-inline-start:19px;position:relative;font-size:13.4px;color:var(--mut);line-height:1.5;text-wrap:pretty}
+.gap li::before{content:"○";position:absolute;inset-inline-start:0;top:0;font-size:10px;color:var(--c);opacity:.7}
+.gap li code{font-family:var(--mono);font-size:.88em;background:var(--chip);padding:1px 4px;border-radius:3px;color:var(--chipink)}
+
+.advice{margin-top:16px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.advice div{border-top:2px solid var(--c);padding-top:12px;min-width:0}
+.advice b{display:block;font-family:var(--disp);font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px;letter-spacing:-.015em}
+:root[dir="rtl"] .advice b{letter-spacing:0}
+.advice p{margin:0;color:var(--mut);font-size:13.8px;line-height:1.6;text-wrap:pretty}
+
+/* ---------- theme switch (icon segment) ---------- */
+.seg.ico button{padding:5px 10px;display:grid;place-items:center}
+.seg.ico svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block}
+@media (max-width:820px){.seg.ico{order:2}}
+
+/* ================= beginner scaffolding on every topic ================= */
+/* three plain-language cards that sit above the technical diagram */
+.plain{display:grid;gap:12px;grid-template-columns:1.4fr 1fr 1fr;margin:2px 0 26px}
+@media (max-width:900px){.plain{grid-template-columns:1fr}}
+.pc{
+  border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);
+  min-width:0;display:flex;flex-direction:column;gap:9px;
+}
+.pc.say{background:color-mix(in srgb,var(--c) 7%,var(--card));border-color:color-mix(in srgb,var(--c) 26%,transparent)}
+.pc .ph{display:flex;align-items:center;gap:8px}
+.pc .ph svg{width:16px;height:16px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pc .ph b{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);font-weight:600}
+:root[dir="rtl"] .pc .ph b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.pc p{margin:0;font-size:14.2px;color:var(--mut);line-height:1.62;text-wrap:pretty}
+.pc p b{color:var(--ink);font-weight:600}
+.pc p code{font-family:var(--mono);font-size:.87em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+.pc.say p{font-size:16px;color:var(--ink)}
+
+/* the idea, as a strip of pictures */
+.strip{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(188px,1fr));margin:2px 0 4px}
+.sp{position:relative;border:1px solid var(--line2);border-radius:14px;padding:15px 16px 14px;background:var(--card);min-width:0}
+.sp .plate{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:11px;
+  background:color-mix(in srgb,var(--c) 13%,transparent);border:1px solid color-mix(in srgb,var(--c) 20%,transparent);
+}
+.sp .plate svg{width:21px;height:21px;stroke:var(--c);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sp b{display:block;font-size:14.5px;color:var(--ink);font-weight:600;margin-bottom:4px;line-height:1.32;text-wrap:pretty}
+.sp p{margin:0;font-size:13.3px;color:var(--mut);line-height:1.55;text-wrap:pretty}
+.sp p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+.sp::after{
+  content:"";position:absolute;top:30px;right:-15px;width:11px;height:11px;
+  border-top:1.6px solid var(--line);border-right:1.6px solid var(--line);
+  transform:rotate(45deg);z-index:2;
+}
+:root[dir="rtl"] .sp::after{right:auto;left:-15px;transform:rotate(-135deg)}
+.sp:last-child::after{display:none}
+@media (max-width:760px){.sp::after{display:none}}
+
+/* the single sentence worth memorising */
+.oneline{
+  margin-top:26px;display:flex;gap:14px;align-items:flex-start;border-radius:14px;padding:16px 19px;
+  border:1px solid color-mix(in srgb,var(--c) 30%,transparent);
+  background:color-mix(in srgb,var(--c) 8%,transparent);
+}
+.oneline > svg{width:22px;height:22px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin-top:3px}
+.oneline b.lbl{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .oneline b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.oneline p{margin:0;font-size:15px;color:var(--ink);line-height:1.62;text-wrap:pretty;max-width:78ch}
+.oneline p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+</style>
+<script>
+(function(){var r=document.documentElement;try{
+if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
+r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
+}catch(e){r.dataset.theme='light';}})();
+</script>
+</head>
+<body>
+<header class="top"><div class="top-in">
+    <a class="home" href="../index.html"><b>The Angular Signal</b><span class="l-en">contents</span><span class="l-ar">المحتويات</span></a>
+    <nav class="tracknav"><a href="../roadmap.html" style="--c:var(--beg)"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="../beginner/01-how-an-app-starts.html" style="--c:var(--beg)"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="../intermediate/16-forms.html" style="--c:var(--int)"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="../advanced/28-change-detection.html" style="--c:var(--adv)" aria-current="page"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="../typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
+    <div class="top-right">
+      <div class="seg" role="group" aria-label="Language">
+        <button id="b-en" aria-pressed="true">EN</button>
+        <button id="b-ar" aria-pressed="false" lang="ar">مصري</button>
+      </div>
+      <div class="seg ico" role="group" aria-label="Theme">
+        <button id="b-lt" aria-pressed="true" title="Light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.2v2.3M12 19.5v2.3M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.2 12h2.3M19.5 12h2.3M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button>
+        <button id="b-dk" aria-pressed="false" title="Dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.7 6.7 0 0 0 11.1 11.1z"/></svg></button>
+      </div>
+    </div>
+  </div></header>
+<main class="page" id="page">
+
+  <div class="eyebrow">
+    <span class="num seq">46 / 48</span>
+    <span class="badge"><span class="l-en">Offline</span><span class="l-ar" dir="auto">من غير نت</span></span>
+    <span class="num"><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></span>
+  </div>
+  <h1 class="title"><span class="l-en">PWAs and the Angular service worker</span><span class="l-ar" dir="auto">الـ PWA وservice worker بتاع أنجولار</span></h1>
+  <p class="lead"><span class="l-en">A service worker is a script that sits between your app and the network. Angular ships a configurable one, so you declare <b>what to cache in a JSON file</b> instead of writing fetch handlers. The result: the app opens instantly on a repeat visit, and keeps working on a bad connection.</span><span class="l-ar" dir="auto">الـ service worker سكريبت بيقعد بين تطبيقك والشبكة. وأنجولار بييجي بواحد قابل للإعداد، فبتعلن <b>هتخزّن إيه في ملف JSON</b> بدل ما تكتب معالجات fetch. والنتيجة: التطبيق بيفتح فوراً في الزيارة التانية، وبيفضل شغال على نت وحش.</span></p>
+
+  <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
+        <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
+        <div class="node" data-node="cfg" data-kind="cfg">
+          <span class="role"><span class="l-en">declares the caching</span><span class="l-ar" dir="auto">بيعلن التخزين</span></span>
+          <span class="file">ngsw-config<b>.json</b></span>
+        </div></div><div class="row">
+        <div class="node" data-node="sw" data-kind="svc">
+          <span class="role"><span class="l-en">intercepts requests</span><span class="l-ar" dir="auto">بيعترض الريكويستات</span></span>
+          <span class="file">ngsw-worker<b>.js</b></span>
+        </div>
+        <div class="node" data-node="app" data-kind="ts">
+          <span class="role"><span class="l-en">unaware of any of it</span><span class="l-ar" dir="auto">مش عارف حاجة</span></span>
+          <span class="file">your app<b></b></span>
+        </div></div></div>
+
+  <div class="stepbar">
+    <div class="dots"><button class="dot" data-step="0" aria-label="step 1"></button><button class="dot" data-step="1" aria-label="step 2"></button><button class="dot" data-step="2" aria-label="step 3"></button><button class="dot" data-step="3" aria-label="step 4"></button><button class="dot" data-step="4" aria-label="step 5"></button><button class="dot" data-step="5" aria-label="step 6"></button></div>
+    <div class="cap"></div>
+    <button class="iconbtn" data-replay>&#9654;<span class="l-en"> Replay</span><span class="l-ar"> إعادة</span></button>
+  </div>
+
+  <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  <div class="files">
+      <div class="fc" data-file="add" data-lang="bash">
+        <div class="fc-h"><span class="d"></span>adding it<span class="tag"><span class="l-en">one command</span><span class="l-ar" dir="auto">أمر واحد</span></span></div>
+        <pre><span class="ln" data-l="1">ng add @angular/pwa</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"># it:</span><span class="ln" data-l="4">#   - installs @angular/service-worker</span><span class="ln" data-l="5">#   - adds provideServiceWorker() to app.config.ts</span><span class="ln" data-l="6">#   - creates ngsw-config.json</span><span class="ln" data-l="7">#   - creates manifest.webmanifest and placeholder icons</span><span class="ln" data-l="8">#   - registers the worker in production builds only</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10"># IMPORTANT: it does NOT work with `ng serve`.</span><span class="ln" data-l="11">ng build --configuration production</span><span class="ln" data-l="12">npx http-server dist/my-app/browser -p 4200</span><span class="ln" data-l="13"># now open localhost:4200 and check Application → Service Workers</span></pre>
+      </div>
+      <div class="fc" data-file="cfg" data-lang="json">
+        <div class="fc-h"><span class="d"></span>ngsw-config.json<span class="tag"><span class="l-en">the whole policy</span><span class="l-ar" dir="auto">السياسة كلها</span></span></div>
+        <pre><span class="ln" data-l="1">{</span><span class="ln" data-l="2">  "index": "/index.html",</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">  "assetGroups": [</span><span class="ln" data-l="5">    {</span><span class="ln" data-l="6">      "name": "app",</span><span class="ln" data-l="7">      "installMode": "prefetch",        // download at install time</span><span class="ln" data-l="8">      "resources": { "files": ["/index.html", "/*.css", "/*.js"] }</span><span class="ln" data-l="9">    },</span><span class="ln" data-l="10">    {</span><span class="ln" data-l="11">      "name": "assets",</span><span class="ln" data-l="12">      "installMode": "lazy",            // cache on first use</span><span class="ln" data-l="13">      "updateMode": "prefetch",</span><span class="ln" data-l="14">      "resources": { "files": ["/media/**", "/*.woff2"] }</span><span class="ln" data-l="15">    }</span><span class="ln" data-l="16">  ],</span><span class="ln" data-l="17"> </span><span class="ln" data-l="18">  "dataGroups": [</span><span class="ln" data-l="19">    {</span><span class="ln" data-l="20">      "name": "api-fresh",</span><span class="ln" data-l="21">      "urls": ["/api/**"],</span><span class="ln" data-l="22">      "cacheConfig": {</span><span class="ln" data-l="23">        "strategy": "freshness",        // try network, fall back to cache</span><span class="ln" data-l="24">        "maxSize": 100,</span><span class="ln" data-l="25">        "maxAge": "1h",</span><span class="ln" data-l="26">        "timeout": "3s"                 // …after waiting this long</span><span class="ln" data-l="27">      }</span><span class="ln" data-l="28">    },</span><span class="ln" data-l="29">    {</span><span class="ln" data-l="30">      "name": "api-static",</span><span class="ln" data-l="31">      "urls": ["/api/countries", "/api/config"],</span><span class="ln" data-l="32">      "cacheConfig": {</span><span class="ln" data-l="33">        "strategy": "performance",      // cache first, do not even ask</span><span class="ln" data-l="34">        "maxSize": 20,</span><span class="ln" data-l="35">        "maxAge": "7d"</span><span class="ln" data-l="36">      }</span><span class="ln" data-l="37">    }</span><span class="ln" data-l="38">  ]</span><span class="ln" data-l="39">}</span></pre>
+      </div>
+      <div class="fc" data-file="update" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>telling people a new version exists<span class="tag"><span class="l-en">you must do this</span><span class="l-ar" dir="auto">لازم تعمل دي</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">SwUpdate</i>, <i class="t-type">VersionReadyEvent</i> } <i class="t-key">from</i> <i class="t-str">'@angular/service-worker'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-dec">@Injectable</i>({ providedIn: <i class="t-str">'root'</i> })</span><span class="ln" data-l="4"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Updates</i> {</span><span class="ln" data-l="5">  <i class="t-key">private</i> <i class="t-key">readonly</i> sw = <i class="t-fn">inject</i>(<i class="t-type">SwUpdate</i>);</span><span class="ln" data-l="6">  <i class="t-key">private</i> <i class="t-key">readonly</i> toasts = <i class="t-fn">inject</i>(<i class="t-type">Toasts</i>);</span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-fn">constructor</i>() {</span><span class="ln" data-l="9">    <i class="t-key">if</i> (!<i class="t-key">this</i>.sw.isEnabled) <i class="t-key">return</i>;</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">    <i class="t-com">// a new version has been downloaded and is waiting</i></span><span class="ln" data-l="12">    <i class="t-key">this</i>.sw.versionUpdates</span><span class="ln" data-l="13">      .<i class="t-fn">pipe</i>(<i class="t-fn">filter</i>((e): e is <i class="t-type">VersionReadyEvent</i> =&gt; e.<i class="t-key">type</i> === <i class="t-str">'VERSION_READY'</i>),</span><span class="ln" data-l="14">            <i class="t-fn">takeUntilDestroyed</i>())</span><span class="ln" data-l="15">      .<i class="t-fn">subscribe</i>(() =&gt; {</span><span class="ln" data-l="16">        <i class="t-key">this</i>.toasts.<i class="t-fn">action</i>(<i class="t-str">'A new version is available.'</i>, <i class="t-str">'Reload'</i>, () =&gt; {</span><span class="ln" data-l="17">          <i class="t-key">this</i>.sw.<i class="t-fn">activateUpdate</i>().<i class="t-fn">then</i>(() =&gt; location.<i class="t-fn">reload</i>());</span><span class="ln" data-l="18">        });</span><span class="ln" data-l="19">      });</span><span class="ln" data-l="20"> </span><span class="ln" data-l="21">    <i class="t-com">// check for one every 6 hours for long-lived tabs</i></span><span class="ln" data-l="22">    <i class="t-fn">setInterval</i>(() =&gt; <i class="t-key">this</i>.sw.<i class="t-fn">checkForUpdate</i>(), <i class="t-num">6</i> * <i class="t-num">60</i> * <i class="t-num">60</i> * <i class="t-num">1000</i>);</span><span class="ln" data-l="23">  }</span><span class="ln" data-l="24">}</span><span class="ln" data-l="25"> </span><span class="ln" data-l="26"><i class="t-com">// WITHOUT this, a user with the tab open sees your OLD app</i></span><span class="ln" data-l="27"><i class="t-com">// indefinitely — the worker downloads the new one and waits.</i></span></pre>
+      </div>
+      <div class="fc" data-file="off" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>knowing you are offline<span class="tag"><span class="l-en">tell the person</span><span class="l-ar" dir="auto">قول للشخص</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-dec">@Injectable</i>({ providedIn: <i class="t-str">'root'</i> })</span><span class="ln" data-l="2"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Network</i> {</span><span class="ln" data-l="3">  <i class="t-key">readonly</i> online = <i class="t-fn">signal</i>(navigator.onLine);</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5">  <i class="t-fn">constructor</i>() {</span><span class="ln" data-l="6">    <i class="t-key">const</i> on  = () =&gt; <i class="t-key">this</i>.online.<i class="t-key">set</i>(<i class="t-key">true</i>);</span><span class="ln" data-l="7">    <i class="t-key">const</i> off = () =&gt; <i class="t-key">this</i>.online.<i class="t-key">set</i>(<i class="t-key">false</i>);</span><span class="ln" data-l="8">    <i class="t-fn">addEventListener</i>(<i class="t-str">'online'</i>, on);</span><span class="ln" data-l="9">    <i class="t-fn">addEventListener</i>(<i class="t-str">'offline'</i>, off);</span><span class="ln" data-l="10">    <i class="t-fn">inject</i>(<i class="t-type">DestroyRef</i>).<i class="t-fn">onDestroy</i>(() =&gt; {</span><span class="ln" data-l="11">      <i class="t-fn">removeEventListener</i>(<i class="t-str">'online'</i>, on);</span><span class="ln" data-l="12">      <i class="t-fn">removeEventListener</i>(<i class="t-str">'offline'</i>, off);</span><span class="ln" data-l="13">    });</span><span class="ln" data-l="14">  }</span><span class="ln" data-l="15">}</span><span class="ln" data-l="16"> </span><span class="ln" data-l="17"><i class="t-com">// template:</i></span><span class="ln" data-l="18"><i class="t-com">//   @if (!network.online()) {</i></span><span class="ln" data-l="19"><i class="t-com">//     &lt;div class="offline-bar" role="status"&gt;</i></span><span class="ln" data-l="20"><i class="t-com">//       You are offline. Showing saved data.</i></span><span class="ln" data-l="21"><i class="t-com">//     &lt;/div&gt;</i></span><span class="ln" data-l="22"><i class="t-com">//   }</i></span></pre>
+      </div>
+      <div class="fc" data-file="when" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>is a PWA worth it here?<span class="tag"><span class="l-en">be honest</span><span class="l-ar" dir="auto">كن صادق</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-com">// ✓ WORTH IT</i></span><span class="ln" data-l="2"><i class="t-com">//   - people return daily (a dashboard, a tool, a reader)</i></span><span class="ln" data-l="3"><i class="t-com">//   - connectivity is unreliable (field work, transit, rural)</i></span><span class="ln" data-l="4"><i class="t-com">//   - the data is mostly read and changes slowly</i></span><span class="ln" data-l="5"><i class="t-com">//   - you want an installable icon without an app store</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">// ✗ USUALLY NOT WORTH IT</i></span><span class="ln" data-l="8"><i class="t-com">//   - a marketing site people visit once</i></span><span class="ln" data-l="9"><i class="t-com">//   - anything where stale data is dangerous (trading, live stock)</i></span><span class="ln" data-l="10"><i class="t-com">//   - an app that changes every day — you will fight the cache</i></span><span class="ln" data-l="11"> </span><span class="ln" data-l="12"><i class="t-com">// THE COST: a whole extra caching layer to reason about.</i></span><span class="ln" data-l="13"><i class="t-com">// 'why am I seeing the old version?' becomes a support question</i></span><span class="ln" data-l="14"><i class="t-com">// you will answer many times.</i></span></pre>
+      </div></div>
+
+  
+  <div class="example">
+    <div class="exhead">
+      <span class="extag"><span class="l-en">Real example</span><span class="l-ar">مثال حقيقي</span></span>
+      <b><span class="l-en">The update problem, and why it bites</span><span class="l-ar" dir="auto">مشكلة التحديث، وليه بتوجع</span></b>
+    </div>
+    <p class="exlead"><span class="l-en">You deploy a fix. A user has had the tab open since yesterday. Without SwUpdate they keep running the broken version indefinitely — and they will tell you the bug is not fixed, and they will be right.</span><span class="l-ar" dir="auto">إنت نشرت إصلاح. والمستخدم فاتح التاب من امبارح. من غير SwUpdate هيفضل شغال على النسخة البايظة للأبد — وهيقولك الباج مش متصلّح، وهيبقى معاه حق.</span></p>
+    <div class="files">
+      <div class="fc" data-file="up1" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>what actually happens<span class="tag"><span class="l-en">the sequence</span><span class="l-ar" dir="auto">التسلسل</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-com">// 1. you deploy. index.html and the JS hashes change.</i></span><span class="ln" data-l="2"><i class="t-com">// 2. the open tab's service worker is STILL serving the old</i></span><span class="ln" data-l="3"><i class="t-com">//    files from cache. the user sees no change at all.</i></span><span class="ln" data-l="4"><i class="t-com">// 3. on the next check, the worker downloads the new version</i></span><span class="ln" data-l="5"><i class="t-com">//    in the background — and installs it as WAITING.</i></span><span class="ln" data-l="6"><i class="t-com">// 4. it activates only when EVERY tab for your origin closes.</i></span><span class="ln" data-l="7"><i class="t-com">//</i></span><span class="ln" data-l="8"><i class="t-com">// a user who never closes the tab never gets the fix.</i></span><span class="ln" data-l="9"><i class="t-com">// this is by design: it stops the app changing under their hands.</i></span><span class="ln" data-l="10"><i class="t-com">//</i></span><span class="ln" data-l="11"><i class="t-com">// your job is step 5: notice, and offer the reload.</i></span></pre>
+      </div>
+      <div class="fc" data-file="up2" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>the minimum you must ship<span class="tag"><span class="l-en">do not skip this</span><span class="l-ar" dir="auto">متعديهاش</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-fn">constructor</i>() {</span><span class="ln" data-l="2">  <i class="t-key">const</i> sw = <i class="t-fn">inject</i>(<i class="t-type">SwUpdate</i>);</span><span class="ln" data-l="3">  <i class="t-key">if</i> (!sw.isEnabled) <i class="t-key">return</i>;</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5">  sw.versionUpdates.<i class="t-fn">pipe</i>(</span><span class="ln" data-l="6">    <i class="t-fn">filter</i>((e): e is <i class="t-type">VersionReadyEvent</i> =&gt; e.<i class="t-key">type</i> === <i class="t-str">'VERSION_READY'</i>),</span><span class="ln" data-l="7">    <i class="t-fn">takeUntilDestroyed</i>(),</span><span class="ln" data-l="8">  ).<i class="t-fn">subscribe</i>(<i class="t-key">async</i> () =&gt; {</span><span class="ln" data-l="9">    <i class="t-com">// for a critical fix you may reload without asking.</i></span><span class="ln" data-l="10">    <i class="t-com">// for anything else, ASK — reloading loses unsaved work.</i></span><span class="ln" data-l="11">    <i class="t-key">if</i> (<i class="t-fn">confirm</i>(<i class="t-str">'A new version is available. Reload now?'</i>)) {</span><span class="ln" data-l="12">      <i class="t-key">await</i> sw.<i class="t-fn">activateUpdate</i>();</span><span class="ln" data-l="13">      location.<i class="t-fn">reload</i>();</span><span class="ln" data-l="14">    }</span><span class="ln" data-l="15">  });</span><span class="ln" data-l="16">}</span></pre>
+      </div></div>
+  </div>
+
+  <div class="gotchas">
+    <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
+    <ul><li><span class="l-en">The service worker <b>does not run under <code class="i">ng serve</code></b>. Test it with a production build served by a static server, or you will conclude it is broken.</span><span class="l-ar" dir="auto">الـ service worker <b>مش بيشتغل مع <code class="i">ng serve</code></b>. اختبره بـ build إنتاج مقدّم من سيرفر ثابت، وإلا هتستنتج إنه بايظ.</span></li><li><span class="l-en">Without <code class="i">SwUpdate</code>, a user with an open tab runs your old version indefinitely. Shipping a PWA without update handling is shipping a bug.</span><span class="l-ar" dir="auto">من غير <code class="i">SwUpdate</code>، المستخدم اللي فاتح تاب بيفضل على نسختك القديمة للأبد. ونشر PWA من غير التعامل مع التحديث ده نشر باج.</span></li><li><span class="l-en"><code class="i">strategy: "performance"</code> on an endpoint whose data matters will show stale data confidently. Use <code class="i">freshness</code> with a timeout unless the data really is static.</span><span class="l-ar" dir="auto"><code class="i">strategy: "performance"</code> على endpoint داتاه مهمة هيوري داتا قديمة بثقة. استعمل <code class="i">freshness</code> مع timeout إلا لو الداتا ثابتة فعلاً.</span></li><li><span class="l-en">Only <code class="i">GET</code> requests are cached. A <code class="i">POST</code> made offline simply fails — real offline writes need a queue you build yourself (IndexedDB plus a sync on reconnect).</span><span class="l-ar" dir="auto">الـ <code class="i">GET</code> بس هو اللي بيتخزّن. والـ <code class="i">POST</code> من غير نت بيفشل وخلاص — والكتابة الحقيقية من غير نت محتاجة طابور تبنيه بنفسك (IndexedDB مع مزامنة عند رجوع الاتصال).</span></li><li><span class="l-en">Debug in DevTools → Application → Service Workers. “Update on reload” and “Unregister” will save you hours of confusion during development.</span><span class="l-ar" dir="auto">صحّح في DevTools ← Application ← Service Workers. و«Update on reload» و«Unregister» هيوفروا عليك ساعات لخبطة أثناء التطوير.</span></li></ul>
+  </div>
+
+  <nav class="pager">
+    <a class="pv" href="../advanced/45-aot-tree-shaking.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">AOT compilation and tree shaking</span><span class="l-ar" dir="auto">كمبايل AOT والـ tree shaking</span></b></a>
+    <a class="nx" href="../advanced/47-schematics.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Custom schematics and builders</span><span class="l-ar" dir="auto">schematics و builders مخصصة</span></b></a>
+  </nav>
+</main>
+
+<script>
+const D = {"edges":[{"id":"e1","from":"app","to":"sw","a":"top","b":"right","label":"GET /api/products","packet":"request"},{"id":"e2","from":"sw","to":"cfg","a":"top","b":"bottom","label":"which strategy?","packet":"freshness"},{"id":"e3","from":"sw","to":"app","a":"left","b":"bottom","label":"cache or network","packet":"response"}],"steps":[{"t":{"en":"\u003ccode class=\"i\"\u003eng add &#64;angular/pwa\u003c/code\u003e wires everything: the worker, the manifest, the icons and the registration. You configure it with JSON rather than code.","ar":"\u003ccode class=\"i\"\u003eng add &#64;angular/pwa\u003c/code\u003e بيوصّل كل حاجة: الـ worker والـ manifest والأيقونات والتسجيل. وبتعدّه بـ JSON مش بكود."},"edge":null,"hl":{"add":[1,4,5,6,7]}},{"t":{"en":"\u003cb\u003eassetGroups\u003c/b\u003e cache your own build output. \u003ccode class=\"i\"\u003eprefetch\u003c/code\u003e downloads at install so the app opens offline; \u003ccode class=\"i\"\u003elazy\u003c/code\u003e caches on first use.","ar":"\u003cb\u003eassetGroups\u003c/b\u003e بتخزّن ناتج الـ build بتاعك. \u003ccode class=\"i\"\u003eprefetch\u003c/code\u003e بينزّل عند التثبيت فالتطبيق يفتح من غير نت؛ و\u003ccode class=\"i\"\u003elazy\u003c/code\u003e بيخزّن عند أول استخدام."},"edge":"e2","hl":{"cfg":[4,7,11,12]}},{"t":{"en":"\u003cb\u003edataGroups\u003c/b\u003e cache API responses, and the strategy is the whole decision: \u003ccode class=\"i\"\u003efreshness\u003c/code\u003e tries the network first, \u003ccode class=\"i\"\u003eperformance\u003c/code\u003e serves the cache without even asking.","ar":"\u003cb\u003edataGroups\u003c/b\u003e بتخزّن ردود الـ API، والاستراتيجية هي القرار كله: \u003ccode class=\"i\"\u003efreshness\u003c/code\u003e بتجرّب الشبكة الأول، و\u003ccode class=\"i\"\u003eperformance\u003c/code\u003e بتقدّم الكاش من غير ما تسأل أصلاً."},"edge":"e1","hl":{"cfg":[18,23,24,35]}},{"t":{"en":"A new deployment does \u003cb\u003enot\u003c/b\u003e reach an open tab by itself. The worker downloads it and waits — you must offer a reload with \u003ccode class=\"i\"\u003eSwUpdate\u003c/code\u003e.","ar":"النشر الجديد \u003cb\u003eمش\u003c/b\u003e بيوصل لتاب مفتوح لوحده. الـ worker بينزّله ويستنى — ولازم تعرض إعادة تحميل بـ \u003ccode class=\"i\"\u003eSwUpdate\u003c/code\u003e."},"edge":"e3","hl":{"update":[12,15,16,17,26,27]}},{"t":{"en":"And tell people when they are offline. A cached page that silently shows yesterday&rsquo;s prices is worse than an honest “you are offline” bar.","ar":"وقول للناس لما يكونوا من غير نت. الصفحة المخزّنة اللي بتوري أسعار امبارح في صمت أوحش من شريط صادق بيقول «إنت من غير نت»."},"edge":null,"hl":{"off":[3,18,19,20]}},{"t":{"en":"And be honest about whether it fits. A caching layer you did not need becomes “why am I seeing the old version?” forever.","ar":"وكن صادق هل دي مناسبة ولا لأ. طبقة تخزين مكنتش محتاجها بتبقى «ليه بشوف النسخة القديمة؟» للأبد."},"edge":null,"hl":{"when":[2,3,4,9,10,13,14]}}]};
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const page = $('#page');
+function relayout(){ requestAnimationFrame(layout); }
+
+/* ---------- language + theme, shared by every page ---------- */
+function _g(id){ return document.getElementById(id); }
+function syncUI(){
+  const r = document.documentElement;
+  const l = r.dataset.lang === 'ar' ? 'ar' : 'en';
+  const t = r.dataset.theme === 'dark' ? 'dark' : 'light';
+  const set = (id, on) => { const b = _g(id); if (b) b.setAttribute('aria-pressed', String(on)); };
+  set('b-en', l === 'en'); set('b-ar', l === 'ar');
+  set('b-lt', t === 'light'); set('b-dk', t === 'dark');
+}
+function setLang(l){
+  const r = document.documentElement;
+  r.dataset.lang = l;
+  r.dir  = l === 'ar' ? 'rtl' : 'ltr';
+  r.lang = l === 'ar' ? 'ar-EG' : 'en';
+  try { localStorage.setItem('tas-lang', l); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+function setTheme(t){
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('tas-theme', t); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+_g('b-en').onclick = () => setLang('en');
+_g('b-ar').onclick = () => setLang('ar');
+_g('b-lt').onclick = () => setTheme('light');
+_g('b-dk').onclick = () => setTheme('dark');
+syncUI();
+
+/* ---------- edge geometry ---------- */
+function anchorPt(r, side, base){
+  const x = r.left - base.left, y = r.top - base.top, w = r.width, h = r.height;
+  if (side === 'left')  return { x: x,         y: y + h / 2, nx: -1, ny: 0 };
+  if (side === 'right') return { x: x + w,     y: y + h / 2, nx:  1, ny: 0 };
+  if (side === 'top')   return { x: x + w / 2, y: y,         nx: 0, ny: -1 };
+  return                       { x: x + w / 2, y: y + h,     nx: 0, ny:  1 };
+}
+
+function layout(){
+  const stage = $('.stage'), svg = $('.stage svg');
+  if (!stage) return;
+  const base = stage.getBoundingClientRect();
+  svg.setAttribute('width', base.width);
+  svg.setAttribute('height', base.height);
+  D.edges.forEach(e => {
+    const a = $('[data-node="' + e.from + '"]'), b = $('[data-node="' + e.to + '"]');
+    if (!a || !b) return;
+    const p1 = anchorPt(a.getBoundingClientRect(), e.a, base);
+    const p2 = anchorPt(b.getBoundingClientRect(), e.b, base);
+    const d = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+    const k = Math.max(40, Math.min(140, d * 0.45));
+    const g = $('[data-edge="' + e.id + '"]');
+    const wire = $('.wire', g), flow = $('.flow', g), head = $('.head', g), txt = $('text', g);
+    const dd = 'M' + p1.x + ',' + p1.y + ' C' + (p1.x + p1.nx * k) + ',' + (p1.y + p1.ny * k) +
+               ' ' + (p2.x + p2.nx * k) + ',' + (p2.y + p2.ny * k) + ' ' + p2.x + ',' + p2.y;
+    wire.setAttribute('d', dd);
+    flow.setAttribute('d', dd);
+    const L = wire.getTotalLength();
+    const end = wire.getPointAtLength(Math.max(0, L - 1));
+    const pre = wire.getPointAtLength(Math.max(0, L - 12));
+    const ang = Math.atan2(end.y - pre.y, end.x - pre.x), A = 0.42, r = 9;
+    head.setAttribute('d',
+      'M' + end.x + ',' + end.y +
+      ' L' + (end.x - r * Math.cos(ang - A)) + ',' + (end.y - r * Math.sin(ang - A)) +
+      ' L' + (end.x - r * Math.cos(ang + A)) + ',' + (end.y - r * Math.sin(ang + A)) + ' Z');
+    const mid = wire.getPointAtLength(L * 0.5);
+    txt.setAttribute('x', mid.x);
+    txt.setAttribute('y', mid.y - 9);
+    txt.setAttribute('text-anchor', 'middle');
+    txt.textContent = e.label;
+  });
+}
+
+/* ---------- steps ---------- */
+let RUN = 0, step = 0;
+
+function fly(edgeId, token){
+  return new Promise(res => {
+    const g = $('[data-edge="' + edgeId + '"]'), wire = $('.wire', g);
+    const pk = $('.packet'), rect = $('rect', pk), txt = $('text', pk);
+    const e = D.edges.find(x => x.id === edgeId);
+    txt.textContent = e.packet || e.label;
+    txt.setAttribute('text-anchor', 'middle');
+    txt.setAttribute('x', 0); txt.setAttribute('y', 4);
+    const w = Math.max(38, txt.getComputedTextLength() + 20);
+    rect.setAttribute('x', -w / 2); rect.setAttribute('y', -12);
+    rect.setAttribute('width', w);  rect.setAttribute('height', 24);
+    const L = wire.getTotalLength();
+    if (REDUCED || !L) { pk.style.opacity = 0; return res(); }
+    const dur = 900, t0 = performance.now();
+    (function frame(now){
+      if (token !== RUN) { pk.style.opacity = 0; return res(); }
+      const t = Math.min(1, (now - t0) / dur);
+      const q = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      const p = wire.getPointAtLength(q * L);
+      pk.setAttribute('transform', 'translate(' + p.x + ',' + p.y + ')');
+      pk.style.opacity = t < .1 ? t / .1 : t > .9 ? (1 - t) / .1 : 1;
+      if (t < 1) requestAnimationFrame(frame);
+      else { pk.style.opacity = 0; res(); }
+    })(performance.now());
+  });
+}
+
+function paint(i){
+  $$('.hl').forEach(n => n.classList.remove('hl'));
+  $$('.fc.active,.node.active').forEach(n => n.classList.remove('active'));
+  $$('.dot').forEach((d, k) => d.classList.toggle('on', k === i));
+  const s = D.steps[i];
+  $('.cap').innerHTML =
+    '<span class="n">' + String(i + 1).padStart(2, '0') + '/' + String(D.steps.length).padStart(2, '0') + '</span>' +
+    '<span class="l-en">' + s.t.en + '</span><span class="l-ar" dir="auto">' + s.t.ar + '</span>';
+  D.edges.forEach(e => {
+    const lit = D.steps.slice(0, i + 1).some(st => st.edge === e.id);
+    $('[data-edge="' + e.id + '"]').classList.toggle('lit', lit);
+  });
+  const touched = new Set();
+  Object.entries(s.hl).forEach(([fid, lines]) => {
+    const card = $('[data-file="' + fid + '"]');
+    if (card) {
+      card.classList.add('active');
+      lines.forEach(l => { const n = $('[data-l="' + l + '"]', card); if (n) n.classList.add('hl'); });
+    }
+    touched.add(fid);
+  });
+  if (s.edge) { const e = D.edges.find(x => x.id === s.edge); touched.add(e.from); touched.add(e.to); }
+  touched.forEach(id => { const n = $('[data-node="' + id + '"]'); if (n) n.classList.add('active'); });
+}
+
+async function goStep(i, animate = true){
+  step = Math.max(0, Math.min(D.steps.length - 1, i));
+  const token = ++RUN;
+  paint(step);
+  if (animate && D.steps[step].edge) await fly(D.steps[step].edge, token);
+}
+
+async function play(){
+  const token = ++RUN;
+  for (let i = 0; i < D.steps.length; i++){
+    if (token !== RUN) return;
+    step = i; paint(i);
+    if (D.steps[i].edge) await fly(D.steps[i].edge, token);
+    else await new Promise(r => setTimeout(r, REDUCED ? 0 : 620));
+    if (token !== RUN) return;
+    if (i < D.steps.length - 1) await new Promise(r => setTimeout(r, REDUCED ? 0 : 520));
+  }
+}
+
+document.addEventListener('click', e => {
+  const dot = e.target.closest('.dot');
+  if (dot) { RUN++; return goStep(+dot.dataset.step); }
+  if (e.target.closest('[data-replay]')) play();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') { RUN++; goStep(step + 1); }
+  else if (e.key === 'ArrowLeft') { RUN++; goStep(step - 1, false); }
+  else if (e.key.toLowerCase() === 'r') play();
+});
+
+let rt;
+addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(layout, 140); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+
+layout();
+paint(0);
+new IntersectionObserver((en, o) => {
+  if (en[0].isIntersecting) { o.disconnect(); layout(); play(); }
+}, { threshold: .25 }).observe($('.stage'));
+</script>
+</body>
+</html>

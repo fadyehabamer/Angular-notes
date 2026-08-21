@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Angular data flow — how components talk to each other</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d1c; --bg2:#101430; --card:#141935; --card2:#171d3d;
+  --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.055);
+  --ink:#ecEEfb; --mut:#98a0c8; --dim:#69719e;
+  --down:#ff2e88;   /* data going DOWN: parent -> child */
+  --up:#2ee6c5;     /* data going UP: child -> parent */
+  --side:#ffb020;   /* sideways: service / siblings */
+  --route:#8b6cff;  /* across routes */
+  --ts:#4a9eff; --html:#ff7a45;
+  --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --rail:236px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:
+    radial-gradient(1100px 700px at 78% -10%,rgba(139,108,255,.14),transparent 60%),
+    radial-gradient(900px 600px at 4% 108%,rgba(255,46,136,.10),transparent 60%),
+    var(--bg);
+  color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;overflow:hidden;
+}
+::selection{background:var(--down);color:#fff}
+
+/* ---------- shell ---------- */
+.deck{display:grid;grid-template-columns:var(--rail) 1fr;height:100vh;height:100dvh}
+.rail{
+  border-right:1px solid var(--line2);background:rgba(8,10,22,.55);
+  display:flex;flex-direction:column;min-height:0;
+}
+.brand{padding:20px 20px 14px;border-bottom:1px solid var(--line2)}
+.brand b{
+  display:block;font-family:var(--disp);font-weight:800;font-size:19px;letter-spacing:-.02em;
+  background:linear-gradient(92deg,#e40035,#f20089 45%,#9717e2);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.brand span{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase}
+.rail-list{overflow:auto;padding:10px 10px 18px;flex:1;min-height:0;scrollbar-width:thin}
+.rail-btn{
+  display:flex;gap:10px;align-items:baseline;width:100%;text-align:left;cursor:pointer;
+  background:none;border:0;color:var(--dim);font-family:var(--body);font-size:13px;
+  padding:7px 10px;border-radius:8px;line-height:1.3;position:relative;
+}
+.rail-btn em{font-family:var(--mono);font-style:normal;font-size:10.5px;opacity:.6;min-width:16px}
+.rail-btn:hover{color:var(--mut);background:rgba(255,255,255,.035)}
+.rail-btn[aria-current="true"]{color:var(--ink);background:rgba(255,255,255,.06)}
+.rail-btn[aria-current="true"]::before{
+  content:"";position:absolute;left:-10px;top:6px;bottom:6px;width:3px;border-radius:0 3px 3px 0;
+  background:linear-gradient(180deg,#f20089,#9717e2);
+}
+.rail-foot{padding:12px 20px;border-top:1px solid var(--line2);font-family:var(--mono);font-size:10px;color:var(--dim);line-height:1.7}
+kbd{font-family:var(--mono);font-size:10px;background:rgba(255,255,255,.07);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 5px;color:var(--mut)}
+
+.main{display:flex;flex-direction:column;min-width:0;min-height:0}
+.viewport{flex:1;overflow:auto;min-height:0;scroll-behavior:smooth}
+.slide{display:none;padding:34px clamp(20px,3.4vw,54px) 40px;max-width:1220px;margin:0 auto}
+.slide.on{display:block;animation:rise .45s cubic-bezier(.2,.7,.3,1)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ---------- slide head ---------- */
+.eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.num{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.16em}
+.badge{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;border:1px solid currentColor;color:var(--c);
+  background:color-mix(in srgb,var(--c) 12%,transparent);
+}
+h1.title{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.03em;line-height:1.02;
+  font-size:clamp(28px,4vw,46px);margin:0 0 10px;
+}
+h1.title code{font-family:var(--mono);font-size:.82em;font-weight:600;color:var(--c)}
+.lead{color:var(--mut);max-width:74ch;margin:0 0 22px;font-size:15.5px}
+.lead b{color:var(--ink);font-weight:600}
+
+/* ---------- stage / diagram ---------- */
+.stage{position:relative;margin:6px 0 4px;padding:26px 8px;display:flex;flex-direction:column;gap:74px}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.row{display:flex;justify-content:center;gap:clamp(28px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
+.node{
+  background:linear-gradient(180deg,var(--card2),var(--card));
+  border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:172px;
+  box-shadow:0 10px 26px -18px #000, inset 0 1px 0 rgba(255,255,255,.05);
+  transition:border-color .3s,box-shadow .3s,transform .3s;
+}
+.node .role{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
+.node .file{font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--ink);white-space:nowrap}
+.node .file b{font-weight:600}
+.node[data-kind="ts"] .file b{color:var(--ts)}
+.node[data-kind="html"] .file b{color:var(--html)}
+.node[data-kind="svc"] .file b{color:var(--side)}
+.node[data-kind="cfg"] .file b{color:var(--route)}
+.node.active{border-color:color-mix(in srgb,var(--c) 65%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent),0 0 34px -8px var(--c);transform:translateY(-2px)}
+.edge path.wire{fill:none;stroke:rgba(255,255,255,.13);stroke-width:1.6}
+.edge path.flow{fill:none;stroke:var(--c);stroke-width:2.2;stroke-dasharray:5 9;opacity:0;stroke-linecap:round}
+.edge.lit path.wire{stroke:color-mix(in srgb,var(--c) 40%,transparent)}
+.edge.lit path.flow{opacity:1;animation:march 1s linear infinite}
+@keyframes march{to{stroke-dashoffset:-28}}
+.edge text{font-family:var(--mono);font-size:10.5px;fill:var(--dim);paint-order:stroke;stroke:var(--bg);stroke-width:5px;stroke-linejoin:round}
+.edge.lit text{fill:var(--c)}
+.packet{opacity:0}
+.packet rect{fill:var(--c);rx:6}
+.packet text{font-family:var(--mono);font-size:11px;font-weight:600;fill:#0b0d1c;stroke:none}
+
+/* ---------- step bar ---------- */
+.stepbar{
+  display:flex;align-items:center;gap:14px;margin:8px 0 22px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:11px;background:rgba(255,255,255,.03);
+}
+.stepbar .dots{display:flex;gap:6px;flex-shrink:0}
+.stepbar .dot{width:7px;height:7px;border-radius:99px;background:rgba(255,255,255,.16);cursor:pointer;border:0;padding:0;transition:.2s}
+.stepbar .dot.on{background:var(--c);box-shadow:0 0 10px -1px var(--c);transform:scale(1.25)}
+.stepbar .cap{flex:1;min-width:0;font-size:14px;color:var(--ink)}
+.stepbar .cap span{color:var(--dim);font-family:var(--mono);font-size:11px;margin-right:8px}
+.iconbtn{
+  background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--mut);
+  border-radius:8px;padding:5px 11px;font-family:var(--mono);font-size:11px;cursor:pointer;white-space:nowrap;
+}
+.iconbtn:hover{color:var(--ink);border-color:color-mix(in srgb,var(--c) 55%,transparent)}
+
+/* ---------- code cards ---------- */
+.files{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
+.fc{background:var(--card);border:1px solid var(--line2);border-radius:12px;overflow:hidden;transition:border-color .3s}
+.fc.active{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.fc-h{
+  display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid var(--line2);
+  background:rgba(255,255,255,.025);font-family:var(--mono);font-size:11.5px;color:var(--mut);
+}
+.fc-h .d{width:7px;height:7px;border-radius:99px;flex-shrink:0}
+.fc[data-lang="ts"] .d{background:var(--ts)} .fc[data-lang="html"] .d{background:var(--html)}
+.fc-h .tag{margin-left:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+pre{margin:0;padding:12px 0;overflow-x:auto;font-family:var(--mono);font-size:12.2px;line-height:1.72;scrollbar-width:thin}
+.ln{display:block;padding:0 15px;white-space:pre;border-left:2px solid transparent;transition:background .25s,border-color .25s}
+.ln.hl{background:color-mix(in srgb,var(--c) 13%,transparent);border-left-color:var(--c)}
+.t-key{color:#c792ea}.t-str{color:#9be58a}.t-com{color:#5d6591;font-style:italic}
+.t-dec{color:#ffcb6b}.t-tag{color:#ff7a91}.t-bind{color:#7fd4ff}.t-int{color:#ffd479}.t-num{color:#f78c6c}
+
+/* ---------- real example ---------- */
+.example{margin-top:26px;padding-top:18px;border-top:1px solid var(--line2)}
+.exhead{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:7px}
+.extag{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);border:1px solid currentColor;border-radius:99px;padding:3px 9px;
+  background:color-mix(in srgb,var(--c) 12%,transparent);
+}
+.exhead b{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--ink)}
+.exlead{margin:0 0 14px;color:var(--mut);font-size:14px;max-width:82ch}
+
+/* ---------- gotchas ---------- */
+.gotchas{margin-top:20px;border-top:1px solid var(--line2);padding-top:16px}
+.gotchas h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 10px;font-weight:500}
+.gotchas ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:9px 22px}
+.gotchas li{position:relative;padding-left:20px;font-size:13.6px;color:var(--mut)}
+.gotchas li::before{content:"!";position:absolute;left:0;top:0;font-family:var(--mono);font-size:11px;color:var(--c);font-weight:700}
+.gotchas li b{color:var(--ink);font-weight:600}
+code.i{font-family:var(--mono);font-size:.9em;background:rgba(255,255,255,.07);padding:1px 5px;border-radius:4px;color:#cfd6ff}
+
+/* ---------- hud ---------- */
+.hud{
+  display:flex;align-items:center;gap:14px;padding:10px clamp(16px,3vw,28px);
+  border-top:1px solid var(--line2);background:rgba(8,10,22,.6);backdrop-filter:blur(8px);
+}
+.bar{flex:1;height:3px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#e40035,#f20089,#9717e2);transition:width .4s cubic-bezier(.2,.7,.3,1)}
+.hud .pos{font-family:var(--mono);font-size:11px;color:var(--dim);min-width:52px}
+.nav{display:flex;gap:6px}
+
+/* ---------- title slide ---------- */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;min-height:74vh}
+.hero h1{font-family:var(--disp);font-weight:800;font-size:clamp(38px,5.6vw,68px);line-height:.98;letter-spacing:-.04em;margin:0 0 18px}
+.hero h1 em{font-style:normal;background:linear-gradient(92deg,#e40035,#f20089 45%,#9717e2);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mut);font-size:16.5px;max-width:52ch}
+.legend{display:flex;flex-direction:column;gap:9px;margin:26px 0 30px}
+.legend div{display:flex;align-items:center;gap:11px;font-size:13.5px;color:var(--mut)}
+.legend i{width:26px;height:3px;border-radius:99px;display:block;flex-shrink:0}
+.cta{
+  display:inline-flex;align-items:center;gap:10px;background:linear-gradient(92deg,#f20089,#9717e2);
+  color:#fff;border:0;border-radius:10px;padding:12px 22px;font-family:var(--body);font-weight:600;font-size:14.5px;cursor:pointer;
+  box-shadow:0 14px 34px -16px #f20089;
+}
+.cta:hover{filter:brightness(1.08)}
+.demo{position:relative;height:340px;border:1px solid var(--line2);border-radius:16px;background:
+  linear-gradient(180deg,rgba(255,255,255,.035),transparent),
+  repeating-linear-gradient(0deg,transparent 0 27px,rgba(255,255,255,.022) 27px 28px)}
+.demo .lbl{position:absolute;top:12px;left:14px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.demo-in{position:absolute;inset:42px 22px 22px;display:flex;flex-direction:column;align-items:center}
+.dbox{width:100%;max-width:300px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px 15px;font-family:var(--mono);font-size:12.5px;text-align:center}
+.dbox b{color:var(--ts)}
+.dbox span{display:block;font-family:var(--body);font-size:11.5px;color:var(--dim);margin-top:2px}
+.dwires{display:flex;gap:78px;flex:1;padding:16px 0}
+.dw{position:relative;width:2px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.15),transparent)}
+.dw i{position:absolute;left:50%;width:10px;height:10px;border-radius:99px;margin-left:-5px}
+.dw i.down{background:var(--down);box-shadow:0 0 18px 2px var(--down);animation:godown 2.8s cubic-bezier(.55,0,.45,1) infinite}
+.dw i.up{background:var(--up);box-shadow:0 0 18px 2px var(--up);animation:goup 2.8s cubic-bezier(.55,0,.45,1) infinite;animation-delay:1.4s}
+.dw em{position:absolute;top:50%;left:16px;transform:translateY(-50%);font-family:var(--mono);font-size:10.5px;font-style:normal;color:var(--dim);white-space:nowrap}
+.dw:last-child em{left:auto;right:16px}
+@keyframes godown{0%{top:-6px;opacity:0}14%{opacity:1}86%{opacity:1}100%{top:calc(100% - 4px);opacity:0}}
+@keyframes goup{0%{top:calc(100% - 4px);opacity:0}14%{opacity:1}86%{opacity:1}100%{top:-6px;opacity:0}}
+
+/* ---------- map slide ---------- */
+.mapgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:13px}
+.mapcard{
+  text-align:left;background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:16px 17px;cursor:pointer;
+  color:var(--ink);font-family:var(--body);transition:.22s;position:relative;overflow:hidden;
+}
+.mapcard::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c);opacity:.55}
+.mapcard:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.mapcard .q{font-size:14.5px;font-weight:600;margin-bottom:7px;display:block;line-height:1.35}
+.mapcard .a{font-family:var(--mono);font-size:11.5px;color:var(--c)}
+.mapcard .w{font-size:12.5px;color:var(--dim);margin-top:6px;display:block}
+.mapcard .ex{
+  display:block;margin-top:10px;padding-top:9px;border-top:1px solid var(--line2);
+  font-family:var(--mono);font-size:11px;color:var(--mut);line-height:1.5;
+}
+.mapcard .ex i{
+  display:block;font-style:normal;font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:3px;
+}
+
+/* ---------- table / checklist ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+.tbl th{
+  text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);font-weight:500;padding:0 14px 9px;border-bottom:1px solid var(--line);
+}
+.tbl td{padding:11px 14px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--mut)}
+.tbl td:first-child{color:var(--ink);width:31%}
+.tbl tr:hover td{background:rgba(255,255,255,.022)}
+.tbl code{font-family:var(--mono);font-size:11.8px;color:#cfd6ff}
+.check{display:grid;gap:11px;counter-reset:c;margin-top:8px}
+.chk{display:flex;gap:14px;background:var(--card);border:1px solid var(--line2);border-radius:11px;padding:14px 16px}
+.chk .n{counter-increment:c;font-family:var(--mono);font-size:11px;color:var(--c);padding-top:2px}
+.chk .n::before{content:counter(c,decimal-leading-zero)}
+.chk b{display:block;font-size:14.5px;margin-bottom:4px}
+.chk p{margin:0;color:var(--mut);font-size:13.4px}
+.sechead{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:28px 0 12px}
+
+@media (max-width:900px){
+  :root{--rail:0px}
+  .deck{grid-template-columns:1fr}
+  .rail{display:none}
+  .hero{grid-template-columns:1fr;min-height:0;gap:24px;padding-top:10px}
+  .demo{height:280px}
+  .row{gap:16px}
+  .node{min-width:0;flex:1 1 auto}
+  .stage{gap:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .viewport{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<div class="deck">
+  <aside class="rail">
+    <div class="brand"><b>Angular data flow</b><span>component communication</span></div>
+    <nav class="rail-list" id="rail"></nav>
+    <div class="rail-foot"><kbd>&rarr;</kbd> next step &nbsp; <kbd>&larr;</kbd> back<br><kbd>N</kbd><kbd>P</kbd> change slide &nbsp; <kbd>R</kbd> replay</div>
+  </aside>
+  <div class="main">
+    <div class="viewport" id="viewport"></div>
+    <div class="hud">
+      <div class="nav">
+        <button class="iconbtn" id="prev">&larr; Back</button>
+        <button class="iconbtn" id="next">Next &rarr;</button>
+      </div>
+      <div class="bar"><i id="barfill"></i></div>
+      <div class="pos" id="pos">01 / 13</div>
+    </div>
+  </div>
+</div>
+<script>
+/* ============================================================
+   SLIDE DATA
+   nodes  -> boxes in the animated diagram (one box = one file)
+   edges  -> the wires a value travels along
+   files  -> the real code, line-highlighted per step
+   steps  -> the story, one beat at a time
+   ============================================================ */
+const C = { down:'var(--down)', up:'var(--up)', side:'var(--side)', route:'var(--route)' };
+
+const SLIDES = [
+
+/* 00 ------------------------------------------------------- */
+{ kind:'title', rail:'Start', c:C.down },
+
+/* 01 ------------------------------------------------------- */
+{ kind:'map', rail:'Which one do I need?', num:'01', c:C.route,
+  title:'Start here: match your situation',
+  lead:'Almost every "why is my data not arriving" bug comes from using the wrong channel for the relationship between two components. Pick the sentence that describes your case.' },
+
+/* 02 ------------------------------------------------------- */
+{
+  id:'input', num:'02', rail:'@Input — down', c:C.down, badge:'Parent → Child',
+  title:'Pass data <code>down</code> with @Input()',
+  lead:'Use it when the child tag is written inside the parent template. The parent stays the owner of the value; the child only displays what it is given.',
+  nodes:[
+    [{id:'pts',role:'owns the state',file:'parent.component',ext:'.ts',kind:'ts'},
+     {id:'phtml',role:'binds it',file:'parent.component',ext:'.html',kind:'html'}],
+    [{id:'chtml',role:'displays it',file:'child.component',ext:'.html',kind:'html'},
+     {id:'cts',role:'receives it',file:'child.component',ext:'.ts',kind:'ts'}]
+  ],
+  edges:[
+    {id:'e1',from:'pts',to:'phtml',a:'right',b:'left',label:'user',packet:'user'},
+    {id:'e2',from:'phtml',to:'cts',a:'bottom',b:'top',label:'[user]="user"',packet:'{ name }'},
+    {id:'e3',from:'cts',to:'chtml',a:'left',b:'right',label:'{{ }}',packet:'Sara'}
+  ],
+  files:[
+    {id:'pts',name:'parent.component.ts',lang:'ts',tag:'source',code:[
+      "import { Component } from '@angular/core';",
+      "import { ChildComponent } from './child.component';",
+      "",
+      "@Component({",
+      "  selector: 'app-parent',",
+      "  imports: [ChildComponent],   // standalone: you MUST import it",
+      "  templateUrl: './parent.component.html',",
+      "})",
+      "export class ParentComponent {",
+      "  user = { name: 'Sara', role: 'admin' };   // the source of truth",
+      "}"]},
+    {id:'phtml',name:'parent.component.html',lang:'html',tag:'the wire',code:[
+      "<!--  [childProperty]=\"parentProperty\"  -->",
+      "<app-child [user]=\"user\"></app-child>",
+      "",
+      "<!-- no brackets = a plain string, not a property -->",
+      "<app-child title=\"Hello\"></app-child>"]},
+    {id:'cts',name:'child.component.ts',lang:'ts',tag:'receiver',code:[
+      "import { Component, Input } from '@angular/core';",
+      "",
+      "@Component({ selector: 'app-child', templateUrl: './child.component.html' })",
+      "export class ChildComponent {",
+      "  @Input() user!: { name: string; role: string };",
+      "  @Input() title = '';",
+      "",
+      "  ngOnInit() {",
+      "    console.log(this.user);   // ready here, NOT in the constructor",
+      "  }",
+      "}"]},
+    {id:'chtml',name:'child.component.html',lang:'html',tag:'output',code:[
+      "<h3>{{ user.name }}</h3>",
+      "<p>{{ user.role }}</p>"]},
+    {id:'mod',name:'child.component.ts — Angular 17+',lang:'ts',tag:'modern',code:[
+      "import { Component, input } from '@angular/core';",
+      "",
+      "export class ChildComponent {",
+      "  user = input.required<User>();   // no decorator, it is a signal",
+      "  title = input('');               // optional, with a default",
+      "",
+      "  // read it as a function, everywhere:",
+      "  //   template   {{ user().name }}",
+      "  //   class      this.user().role",
+      "}"]}
+  ],
+  steps:[
+    {t:'The parent owns the value. Nothing is shared yet.',hl:{pts:[10]}},
+    {t:'Angular renders the parent template. [user] reads the property sitting next to it in the same class.',edge:'e1',hl:{phtml:[1,2]}},
+    {t:'The value crosses the component boundary and lands on the child\u2019s @Input property.',edge:'e2',hl:{cts:[5]}},
+    {t:'The child template renders it. Change user in the parent and this updates by itself.',edge:'e3',hl:{chtml:[1,2]}}
+  ],
+  example:{
+    name:'Product grid on a shop page',
+    what:'The grid page owns the array and the currency. Each card knows how to draw exactly one product and nothing else — which is why the same card also works in "related products" and in search results.',
+    files:[
+      {id:'x1',name:'product-grid.component.html',lang:'html',tag:'the list',code:[
+        "@for (p of products(); track p.id) {",
+        "  <app-product-card",
+        "    [product]=\"p\"",
+        "    [currency]=\"currency\"",
+        "    [soldOut]=\"p.stock === 0\">",
+        "  </app-product-card>",
+        "}"]},
+      {id:'x2',name:'product-card.component.ts',lang:'ts',tag:'receiver',code:[
+        "export class ProductCardComponent {",
+        "  @Input({ required: true }) product!: Product;",
+        "  @Input() currency = 'USD';",
+        "  @Input({ transform: booleanAttribute }) soldOut = false;",
+        "",
+        "  // modern equivalent:",
+        "  // product  = input.required<Product>();",
+        "  // currency = input('USD');",
+        "}"]},
+      {id:'x3',name:'product-card.component.html',lang:'html',tag:'output',code:[
+        "<img [src]=\"product.image\" [alt]=\"product.title\">",
+        "<h4>{{ product.title }}</h4>",
+        "<span>{{ product.price | currency: currency }}</span>",
+        "",
+        "@if (soldOut) { <em class=\"tag\">Out of stock</em> }"]}
+    ]
+  },
+  gotchas:[
+    '@Input values are <b>undefined in the constructor</b>. Read them in <code class="i">ngOnInit</code> or later.',
+    'The binding name must match the property name, or alias it: <code class="i">@Input(\'userData\') user</code>.',
+    'Objects travel <b>by reference</b> — mutating <code class="i">user</code> in the child also changes the parent\u2019s object.',
+    'To react to a new value: <code class="i">ngOnChanges()</code>, a setter, or <code class="i">effect()</code> with signal inputs.',
+    'Forgetting the child in <code class="i">imports: []</code> renders nothing and logs nothing. Check this first.'
+  ]
+},
+
+/* 03 ------------------------------------------------------- */
+{
+  id:'output', num:'03', rail:'@Output — up', c:C.up, badge:'Child → Parent',
+  title:'Send events <code>up</code> with @Output()',
+  lead:'The child never changes the parent\u2019s data itself. It announces "this happened", and the parent decides what to do about it.',
+  nodes:[
+    [{id:'pts',role:'reacts',file:'parent.component',ext:'.ts',kind:'ts'},
+     {id:'phtml',role:'listens',file:'parent.component',ext:'.html',kind:'html'}],
+    [{id:'chtml',role:'the click',file:'child.component',ext:'.html',kind:'html'},
+     {id:'cts',role:'emits',file:'child.component',ext:'.ts',kind:'ts'}]
+  ],
+  edges:[
+    {id:'e1',from:'chtml',to:'cts',a:'right',b:'left',label:'(click)',packet:'click'},
+    {id:'e2',from:'cts',to:'phtml',a:'top',b:'bottom',label:'emit(text)',packet:'"hello"'},
+    {id:'e3',from:'phtml',to:'pts',a:'left',b:'right',label:'$event',packet:'$event'}
+  ],
+  files:[
+    {id:'chtml',name:'child.component.html',lang:'html',tag:'trigger',code:[
+      "<input [value]=\"text\" (input)=\"text = $any($event.target).value\">",
+      "<button (click)=\"save()\">Save</button>"]},
+    {id:'cts',name:'child.component.ts',lang:'ts',tag:'sender',code:[
+      "import { Component, Output, EventEmitter } from '@angular/core';",
+      "",
+      "export class ChildComponent {",
+      "  text = '';",
+      "  @Output() saved = new EventEmitter<string>();",
+      "",
+      "  save() {",
+      "    this.saved.emit(this.text);   // fire it upwards",
+      "  }",
+      "}"]},
+    {id:'phtml',name:'parent.component.html',lang:'html',tag:'the wire',code:[
+      "<!--  (childOutput)=\"parentMethod($event)\"  -->",
+      "<app-child (saved)=\"onSaved($event)\"></app-child>",
+      "",
+      "<p>Last saved: {{ log }}</p>"]},
+    {id:'pts',name:'parent.component.ts',lang:'ts',tag:'handler',code:[
+      "export class ParentComponent {",
+      "  log = '';",
+      "",
+      "  onSaved(value: string) {   // $event IS the emitted payload",
+      "    this.log = value;",
+      "  }",
+      "}"]},
+    {id:'mod',name:'child.component.ts — Angular 17.2+',lang:'ts',tag:'modern',code:[
+      "import { Component, output } from '@angular/core';",
+      "",
+      "export class ChildComponent {",
+      "  saved = output<string>();      // same idea, no EventEmitter",
+      "  cancelled = output<void>();",
+      "",
+      "  save()   { this.saved.emit(this.text); }",
+      "  cancel() { this.cancelled.emit(); }",
+      "}"]}
+  ],
+  steps:[
+    {t:'Something happens inside the child: a click, a submit, a finished upload.',hl:{chtml:[2]}},
+    {t:'The child\u2019s own method runs. So far the parent knows nothing about it.',edge:'e1',hl:{cts:[7,8,9]}},
+    {t:'emit() pushes the payload out through the @Output property — the child\u2019s public event.',edge:'e2',hl:{cts:[5]}},
+    {t:'The parent template is listening with (saved) and forwards $event into its own method.',edge:'e3',hl:{phtml:[2],pts:[4,5,6]}}
+  ],
+  example:{
+    name:'Search box on an admin users page',
+    what:'The search box knows nothing about users, endpoints or tables. It debounces the typing and emits one clean term; the page decides that a term means "call the API again".',
+    files:[
+      {id:'x1',name:'search-bar.component.ts',lang:'ts',tag:'emitter',code:[
+        "export class SearchBarComponent {",
+        "  private typed = new Subject<string>();",
+        "  @Output() search = new EventEmitter<string>();",
+        "",
+        "  constructor() {",
+        "    this.typed.pipe(",
+        "      debounceTime(300),           // wait for a pause",
+        "      distinctUntilChanged(),      // ignore 'ab' -> 'ab'",
+        "      takeUntilDestroyed(),",
+        "    ).subscribe(t => this.search.emit(t));",
+        "  }",
+        "",
+        "  onType(v: string) { this.typed.next(v); }",
+        "}"]},
+      {id:'x2',name:'users-page.component.html',lang:'html',tag:'the wire',code:[
+        "<app-search-bar (search)=\"onSearch($event)\"></app-search-bar>",
+        "",
+        "<app-user-table [users]=\"users()\"></app-user-table>",
+        "",
+        "@if (loading()) { <app-spinner></app-spinner> }"]},
+      {id:'x3',name:'users-page.component.ts',lang:'ts',tag:'handler',code:[
+        "export class UsersPageComponent {",
+        "  private api = inject(UserApi);",
+        "  users   = signal<User[]>([]);",
+        "  loading = signal(false);",
+        "",
+        "  onSearch(term: string) {      // $event === the emitted string",
+        "    this.loading.set(true);",
+        "    this.api.list({ q: term }).subscribe(r => {",
+        "      this.users.set(r);",
+        "      this.loading.set(false);",
+        "    });",
+        "  }",
+        "}"]}
+    ]
+  },
+  gotchas:[
+    '<code class="i">$event</code> is whatever you emitted — not a DOM event.',
+    'Name the <b>event</b>, not the handler: <code class="i">saved</code>, not <code class="i">onSave</code>. It reads as <code class="i">(saved)</code>.',
+    'Outputs only reach the <b>direct parent</b>. For a grandparent: re-emit at each level, or use a service.',
+    'If the parent forgets <code class="i">(saved)="..."</code>, emitting does nothing and throws no error.',
+    'Never <code class="i">emit()</code> inside <code class="i">ngOnChanges</code> of the same value — that is how infinite loops start.'
+  ]
+},
+
+/* 04 ------------------------------------------------------- */
+{
+  id:'twoway', num:'04', rail:'[( two-way )]', c:C.down, badge:'Both directions',
+  title:'Two-way binding <code>[(value)]</code>',
+  lead:'Banana-in-a-box is not magic: it is an @Input plus an @Output glued together by a naming convention. Getting the name wrong is why it silently stops working.',
+  nodes:[
+    [{id:'pts',role:'owner',file:'parent.component',ext:'.ts',kind:'ts'},
+     {id:'phtml',role:'binds both ways',file:'parent.component',ext:'.html',kind:'html'}],
+    [{id:'cts',role:'in + out',file:'counter.component',ext:'.ts',kind:'ts'}]
+  ],
+  edges:[
+    {id:'e0',from:'pts',to:'phtml',a:'right',b:'left',label:'count',packet:'0'},
+    {id:'e1',from:'phtml',to:'cts',a:'bottom',b:'top',label:'[value]',packet:'0'},
+    {id:'e2',from:'cts',to:'phtml',a:'right',b:'right',label:'valueChange',packet:'1'}
+  ],
+  files:[
+    {id:'pts',name:'parent.component.ts',lang:'ts',tag:'owner',code:[
+      "export class ParentComponent {",
+      "  count = 0;      // still the single owner of the value",
+      "}"]},
+    {id:'phtml',name:'parent.component.html',lang:'html',tag:'the wire',code:[
+      "<!-- sugar for: [value]=\"count\" (valueChange)=\"count = $event\" -->",
+      "<app-counter [(value)]=\"count\"></app-counter>",
+      "",
+      "<p>Parent sees: {{ count }}</p>"]},
+    {id:'cts',name:'counter.component.ts',lang:'ts',tag:'classic',code:[
+      "export class CounterComponent {",
+      "  @Input() value = 0;",
+      "  @Output() valueChange = new EventEmitter<number>();",
+      "  //         ^^^^^^^^^^ the name is NOT optional: input + 'Change'",
+      "",
+      "  inc() {",
+      "    this.value++;",
+      "    this.valueChange.emit(this.value);   // tell the parent",
+      "  }",
+      "}"]},
+    {id:'mod',name:'counter.component.ts — Angular 17.2+',lang:'ts',tag:'modern',code:[
+      "import { Component, model } from '@angular/core';",
+      "",
+      "export class CounterComponent {",
+      "  value = model(0);        // input + output in one signal",
+      "",
+      "  inc() {",
+      "    this.value.update(v => v + 1);   // emits to the parent for you",
+      "  }",
+      "}"]}
+  ],
+  steps:[
+    {t:'The parent owns the state. Always. The child only borrows it.',hl:{pts:[2]}},
+    {t:'Angular reads count from the class into the template binding.',edge:'e0',hl:{phtml:[2]}},
+    {t:'The box half of [( )] pushes the value down as a normal @Input.',edge:'e1',hl:{cts:[2]}},
+    {t:'The banana half listens to valueChange and writes $event back onto count.',edge:'e2',hl:{cts:[6,7,8],phtml:[4]}}
+  ],
+  example:{
+    name:'Quantity stepper inside a cart row',
+    what:'The row owns the line item; the stepper owns the plus/minus buttons and the clamping rules. Two-way binding means the row never writes a (quantityChange) handler — and the line total recomputes on its own.',
+    files:[
+      {id:'x1',name:'qty-stepper.component.ts',lang:'ts',tag:'the control',code:[
+        "export class QtyStepperComponent {",
+        "  quantity = model.required<number>();   // in + out, one signal",
+        "  max = input(99);",
+        "",
+        "  dec() { this.quantity.update(q => Math.max(1, q - 1)); }",
+        "  inc() { this.quantity.update(q => Math.min(this.max(), q + 1)); }",
+        "  // .update() emits to the parent automatically",
+        "}"]},
+      {id:'x2',name:'cart-row.component.html',lang:'html',tag:'the wire',code:[
+        "<span>{{ line.title }}</span>",
+        "",
+        "<app-qty-stepper [(quantity)]=\"line.qty\" [max]=\"line.stock\"></app-qty-stepper>",
+        "",
+        "<b>{{ line.qty * line.price | currency }}</b>"]},
+      {id:'x3',name:'cart-row.component.ts',lang:'ts',tag:'owner',code:[
+        "export class CartRowComponent {",
+        "  @Input({ required: true }) line!: CartLine;",
+        "",
+        "  // classic version of the same child:",
+        "  //   @Input()  quantity = 1;",
+        "  //   @Output() quantityChange = new EventEmitter<number>();",
+        "}"]}
+    ]
+  },
+  gotchas:[
+    'The output must be exactly <code class="i">&lt;inputName&gt;Change</code>. <code class="i">value</code> + <code class="i">valueChange</code>.',
+    'With <code class="i">model()</code>, calling <code class="i">.set()</code> or <code class="i">.update()</code> emits automatically.',
+    '<code class="i">[(ngModel)]</code> is the same trick — it needs <code class="i">FormsModule</code> in <code class="i">imports</code>.',
+    'Don\u2019t mutate the parent\u2019s object inside the child and hope it notices. Emit a new value.',
+    'Two-way binding on a getter without a matching setter fails silently.'
+  ]
+},
+
+/* 05 ------------------------------------------------------- */
+{
+  id:'viewchild', num:'05', rail:'#ref & viewChild', c:C.down, badge:'Parent → Child (imperative)',
+  title:'Call the child directly: <code>#ref</code> + viewChild()',
+  lead:'For actions rather than data — focus(), reset(), openDialog(). The parent gets the actual child instance and calls its public methods.',
+  nodes:[
+    [{id:'pts',role:'queries the view',file:'parent.component',ext:'.ts',kind:'ts'},
+     {id:'phtml',role:'names the child',file:'parent.component',ext:'.html',kind:'html'}],
+    [{id:'cts',role:'exposes methods',file:'child.component',ext:'.ts',kind:'ts'}]
+  ],
+  edges:[
+    {id:'e1',from:'phtml',to:'pts',a:'left',b:'right',label:'#kid instance',packet:'ChildComponent'},
+    {id:'e2',from:'pts',to:'cts',a:'bottom',b:'top',label:'kid.reset()',packet:'reset()'}
+  ],
+  files:[
+    {id:'phtml',name:'parent.component.html',lang:'html',tag:'the wire',code:[
+      "<!-- #kid is a template reference variable -->",
+      "<app-child #kid></app-child>",
+      "<button (click)=\"kid.reset()\">Reset from the template</button>",
+      "",
+      "<input #box>",
+      "<button (click)=\"log(box.value)\">Read a plain element</button>"]},
+    {id:'pts',name:'parent.component.ts',lang:'ts',tag:'classic',code:[
+      "import { Component, ViewChild, AfterViewInit } from '@angular/core';",
+      "",
+      "export class ParentComponent implements AfterViewInit {",
+      "  @ViewChild(ChildComponent) kid!: ChildComponent;",
+      "",
+      "  ngAfterViewInit() {",
+      "    this.kid.reset();     // undefined before this hook",
+      "  }",
+      "}"]},
+    {id:'cts',name:'child.component.ts',lang:'ts',tag:'the API',code:[
+      "export class ChildComponent {",
+      "  count = 0;",
+      "",
+      "  reset() {         // a public method = the child's public API",
+      "    this.count = 0;",
+      "  }",
+      "}"]},
+    {id:'mod',name:'parent.component.ts — Angular 17.2+',lang:'ts',tag:'modern',code:[
+      "import { Component, viewChild, viewChildren } from '@angular/core';",
+      "",
+      "export class ParentComponent {",
+      "  kid  = viewChild(ChildComponent);        // signal query",
+      "  box  = viewChild<ElementRef>('box');     // by template ref name",
+      "  rows = viewChildren(RowComponent);       // all of them",
+      "",
+      "  reset() { this.kid()?.reset(); }         // no lifecycle hook needed",
+      "}"]}
+  ],
+  steps:[
+    {t:'The template gives the child a name. Inside that same template you can already call its methods.',hl:{phtml:[2,3]}},
+    {t:'@ViewChild hands the parent class the real child object — but only once the view exists.',edge:'e1',hl:{pts:[4]}},
+    {t:'Now the parent triggers behaviour on the child directly. This is imperative, not reactive.',edge:'e2',hl:{cts:[4,5,6],pts:[6,7,8]}}
+  ],
+  example:{
+    name:'"New customer" form: reset it and focus it',
+    what:'Clearing a form and moving the caret are actions, not data — there is no value to pass down. The page grabs the real child instance and calls two public methods on it.',
+    files:[
+      {id:'x1',name:'customers-page.component.html',lang:'html',tag:'the wire',code:[
+        "<button (click)=\"startNew()\">New customer</button>",
+        "",
+        "<app-customer-form #form (saved)=\"onSaved($event)\"></app-customer-form>",
+        "",
+        "<input #filter placeholder=\"Filter customers\">"]},
+      {id:'x2',name:'customers-page.component.ts',lang:'ts',tag:'caller',code:[
+        "export class CustomersPageComponent {",
+        "  form   = viewChild.required(CustomerFormComponent);",
+        "  filter = viewChild.required<ElementRef<HTMLInputElement>>('filter');",
+        "",
+        "  startNew() {",
+        "    this.form().reset();",
+        "    this.form().focusFirstField();",
+        "  }",
+        "",
+        "  onSaved(c: Customer) {",
+        "    this.form().reset();",
+        "    this.filter().nativeElement.focus();   // back to the list",
+        "  }",
+        "}"]},
+      {id:'x3',name:'customer-form.component.ts',lang:'ts',tag:'the child API',code:[
+        "export class CustomerFormComponent {",
+        "  private nameBox = viewChild.required<ElementRef<HTMLInputElement>>('name');",
+        "  form  = inject(FormBuilder).group({ name: [''], email: [''] });",
+        "  saved = output<Customer>();",
+        "",
+        "  reset()           { this.form.reset(); }",
+        "  focusFirstField() { this.nameBox().nativeElement.focus(); }",
+        "}"]}
+    ]
+  },
+  gotchas:[
+    '<code class="i">@ViewChild</code> is <b>undefined in ngOnInit</b>. Use <code class="i">ngAfterViewInit</code>, or <code class="i">{ static: true }</code> if the child is never inside <code class="i">@if</code>.',
+    'A child inside <code class="i">@if</code> / <code class="i">@for</code> appears later — signal queries handle that automatically.',
+    'Writing to a bound property inside <code class="i">ngAfterViewInit</code> causes <code class="i">ExpressionChangedAfterItHasBeenChecked</code>.',
+    'Use it for <b>actions</b>. For data, @Input/@Output keeps the components reusable.',
+    '<code class="i">#box</code> on a normal element gives you the DOM element, not a component.'
+  ]
+},
+
+/* 06 ------------------------------------------------------- */
+{
+  id:'content', num:'06', rail:'ng-content', c:C.down, badge:'Outer template → Wrapper',
+  title:'Projected content: <code>&lt;ng-content&gt;</code>',
+  lead:'For wrappers — card, modal, tabs, form field. The markup is written outside, but rendered inside. That is why the wrapper cannot see it with @ViewChild.',
+  nodes:[
+    [{id:'app',role:'writes the markup',file:'app.component',ext:'.html',kind:'html'}],
+    [{id:'cardhtml',role:'the slot',file:'card.component',ext:'.html',kind:'html'},
+     {id:'cardts',role:'queries it',file:'card.component',ext:'.ts',kind:'ts'}]
+  ],
+  edges:[
+    {id:'e1',from:'app',to:'cardhtml',a:'bottom',b:'top',label:'projected nodes',packet:'<h2>…'},
+    {id:'e2',from:'app',to:'cardts',a:'right',b:'top',label:'@ContentChild',packet:'ref'}
+  ],
+  files:[
+    {id:'app',name:'app.component.html',lang:'html',tag:'outside',code:[
+      "<app-card>",
+      "  <h2 card-title>Invoice</h2>",
+      "  <p>Everything between the tags is projected content.</p>",
+      "</app-card>"]},
+    {id:'cardhtml',name:'card.component.html',lang:'html',tag:'inside',code:[
+      "<header>",
+      "  <ng-content select=\"[card-title]\"></ng-content>",
+      "</header>",
+      "",
+      "<div class=\"body\">",
+      "  <ng-content></ng-content>   <!-- everything else lands here -->",
+      "</div>"]},
+    {id:'cardts',name:'card.component.ts',lang:'ts',tag:'query',code:[
+      "import { Component, ContentChild, AfterContentInit } from '@angular/core';",
+      "",
+      "export class CardComponent implements AfterContentInit {",
+      "  @ContentChild(TabComponent) firstTab?: TabComponent;",
+      "  // modern:  firstTab = contentChild(TabComponent);",
+      "",
+      "  ngAfterContentInit() {",
+      "    // projected children are ready HERE (before ngAfterViewInit)",
+      "  }",
+      "}"]}
+  ],
+  steps:[
+    {t:'The outer template writes the markup. It is compiled in the app component\u2019s context, not the card\u2019s.',hl:{app:[1,2,3,4]}},
+    {t:'<ng-content> is a slot: it chooses where those nodes land, and select= chooses which ones.',edge:'e1',hl:{cardhtml:[2,6]}},
+    {t:'@ContentChild lets the wrapper reach what was projected into it, ready in ngAfterContentInit.',edge:'e2',hl:{cardts:[4,7,8,9]}}
+  ],
+  example:{
+    name:'The panel every settings section is wrapped in',
+    what:'One wrapper gives every section the same header, border and spacing, while each page keeps writing its own title, its own buttons and its own form. Note that save() and prefs belong to the settings page — the projected markup is still compiled in its context.',
+    files:[
+      {id:'x1',name:'settings.component.html',lang:'html',tag:'the page',code:[
+        "<app-panel>",
+        "  <h3 panel-title>Notifications</h3>",
+        "  <button panel-action (click)=\"save()\">Save</button>",
+        "",
+        "  <label>",
+        "    <input type=\"checkbox\" [(ngModel)]=\"prefs.email\"> Email me",
+        "  </label>",
+        "</app-panel>"]},
+      {id:'x2',name:'panel.component.html',lang:'html',tag:'the wrapper',code:[
+        "<header class=\"panel-head\">",
+        "  <ng-content select=\"[panel-title]\"></ng-content>",
+        "  <span class=\"spacer\"></span>",
+        "  <ng-content select=\"[panel-action]\"></ng-content>",
+        "</header>",
+        "",
+        "<div class=\"panel-body\">",
+        "  <ng-content></ng-content>   <!-- the form lands here -->",
+        "</div>"]},
+      {id:'x3',name:'panel.component.ts',lang:'ts',tag:'wrapper class',code:[
+        "@Component({",
+        "  selector: 'app-panel',",
+        "  templateUrl: './panel.component.html',",
+        "  styleUrl: './panel.component.css',",
+        "})",
+        "export class PanelComponent {",
+        "  // nothing to declare: the content is not its data",
+        "}"]}
+    ]
+  },
+  gotchas:[
+    'Projected expressions bind to the <b>outer</b> component: <code class="i">{{ title }}</code> there means the app\u2019s title, not the card\u2019s.',
+    '<code class="i">@ContentChild</code> = projected content. <code class="i">@ViewChild</code> = your own template. Swapping them returns undefined.',
+    '<code class="i">ngAfterContentInit</code> runs <b>before</b> <code class="i">ngAfterViewInit</code>.',
+    '<code class="i">&lt;ng-content&gt;</code> renders once — to repeat it, take a <code class="i">TemplateRef</code> input and use <code class="i">ngTemplateOutlet</code>.',
+    'Content is created even if it is hidden — wrap it in <code class="i">@if</code> outside if it is expensive.'
+  ]
+},
+
+/* 07 ------------------------------------------------------- */
+{
+  id:'parentdi', num:'07', rail:'inject(parent)', c:C.up, badge:'Child → its container',
+  title:'The child injects its <code>parent</code>',
+  lead:'How compound components work: tabs, accordions, radio groups, form fields. The container never receives its children as an @Input — the children introduce themselves.',
+  nodes:[
+    [{id:'tabsts',role:'the container',file:'tabs.component',ext:'.ts',kind:'ts'},
+     {id:'tabshtml',role:'the slot',file:'tabs.component',ext:'.html',kind:'html'}],
+    [{id:'tabts',role:'registers itself',file:'tab.component',ext:'.ts',kind:'ts'}]
+  ],
+  edges:[
+    {id:'e1',from:'tabshtml',to:'tabts',a:'bottom',b:'top',label:'renders <app-tab>',packet:'create'},
+    {id:'e2',from:'tabts',to:'tabsts',a:'left',b:'bottom',label:'register(this)',packet:'this'}
+  ],
+  files:[
+    {id:'usage',name:'app.component.html',lang:'html',tag:'usage',code:[
+      "<app-tabs>",
+      "  <app-tab title=\"One\">…</app-tab>",
+      "  <app-tab title=\"Two\">…</app-tab>",
+      "</app-tabs>"]},
+    {id:'tabshtml',name:'tabs.component.html',lang:'html',tag:'slot',code:[
+      "<nav>@for (t of tabs; track t) { <button>{{ t.title }}</button> }</nav>",
+      "<ng-content></ng-content>"]},
+    {id:'tabsts',name:'tabs.component.ts',lang:'ts',tag:'container',code:[
+      "@Component({ selector: 'app-tabs', templateUrl: './tabs.component.html' })",
+      "export class TabsComponent {",
+      "  tabs: TabComponent[] = [];",
+      "",
+      "  register(tab: TabComponent) {      // the children call this",
+      "    this.tabs.push(tab);",
+      "    if (this.tabs.length === 1) tab.active = true;",
+      "  }",
+      "}"]},
+    {id:'tabts',name:'tab.component.ts',lang:'ts',tag:'child',code:[
+      "import { Component, inject } from '@angular/core';",
+      "",
+      "export class TabComponent {",
+      "  private parent = inject(TabsComponent);   // walks up the injector tree",
+      "  @Input() title = '';",
+      "  active = false;",
+      "",
+      "  ngOnInit() {",
+      "    this.parent.register(this);   // the child introduces itself",
+      "  }",
+      "}"]}
+  ],
+  steps:[
+    {t:'The container has no @Input for its children — they simply appear between its tags.',hl:{usage:[1,2,3,4]}},
+    {t:'Each <app-tab> is created inside the tabs component\u2019s injector tree.',edge:'e1',hl:{tabshtml:[2]}},
+    {t:'So the child can ask the injector for its container and hand over a reference to itself.',edge:'e2',hl:{tabts:[4,8,9,10]}},
+    {t:'The container now holds real instances and can coordinate them — no inputs, no outputs.',hl:{tabsts:[3,5,6,7,8]}}
+  ],
+  example:{
+    name:'FAQ accordion where opening one closes the rest',
+    what:'The accordion has no list of its items to bind to — the page writes them freely between its tags. Each item finds its container through the injector and registers, so the container can enforce "only one open".',
+    files:[
+      {id:'x1',name:'faq.component.html',lang:'html',tag:'usage',code:[
+        "<app-accordion>",
+        "  <app-accordion-item title=\"How do I cancel?\">",
+        "    Open Billing and press Cancel plan.",
+        "  </app-accordion-item>",
+        "",
+        "  <app-accordion-item title=\"Do you ship abroad?\">",
+        "    Yes, to 40 countries.",
+        "  </app-accordion-item>",
+        "</app-accordion>"]},
+      {id:'x2',name:'accordion.component.ts',lang:'ts',tag:'container',code:[
+        "export class AccordionComponent {",
+        "  private items: AccordionItemComponent[] = [];",
+        "",
+        "  register(item: AccordionItemComponent) {",
+        "    this.items.push(item);",
+        "  }",
+        "",
+        "  openOnly(item: AccordionItemComponent) {",
+        "    this.items.forEach(i => i.open.set(i === item));",
+        "  }",
+        "}"]},
+      {id:'x3',name:'accordion-item.component.ts',lang:'ts',tag:'child',code:[
+        "export class AccordionItemComponent {",
+        "  private accordion = inject(AccordionComponent);",
+        "  title = input.required<string>();",
+        "  open  = signal(false);",
+        "",
+        "  ngOnInit() { this.accordion.register(this); }",
+        "",
+        "  toggle() { this.accordion.openOnly(this); }",
+        "  // template: <button (click)=\"toggle()\">{{ title() }}</button>",
+        "}"]}
+    ]
+  },
+  gotchas:[
+    'Only works when the child really is <b>inside</b> the parent in the tree.',
+    'Optional container: <code class="i">inject(TabsComponent, { optional: true })</code> returns null instead of throwing.',
+    'Circular imports between the two files: wrap with <code class="i">forwardRef(() =&gt; TabsComponent)</code>.',
+    'Prefer an <code class="i">InjectionToken</code> over the concrete class to break the import cycle for good.',
+    'This is deliberate tight coupling. Perfect for one widget, wrong as a general message channel.'
+  ]
+},
+
+/* 08 ------------------------------------------------------- */
+{
+  id:'service', num:'08', rail:'Shared service', c:C.side, badge:'Siblings / anywhere',
+  title:'Any distance: a <code>shared service</code>',
+  lead:'When the two components are siblings, cousins, or on opposite sides of the app, stop threading inputs through the tree. Put the state in a service both of them inject.',
+  nodes:[
+    [{id:'writerTs',role:'writes',file:'product-list.component',ext:'.ts',kind:'ts'},
+     {id:'readerTs',role:'reads',file:'cart-badge.component',ext:'.ts',kind:'ts'}],
+    [{id:'svc',role:'holds the state',file:'cart.service',ext:'.ts',kind:'svc'}]
+  ],
+  edges:[
+    {id:'e1',from:'writerTs',to:'svc',a:'bottom',b:'left',label:'add(item)',packet:'item'},
+    {id:'e2',from:'svc',to:'readerTs',a:'right',b:'bottom',label:'items$ emits',packet:'[ … ]'}
+  ],
+  files:[
+    {id:'svc',name:'cart.service.ts',lang:'ts',tag:'single instance',code:[
+      "import { Injectable } from '@angular/core';",
+      "import { BehaviorSubject } from 'rxjs';",
+      "",
+      "@Injectable({ providedIn: 'root' })   // ONE instance for the whole app",
+      "export class CartService {",
+      "  private items = new BehaviorSubject<Item[]>([]);",
+      "  items$ = this.items.asObservable();       // read-only outside",
+      "",
+      "  add(item: Item) {",
+      "    this.items.next([...this.items.value, item]);",
+      "  }",
+      "}"]},
+    {id:'writerTs',name:'product-list.component.ts',lang:'ts',tag:'sender',code:[
+      "export class ProductListComponent {",
+      "  private cart = inject(CartService);",
+      "",
+      "  buy(p: Item) {",
+      "    this.cart.add(p);      // no parent, no child, no @Output",
+      "  }",
+      "}"]},
+    {id:'readerTs',name:'cart-badge.component.ts',lang:'ts',tag:'receiver',code:[
+      "export class CartBadgeComponent {",
+      "  private cart = inject(CartService);",
+      "  items$ = this.cart.items$;   // hand the stream to the template",
+      "}"]},
+    {id:'readerHtml',name:'cart-badge.component.html',lang:'html',tag:'render',code:[
+      "<span>{{ (items$ | async)?.length }}</span>",
+      "",
+      "<!-- the async pipe subscribes AND unsubscribes for you -->"]}
+  ],
+  steps:[
+    {t:'The service holds the state. BehaviorSubject remembers the current value for whoever subscribes later.',hl:{svc:[6,7]}},
+    {t:'Any component injects the service and writes. It never needs to know who is listening.',edge:'e1',hl:{writerTs:[2,4,5,6]}},
+    {t:'Every subscriber receives the new value at once, wherever it lives in the tree.',edge:'e2',hl:{readerTs:[2,3]}},
+    {t:'The async pipe renders it and tears the subscription down when the component is destroyed.',hl:{readerHtml:[1]}}
+  ],
+  example:{
+    name:'Toast messages fired from any page',
+    what:'A save button on a form deep inside the app has to make a message appear in a corner of the shell. There is no parent/child relationship at all — the service is the only thing both sides can see.',
+    files:[
+      {id:'x1',name:'toast.service.ts',lang:'ts',tag:'the channel',code:[
+        "@Injectable({ providedIn: 'root' })",
+        "export class ToastService {",
+        "  private queue = new BehaviorSubject<Toast[]>([]);",
+        "  toasts$ = this.queue.asObservable();",
+        "",
+        "  show(text: string, kind: 'ok' | 'error' = 'ok') {",
+        "    const t = { id: crypto.randomUUID(), text, kind };",
+        "    this.queue.next([...this.queue.value, t]);",
+        "    setTimeout(() => this.dismiss(t.id), 4000);",
+        "  }",
+        "",
+        "  dismiss(id: string) {",
+        "    this.queue.next(this.queue.value.filter(t => t.id !== id));",
+        "  }",
+        "}"]},
+      {id:'x2',name:'invoice-form.component.ts',lang:'ts',tag:'sender',code:[
+        "export class InvoiceFormComponent {",
+        "  private toast = inject(ToastService);",
+        "  private api   = inject(InvoiceApi);",
+        "",
+        "  save() {",
+        "    this.api.save(this.form.value).subscribe({",
+        "      next:  () => this.toast.show('Invoice saved'),",
+        "      error: () => this.toast.show('Could not save', 'error'),",
+        "    });",
+        "  }",
+        "}"]},
+      {id:'x3',name:'app.component.html',lang:'html',tag:'mounted once',code:[
+        "<app-header></app-header>",
+        "<router-outlet></router-outlet>",
+        "",
+        "<!-- lives outside the routes, so it survives navigation -->",
+        "<app-toast-host></app-toast-host>"]},
+      {id:'x4',name:'toast-host.component.html',lang:'html',tag:'receiver',code:[
+        "@for (t of toast.toasts$ | async; track t.id) {",
+        "  <div class=\"toast\" [class.error]=\"t.kind === 'error'\"",
+        "       (click)=\"toast.dismiss(t.id)\">",
+        "    {{ t.text }}",
+        "  </div>",
+        "}"]}
+    ]
+  },
+  gotchas:[
+    '<b>The #1 cause of "my siblings don\u2019t see the same data":</b> the service is listed in a component\u2019s <code class="i">providers: []</code>, which creates a separate instance per component. Keep it <code class="i">providedIn: \'root\'</code>.',
+    'Use <code class="i">BehaviorSubject</code> (has a current value), not <code class="i">Subject</code>, or late subscribers get nothing.',
+    'Expose <code class="i">asObservable()</code> and keep <code class="i">next()</code> private, so state changes in one place only.',
+    'Every manual <code class="i">.subscribe()</code> needs cleanup: <code class="i">takeUntilDestroyed()</code> or the <code class="i">async</code> pipe.',
+    'Assigning inside subscribe is async — the template renders once before the first value lands.'
+  ]
+},
+
+/* 09 ------------------------------------------------------- */
+{
+  id:'signals', num:'09', rail:'Signal store', c:C.side, badge:'Shared state, modern',
+  title:'The same thing with <code>signals</code>',
+  lead:'Angular 16+ gives you shared state without streams, subscriptions or the async pipe. The service is a small store; templates just call the signal.',
+  nodes:[
+    [{id:'writerTs',role:'writes',file:'product-list.component',ext:'.ts',kind:'ts'},
+     {id:'readerHtml',role:'reads',file:'cart-badge.component',ext:'.html',kind:'html'}],
+    [{id:'store',role:'the store',file:'cart.store',ext:'.ts',kind:'svc'}]
+  ],
+  edges:[
+    {id:'e1',from:'writerTs',to:'store',a:'bottom',b:'left',label:'add(item)',packet:'item'},
+    {id:'e2',from:'store',to:'readerHtml',a:'right',b:'bottom',label:'items() changed',packet:'re-render'}
+  ],
+  files:[
+    {id:'store',name:'cart.store.ts',lang:'ts',tag:'store',code:[
+      "import { Injectable, signal, computed } from '@angular/core';",
+      "",
+      "@Injectable({ providedIn: 'root' })",
+      "export class CartStore {",
+      "  private _items = signal<Item[]>([]);",
+      "  items = this._items.asReadonly();        // public, read-only",
+      "  total = computed(() =>                   // derived + cached",
+      "    this.items().reduce((s, i) => s + i.price, 0));",
+      "",
+      "  add(item: Item) {",
+      "    this._items.update(list => [...list, item]);   // a NEW array",
+      "  }",
+      "}"]},
+    {id:'writerTs',name:'product-list.component.ts',lang:'ts',tag:'sender',code:[
+      "export class ProductListComponent {",
+      "  store = inject(CartStore);",
+      "",
+      "  buy(p: Item) { this.store.add(p); }",
+      "}"]},
+    {id:'readerHtml',name:'cart-badge.component.html',lang:'html',tag:'render',code:[
+      "<span>{{ store.items().length }} items</span>",
+      "<b>{{ store.total() | currency }}</b>",
+      "",
+      "<!-- no subscribe, no async pipe, nothing to clean up -->"]},
+    {id:'readerTs',name:'cart-badge.component.ts',lang:'ts',tag:'receiver',code:[
+      "export class CartBadgeComponent {",
+      "  store = inject(CartStore);   // public: used straight in the template",
+      "}"]}
+  ],
+  steps:[
+    {t:'One writable signal inside, read-only outside. computed() derives values without storing them twice.',hl:{store:[5,6,7,8]}},
+    {t:'Writers call a method, exactly like the RxJS version — just without the stream ceremony.',edge:'e1',hl:{writerTs:[2,4]}},
+    {t:'Any template that calls items() becomes a subscriber, and Angular re-renders only that view.',edge:'e2',hl:{readerHtml:[1,2]}}
+  ],
+  example:{
+    name:'Filter sidebar and result list that never talk to each other',
+    what:'Two siblings on a catalog page. The sidebar only writes signals, the list only reads computed ones, and the counter in the header reads the same computed value — every view updates from one source with no subscriptions anywhere.',
+    files:[
+      {id:'x1',name:'catalog.store.ts',lang:'ts',tag:'the store',code:[
+        "@Injectable({ providedIn: 'root' })",
+        "export class CatalogStore {",
+        "  private all = signal<Product[]>([]);",
+        "  query    = signal('');",
+        "  category = signal<string | null>(null);",
+        "",
+        "  visible = computed(() => this.all().filter(p =>",
+        "    p.title.toLowerCase().includes(this.query().toLowerCase()) &&",
+        "    (!this.category() || p.category === this.category())));",
+        "",
+        "  count = computed(() => this.visible().length);",
+        "",
+        "  load(list: Product[]) { this.all.set(list); }",
+        "}"]},
+      {id:'x2',name:'filter-sidebar.component.html',lang:'html',tag:'writes',code:[
+        "<input [value]=\"store.query()\"",
+        "       (input)=\"store.query.set($any($event.target).value)\">",
+        "",
+        "@for (c of categories; track c) {",
+        "  <button (click)=\"store.category.set(c)\"",
+        "          [class.on]=\"store.category() === c\">{{ c }}</button>",
+        "}"]},
+      {id:'x3',name:'result-list.component.html',lang:'html',tag:'reads',code:[
+        "<p>{{ store.count() }} products</p>",
+        "",
+        "@for (p of store.visible(); track p.id) {",
+        "  <app-product-card [product]=\"p\"></app-product-card>",
+        "} @empty {",
+        "  <p>Nothing matches that filter.</p>",
+        "}"]},
+      {id:'x4',name:'both components .ts',lang:'ts',tag:'wiring',code:[
+        "export class FilterSidebarComponent {",
+        "  store = inject(CatalogStore);        // public: used in the template",
+        "  categories = ['Phones', 'Laptops', 'Audio'];",
+        "}",
+        "",
+        "export class ResultListComponent {",
+        "  store = inject(CatalogStore);        // the SAME instance",
+        "}"]}
+    ]
+  },
+  gotchas:[
+    'Replace, never mutate. <code class="i">items().push(x)</code> notifies nobody — use <code class="i">update(l =&gt; [...l, x])</code>.',
+    'Call it: <code class="i">items()</code>. Writing <code class="i">items</code> in a template prints a function.',
+    '<code class="i">computed()</code> for derived values, <code class="i">effect()</code> for side effects only — never to set another signal.',
+    'Same DI rule as before: <code class="i">providedIn: \'root\'</code> shares it, component <code class="i">providers</code> gives a private copy.',
+    'Mixing worlds is fine: <code class="i">toSignal(obs$)</code> and <code class="i">toObservable(sig)</code>.'
+  ]
+},
+
+/* 10 ------------------------------------------------------- */
+{
+  id:'route', num:'10', rail:'Between routes', c:C.route, badge:'Page → Page',
+  title:'Different pages: the <code>URL</code> is the channel',
+  lead:'Two routed components are never parent and child, so inputs and outputs cannot reach. The router config is the contract between them.',
+  nodes:[
+    [{id:'listTs',role:'navigates',file:'user-list.component',ext:'.ts',kind:'ts'},
+     {id:'routesTs',role:'the contract',file:'app.routes',ext:'.ts',kind:'cfg'}],
+    [{id:'detailHtml',role:'renders',file:'user-detail.component',ext:'.html',kind:'html'},
+     {id:'detailTs',role:'receives',file:'user-detail.component',ext:'.ts',kind:'ts'}]
+  ],
+  edges:[
+    {id:'e1',from:'listTs',to:'routesTs',a:'right',b:'left',label:'/user/7?tab=orders',packet:'URL'},
+    {id:'e2',from:'routesTs',to:'detailTs',a:'bottom',b:'top',label:'id = "7"',packet:'params'},
+    {id:'e3',from:'detailTs',to:'detailHtml',a:'left',b:'right',label:'{{ id() }}',packet:'7'}
+  ],
+  files:[
+    {id:'listTs',name:'user-list.component.ts',lang:'ts',tag:'sender',code:[
+      "export class UserListComponent {",
+      "  private router = inject(Router);",
+      "",
+      "  open(id: number) {",
+      "    this.router.navigate(['/user', id], {",
+      "      queryParams: { tab: 'orders' },",
+      "    });",
+      "  }",
+      "}"]},
+    {id:'routesTs',name:'app.routes.ts',lang:'ts',tag:'contract',code:[
+      "export const routes: Routes = [",
+      "  { path: 'user/:id',",
+      "    component: UserDetailComponent,",
+      "    data: { title: 'User' },          // static data",
+      "    resolve: { user: userResolver } } // data fetched before entering",
+      "];",
+      "",
+      "// main.ts — makes route data arrive as component inputs:",
+      "provideRouter(routes, withComponentInputBinding());"]},
+    {id:'detailTs',name:'user-detail.component.ts',lang:'ts',tag:'receiver',code:[
+      "export class UserDetailComponent {",
+      "  // with withComponentInputBinding() they are just inputs:",
+      "  id   = input.required<string>();   // from  user/:id",
+      "  tab  = input('profile');           // from  ?tab=orders",
+      "  user = input<User>();              // from  resolve: { user }",
+      "",
+      "  // the classic way, still valid:",
+      "  private route = inject(ActivatedRoute);",
+      "  id$ = this.route.paramMap.pipe(map(p => p.get('id')));",
+      "}"]},
+    {id:'detailHtml',name:'user-detail.component.html',lang:'html',tag:'render',code:[
+      "<h2>User #{{ id() }}</h2>",
+      "<p>Tab: {{ tab() }}</p>"]}
+  ],
+  steps:[
+    {t:'The sender never references the other component. It only changes the URL.',hl:{listTs:[2,5,6,7]}},
+    {t:'The route config decides which component answers that URL and what it is allowed to receive.',edge:'e1',hl:{routesTs:[2,3,4,5]}},
+    {t:'With withComponentInputBinding(), path params, query params and resolved data land on plain inputs.',edge:'e2',hl:{detailTs:[3,4,5],routesTs:[9]}},
+    {t:'The state now lives in the URL: refresh, back button and shared links all keep working.',edge:'e3',hl:{detailHtml:[1,2]}}
+  ],
+  example:{
+    name:'Orders list to order detail, with the filters in the URL',
+    what:'The status filter and the page number live in the query string, so the back button, a refresh and a link pasted in chat all restore the same screen. The detail page receives a fully loaded order, not an id it has to fetch itself.',
+    files:[
+      {id:'x1',name:'app.routes.ts',lang:'ts',tag:'the contract',code:[
+        "export const routes: Routes = [",
+        "  { path: 'orders', component: OrderListComponent },",
+        "",
+        "  { path: 'orders/:orderId',",
+        "    component: OrderDetailComponent,",
+        "    resolve: {",
+        "      order: (r: ActivatedRouteSnapshot) =>",
+        "        inject(OrderApi).byId(r.paramMap.get('orderId')!),",
+        "    } },",
+        "];"]},
+      {id:'x2',name:'order-list.component.ts',lang:'ts',tag:'sender',code:[
+        "export class OrderListComponent {",
+        "  private router = inject(Router);",
+        "",
+        "  // /orders?status=open&page=2  ->  plain inputs",
+        "  status = input('all');",
+        "  page   = input(1, { transform: numberAttribute });",
+        "",
+        "  setStatus(s: string) {",
+        "    this.router.navigate([], {",
+        "      queryParams: { status: s, page: 1 },",
+        "      queryParamsHandling: 'merge',   // keep the other params",
+        "    });",
+        "  }",
+        "",
+        "  open(id: string) { this.router.navigate(['/orders', id]); }",
+        "}"]},
+      {id:'x3',name:'order-detail.component.ts',lang:'ts',tag:'receiver',code:[
+        "export class OrderDetailComponent {",
+        "  private location = inject(Location);",
+        "",
+        "  order   = input.required<Order>();   // from resolve: { order }",
+        "  orderId = input.required<string>();  // from  orders/:orderId",
+        "",
+        "  back() { this.location.back(); }     // filters are still in the URL",
+        "}"]},
+      {id:'x4',name:'order-detail.component.html',lang:'html',tag:'render',code:[
+        "<button (click)=\"back()\">&larr; Back to orders</button>",
+        "",
+        "<h2>Order {{ order().number }}</h2>",
+        "<p>{{ order().customer.name }} &middot; {{ order().total | currency }}</p>"]}
+    ]
+  },
+  gotchas:[
+    'Route params are always <b>strings</b>. <code class="i">Number(id())</code> before you compare with an id.',
+    'Going from <code class="i">/user/1</code> to <code class="i">/user/2</code> <b>reuses</b> the component: read <code class="i">paramMap</code> as a stream, don\u2019t read <code class="i">snapshot</code> once in ngOnInit.',
+    'Big objects: <code class="i">router.navigate([...], { state: { order } })</code>, read back via <code class="i">history.state</code> — but it is gone after a refresh.',
+    'Data the page cannot render without belongs in a <code class="i">resolve</code>, not in ngOnInit.',
+    'Anything the user should be able to bookmark belongs in <code class="i">queryParams</code>, not in a service.'
+  ]
+},
+
+/* 11 ------------------------------------------------------- */
+{ kind:'table', num:'11', rail:'Cheat sheet', c:C.route,
+  title:'Cheat sheet',
+  lead:'Find your row, open the matching slide for the full flow.' },
+
+/* 12 ------------------------------------------------------- */
+{ kind:'debug', num:'12', rail:'Debug: undefined', c:C.down,
+  title:'"My data is undefined" — the checklist',
+  lead:'Go down the list in order. One of these twelve is almost always the answer.' }
+];
+/* ============================================================
+   ENGINE
+   ============================================================ */
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+const TS_RE = /(\/\/[^\n]*)|('[^']*'|"[^"]*")|(@[A-Za-z]\w*)|\b(import|export|from|class|interface|extends|implements|const|let|var|function|return|new|this|if|else|for|of|in|public|private|protected|readonly|static|async|await|void|string|number|boolean|any|null|undefined|true|false|type|as)\b|(\b\d+\b)/g;
+const HT_RE = /(&lt;!--[\s\S]*?--&gt;)|(\{\{[^{}]*\}\})|(&lt;\/?[\w-]+)|("[^"]*")|(\[[\w.$()\-]+\]|\([\w.\-]+\)|#[\w-]+)|(@(?:if|for|else|switch|case|default|empty|defer|placeholder))/g;
+
+function hi(line, lang) {
+  const t = esc(line);
+  if (lang === 'html') {
+    return t.replace(HT_RE, (m, c, i, tag, str, bind, cf) =>
+      c ? `<i class="t-com">${c}</i>` :
+      i ? `<i class="t-int">${i}</i>` :
+      tag ? `<i class="t-tag">${tag}</i>` :
+      str ? `<i class="t-str">${str}</i>` :
+      bind ? `<i class="t-bind">${bind}</i>` :
+      `<i class="t-key">${cf}</i>`);
+  }
+  return t.replace(TS_RE, (m, c, str, dec, kw, num) =>
+    c ? `<i class="t-com">${c}</i>` :
+    str ? `<i class="t-str">${str}</i>` :
+    dec ? `<i class="t-dec">${dec}</i>` :
+    kw ? `<i class="t-key">${kw}</i>` :
+    `<i class="t-num">${num}</i>`);
+}
+
+const codeCard = f => `
+  <div class="fc" data-file="${f.id}" data-lang="${f.lang}">
+    <div class="fc-h"><span class="d"></span>${f.name}<span class="tag">${f.tag || ''}</span></div>
+    <pre>${f.code.map((l, i) => `<span class="ln" data-l="${i + 1}">${hi(l, f.lang) || ' '}</span>`).join('')}</pre>
+  </div>`;
+
+const nodeBox = n => `
+  <div class="node" data-node="${n.id}" data-kind="${n.kind}">
+    <span class="role">${n.role}</span>
+    <span class="file">${n.file}<b>${n.ext}</b></span>
+  </div>`;
+
+/* ---------- the "which one do I need" map ---------- */
+const MAP = [
+  ['The child tag is written inside my parent template', '@Input()', 'the parent owns the value, the child shows it', 2, 'product grid &rarr; product card'],
+  ['The child must tell the parent that something happened', '@Output()', 'a click, a submit, a finished upload', 3, 'search box &rarr; the users page reloads'],
+  ['Both of them edit the same value', '[(value)] / model()', 'inputs, toggles, custom form controls', 4, 'quantity stepper inside a cart row'],
+  ['I need to call focus() or reset() on the child', '#ref / viewChild()', 'actions, not data', 5, 'clear and focus a form after saving'],
+  ['I am building a card / modal / tabs wrapper', '&lt;ng-content&gt;', 'the markup comes from outside', 6, 'a panel with a title and an action slot'],
+  ['The child needs the component that wraps it', 'inject(Parent)', 'tabs, accordion, radio group', 7, 'FAQ accordion: opening one closes the rest'],
+  ['They are siblings, or far apart in the tree', 'shared service + BehaviorSubject', 'no common parent to route through', 8, 'toast messages fired from any page'],
+  ['I want shared state without RxJS', 'signal store service', 'Angular 16+, no subscriptions', 9, 'filter sidebar + result list + counter'],
+  ['They are two different pages', 'route params + resolvers', 'the URL is the channel', 10, 'orders list &rarr; order detail, filters in the URL']
+];
+
+/* ---------- cheat sheet ---------- */
+const TABLE = [
+  ['Parent &rarr; child, a value', '<code>@Input()</code> / <code>input()</code>', 'parent.html + child.ts', 2],
+  ['Child &rarr; parent, an event', '<code>@Output()</code> / <code>output()</code>', 'child.ts + parent.html + parent.ts', 3],
+  ['A value edited on both sides', '<code>[(value)]</code> / <code>model()</code>', 'parent.html + child.ts', 4],
+  ['Parent triggers child behaviour', '<code>#ref</code> / <code>viewChild()</code>', 'parent.html + parent.ts', 5],
+  ['Wrapper needs the markup around it', '<code>&lt;ng-content&gt;</code> / <code>contentChild()</code>', 'outer.html + wrapper.html + wrapper.ts', 6],
+  ['Child needs its container', '<code>inject(Parent)</code>', 'child.ts', 7],
+  ['Siblings / distant components', 'service + <code>BehaviorSubject</code>', 'x.service.ts + both components', 8],
+  ['App-wide state, modern', 'service + <code>signal()</code> / <code>computed()</code>', 'x.store.ts + templates', 9],
+  ['Page &rarr; page', 'route params, query params, <code>resolve</code>', 'app.routes.ts + both pages', 10],
+  ['A big object between pages', '<code>navigate(..., { state })</code> or a service', 'both pages', 10],
+  ['Server data many components need', 'service + <code>toSignal()</code> / <code>shareReplay(1)</code>', 'x.service.ts', 8],
+  ['Large app, many actions, undo, devtools', 'NgRx or NgRx SignalStore', 'a store folder', 9]
+];
+
+/* ---------- debug checklist ---------- */
+const DEBUG = [
+  ['You read the @Input in the constructor', 'Inputs are set after construction. Move it to <code class="i">ngOnInit</code>, a setter, <code class="i">ngOnChanges</code>, or an <code class="i">effect()</code> with signal inputs.'],
+  ['Missing brackets in the template', '<code class="i">user="user"</code> passes the literal string "user". You want <code class="i">[user]="user"</code>.'],
+  ['The child is not in <code class="i">imports: []</code>', 'With standalone components Angular renders nothing and warns quietly. Check the parent\u2019s imports array first.'],
+  ['The names do not match', 'The binding name is the child\u2019s property name, not the parent\u2019s. Two-way needs exactly <code class="i">value</code> + <code class="i">valueChange</code>.'],
+  ['@ViewChild read too early', 'It is undefined until <code class="i">ngAfterViewInit</code> — and later again if the child sits inside <code class="i">@if</code>.'],
+  ['Two instances of the same service', 'A service listed in a component\u2019s <code class="i">providers: []</code> is created per component. Siblings then hold different copies. Use <code class="i">providedIn: \'root\'</code>.'],
+  ['<code class="i">Subject</code> instead of <code class="i">BehaviorSubject</code>', 'A plain Subject has no current value: anyone subscribing after the emit gets nothing at all.'],
+  ['You subscribed but the template rendered first', '<code class="i">subscribe(v =&gt; this.items = v)</code> is asynchronous. Use the <code class="i">async</code> pipe or a signal, and give the property a safe default.'],
+  ['You mutated instead of replacing', '<code class="i">push()</code> on an array in a signal or under <code class="i">OnPush</code> changes nothing on screen. Create a new array.'],
+  ['You read <code class="i">route.snapshot</code> once', 'Navigating between <code class="i">/user/1</code> and <code class="i">/user/2</code> reuses the component. Subscribe to <code class="i">paramMap</code> instead.'],
+  ['Nobody is listening to your output', 'A missing <code class="i">(saved)="..."</code> on the parent tag is silent by design. Log inside the child right before <code class="i">emit()</code>.'],
+  ['The value is there, the view is not updating', 'Something changed outside Angular (a third party callback, <code class="i">setTimeout</code> in a library). Set a signal, or run it inside <code class="i">NgZone</code>.']
+];
+
+/* ---------- slide builders ---------- */
+function buildTitle() {
+  return `<div class="hero">
+    <div>
+      <h1>How data <em>moves</em><br>between Angular<br>components</h1>
+      <p>Nine patterns, each one animated file by file, then shown again as a real feature you would actually build — so you can see exactly where a value leaves one file and where it arrives in the next.</p>
+      <div class="legend">
+        <div><i style="background:var(--down)"></i> down &mdash; parent to child &nbsp;<code class="i">@Input()</code></div>
+        <div><i style="background:var(--up)"></i> up &mdash; child to parent &nbsp;<code class="i">@Output()</code></div>
+        <div><i style="background:var(--side)"></i> sideways &mdash; through a service</div>
+        <div><i style="background:var(--route)"></i> across &mdash; between routed pages</div>
+      </div>
+      <button class="cta" data-go="1">Find my case &nbsp;&rarr;</button>
+    </div>
+    <div class="demo">
+      <span class="lbl">the two directions</span>
+      <div class="demo-in">
+        <div class="dbox">parent.component<b>.ts</b><span>owns the data</span></div>
+        <div class="dwires">
+          <div class="dw"><i class="down"></i><em>@Input</em></div>
+          <div class="dw"><i class="up"></i><em>@Output</em></div>
+        </div>
+        <div class="dbox">child.component<b>.ts</b><span>displays &amp; emits</span></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+const buildMap = () => `<div class="mapgrid">` + MAP.map(m =>
+  `<button class="mapcard" data-go="${m[3]}" style="--c:${SLIDES[m[3]].c}">
+     <span class="q">${m[0]}</span><span class="a">${m[1]}</span><span class="w">${m[2]}</span>
+     <span class="ex"><i>real case</i>${m[4]}</span>
+   </button>`).join('') + `</div>`;
+
+const buildTable = () => `<table class="tbl"><thead><tr><th>Your situation</th><th>The channel</th><th>Files you touch</th></tr></thead><tbody>` +
+  TABLE.map(r => `<tr data-go="${r[3]}" style="cursor:pointer"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('') +
+  `</tbody></table><p class="sechead">Click any row to open that pattern</p>`;
+
+const buildDebug = () => `<div class="check">` + DEBUG.map(d =>
+  `<div class="chk"><span class="n"></span><div><b>${d[0]}</b><p>${d[1]}</p></div></div>`).join('') + `</div>`;
+
+const exampleBlock = x => `
+  <div class="example">
+    <div class="exhead"><span class="extag">Real example</span><b>${x.name}</b></div>
+    <p class="exlead">${x.what}</p>
+    <div class="files">${x.files.map(codeCard).join('')}</div>
+  </div>`;
+
+function buildPattern(s) {
+  const rows = s.nodes.map(r => `<div class="row">${r.map(nodeBox).join('')}</div>`).join('');
+  const svg = `<svg><g class="edges">${s.edges.map(e =>
+    `<g class="edge" data-edge="${e.id}"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>`).join('')}
+    <g class="packet"><rect></rect><text></text></g></g></svg>`;
+  return `
+    <div class="stage">${svg}${rows}</div>
+    <div class="stepbar">
+      <div class="dots">${s.steps.map((_, i) => `<button class="dot" data-step="${i}" aria-label="step ${i + 1}"></button>`).join('')}</div>
+      <div class="cap"></div>
+      <button class="iconbtn" data-replay>&#9654; Replay</button>
+    </div>
+    <div class="files">${s.files.map(codeCard).join('')}</div>
+    ${s.example ? exampleBlock(s.example) : ''}
+    <div class="gotchas"><h4>Watch out</h4><ul>${s.gotchas.map(g => `<li>${g}</li>`).join('')}</ul></div>`;
+}
+
+/* ---------- build the deck ---------- */
+const viewport = $('#viewport'), rail = $('#rail');
+SLIDES.forEach((s, i) => {
+  const el = document.createElement('section');
+  el.className = 'slide';
+  el.style.setProperty('--c', s.c);
+  el.dataset.i = i;
+  let head = '';
+  if (s.kind !== 'title') {
+    head = `<div class="eyebrow"><span class="num">${s.num}</span>${s.badge ? `<span class="badge">${s.badge}</span>` : ''}</div>
+            <h1 class="title">${s.title}</h1><p class="lead">${s.lead}</p>`;
+  }
+  const body = s.kind === 'title' ? buildTitle()
+    : s.kind === 'map' ? buildMap()
+    : s.kind === 'table' ? buildTable()
+    : s.kind === 'debug' ? buildDebug()
+    : buildPattern(s);
+  el.innerHTML = head + body;
+  viewport.appendChild(el);
+
+  const b = document.createElement('button');
+  b.className = 'rail-btn';
+  b.innerHTML = `<em>${i ? String(i).padStart(2, '0') : '&bull;'}</em><span>${s.rail}</span>`;
+  b.onclick = () => goSlide(i);
+  rail.appendChild(b);
+});
+const slideEls = [...viewport.querySelectorAll('.slide')];
+const railBtns = [...rail.querySelectorAll('.rail-btn')];
+
+/* ---------- edge geometry ---------- */
+function anchorPt(r, side, base) {
+  const x = r.left - base.left, y = r.top - base.top, w = r.width, h = r.height;
+  if (side === 'left') return { x: x, y: y + h / 2, nx: -1, ny: 0 };
+  if (side === 'right') return { x: x + w, y: y + h / 2, nx: 1, ny: 0 };
+  if (side === 'top') return { x: x + w / 2, y: y, nx: 0, ny: -1 };
+  return { x: x + w / 2, y: y + h, nx: 0, ny: 1 };
+}
+
+function layout(el) {
+  const s = SLIDES[+el.dataset.i];
+  if (!s.edges) return;
+  const stage = $('.stage', el), svg = $('svg', el);
+  if (!stage) return;
+  const base = stage.getBoundingClientRect();
+  svg.setAttribute('width', base.width);
+  svg.setAttribute('height', base.height);
+  s.edges.forEach(e => {
+    const a = $(`[data-node="${e.from}"]`, el), b = $(`[data-node="${e.to}"]`, el);
+    if (!a || !b) return;
+    const p1 = anchorPt(a.getBoundingClientRect(), e.a, base);
+    const p2 = anchorPt(b.getBoundingClientRect(), e.b, base);
+    const d = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+    const k = Math.max(40, Math.min(140, d * 0.45));
+    const c1x = p1.x + p1.nx * k, c1y = p1.y + p1.ny * k;
+    const c2x = p2.x + p2.nx * k, c2y = p2.y + p2.ny * k;
+    const g = $(`[data-edge="${e.id}"]`, el);
+    const wire = $('.wire', g), flow = $('.flow', g), head = $('.head', g), txt = $('text', g);
+    const dd = `M${p1.x},${p1.y} C${c1x},${c1y} ${c2x},${c2y} ${p2.x},${p2.y}`;
+    wire.setAttribute('d', dd);
+    flow.setAttribute('d', dd);
+    // arrow head, aimed along the tangent at the end
+    const L = wire.getTotalLength();
+    const end = wire.getPointAtLength(Math.max(0, L - 1));
+    const pre = wire.getPointAtLength(Math.max(0, L - 12));
+    const ang = Math.atan2(end.y - pre.y, end.x - pre.x);
+    const A = 0.42, r = 9;
+    head.setAttribute('d',
+      `M${end.x},${end.y} L${end.x - r * Math.cos(ang - A)},${end.y - r * Math.sin(ang - A)} L${end.x - r * Math.cos(ang + A)},${end.y - r * Math.sin(ang + A)} Z`);
+    const mid = wire.getPointAtLength(L * 0.5);
+    txt.setAttribute('x', mid.x);
+    txt.setAttribute('y', mid.y - 9);
+    txt.setAttribute('text-anchor', 'middle');
+    txt.textContent = e.label;
+  });
+}
+
+/* ---------- animation ---------- */
+let RUN = 0, cur = 0, step = 0;
+
+function fly(el, edgeId, token) {
+  return new Promise(res => {
+    const g = $(`[data-edge="${edgeId}"]`, el);
+    const wire = $('.wire', g);
+    const pk = $('.packet', el), rect = $('rect', pk), txt = $('text', pk);
+    const e = SLIDES[+el.dataset.i].edges.find(x => x.id === edgeId);
+    txt.textContent = e.packet || e.label;
+    txt.setAttribute('text-anchor', 'middle');
+    txt.setAttribute('y', 4);
+    txt.setAttribute('x', 0);
+    const w = Math.max(38, txt.getComputedTextLength() + 20);
+    rect.setAttribute('x', -w / 2); rect.setAttribute('y', -12);
+    rect.setAttribute('width', w); rect.setAttribute('height', 24);
+    rect.setAttribute('rx', 7);
+    const L = wire.getTotalLength();
+    if (REDUCED || !L) { pk.style.opacity = 0; return res(); }
+    const dur = 900, t0 = performance.now();
+    (function frame(now) {
+      if (token !== RUN) { pk.style.opacity = 0; return res(); }
+      const t = Math.min(1, (now - t0) / dur);
+      const q = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      const p = wire.getPointAtLength(q * L);
+      pk.setAttribute('transform', `translate(${p.x},${p.y})`);
+      pk.style.opacity = t < .1 ? t / .1 : t > .9 ? (1 - t) / .1 : 1;
+      if (t < 1) requestAnimationFrame(frame);
+      else { pk.style.opacity = 0; res(); }
+    })(performance.now());
+  });
+}
+
+function paint(el, s, i) {
+  $$('.hl', el).forEach(n => n.classList.remove('hl'));
+  $$('.fc.active,.node.active', el).forEach(n => n.classList.remove('active'));
+  $$('.dot', el).forEach((d, k) => d.classList.toggle('on', k === i));
+  $('.cap', el).innerHTML = `<span>${String(i + 1).padStart(2, '0')}/${String(s.steps.length).padStart(2, '0')}</span>${s.steps[i].t}`;
+  s.edges.forEach(e => {
+    const lit = s.steps.slice(0, i + 1).some(st => st.edge === e.id);
+    $(`[data-edge="${e.id}"]`, el).classList.toggle('lit', lit);
+  });
+  const st = s.steps[i], touched = new Set();
+  Object.entries(st.hl || {}).forEach(([fid, lines]) => {
+    const card = $(`[data-file="${fid}"]`, el);
+    if (card) { card.classList.add('active'); lines.forEach(l => { const n = $(`[data-l="${l}"]`, card); if (n) n.classList.add('hl'); }); }
+    touched.add(fid);
+  });
+  if (st.edge) { const e = s.edges.find(x => x.id === st.edge); touched.add(e.from); touched.add(e.to); }
+  touched.forEach(id => { const n = $(`[data-node="${id}"]`, el); if (n) n.classList.add('active'); });
+}
+
+async function goStep(i, animate = true) {
+  const el = slideEls[cur], s = SLIDES[cur];
+  if (!s.steps) return;
+  step = Math.max(0, Math.min(s.steps.length - 1, i));
+  const token = ++RUN;
+  paint(el, s, step);
+  if (animate && s.steps[step].edge) await fly(el, s.steps[step].edge, token);
+}
+
+async function play() {
+  const s = SLIDES[cur], el = slideEls[cur];
+  if (!s.steps) return;
+  const token = ++RUN;
+  for (let i = 0; i < s.steps.length; i++) {
+    if (token !== RUN) return;
+    step = i;
+    paint(el, s, i);
+    if (s.steps[i].edge) await fly(el, s.steps[i].edge, token);
+    else await new Promise(r => setTimeout(r, REDUCED ? 0 : 620));
+    if (token !== RUN) return;
+    if (i < s.steps.length - 1) await new Promise(r => setTimeout(r, REDUCED ? 0 : 520));
+  }
+}
+
+function goSlide(i) {
+  cur = Math.max(0, Math.min(SLIDES.length - 1, i));
+  step = 0; RUN++;
+  slideEls.forEach((el, k) => el.classList.toggle('on', k === cur));
+  railBtns.forEach((b, k) => b.setAttribute('aria-current', k === cur));
+  viewport.scrollTop = 0;
+  $('#pos').textContent = `${String(cur + 1).padStart(2, '0')} / ${SLIDES.length}`;
+  $('#barfill').style.width = ((cur + 1) / SLIDES.length * 100) + '%';
+  const el = slideEls[cur];
+  requestAnimationFrame(() => { layout(el); if (SLIDES[cur].steps) play(); });
+  try { railBtns[cur].scrollIntoView({ block: 'nearest' }); } catch (_) {}
+}
+
+function next() {
+  const s = SLIDES[cur];
+  if (s.steps && step < s.steps.length - 1) { RUN++; goStep(step + 1); }
+  else if (cur < SLIDES.length - 1) goSlide(cur + 1);
+}
+function prev() {
+  const s = SLIDES[cur];
+  if (s.steps && step > 0) { RUN++; goStep(step - 1, false); }
+  else if (cur > 0) goSlide(cur - 1);
+}
+
+/* ---------- events ---------- */
+$('#next').onclick = next;
+$('#prev').onclick = prev;
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  const k = e.key;
+  if (k === 'ArrowRight' || k === ' ' || k === 'PageDown') { e.preventDefault(); next(); }
+  else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); prev(); }
+  else if (k === 'n' || k === 'N') goSlide(cur + 1);
+  else if (k === 'p' || k === 'P') goSlide(cur - 1);
+  else if (k === 'Home') goSlide(0);
+  else if (k === 'End') goSlide(SLIDES.length - 1);
+  else if (k.toLowerCase() === 'r') play();
+});
+viewport.addEventListener('click', e => {
+  const go = e.target.closest('[data-go]');
+  if (go) return goSlide(+go.dataset.go);
+  const dot = e.target.closest('.dot');
+  if (dot) { RUN++; return goStep(+dot.dataset.step); }
+  if (e.target.closest('[data-replay]')) play();
+});
+let rt;
+addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => layout(slideEls[cur]), 140); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => layout(slideEls[cur]));
+
+goSlide(0);
+
+</script></body></html>

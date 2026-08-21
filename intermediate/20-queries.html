@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>viewChild and contentChild — The Angular Signal</title>
+<meta name="description" content="Sometimes you need the element itself — to call focus(), to measure it, to hand it to a chart library. Queries find it for you. As signals they solve the oldest bug in Angular: the">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Cairo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--c:var(--int)}
+/* ============================================================
+   Two skins, one set of names. Light is the default; the top-bar
+   switch stamps data-theme="dark" on the root element, and only the
+   below change. Never hard-code a colour outside these blocks.
+   ============================================================ */
+:root{
+  color-scheme:light;
+  /* surfaces */
+  --bg:#f3f4fb; --bg2:#eaecf7; --card:#ffffff; --card2:#f7f8fd; --code:#fbfbff;
+  --line:rgba(23,27,64,.14); --line2:rgba(23,27,64,.08);
+  --sunk:rgba(23,27,64,.03); --sunk2:rgba(23,27,64,.05); --hover:rgba(23,27,64,.05);
+  --chip:rgba(23,27,64,.065); --chipink:#3a3f70;
+  --topbg:rgba(248,249,254,.84);
+  --wire:rgba(23,27,64,.24); --dotbg:rgba(23,27,64,.17);
+  --nodesh:0 12px 26px -20px rgba(23,27,64,.55), inset 0 1px 0 #fff;
+  --glow1:9%; --glow2:5%;
+  /* ink */
+  --ink:#12142c; --mut:#4d5480; --dim:#767d9f; --onc:#ffffff;
+  /* track accents — darkened so they carry on paper */
+  --beg:#0c9280;    /* track 1 */
+  --int:#5b3ad4;    /* track 2 */
+  --adv:#c60059;    /* track 3 */
+  --ts:#1566cc; --html:#c04d1a; --svc:#8a5f00; --cfg:#5b3ad4;
+  /* syntax */
+  --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
+  --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
+  --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0b0d1c; --bg2:#101430; --card:#141935; --card2:#171d3d; --code:transparent;
+  --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.055);
+  --sunk:rgba(255,255,255,.03); --sunk2:rgba(255,255,255,.05); --hover:rgba(255,255,255,.04);
+  --chip:rgba(255,255,255,.07); --chipink:#cfd6ff;
+  --topbg:rgba(8,10,22,.72);
+  --wire:rgba(255,255,255,.13); --dotbg:rgba(255,255,255,.16);
+  --nodesh:0 10px 26px -18px #000, inset 0 1px 0 rgba(255,255,255,.05);
+  --glow1:16%; --glow2:8%;
+  --ink:#eceefb; --mut:#98a0c8; --dim:#69719e; --onc:#0b0d1c;
+  --beg:#2ee6c5; --int:#8b6cff; --adv:#ff2e88;
+  --ts:#4a9eff; --html:#ff7a45; --svc:#ffb020; --cfg:#8b6cff;
+  --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
+  --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
+  --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:
+    radial-gradient(1100px 700px at 78% -10%,color-mix(in srgb,var(--c) var(--glow1),transparent),transparent 62%),
+    radial-gradient(900px 600px at 4% 108%,color-mix(in srgb,var(--adv) var(--glow2),transparent),transparent 62%),
+    var(--bg);
+  color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--c);color:var(--onc)}
+:focus-visible{outline:2px solid var(--c);outline-offset:3px;border-radius:6px}
+a{color:var(--c)}
+code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+
+/* ---------- language ---------- */
+:root[data-lang="en"] .l-ar{display:none !important}
+:root[data-lang="ar"] .l-en{display:none !important}
+:root[dir="rtl"]{
+  --disp:'Cairo','IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+}
+:root[dir="rtl"] h1.title{line-height:1.32;letter-spacing:0}
+:root[dir="rtl"] .lead{font-size:15px;line-height:1.75}
+:root[dir="rtl"] .num,:root[dir="rtl"] .badge{letter-spacing:.04em}
+/* keep neighbouring runs from reordering each other in RTL */
+.kick span,.cover-top span{unicode-bidi:isolate}
+/* diagrams and code always read left-to-right */
+.stage,.files,pre,.mono{direction:ltr}
+
+/* ---------- top bar ---------- */
+.top{
+  position:sticky;top:0;z-index:40;background:var(--topbg);
+  backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);
+  border-bottom:1px solid var(--line2);
+}
+.top-in{
+  max-width:1220px;margin:0 auto;padding:9px clamp(16px,3.4vw,40px);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.home{
+  display:inline-flex;align-items:baseline;gap:9px;text-decoration:none;white-space:nowrap;
+}
+.home b{
+  font-family:var(--disp);font-weight:800;font-size:15.5px;letter-spacing:-.02em;
+  background:linear-gradient(92deg,#e40035,#f20089 45%,#9717e2);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.home span{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase}
+.tracknav{display:flex;gap:4px;flex-wrap:wrap;margin-inline-start:6px}
+.tracknav a{
+  font-size:12.5px;font-weight:600;text-decoration:none;color:var(--dim);
+  padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.tracknav a i{width:7px;height:7px;border-radius:99px;background:currentColor;display:block;flex:none}
+.tracknav a:hover{color:var(--mut);background:var(--hover)}
+.tracknav a[aria-current="page"]{color:var(--onc);background:var(--c)}
+.top-right{display:flex;align-items:center;gap:8px;margin-inline-start:auto}
+.seg{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:var(--hover)}
+.seg button{
+  appearance:none;border:0;background:none;cursor:pointer;padding:5px 12px;
+  font-family:var(--body);font-size:12.5px;font-weight:600;color:var(--dim);line-height:1.5;
+}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--c);color:var(--onc)}
+
+/* ---------- article shell ---------- */
+.page{max-width:1220px;margin:0 auto;padding:clamp(24px,3.6vw,44px) clamp(16px,3.4vw,40px) 0}
+.eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.num{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.16em}
+/* a numeric counter must not be reordered by the bidi algorithm */
+.num.seq{direction:ltr;unicode-bidi:isolate}
+:root[dir="rtl"] .num:not(.seq){font-family:var(--body);letter-spacing:0;font-size:12.5px}
+.badge{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;border:1px solid currentColor;color:var(--c);
+  background:color-mix(in srgb,var(--c) 12%,transparent);
+}
+:root[dir="rtl"] .badge{font-family:var(--body);font-weight:600;text-transform:none;font-size:11.5px}
+h1.title{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.03em;line-height:1.02;
+  font-size:clamp(28px,4vw,46px);margin:0 0 10px;text-wrap:balance;
+}
+h1.title code{font-family:var(--mono);font-size:.82em;font-weight:600;color:var(--c);letter-spacing:0}
+.lead{color:var(--mut);max-width:74ch;margin:0 0 22px;font-size:15.5px;text-wrap:pretty}
+.lead b{color:var(--ink);font-weight:600}
+
+/* ---------- stage / diagram ---------- */
+.stage{position:relative;margin:6px 0 4px;padding:26px 8px;display:flex;flex-direction:column;gap:74px}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.row{display:flex;justify-content:center;gap:clamp(28px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
+.node{
+  background:linear-gradient(180deg,var(--card2),var(--card));
+  border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:172px;
+  box-shadow:var(--nodesh);
+  transition:border-color .3s,box-shadow .3s,transform .3s;
+}
+.node .role{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:3px;font-family:var(--mono)}
+:root[dir="rtl"] .node .role{font-family:var(--body);font-size:11px;letter-spacing:0;text-transform:none}
+:root[dir="rtl"] .home span{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .fc-h .tag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .pager a em{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .stepbar .cap span.n{direction:ltr;unicode-bidi:isolate}
+.node .file{font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--ink);white-space:nowrap;display:block}
+.node[data-kind="ts"] .file b{color:var(--ts)}
+.node[data-kind="html"] .file b{color:var(--html)}
+.node[data-kind="svc"] .file b{color:var(--svc)}
+.node[data-kind="cfg"] .file b{color:var(--cfg)}
+.node.active{border-color:color-mix(in srgb,var(--c) 65%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent),0 0 34px -8px var(--c);transform:translateY(-2px)}
+.edge path.wire{fill:none;stroke:var(--wire);stroke-width:1.6}
+.edge path.head{fill:var(--wire);stroke:none}
+.edge.lit path.head{fill:var(--c)}
+.edge path.flow{fill:none;stroke:var(--c);stroke-width:2.2;stroke-dasharray:5 9;opacity:0;stroke-linecap:round}
+.edge.lit path.wire{stroke:color-mix(in srgb,var(--c) 40%,transparent)}
+.edge.lit path.flow{opacity:1;animation:march 1s linear infinite}
+@keyframes march{to{stroke-dashoffset:-28}}
+.edge text{font-family:var(--mono);font-size:10.5px;fill:var(--dim);paint-order:stroke;stroke:var(--bg);stroke-width:5px;stroke-linejoin:round}
+.edge.lit text{fill:var(--c)}
+.packet{opacity:0}
+.packet rect{fill:var(--c)}
+.packet text{font-family:var(--mono);font-size:11px;font-weight:600;fill:var(--onc);stroke:none}
+
+/* ---------- step bar ---------- */
+.stepbar{
+  display:flex;align-items:center;gap:14px;margin:8px 0 22px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk);
+}
+.stepbar .dots{display:flex;gap:6px;flex-shrink:0}
+.stepbar .dot{width:7px;height:7px;border-radius:99px;background:var(--dotbg);cursor:pointer;border:0;padding:0;transition:.2s}
+.stepbar .dot.on{background:var(--c);box-shadow:0 0 10px -1px var(--c);transform:scale(1.25)}
+.stepbar .cap{flex:1;min-width:0;font-size:14px;color:var(--ink);text-wrap:pretty}
+.stepbar .cap span.n{color:var(--dim);font-family:var(--mono);font-size:11px;margin-inline-end:8px}
+.iconbtn{
+  background:var(--sunk2);border:1px solid var(--line);color:var(--mut);
+  border-radius:8px;padding:5px 11px;font-family:var(--mono);font-size:11px;cursor:pointer;white-space:nowrap;
+}
+.iconbtn:hover{color:var(--ink);border-color:color-mix(in srgb,var(--c) 55%,transparent)}
+
+/* ---------- code cards ---------- */
+.sechead{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:28px 0 12px}
+:root[dir="rtl"] .sechead{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.files{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:14px}
+.fc{background:var(--card);border:1px solid var(--line2);border-radius:12px;overflow:hidden;transition:border-color .3s;min-width:0}
+.fc.active{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.fc-h{
+  display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid var(--line2);
+  background:var(--sunk);font-family:var(--mono);font-size:11.5px;color:var(--mut);
+}
+.fc-h .d{width:7px;height:7px;border-radius:99px;flex-shrink:0}
+.fc[data-lang="ts"] .d{background:var(--ts)}
+.fc[data-lang="html"] .d{background:var(--html)}
+.fc[data-lang="json"] .d{background:var(--svc)}
+.fc[data-lang="bash"] .d{background:var(--beg)}
+.fc-h .tag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:var(--mono);font-size:12.2px;line-height:1.72;scrollbar-width:thin}
+.ln{display:block;padding:0 15px;white-space:pre;border-left:2px solid transparent;transition:background .25s,border-color .25s}
+.ln.hl{background:color-mix(in srgb,var(--c) 13%,transparent);border-left-color:var(--c)}
+.t-key{color:var(--t-key)}.t-str{color:var(--t-str)}.t-com{color:var(--t-com);font-style:italic}
+.t-dec{color:var(--t-dec)}.t-tag{color:var(--t-tag)}.t-bind{color:var(--t-bind)}.t-num{color:var(--t-num)}
+.t-fn{color:var(--t-fn)}.t-type{color:var(--t-type)}.t-attr{color:var(--t-attr)}.t-punc{color:var(--t-punc)}
+
+/* ---------- real example ---------- */
+.example{margin-top:26px;padding-top:18px;border-top:1px solid var(--line2)}
+.exhead{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:7px}
+.extag{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);border:1px solid currentColor;border-radius:99px;padding:3px 9px;
+  background:color-mix(in srgb,var(--c) 12%,transparent);white-space:nowrap;
+}
+:root[dir="rtl"] .extag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+.exhead b{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--ink)}
+.exlead{margin:0 0 14px;color:var(--mut);font-size:14px;max-width:82ch;text-wrap:pretty}
+
+/* ---------- gotchas ---------- */
+.gotchas{margin-top:22px;border-top:1px solid var(--line2);padding-top:16px}
+.gotchas h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 10px;font-weight:500}
+:root[dir="rtl"] .gotchas h4{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.gotchas ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:9px 22px}
+.gotchas li{position:relative;padding-inline-start:20px;font-size:13.6px;color:var(--mut);text-wrap:pretty}
+.gotchas li::before{content:"!";position:absolute;inset-inline-start:0;top:0;font-family:var(--mono);font-size:11px;color:var(--c);font-weight:700}
+.gotchas li b{color:var(--ink);font-weight:600}
+
+/* ---------- pager ---------- */
+.pager{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin:34px 0 0;padding:22px 0 46px;border-top:1px solid var(--line2);
+}
+.pager a{
+  display:flex;flex-direction:column;gap:4px;text-decoration:none;padding:14px 16px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--card);transition:.22s;min-width:0;
+}
+.pager a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.pager a em{font-family:var(--mono);font-style:normal;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.pager a b{font-size:14.5px;color:var(--ink);font-weight:600;line-height:1.35;text-wrap:pretty}
+.pager a.nx{text-align:end;align-items:flex-end}
+.pager .void{border:1px dashed var(--line2);border-radius:12px;opacity:.35}
+@media (max-width:600px){.pager{grid-template-columns:1fr}.pager a.nx{text-align:start;align-items:flex-start}}
+
+@media (max-width:900px){
+  .row{gap:16px}
+  .node{min-width:0;flex:1 1 auto}
+  .stage{gap:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+
+/* ================= reference-document layout (TypeScript page) ============ */
+.doc{display:grid;grid-template-columns:212px minmax(0,1fr);gap:clamp(20px,3.4vw,54px);align-items:start}
+@media (max-width:940px){.doc{grid-template-columns:1fr}}
+.doc-rail{position:sticky;top:70px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;scrollbar-width:thin}
+@media (max-width:940px){.doc-rail{position:static;max-height:none;border-bottom:1px solid var(--line2);padding-bottom:14px}}
+.doc-rail b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;font-weight:500}
+:root[dir="rtl"] .doc-rail b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.doc-rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.doc-rail a{
+  display:grid;grid-template-columns:1.6rem 1fr;gap:8px;align-items:baseline;
+  text-decoration:none;color:var(--dim);font-size:13px;line-height:1.35;
+  padding:6px 9px;border-radius:7px;transition:.16s;
+}
+.doc-rail a em{font-family:var(--mono);font-style:normal;font-size:10.5px;opacity:.7}
+.doc-rail a:hover{color:var(--ink);background:var(--hover)}
+.doc-rail a.on{color:var(--onc);background:var(--c)}
+.doc-rail a.on em{opacity:.75}
+
+.sec{padding-block:clamp(26px,3.6vw,44px);border-top:1px solid var(--line2);scroll-margin-top:74px}
+.sec:first-child{border-top:0;padding-top:6px}
+.sec-kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--c);margin-bottom:8px}
+:root[dir="rtl"] .sec-kick{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.sec h2{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.028em;line-height:1.08;
+  font-size:clamp(23px,3vw,33px);margin:0 0 10px;text-wrap:balance;
+}
+:root[dir="rtl"] .sec h2{letter-spacing:0;line-height:1.4}
+.sec h2 code{font-family:var(--mono);font-size:.8em;font-weight:600;color:var(--c);letter-spacing:0}
+.sec > .sec-lead{color:var(--mut);max-width:74ch;margin:0 0 4px;font-size:15px;text-wrap:pretty}
+.sec > .sec-lead b{color:var(--ink);font-weight:600}
+.sec p{max-width:74ch;text-wrap:pretty;color:var(--mut)}
+.sec p b{color:var(--ink);font-weight:600}
+.sec > p{margin:18px 0 0}
+.sec .code{margin-top:18px}
+.sec ul{margin:16px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;max-width:74ch}
+.sec ul li{padding-inline-start:20px;position:relative;color:var(--mut);text-wrap:pretty}
+.sec ul li::before{content:"";position:absolute;inset-inline-start:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--c);opacity:.6}
+
+.code{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--card);min-width:0}
+.code .fc-h{background:var(--sunk)}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;margin-top:18px}
+.code.bad{border-color:color-mix(in srgb,var(--adv) 42%,transparent)}
+.code.bad .fc-h{background:color-mix(in srgb,var(--adv) 10%,transparent)}
+.code.bad .fc-h .d{background:var(--adv)}
+.code.good{border-color:color-mix(in srgb,var(--beg) 42%,transparent)}
+.code.good .fc-h{background:color-mix(in srgb,var(--beg) 10%,transparent)}
+.code.good .fc-h .d{background:var(--beg)}
+.code .flag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.code.bad .flag{color:var(--adv)}
+.code.good .flag{color:var(--beg)}
+:root[dir="rtl"] .code .flag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+
+.note{
+  margin-top:20px;max-width:76ch;background:color-mix(in srgb,var(--c) 8%,transparent);
+  border-inline-start:3px solid var(--c);border-radius:0 9px 9px 0;padding:13px 16px;
+}
+:root[dir="rtl"] .note{border-radius:9px 0 0 9px}
+.note b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .note b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.note p{margin:0;font-size:14.2px;color:var(--mut)}
+
+.dtbl-wrap{overflow-x:auto;border:1px solid var(--line2);border-radius:12px;margin-top:18px;background:var(--card)}
+.dtbl{width:100%;border-collapse:collapse;font-size:13.6px;min-width:640px}
+.dtbl th{
+  text-align:start;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);font-weight:500;padding:10px 14px;border-bottom:1px solid var(--line);
+  background:var(--sunk);white-space:nowrap;
+}
+:root[dir="rtl"] .dtbl th{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px;font-weight:600}
+.dtbl td{padding:11px 14px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--mut);line-height:1.55}
+.dtbl tr:last-child td{border-bottom:0}
+.dtbl td:first-child{color:var(--ink);font-family:var(--mono);font-size:12px}
+
+/* ========================= roadmap page ========================= */
+.verdict{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin:26px 0 8px}
+.verdict div{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.verdict b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:8px;font-weight:600}
+:root[dir="rtl"] .verdict b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.verdict p{margin:0;color:var(--mut);font-size:14.2px;line-height:1.6;text-wrap:pretty}
+
+.phase{position:relative;padding:0 0 0 clamp(22px,3vw,42px);margin-top:clamp(24px,3.4vw,38px)}
+:root[dir="rtl"] .phase{padding:0 clamp(22px,3vw,42px) 0 0}
+.phase::before{content:"";position:absolute;inset-inline-start:0;top:6px;bottom:0;width:2px;background:linear-gradient(180deg,var(--c),transparent)}
+.phase-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.phase-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 8px;font-weight:600;direction:ltr}
+.phase-h h3{margin:0;font-family:var(--disp);font-weight:800;font-size:clamp(20px,2.6vw,27px);letter-spacing:-.02em;color:var(--ink)}
+:root[dir="rtl"] .phase-h h3{letter-spacing:0;line-height:1.4}
+.phase-when{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em;direction:ltr;unicode-bidi:isolate}
+.phase-goal{margin:0 0 14px;color:var(--mut);max-width:72ch;font-size:14.6px;text-wrap:pretty}
+.phase-list{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:14px}
+.phase-list a{
+  display:grid;grid-template-columns:1.8rem 1fr;gap:9px;align-items:baseline;text-decoration:none;
+  padding:8px 11px;border-radius:8px;border:1px solid var(--line2);background:var(--card);transition:.18s;min-width:0;
+}
+.phase-list a em{font-family:var(--mono);font-style:normal;font-size:10.5px;color:var(--dim)}
+.phase-list a span{font-size:13.6px;color:var(--ink);line-height:1.35;text-wrap:pretty}
+.phase-list a span code{font-family:var(--mono);font-size:.86em;color:var(--c)}
+.phase-list a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.phase-build{
+  border-inline-start:3px solid var(--c);background:color-mix(in srgb,var(--c) 7%,transparent);
+  border-radius:0 9px 9px 0;padding:12px 15px;max-width:72ch;
+}
+:root[dir="rtl"] .phase-build{border-radius:9px 0 0 9px}
+.phase-build b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .phase-build b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.phase-build p{margin:0;color:var(--mut);font-size:14px;line-height:1.6;text-wrap:pretty}
+
+.gap{margin-top:16px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.gap section{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.gap h4{margin:0 0 10px;font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.3;text-wrap:pretty}
+.gap ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.gap li{padding-inline-start:19px;position:relative;font-size:13.4px;color:var(--mut);line-height:1.5;text-wrap:pretty}
+.gap li::before{content:"○";position:absolute;inset-inline-start:0;top:0;font-size:10px;color:var(--c);opacity:.7}
+.gap li code{font-family:var(--mono);font-size:.88em;background:var(--chip);padding:1px 4px;border-radius:3px;color:var(--chipink)}
+
+.advice{margin-top:16px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.advice div{border-top:2px solid var(--c);padding-top:12px;min-width:0}
+.advice b{display:block;font-family:var(--disp);font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px;letter-spacing:-.015em}
+:root[dir="rtl"] .advice b{letter-spacing:0}
+.advice p{margin:0;color:var(--mut);font-size:13.8px;line-height:1.6;text-wrap:pretty}
+
+/* ---------- theme switch (icon segment) ---------- */
+.seg.ico button{padding:5px 10px;display:grid;place-items:center}
+.seg.ico svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block}
+@media (max-width:820px){.seg.ico{order:2}}
+
+/* ================= beginner scaffolding on every topic ================= */
+/* three plain-language cards that sit above the technical diagram */
+.plain{display:grid;gap:12px;grid-template-columns:1.4fr 1fr 1fr;margin:2px 0 26px}
+@media (max-width:900px){.plain{grid-template-columns:1fr}}
+.pc{
+  border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);
+  min-width:0;display:flex;flex-direction:column;gap:9px;
+}
+.pc.say{background:color-mix(in srgb,var(--c) 7%,var(--card));border-color:color-mix(in srgb,var(--c) 26%,transparent)}
+.pc .ph{display:flex;align-items:center;gap:8px}
+.pc .ph svg{width:16px;height:16px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pc .ph b{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);font-weight:600}
+:root[dir="rtl"] .pc .ph b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.pc p{margin:0;font-size:14.2px;color:var(--mut);line-height:1.62;text-wrap:pretty}
+.pc p b{color:var(--ink);font-weight:600}
+.pc p code{font-family:var(--mono);font-size:.87em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+.pc.say p{font-size:16px;color:var(--ink)}
+
+/* the idea, as a strip of pictures */
+.strip{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(188px,1fr));margin:2px 0 4px}
+.sp{position:relative;border:1px solid var(--line2);border-radius:14px;padding:15px 16px 14px;background:var(--card);min-width:0}
+.sp .plate{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:11px;
+  background:color-mix(in srgb,var(--c) 13%,transparent);border:1px solid color-mix(in srgb,var(--c) 20%,transparent);
+}
+.sp .plate svg{width:21px;height:21px;stroke:var(--c);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sp b{display:block;font-size:14.5px;color:var(--ink);font-weight:600;margin-bottom:4px;line-height:1.32;text-wrap:pretty}
+.sp p{margin:0;font-size:13.3px;color:var(--mut);line-height:1.55;text-wrap:pretty}
+.sp p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+.sp::after{
+  content:"";position:absolute;top:30px;right:-15px;width:11px;height:11px;
+  border-top:1.6px solid var(--line);border-right:1.6px solid var(--line);
+  transform:rotate(45deg);z-index:2;
+}
+:root[dir="rtl"] .sp::after{right:auto;left:-15px;transform:rotate(-135deg)}
+.sp:last-child::after{display:none}
+@media (max-width:760px){.sp::after{display:none}}
+
+/* the single sentence worth memorising */
+.oneline{
+  margin-top:26px;display:flex;gap:14px;align-items:flex-start;border-radius:14px;padding:16px 19px;
+  border:1px solid color-mix(in srgb,var(--c) 30%,transparent);
+  background:color-mix(in srgb,var(--c) 8%,transparent);
+}
+.oneline > svg{width:22px;height:22px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin-top:3px}
+.oneline b.lbl{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .oneline b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.oneline p{margin:0;font-size:15px;color:var(--ink);line-height:1.62;text-wrap:pretty;max-width:78ch}
+.oneline p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+</style>
+<script>
+(function(){var r=document.documentElement;try{
+if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
+r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
+}catch(e){r.dataset.theme='light';}})();
+</script>
+</head>
+<body>
+<header class="top"><div class="top-in">
+    <a class="home" href="../index.html"><b>The Angular Signal</b><span class="l-en">contents</span><span class="l-ar">المحتويات</span></a>
+    <nav class="tracknav"><a href="../roadmap.html" style="--c:var(--beg)"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="../beginner/01-how-an-app-starts.html" style="--c:var(--beg)"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="../intermediate/16-forms.html" style="--c:var(--int)" aria-current="page"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="../advanced/28-change-detection.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="../typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
+    <div class="top-right">
+      <div class="seg" role="group" aria-label="Language">
+        <button id="b-en" aria-pressed="true">EN</button>
+        <button id="b-ar" aria-pressed="false" lang="ar">مصري</button>
+      </div>
+      <div class="seg ico" role="group" aria-label="Theme">
+        <button id="b-lt" aria-pressed="true" title="Light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.2v2.3M12 19.5v2.3M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.2 12h2.3M19.5 12h2.3M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button>
+        <button id="b-dk" aria-pressed="false" title="Dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.7 6.7 0 0 0 11.1 11.1z"/></svg></button>
+      </div>
+    </div>
+  </div></header>
+<main class="page" id="page">
+
+  <div class="eyebrow">
+    <span class="num seq">20 / 48</span>
+    <span class="badge"><span class="l-en">Reaching in</span><span class="l-ar" dir="auto">الوصول للداخل</span></span>
+    <span class="num"><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></span>
+  </div>
+  <h1 class="title"><span class="l-en"><code>viewChild</code> and <code>contentChild</code></span><span class="l-ar" dir="auto"><code>viewChild</code> و <code>contentChild</code></span></h1>
+  <p class="lead"><span class="l-en">Sometimes you need the element itself — to call <code>focus()</code>, to measure it, to hand it to a chart library. Queries find it for you. As signals they solve the oldest bug in Angular: <b>the child that was undefined when you looked</b>.</span><span class="l-ar" dir="auto">أحياناً بتحتاج العنصر نفسه — عشان تنادي <code>focus()</code>، أو تقيسه، أو تديه لمكتبة رسوم. الـ queries بتلاقيه لك. وكـ signals بيحلوا أقدم باج في أنجولار: <b>الابن اللي كان undefined لما بصيت</b>.</span></p>
+
+  <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
+        <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
+        <div class="node" data-node="ts" data-kind="ts">
+          <span class="role"><span class="l-en">asks for it</span><span class="l-ar" dir="auto">بيطلبه</span></span>
+          <span class="file">search-panel<b>.ts</b></span>
+        </div></div><div class="row">
+        <div class="node" data-node="tpl" data-kind="html">
+          <span class="role"><span class="l-en">owns the element</span><span class="l-ar" dir="auto">مالك العنصر</span></span>
+          <span class="file">search-panel<b>.html</b></span>
+        </div>
+        <div class="node" data-node="child" data-kind="ts">
+          <span class="role"><span class="l-en">a child component</span><span class="l-ar" dir="auto">component ابن</span></span>
+          <span class="file">result-list<b>.ts</b></span>
+        </div></div></div>
+
+  <div class="stepbar">
+    <div class="dots"><button class="dot" data-step="0" aria-label="step 1"></button><button class="dot" data-step="1" aria-label="step 2"></button><button class="dot" data-step="2" aria-label="step 3"></button><button class="dot" data-step="3" aria-label="step 4"></button><button class="dot" data-step="4" aria-label="step 5"></button></div>
+    <div class="cap"></div>
+    <button class="iconbtn" data-replay>&#9654;<span class="l-en"> Replay</span><span class="l-ar"> إعادة</span></button>
+  </div>
+
+  <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  <div class="files">
+      <div class="fc" data-file="ts" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>search-panel.ts<span class="tag"><span class="l-en">every form</span><span class="l-ar" dir="auto">كل الأشكال</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Component</i>, viewChild, viewChildren, contentChild,</span><span class="ln" data-l="2">         <i class="t-type">ElementRef</i>, afterNextRender } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">SearchPanel</i> {</span><span class="ln" data-l="5">  <i class="t-com">// may be undefined — Signal&lt;ElementRef | undefined&gt;</i></span><span class="ln" data-l="6">  <i class="t-key">readonly</i> box = viewChild&lt;<i class="t-type">ElementRef</i>&lt;<i class="t-type">HTMLInputElement</i>&gt;&gt;(<i class="t-str">'box'</i>);</span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-com">// guaranteed — Signal&lt;ElementRef&gt;. throws at startup if missing.</i></span><span class="ln" data-l="9">  <i class="t-key">readonly</i> input = viewChild.required&lt;<i class="t-type">ElementRef</i>&lt;<i class="t-type">HTMLInputElement</i>&gt;&gt;(<i class="t-str">'box'</i>);</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">  <i class="t-com">// a child COMPONENT instance, by its class</i></span><span class="ln" data-l="12">  <i class="t-key">readonly</i> list = <i class="t-fn">viewChild</i>(<i class="t-type">ResultList</i>);</span><span class="ln" data-l="13"> </span><span class="ln" data-l="14">  <i class="t-com">// all of them — Signal&lt;readonly ElementRef[]&gt;</i></span><span class="ln" data-l="15">  <i class="t-key">readonly</i> chips = viewChildren&lt;<i class="t-type">ElementRef</i>&gt;(<i class="t-str">'chip'</i>);</span><span class="ln" data-l="16"> </span><span class="ln" data-l="17">  <i class="t-com">// the DOM element of a component tag, not the component instance</i></span><span class="ln" data-l="18">  <i class="t-key">readonly</i> listEl = <i class="t-fn">viewChild</i>(<i class="t-type">ResultList</i>, { read: <i class="t-type">ElementRef</i> });</span><span class="ln" data-l="19"> </span><span class="ln" data-l="20">  <i class="t-fn">clearAndFocus</i>() {</span><span class="ln" data-l="21">    <i class="t-key">this</i>.<i class="t-fn">input</i>().nativeElement.value = <i class="t-str">''</i>;</span><span class="ln" data-l="22">    <i class="t-key">this</i>.<i class="t-fn">input</i>().nativeElement.<i class="t-fn">focus</i>();</span><span class="ln" data-l="23">    <i class="t-key">this</i>.<i class="t-fn">list</i>()?.<i class="t-fn">scrollToTop</i>();</span><span class="ln" data-l="24">  }</span><span class="ln" data-l="25">}</span></pre>
+      </div>
+      <div class="fc" data-file="tpl" data-lang="html">
+        <div class="fc-h"><span class="d"></span>search-panel.html<span class="tag"><span class="l-en">the targets</span><span class="l-ar" dir="auto">الأهداف</span></span></div>
+        <pre><span class="ln" data-l="1">&lt;!-- <i class="t-bind">#box</i> is a TEMPLATE REFERENCE VARIABLE. it is what the</span><span class="ln" data-l="2">     string in viewChild(<i class="t-str">'box'</i>) is matching against.        --<i class="t-tag">&gt;</i></span><span class="ln" data-l="3"><i class="t-tag">&lt;input</i> <i class="t-bind">#box</i> <i class="t-bind">(input)</i>=<i class="t-str">"onType($event)"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"clearAndFocus()"</i><i class="t-tag">&gt;</i>Clear<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-key">@for</i> (t of tags(); track t) {</span><span class="ln" data-l="8">  <i class="t-tag">&lt;span</i> <i class="t-bind">#chip</i> <i class="t-attr">class</i>=<i class="t-str">"chip"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="9">}</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-tag">&lt;app-result-list</i> <i class="t-bind">[results]</i>=<i class="t-str">"results()"</i> <i class="t-tag">/&gt;</i></span></pre>
+      </div>
+      <div class="fc" data-file="child" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>result-list.ts<span class="tag"><span class="l-en">the child</span><span class="l-ar" dir="auto">الابن</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">ResultList</i> {</span><span class="ln" data-l="2">  <i class="t-key">readonly</i> results = input&lt;<i class="t-type">Result</i>[]&gt;([]);</span><span class="ln" data-l="3">  <i class="t-key">private</i> <i class="t-key">readonly</i> host = <i class="t-fn">inject</i>(<i class="t-type">ElementRef</i>&lt;<i class="t-type">HTMLElement</i>&gt;);</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5">  <i class="t-com">// a public method the parent is allowed to call.</i></span><span class="ln" data-l="6">  <i class="t-com">// keep this surface small — it is an API, not an escape hatch.</i></span><span class="ln" data-l="7">  <i class="t-fn">scrollToTop</i>() {</span><span class="ln" data-l="8">    <i class="t-key">this</i>.host.nativeElement.<i class="t-fn">scrollTo</i>({ top: <i class="t-num">0</i>, behavior: <i class="t-str">'smooth'</i> });</span><span class="ln" data-l="9">  }</span><span class="ln" data-l="10">}</span></pre>
+      </div>
+      <div class="fc" data-file="when" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>when is it actually there?<span class="tag"><span class="l-en">the old bug</span><span class="l-ar" dir="auto">الباج القديم</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-com">// THE OLD DECORATOR API — the classic beginner trap</i></span><span class="ln" data-l="2"><i class="t-dec">@ViewChild</i>(<i class="t-str">'box'</i>) box!: <i class="t-type">ElementRef</i>;</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-fn">constructor</i>()   { <i class="t-key">this</i>.box.nativeElement; }   <i class="t-com">// ✗ undefined</i></span><span class="ln" data-l="5"><i class="t-fn">ngOnInit</i>()      { <i class="t-key">this</i>.box.nativeElement; }   <i class="t-com">// ✗ still undefined</i></span><span class="ln" data-l="6"><i class="t-fn">ngAfterViewInit</i>() { <i class="t-key">this</i>.box.nativeElement; } <i class="t-com">// ✓ finally</i></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8"><i class="t-com">// …and undefined AGAIN whenever the element sits inside a</i></span><span class="ln" data-l="9"><i class="t-com">// false @if, with no warning that it went away.</i></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-com">// THE SIGNAL API — you cannot read it at the wrong time,</i></span><span class="ln" data-l="12"><i class="t-com">// because reading it is just calling a signal:</i></span><span class="ln" data-l="13"><i class="t-key">readonly</i> box = viewChild&lt;<i class="t-type">ElementRef</i>&gt;(<i class="t-str">'box'</i>);</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-com">// undefined while absent, present when present. an effect or</i></span><span class="ln" data-l="16"><i class="t-com">// a computed simply re-runs when that changes.</i></span><span class="ln" data-l="17"><i class="t-fn">constructor</i>() {</span><span class="ln" data-l="18">  <i class="t-fn">effect</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">box</i>()?.nativeElement.<i class="t-fn">focus</i>());</span><span class="ln" data-l="19">}</span></pre>
+      </div>
+      <div class="fc" data-file="content" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>viewChild vs contentChild<span class="tag"><span class="l-en">the difference</span><span class="l-ar" dir="auto">الفرق</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-com">// viewChild    → something in MY OWN template</i></span><span class="ln" data-l="2"><i class="t-com">// contentChild → something PROJECTED INTO me by whoever used me</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="5">  selector: <i class="t-str">'app-tabs'</i>,</span><span class="ln" data-l="6">  template: <i class="t-str">`</i></span><span class="ln" data-l="7">    <i class="t-tag">&lt;nav</i><i class="t-tag">&gt;</i><i class="t-key">@for</i> (t of tabs(); track t.id) { <i class="t-tag">&lt;button</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t.label() }}</i><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i> }<i class="t-tag">&lt;/nav</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="8">    <i class="t-tag">&lt;ng-content</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="9">  <i class="t-str">`</i>,</span><span class="ln" data-l="10">})</span><span class="ln" data-l="11"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Tabs</i> {</span><span class="ln" data-l="12">  <i class="t-com">// the &lt;app-tab&gt; elements the CALLER wrote between our tags</i></span><span class="ln" data-l="13">  <i class="t-key">readonly</i> tabs = <i class="t-fn">contentChildren</i>(<i class="t-type">Tab</i>);</span><span class="ln" data-l="14">}</span><span class="ln" data-l="15"> </span><span class="ln" data-l="16"><i class="t-com">// &lt;app-tabs&gt;</i></span><span class="ln" data-l="17"><i class="t-com">//   &lt;app-tab label="One"&gt;…&lt;/app-tab&gt;     ← contentChildren finds these</i></span><span class="ln" data-l="18"><i class="t-com">//   &lt;app-tab label="Two"&gt;…&lt;/app-tab&gt;</i></span><span class="ln" data-l="19"><i class="t-com">// &lt;/app-tabs&gt;</i></span></pre>
+      </div></div>
+
+  
+  <div class="example">
+    <div class="exhead">
+      <span class="extag"><span class="l-en">Real example</span><span class="l-ar">مثال حقيقي</span></span>
+      <b><span class="l-en">Tabs that discover their own children</span><span class="l-ar" dir="auto">تابات بتكتشف أبناءها لوحدها</span></b>
+    </div>
+    <p class="exlead"><span class="l-en">The tab strip never receives a list of tabs as an input. It finds them with contentChildren, reads their labels, and drives which one is visible. Adding a tab is writing one more tag — no array to keep in sync.</span><span class="l-ar" dir="auto">شريط التابات عمره ما بياخد لستة تابات كـ input. هو بيلاقيهم بـ contentChildren، ويقرا عناوينهم، ويتحكم في اللي ظاهر. وإضافة تاب معناها تكتب tag زيادة — من غير array تفضل تزامنها.</span></p>
+    <div class="files">
+      <div class="fc" data-file="t1" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>tabs.ts<span class="tag"><span class="l-en">the container</span><span class="l-ar" dir="auto">الحاوية</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="2">  selector: <i class="t-str">'app-tabs'</i>,</span><span class="ln" data-l="3">  template: <i class="t-str">`</i></span><span class="ln" data-l="4">    <i class="t-tag">&lt;nav</i> <i class="t-attr">role</i>=<i class="t-str">"tablist"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5">      <i class="t-key">@for</i> (t of tabs(); track t.id; let i = $index) {</span><span class="ln" data-l="6">        <i class="t-tag">&lt;button</i> <i class="t-attr">role</i>=<i class="t-str">"tab"</i></span><span class="ln" data-l="7">                <i class="t-bind">[attr.aria-selected]</i>=<i class="t-str">"active() === i"</i></span><span class="ln" data-l="8">                <i class="t-bind">(click)</i>=<i class="t-str">"active.set(i)"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t.label() }}</i><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="9">      }</span><span class="ln" data-l="10">    <i class="t-tag">&lt;/nav</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="11">    <i class="t-tag">&lt;ng-content</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="12">  <i class="t-str">`</i>,</span><span class="ln" data-l="13">})</span><span class="ln" data-l="14"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Tabs</i> {</span><span class="ln" data-l="15">  <i class="t-key">readonly</i> tabs = <i class="t-fn">contentChildren</i>(<i class="t-type">Tab</i>);</span><span class="ln" data-l="16">  <i class="t-key">readonly</i> active = <i class="t-fn">signal</i>(<i class="t-num">0</i>);</span><span class="ln" data-l="17"> </span><span class="ln" data-l="18">  <i class="t-fn">constructor</i>() {</span><span class="ln" data-l="19">    <i class="t-com">// tell each child whether it is the visible one</i></span><span class="ln" data-l="20">    <i class="t-fn">effect</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">tabs</i>().<i class="t-fn">forEach</i>((t, i) =&gt; t.visible.<i class="t-key">set</i>(i === <i class="t-key">this</i>.<i class="t-fn">active</i>())));</span><span class="ln" data-l="21">  }</span><span class="ln" data-l="22">}</span></pre>
+      </div>
+      <div class="fc" data-file="t2" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>tab.ts<span class="tag"><span class="l-en">the child</span><span class="l-ar" dir="auto">الابن</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="2">  selector: <i class="t-str">'app-tab'</i>,</span><span class="ln" data-l="3">  template: <i class="t-str">`@if (visible()) { &lt;ng-content /&gt; }`</i>,</span><span class="ln" data-l="4">})</span><span class="ln" data-l="5"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Tab</i> {</span><span class="ln" data-l="6">  <i class="t-key">readonly</i> id = crypto.<i class="t-fn">randomUUID</i>();</span><span class="ln" data-l="7">  <i class="t-key">readonly</i> label = input.required&lt;<i class="t-key">string</i>&gt;();</span><span class="ln" data-l="8">  <i class="t-key">readonly</i> visible = <i class="t-fn">signal</i>(<i class="t-key">false</i>);</span><span class="ln" data-l="9">}</span></pre>
+      </div>
+      <div class="fc" data-file="t3" data-lang="html">
+        <div class="fc-h"><span class="d"></span>settings.html<span class="tag"><span class="l-en">the caller</span><span class="l-ar" dir="auto">المستخدم</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;app-tabs</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="2">  <i class="t-tag">&lt;app-tab</i> <i class="t-attr">label</i>=<i class="t-str">"Profile"</i><i class="t-tag">&gt;</i>   <i class="t-tag">&lt;app-profile-form</i> <i class="t-tag">/&gt;</i><i class="t-tag">&lt;/app-tab</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="3">  <i class="t-tag">&lt;app-tab</i> <i class="t-attr">label</i>=<i class="t-str">"Billing"</i><i class="t-tag">&gt;</i>   <i class="t-tag">&lt;app-billing-form</i> <i class="t-tag">/&gt;</i><i class="t-tag">&lt;/app-tab</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="4">  <i class="t-tag">&lt;app-tab</i> <i class="t-attr">label</i>=<i class="t-str">"Security"</i><i class="t-tag">&gt;</i>  <i class="t-tag">&lt;app-security-form</i> <i class="t-tag">/&gt;</i><i class="t-tag">&lt;/app-tab</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5"><i class="t-tag">&lt;/app-tabs</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">&lt;!-- no array of tab definitions anywhere. --&gt;</i></span></pre>
+      </div></div>
+  </div>
+
+  <div class="gotchas">
+    <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
+    <ul><li><span class="l-en">A query only finds elements in the template of the component that declared it. It does not search the whole page, and it never crosses into a child component&rsquo;s own template.</span><span class="l-ar" dir="auto">الـ query بتلاقي بس العناصر اللي في تمبلت الـ component اللي أعلنها. مش بتدوّر في الصفحة كلها، وعمرها ما بتدخل جوه تمبلت component ابن.</span></li><li><span class="l-en">An element inside a false <code class="i">&#64;if</code> does not exist. With signal queries that is simply <code class="i">undefined</code> — handle it with <code class="i">?.</code> rather than <code class="i">.required</code>.</span><span class="l-ar" dir="auto">العنصر اللي جوه <code class="i">&#64;if</code> بقيمة false مش موجود. ومع الـ signal queries دي ببساطة <code class="i">undefined</code> — اتعامل معاها بـ <code class="i">?.</code> مش بـ <code class="i">.required</code>.</span></li><li><span class="l-en">Reaching into a child to poke at its internals couples them permanently. Call a small public method — or better, pass an input down and let the child decide.</span><span class="l-ar" dir="auto">إنك تمد إيدك جوه ابن وتلعب في تفاصيله بيربطهم ببعض للأبد. نادي method عامة صغيرة — أو الأحسن، مرّر input لتحت وسيب الابن يقرر.</span></li><li><span class="l-en"><code class="i">{ read: ElementRef }</code> is how you get the DOM node of a component tag. Without it you get the component instance, which has no <code class="i">nativeElement</code>.</span><span class="l-ar" dir="auto"><code class="i">{ read: ElementRef }</code> هي إزاي تجيب الـ DOM node بتاع تاج component. من غيرها بتاخد نسخة الـ component، واللي مالهاش <code class="i">nativeElement</code>.</span></li><li><span class="l-en">Prefer a template binding to a query every time. If <code class="i">[value]</code> or <code class="i">&#64;if</code> can express it, a query is more machinery for the same result.</span><span class="l-ar" dir="auto">فضّل الربط في التمبلت على الـ query في كل مرة. لو <code class="i">[value]</code> أو <code class="i">&#64;if</code> يقدروا يعبّروا عنها، فالـ query مجرد تعقيد زيادة لنفس النتيجة.</span></li></ul>
+  </div>
+
+  <nav class="pager">
+    <a class="pv" href="../intermediate/19-content-projection.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en"><code>&lt;ng-content&gt;</code>: markup that comes from outside</span><span class="l-ar" dir="auto"><code>&lt;ng-content&gt;</code>: ماركب جاي من بره</span></b></a>
+    <a class="nx" href="../intermediate/21-routing.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Routes are data, guards are functions</span><span class="l-ar" dir="auto">الـ routes مجرد داتا، والـ guards مجرد functions</span></b></a>
+  </nav>
+</main>
+
+<script>
+const D = {"edges":[{"id":"e1","from":"ts","to":"tpl","a":"bottom","b":"top","label":"viewChild('box')","packet":"#box"},{"id":"e2","from":"tpl","to":"child","a":"right","b":"left","label":"\u003capp-result-list\u003e","packet":"instance"},{"id":"e3","from":"child","to":"ts","a":"top","b":"right","label":".scrollToTop()","packet":"call"}],"steps":[{"t":{"en":"\u003ccode class=\"i\"\u003e#box\u003c/code\u003e in the template is a \u003cb\u003etemplate reference variable\u003c/b\u003e. The string you pass to \u003ccode class=\"i\"\u003eviewChild('box')\u003c/code\u003e is matching that name.","ar":"\u003ccode class=\"i\"\u003e#box\u003c/code\u003e اللي في التمبلت اسمه \u003cb\u003etemplate reference variable\u003c/b\u003e. والنص اللي بتمرره لـ \u003ccode class=\"i\"\u003eviewChild('box')\u003c/code\u003e بيطابق الاسم ده."},"edge":"e1","hl":{"tpl":[1,2,3],"ts":[6]}},{"t":{"en":"\u003ccode class=\"i\"\u003e.required\u003c/code\u003e removes the \u003ccode class=\"i\"\u003eundefined\u003c/code\u003e from the type and fails loudly at startup if the element is genuinely missing. Use it whenever the element is unconditionally in your template.","ar":"\u003ccode class=\"i\"\u003e.required\u003c/code\u003e بتشيل الـ \u003ccode class=\"i\"\u003eundefined\u003c/code\u003e من النوع وبتفشل بصوت عالي عند التشغيل لو العنصر ناقص فعلاً. استعملها كل ما العنصر يكون موجود في تمبلتك من غير شروط."},"edge":null,"hl":{"ts":[8,9]}},{"t":{"en":"Query for a class instead of a string and you get the \u003cb\u003ecomponent instance\u003c/b\u003e — so you can call its public methods. Add \u003ccode class=\"i\"\u003e{ read: ElementRef }\u003c/code\u003e if you wanted its DOM element instead.","ar":"دوّر بكلاس بدل نص وهتاخد \u003cb\u003eنسخة الـ component\u003c/b\u003e — فتقدر تنادي methods العامة بتاعته. وضيف \u003ccode class=\"i\"\u003e{ read: ElementRef }\u003c/code\u003e لو كنت عايز عنصر الـ DOM بتاعه بدل كده."},"edge":"e2","hl":{"ts":[11,12,17,18],"child":[7,8]}},{"t":{"en":"Because a query is a signal, an \u003ccode class=\"i\"\u003eeffect\u003c/code\u003e or \u003ccode class=\"i\"\u003ecomputed\u003c/code\u003e that reads it simply re-runs when the element appears or disappears. The whole “undefined at the wrong moment” category of bug is gone.","ar":"وعشان الـ query دي signal، أي \u003ccode class=\"i\"\u003eeffect\u003c/code\u003e أو \u003ccode class=\"i\"\u003ecomputed\u003c/code\u003e بيقراها بيعيد الشغل لما العنصر يظهر أو يختفي. ونوعية باج «undefined في الوقت الغلط» كلها راحت."},"edge":"e3","hl":{"when":[12,17,18]}},{"t":{"en":"\u003ccode class=\"i\"\u003eviewChild\u003c/code\u003e looks in \u003cb\u003eyour own\u003c/b\u003e template. \u003ccode class=\"i\"\u003econtentChild\u003c/code\u003e looks at what was \u003cb\u003eprojected into you\u003c/b\u003e. Mixing them up is the second most common mistake here.","ar":"\u003ccode class=\"i\"\u003eviewChild\u003c/code\u003e بيبص في \u003cb\u003eتمبلتك إنت\u003c/b\u003e. و\u003ccode class=\"i\"\u003econtentChild\u003c/code\u003e بيبص في اللي \u003cb\u003eاتسقط جواك\u003c/b\u003e. وخلطهم ببعض تاني أكتر غلطة هنا."},"edge":null,"hl":{"content":[1,2,12,13]}}]};
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const page = $('#page');
+function relayout(){ requestAnimationFrame(layout); }
+
+/* ---------- language + theme, shared by every page ---------- */
+function _g(id){ return document.getElementById(id); }
+function syncUI(){
+  const r = document.documentElement;
+  const l = r.dataset.lang === 'ar' ? 'ar' : 'en';
+  const t = r.dataset.theme === 'dark' ? 'dark' : 'light';
+  const set = (id, on) => { const b = _g(id); if (b) b.setAttribute('aria-pressed', String(on)); };
+  set('b-en', l === 'en'); set('b-ar', l === 'ar');
+  set('b-lt', t === 'light'); set('b-dk', t === 'dark');
+}
+function setLang(l){
+  const r = document.documentElement;
+  r.dataset.lang = l;
+  r.dir  = l === 'ar' ? 'rtl' : 'ltr';
+  r.lang = l === 'ar' ? 'ar-EG' : 'en';
+  try { localStorage.setItem('tas-lang', l); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+function setTheme(t){
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('tas-theme', t); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+_g('b-en').onclick = () => setLang('en');
+_g('b-ar').onclick = () => setLang('ar');
+_g('b-lt').onclick = () => setTheme('light');
+_g('b-dk').onclick = () => setTheme('dark');
+syncUI();
+
+/* ---------- edge geometry ---------- */
+function anchorPt(r, side, base){
+  const x = r.left - base.left, y = r.top - base.top, w = r.width, h = r.height;
+  if (side === 'left')  return { x: x,         y: y + h / 2, nx: -1, ny: 0 };
+  if (side === 'right') return { x: x + w,     y: y + h / 2, nx:  1, ny: 0 };
+  if (side === 'top')   return { x: x + w / 2, y: y,         nx: 0, ny: -1 };
+  return                       { x: x + w / 2, y: y + h,     nx: 0, ny:  1 };
+}
+
+function layout(){
+  const stage = $('.stage'), svg = $('.stage svg');
+  if (!stage) return;
+  const base = stage.getBoundingClientRect();
+  svg.setAttribute('width', base.width);
+  svg.setAttribute('height', base.height);
+  D.edges.forEach(e => {
+    const a = $('[data-node="' + e.from + '"]'), b = $('[data-node="' + e.to + '"]');
+    if (!a || !b) return;
+    const p1 = anchorPt(a.getBoundingClientRect(), e.a, base);
+    const p2 = anchorPt(b.getBoundingClientRect(), e.b, base);
+    const d = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+    const k = Math.max(40, Math.min(140, d * 0.45));
+    const g = $('[data-edge="' + e.id + '"]');
+    const wire = $('.wire', g), flow = $('.flow', g), head = $('.head', g), txt = $('text', g);
+    const dd = 'M' + p1.x + ',' + p1.y + ' C' + (p1.x + p1.nx * k) + ',' + (p1.y + p1.ny * k) +
+               ' ' + (p2.x + p2.nx * k) + ',' + (p2.y + p2.ny * k) + ' ' + p2.x + ',' + p2.y;
+    wire.setAttribute('d', dd);
+    flow.setAttribute('d', dd);
+    const L = wire.getTotalLength();
+    const end = wire.getPointAtLength(Math.max(0, L - 1));
+    const pre = wire.getPointAtLength(Math.max(0, L - 12));
+    const ang = Math.atan2(end.y - pre.y, end.x - pre.x), A = 0.42, r = 9;
+    head.setAttribute('d',
+      'M' + end.x + ',' + end.y +
+      ' L' + (end.x - r * Math.cos(ang - A)) + ',' + (end.y - r * Math.sin(ang - A)) +
+      ' L' + (end.x - r * Math.cos(ang + A)) + ',' + (end.y - r * Math.sin(ang + A)) + ' Z');
+    const mid = wire.getPointAtLength(L * 0.5);
+    txt.setAttribute('x', mid.x);
+    txt.setAttribute('y', mid.y - 9);
+    txt.setAttribute('text-anchor', 'middle');
+    txt.textContent = e.label;
+  });
+}
+
+/* ---------- steps ---------- */
+let RUN = 0, step = 0;
+
+function fly(edgeId, token){
+  return new Promise(res => {
+    const g = $('[data-edge="' + edgeId + '"]'), wire = $('.wire', g);
+    const pk = $('.packet'), rect = $('rect', pk), txt = $('text', pk);
+    const e = D.edges.find(x => x.id === edgeId);
+    txt.textContent = e.packet || e.label;
+    txt.setAttribute('text-anchor', 'middle');
+    txt.setAttribute('x', 0); txt.setAttribute('y', 4);
+    const w = Math.max(38, txt.getComputedTextLength() + 20);
+    rect.setAttribute('x', -w / 2); rect.setAttribute('y', -12);
+    rect.setAttribute('width', w);  rect.setAttribute('height', 24);
+    const L = wire.getTotalLength();
+    if (REDUCED || !L) { pk.style.opacity = 0; return res(); }
+    const dur = 900, t0 = performance.now();
+    (function frame(now){
+      if (token !== RUN) { pk.style.opacity = 0; return res(); }
+      const t = Math.min(1, (now - t0) / dur);
+      const q = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      const p = wire.getPointAtLength(q * L);
+      pk.setAttribute('transform', 'translate(' + p.x + ',' + p.y + ')');
+      pk.style.opacity = t < .1 ? t / .1 : t > .9 ? (1 - t) / .1 : 1;
+      if (t < 1) requestAnimationFrame(frame);
+      else { pk.style.opacity = 0; res(); }
+    })(performance.now());
+  });
+}
+
+function paint(i){
+  $$('.hl').forEach(n => n.classList.remove('hl'));
+  $$('.fc.active,.node.active').forEach(n => n.classList.remove('active'));
+  $$('.dot').forEach((d, k) => d.classList.toggle('on', k === i));
+  const s = D.steps[i];
+  $('.cap').innerHTML =
+    '<span class="n">' + String(i + 1).padStart(2, '0') + '/' + String(D.steps.length).padStart(2, '0') + '</span>' +
+    '<span class="l-en">' + s.t.en + '</span><span class="l-ar" dir="auto">' + s.t.ar + '</span>';
+  D.edges.forEach(e => {
+    const lit = D.steps.slice(0, i + 1).some(st => st.edge === e.id);
+    $('[data-edge="' + e.id + '"]').classList.toggle('lit', lit);
+  });
+  const touched = new Set();
+  Object.entries(s.hl).forEach(([fid, lines]) => {
+    const card = $('[data-file="' + fid + '"]');
+    if (card) {
+      card.classList.add('active');
+      lines.forEach(l => { const n = $('[data-l="' + l + '"]', card); if (n) n.classList.add('hl'); });
+    }
+    touched.add(fid);
+  });
+  if (s.edge) { const e = D.edges.find(x => x.id === s.edge); touched.add(e.from); touched.add(e.to); }
+  touched.forEach(id => { const n = $('[data-node="' + id + '"]'); if (n) n.classList.add('active'); });
+}
+
+async function goStep(i, animate = true){
+  step = Math.max(0, Math.min(D.steps.length - 1, i));
+  const token = ++RUN;
+  paint(step);
+  if (animate && D.steps[step].edge) await fly(D.steps[step].edge, token);
+}
+
+async function play(){
+  const token = ++RUN;
+  for (let i = 0; i < D.steps.length; i++){
+    if (token !== RUN) return;
+    step = i; paint(i);
+    if (D.steps[i].edge) await fly(D.steps[i].edge, token);
+    else await new Promise(r => setTimeout(r, REDUCED ? 0 : 620));
+    if (token !== RUN) return;
+    if (i < D.steps.length - 1) await new Promise(r => setTimeout(r, REDUCED ? 0 : 520));
+  }
+}
+
+document.addEventListener('click', e => {
+  const dot = e.target.closest('.dot');
+  if (dot) { RUN++; return goStep(+dot.dataset.step); }
+  if (e.target.closest('[data-replay]')) play();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') { RUN++; goStep(step + 1); }
+  else if (e.key === 'ArrowLeft') { RUN++; goStep(step - 1, false); }
+  else if (e.key.toLowerCase() === 'r') play();
+});
+
+let rt;
+addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(layout, 140); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+
+layout();
+paint(0);
+new IntersectionObserver((en, o) => {
+  if (en[0].isIntersecting) { o.disconnect(); layout(); play(); }
+}, { threshold: .25 }).observe($('.stage'));
+</script>
+</body>
+</html>

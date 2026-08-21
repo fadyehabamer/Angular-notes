@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Routes are data, guards are functions — The Angular Signal</title>
+<meta name="description" content="A route config is a plain array you read top to bottom. Lazy loading is one property. Guards are functions that can inject() anything — and the difference between canMatch and canA">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Cairo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--c:var(--int)}
+/* ============================================================
+   Two skins, one set of names. Light is the default; the top-bar
+   switch stamps data-theme="dark" on the root element, and only the
+   below change. Never hard-code a colour outside these blocks.
+   ============================================================ */
+:root{
+  color-scheme:light;
+  /* surfaces */
+  --bg:#f3f4fb; --bg2:#eaecf7; --card:#ffffff; --card2:#f7f8fd; --code:#fbfbff;
+  --line:rgba(23,27,64,.14); --line2:rgba(23,27,64,.08);
+  --sunk:rgba(23,27,64,.03); --sunk2:rgba(23,27,64,.05); --hover:rgba(23,27,64,.05);
+  --chip:rgba(23,27,64,.065); --chipink:#3a3f70;
+  --topbg:rgba(248,249,254,.84);
+  --wire:rgba(23,27,64,.24); --dotbg:rgba(23,27,64,.17);
+  --nodesh:0 12px 26px -20px rgba(23,27,64,.55), inset 0 1px 0 #fff;
+  --glow1:9%; --glow2:5%;
+  /* ink */
+  --ink:#12142c; --mut:#4d5480; --dim:#767d9f; --onc:#ffffff;
+  /* track accents — darkened so they carry on paper */
+  --beg:#0c9280;    /* track 1 */
+  --int:#5b3ad4;    /* track 2 */
+  --adv:#c60059;    /* track 3 */
+  --ts:#1566cc; --html:#c04d1a; --svc:#8a5f00; --cfg:#5b3ad4;
+  /* syntax */
+  --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
+  --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
+  --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0b0d1c; --bg2:#101430; --card:#141935; --card2:#171d3d; --code:transparent;
+  --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.055);
+  --sunk:rgba(255,255,255,.03); --sunk2:rgba(255,255,255,.05); --hover:rgba(255,255,255,.04);
+  --chip:rgba(255,255,255,.07); --chipink:#cfd6ff;
+  --topbg:rgba(8,10,22,.72);
+  --wire:rgba(255,255,255,.13); --dotbg:rgba(255,255,255,.16);
+  --nodesh:0 10px 26px -18px #000, inset 0 1px 0 rgba(255,255,255,.05);
+  --glow1:16%; --glow2:8%;
+  --ink:#eceefb; --mut:#98a0c8; --dim:#69719e; --onc:#0b0d1c;
+  --beg:#2ee6c5; --int:#8b6cff; --adv:#ff2e88;
+  --ts:#4a9eff; --html:#ff7a45; --svc:#ffb020; --cfg:#8b6cff;
+  --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
+  --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
+  --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:
+    radial-gradient(1100px 700px at 78% -10%,color-mix(in srgb,var(--c) var(--glow1),transparent),transparent 62%),
+    radial-gradient(900px 600px at 4% 108%,color-mix(in srgb,var(--adv) var(--glow2),transparent),transparent 62%),
+    var(--bg);
+  color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--c);color:var(--onc)}
+:focus-visible{outline:2px solid var(--c);outline-offset:3px;border-radius:6px}
+a{color:var(--c)}
+code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+
+/* ---------- language ---------- */
+:root[data-lang="en"] .l-ar{display:none !important}
+:root[data-lang="ar"] .l-en{display:none !important}
+:root[dir="rtl"]{
+  --disp:'Cairo','IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+}
+:root[dir="rtl"] h1.title{line-height:1.32;letter-spacing:0}
+:root[dir="rtl"] .lead{font-size:15px;line-height:1.75}
+:root[dir="rtl"] .num,:root[dir="rtl"] .badge{letter-spacing:.04em}
+/* keep neighbouring runs from reordering each other in RTL */
+.kick span,.cover-top span{unicode-bidi:isolate}
+/* diagrams and code always read left-to-right */
+.stage,.files,pre,.mono{direction:ltr}
+
+/* ---------- top bar ---------- */
+.top{
+  position:sticky;top:0;z-index:40;background:var(--topbg);
+  backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);
+  border-bottom:1px solid var(--line2);
+}
+.top-in{
+  max-width:1220px;margin:0 auto;padding:9px clamp(16px,3.4vw,40px);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.home{
+  display:inline-flex;align-items:baseline;gap:9px;text-decoration:none;white-space:nowrap;
+}
+.home b{
+  font-family:var(--disp);font-weight:800;font-size:15.5px;letter-spacing:-.02em;
+  background:linear-gradient(92deg,#e40035,#f20089 45%,#9717e2);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.home span{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase}
+.tracknav{display:flex;gap:4px;flex-wrap:wrap;margin-inline-start:6px}
+.tracknav a{
+  font-size:12.5px;font-weight:600;text-decoration:none;color:var(--dim);
+  padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.tracknav a i{width:7px;height:7px;border-radius:99px;background:currentColor;display:block;flex:none}
+.tracknav a:hover{color:var(--mut);background:var(--hover)}
+.tracknav a[aria-current="page"]{color:var(--onc);background:var(--c)}
+.top-right{display:flex;align-items:center;gap:8px;margin-inline-start:auto}
+.seg{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:var(--hover)}
+.seg button{
+  appearance:none;border:0;background:none;cursor:pointer;padding:5px 12px;
+  font-family:var(--body);font-size:12.5px;font-weight:600;color:var(--dim);line-height:1.5;
+}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--c);color:var(--onc)}
+
+/* ---------- article shell ---------- */
+.page{max-width:1220px;margin:0 auto;padding:clamp(24px,3.6vw,44px) clamp(16px,3.4vw,40px) 0}
+.eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.num{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.16em}
+/* a numeric counter must not be reordered by the bidi algorithm */
+.num.seq{direction:ltr;unicode-bidi:isolate}
+:root[dir="rtl"] .num:not(.seq){font-family:var(--body);letter-spacing:0;font-size:12.5px}
+.badge{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;border:1px solid currentColor;color:var(--c);
+  background:color-mix(in srgb,var(--c) 12%,transparent);
+}
+:root[dir="rtl"] .badge{font-family:var(--body);font-weight:600;text-transform:none;font-size:11.5px}
+h1.title{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.03em;line-height:1.02;
+  font-size:clamp(28px,4vw,46px);margin:0 0 10px;text-wrap:balance;
+}
+h1.title code{font-family:var(--mono);font-size:.82em;font-weight:600;color:var(--c);letter-spacing:0}
+.lead{color:var(--mut);max-width:74ch;margin:0 0 22px;font-size:15.5px;text-wrap:pretty}
+.lead b{color:var(--ink);font-weight:600}
+
+/* ---------- stage / diagram ---------- */
+.stage{position:relative;margin:6px 0 4px;padding:26px 8px;display:flex;flex-direction:column;gap:74px}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.row{display:flex;justify-content:center;gap:clamp(28px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
+.node{
+  background:linear-gradient(180deg,var(--card2),var(--card));
+  border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:172px;
+  box-shadow:var(--nodesh);
+  transition:border-color .3s,box-shadow .3s,transform .3s;
+}
+.node .role{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:3px;font-family:var(--mono)}
+:root[dir="rtl"] .node .role{font-family:var(--body);font-size:11px;letter-spacing:0;text-transform:none}
+:root[dir="rtl"] .home span{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .fc-h .tag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .pager a em{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .stepbar .cap span.n{direction:ltr;unicode-bidi:isolate}
+.node .file{font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--ink);white-space:nowrap;display:block}
+.node[data-kind="ts"] .file b{color:var(--ts)}
+.node[data-kind="html"] .file b{color:var(--html)}
+.node[data-kind="svc"] .file b{color:var(--svc)}
+.node[data-kind="cfg"] .file b{color:var(--cfg)}
+.node.active{border-color:color-mix(in srgb,var(--c) 65%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent),0 0 34px -8px var(--c);transform:translateY(-2px)}
+.edge path.wire{fill:none;stroke:var(--wire);stroke-width:1.6}
+.edge path.head{fill:var(--wire);stroke:none}
+.edge.lit path.head{fill:var(--c)}
+.edge path.flow{fill:none;stroke:var(--c);stroke-width:2.2;stroke-dasharray:5 9;opacity:0;stroke-linecap:round}
+.edge.lit path.wire{stroke:color-mix(in srgb,var(--c) 40%,transparent)}
+.edge.lit path.flow{opacity:1;animation:march 1s linear infinite}
+@keyframes march{to{stroke-dashoffset:-28}}
+.edge text{font-family:var(--mono);font-size:10.5px;fill:var(--dim);paint-order:stroke;stroke:var(--bg);stroke-width:5px;stroke-linejoin:round}
+.edge.lit text{fill:var(--c)}
+.packet{opacity:0}
+.packet rect{fill:var(--c)}
+.packet text{font-family:var(--mono);font-size:11px;font-weight:600;fill:var(--onc);stroke:none}
+
+/* ---------- step bar ---------- */
+.stepbar{
+  display:flex;align-items:center;gap:14px;margin:8px 0 22px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk);
+}
+.stepbar .dots{display:flex;gap:6px;flex-shrink:0}
+.stepbar .dot{width:7px;height:7px;border-radius:99px;background:var(--dotbg);cursor:pointer;border:0;padding:0;transition:.2s}
+.stepbar .dot.on{background:var(--c);box-shadow:0 0 10px -1px var(--c);transform:scale(1.25)}
+.stepbar .cap{flex:1;min-width:0;font-size:14px;color:var(--ink);text-wrap:pretty}
+.stepbar .cap span.n{color:var(--dim);font-family:var(--mono);font-size:11px;margin-inline-end:8px}
+.iconbtn{
+  background:var(--sunk2);border:1px solid var(--line);color:var(--mut);
+  border-radius:8px;padding:5px 11px;font-family:var(--mono);font-size:11px;cursor:pointer;white-space:nowrap;
+}
+.iconbtn:hover{color:var(--ink);border-color:color-mix(in srgb,var(--c) 55%,transparent)}
+
+/* ---------- code cards ---------- */
+.sechead{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:28px 0 12px}
+:root[dir="rtl"] .sechead{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.files{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:14px}
+.fc{background:var(--card);border:1px solid var(--line2);border-radius:12px;overflow:hidden;transition:border-color .3s;min-width:0}
+.fc.active{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.fc-h{
+  display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid var(--line2);
+  background:var(--sunk);font-family:var(--mono);font-size:11.5px;color:var(--mut);
+}
+.fc-h .d{width:7px;height:7px;border-radius:99px;flex-shrink:0}
+.fc[data-lang="ts"] .d{background:var(--ts)}
+.fc[data-lang="html"] .d{background:var(--html)}
+.fc[data-lang="json"] .d{background:var(--svc)}
+.fc[data-lang="bash"] .d{background:var(--beg)}
+.fc-h .tag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:var(--mono);font-size:12.2px;line-height:1.72;scrollbar-width:thin}
+.ln{display:block;padding:0 15px;white-space:pre;border-left:2px solid transparent;transition:background .25s,border-color .25s}
+.ln.hl{background:color-mix(in srgb,var(--c) 13%,transparent);border-left-color:var(--c)}
+.t-key{color:var(--t-key)}.t-str{color:var(--t-str)}.t-com{color:var(--t-com);font-style:italic}
+.t-dec{color:var(--t-dec)}.t-tag{color:var(--t-tag)}.t-bind{color:var(--t-bind)}.t-num{color:var(--t-num)}
+.t-fn{color:var(--t-fn)}.t-type{color:var(--t-type)}.t-attr{color:var(--t-attr)}.t-punc{color:var(--t-punc)}
+
+/* ---------- real example ---------- */
+.example{margin-top:26px;padding-top:18px;border-top:1px solid var(--line2)}
+.exhead{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:7px}
+.extag{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);border:1px solid currentColor;border-radius:99px;padding:3px 9px;
+  background:color-mix(in srgb,var(--c) 12%,transparent);white-space:nowrap;
+}
+:root[dir="rtl"] .extag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+.exhead b{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--ink)}
+.exlead{margin:0 0 14px;color:var(--mut);font-size:14px;max-width:82ch;text-wrap:pretty}
+
+/* ---------- gotchas ---------- */
+.gotchas{margin-top:22px;border-top:1px solid var(--line2);padding-top:16px}
+.gotchas h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 10px;font-weight:500}
+:root[dir="rtl"] .gotchas h4{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.gotchas ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:9px 22px}
+.gotchas li{position:relative;padding-inline-start:20px;font-size:13.6px;color:var(--mut);text-wrap:pretty}
+.gotchas li::before{content:"!";position:absolute;inset-inline-start:0;top:0;font-family:var(--mono);font-size:11px;color:var(--c);font-weight:700}
+.gotchas li b{color:var(--ink);font-weight:600}
+
+/* ---------- pager ---------- */
+.pager{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin:34px 0 0;padding:22px 0 46px;border-top:1px solid var(--line2);
+}
+.pager a{
+  display:flex;flex-direction:column;gap:4px;text-decoration:none;padding:14px 16px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--card);transition:.22s;min-width:0;
+}
+.pager a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.pager a em{font-family:var(--mono);font-style:normal;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.pager a b{font-size:14.5px;color:var(--ink);font-weight:600;line-height:1.35;text-wrap:pretty}
+.pager a.nx{text-align:end;align-items:flex-end}
+.pager .void{border:1px dashed var(--line2);border-radius:12px;opacity:.35}
+@media (max-width:600px){.pager{grid-template-columns:1fr}.pager a.nx{text-align:start;align-items:flex-start}}
+
+@media (max-width:900px){
+  .row{gap:16px}
+  .node{min-width:0;flex:1 1 auto}
+  .stage{gap:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+
+/* ================= reference-document layout (TypeScript page) ============ */
+.doc{display:grid;grid-template-columns:212px minmax(0,1fr);gap:clamp(20px,3.4vw,54px);align-items:start}
+@media (max-width:940px){.doc{grid-template-columns:1fr}}
+.doc-rail{position:sticky;top:70px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;scrollbar-width:thin}
+@media (max-width:940px){.doc-rail{position:static;max-height:none;border-bottom:1px solid var(--line2);padding-bottom:14px}}
+.doc-rail b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;font-weight:500}
+:root[dir="rtl"] .doc-rail b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.doc-rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.doc-rail a{
+  display:grid;grid-template-columns:1.6rem 1fr;gap:8px;align-items:baseline;
+  text-decoration:none;color:var(--dim);font-size:13px;line-height:1.35;
+  padding:6px 9px;border-radius:7px;transition:.16s;
+}
+.doc-rail a em{font-family:var(--mono);font-style:normal;font-size:10.5px;opacity:.7}
+.doc-rail a:hover{color:var(--ink);background:var(--hover)}
+.doc-rail a.on{color:var(--onc);background:var(--c)}
+.doc-rail a.on em{opacity:.75}
+
+.sec{padding-block:clamp(26px,3.6vw,44px);border-top:1px solid var(--line2);scroll-margin-top:74px}
+.sec:first-child{border-top:0;padding-top:6px}
+.sec-kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--c);margin-bottom:8px}
+:root[dir="rtl"] .sec-kick{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.sec h2{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.028em;line-height:1.08;
+  font-size:clamp(23px,3vw,33px);margin:0 0 10px;text-wrap:balance;
+}
+:root[dir="rtl"] .sec h2{letter-spacing:0;line-height:1.4}
+.sec h2 code{font-family:var(--mono);font-size:.8em;font-weight:600;color:var(--c);letter-spacing:0}
+.sec > .sec-lead{color:var(--mut);max-width:74ch;margin:0 0 4px;font-size:15px;text-wrap:pretty}
+.sec > .sec-lead b{color:var(--ink);font-weight:600}
+.sec p{max-width:74ch;text-wrap:pretty;color:var(--mut)}
+.sec p b{color:var(--ink);font-weight:600}
+.sec > p{margin:18px 0 0}
+.sec .code{margin-top:18px}
+.sec ul{margin:16px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;max-width:74ch}
+.sec ul li{padding-inline-start:20px;position:relative;color:var(--mut);text-wrap:pretty}
+.sec ul li::before{content:"";position:absolute;inset-inline-start:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--c);opacity:.6}
+
+.code{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--card);min-width:0}
+.code .fc-h{background:var(--sunk)}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;margin-top:18px}
+.code.bad{border-color:color-mix(in srgb,var(--adv) 42%,transparent)}
+.code.bad .fc-h{background:color-mix(in srgb,var(--adv) 10%,transparent)}
+.code.bad .fc-h .d{background:var(--adv)}
+.code.good{border-color:color-mix(in srgb,var(--beg) 42%,transparent)}
+.code.good .fc-h{background:color-mix(in srgb,var(--beg) 10%,transparent)}
+.code.good .fc-h .d{background:var(--beg)}
+.code .flag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.code.bad .flag{color:var(--adv)}
+.code.good .flag{color:var(--beg)}
+:root[dir="rtl"] .code .flag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+
+.note{
+  margin-top:20px;max-width:76ch;background:color-mix(in srgb,var(--c) 8%,transparent);
+  border-inline-start:3px solid var(--c);border-radius:0 9px 9px 0;padding:13px 16px;
+}
+:root[dir="rtl"] .note{border-radius:9px 0 0 9px}
+.note b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .note b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.note p{margin:0;font-size:14.2px;color:var(--mut)}
+
+.dtbl-wrap{overflow-x:auto;border:1px solid var(--line2);border-radius:12px;margin-top:18px;background:var(--card)}
+.dtbl{width:100%;border-collapse:collapse;font-size:13.6px;min-width:640px}
+.dtbl th{
+  text-align:start;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);font-weight:500;padding:10px 14px;border-bottom:1px solid var(--line);
+  background:var(--sunk);white-space:nowrap;
+}
+:root[dir="rtl"] .dtbl th{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px;font-weight:600}
+.dtbl td{padding:11px 14px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--mut);line-height:1.55}
+.dtbl tr:last-child td{border-bottom:0}
+.dtbl td:first-child{color:var(--ink);font-family:var(--mono);font-size:12px}
+
+/* ========================= roadmap page ========================= */
+.verdict{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin:26px 0 8px}
+.verdict div{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.verdict b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:8px;font-weight:600}
+:root[dir="rtl"] .verdict b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.verdict p{margin:0;color:var(--mut);font-size:14.2px;line-height:1.6;text-wrap:pretty}
+
+.phase{position:relative;padding:0 0 0 clamp(22px,3vw,42px);margin-top:clamp(24px,3.4vw,38px)}
+:root[dir="rtl"] .phase{padding:0 clamp(22px,3vw,42px) 0 0}
+.phase::before{content:"";position:absolute;inset-inline-start:0;top:6px;bottom:0;width:2px;background:linear-gradient(180deg,var(--c),transparent)}
+.phase-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.phase-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 8px;font-weight:600;direction:ltr}
+.phase-h h3{margin:0;font-family:var(--disp);font-weight:800;font-size:clamp(20px,2.6vw,27px);letter-spacing:-.02em;color:var(--ink)}
+:root[dir="rtl"] .phase-h h3{letter-spacing:0;line-height:1.4}
+.phase-when{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em;direction:ltr;unicode-bidi:isolate}
+.phase-goal{margin:0 0 14px;color:var(--mut);max-width:72ch;font-size:14.6px;text-wrap:pretty}
+.phase-list{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:14px}
+.phase-list a{
+  display:grid;grid-template-columns:1.8rem 1fr;gap:9px;align-items:baseline;text-decoration:none;
+  padding:8px 11px;border-radius:8px;border:1px solid var(--line2);background:var(--card);transition:.18s;min-width:0;
+}
+.phase-list a em{font-family:var(--mono);font-style:normal;font-size:10.5px;color:var(--dim)}
+.phase-list a span{font-size:13.6px;color:var(--ink);line-height:1.35;text-wrap:pretty}
+.phase-list a span code{font-family:var(--mono);font-size:.86em;color:var(--c)}
+.phase-list a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.phase-build{
+  border-inline-start:3px solid var(--c);background:color-mix(in srgb,var(--c) 7%,transparent);
+  border-radius:0 9px 9px 0;padding:12px 15px;max-width:72ch;
+}
+:root[dir="rtl"] .phase-build{border-radius:9px 0 0 9px}
+.phase-build b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .phase-build b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.phase-build p{margin:0;color:var(--mut);font-size:14px;line-height:1.6;text-wrap:pretty}
+
+.gap{margin-top:16px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.gap section{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.gap h4{margin:0 0 10px;font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.3;text-wrap:pretty}
+.gap ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.gap li{padding-inline-start:19px;position:relative;font-size:13.4px;color:var(--mut);line-height:1.5;text-wrap:pretty}
+.gap li::before{content:"○";position:absolute;inset-inline-start:0;top:0;font-size:10px;color:var(--c);opacity:.7}
+.gap li code{font-family:var(--mono);font-size:.88em;background:var(--chip);padding:1px 4px;border-radius:3px;color:var(--chipink)}
+
+.advice{margin-top:16px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.advice div{border-top:2px solid var(--c);padding-top:12px;min-width:0}
+.advice b{display:block;font-family:var(--disp);font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px;letter-spacing:-.015em}
+:root[dir="rtl"] .advice b{letter-spacing:0}
+.advice p{margin:0;color:var(--mut);font-size:13.8px;line-height:1.6;text-wrap:pretty}
+
+/* ---------- theme switch (icon segment) ---------- */
+.seg.ico button{padding:5px 10px;display:grid;place-items:center}
+.seg.ico svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block}
+@media (max-width:820px){.seg.ico{order:2}}
+
+/* ================= beginner scaffolding on every topic ================= */
+/* three plain-language cards that sit above the technical diagram */
+.plain{display:grid;gap:12px;grid-template-columns:1.4fr 1fr 1fr;margin:2px 0 26px}
+@media (max-width:900px){.plain{grid-template-columns:1fr}}
+.pc{
+  border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);
+  min-width:0;display:flex;flex-direction:column;gap:9px;
+}
+.pc.say{background:color-mix(in srgb,var(--c) 7%,var(--card));border-color:color-mix(in srgb,var(--c) 26%,transparent)}
+.pc .ph{display:flex;align-items:center;gap:8px}
+.pc .ph svg{width:16px;height:16px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pc .ph b{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);font-weight:600}
+:root[dir="rtl"] .pc .ph b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.pc p{margin:0;font-size:14.2px;color:var(--mut);line-height:1.62;text-wrap:pretty}
+.pc p b{color:var(--ink);font-weight:600}
+.pc p code{font-family:var(--mono);font-size:.87em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+.pc.say p{font-size:16px;color:var(--ink)}
+
+/* the idea, as a strip of pictures */
+.strip{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(188px,1fr));margin:2px 0 4px}
+.sp{position:relative;border:1px solid var(--line2);border-radius:14px;padding:15px 16px 14px;background:var(--card);min-width:0}
+.sp .plate{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:11px;
+  background:color-mix(in srgb,var(--c) 13%,transparent);border:1px solid color-mix(in srgb,var(--c) 20%,transparent);
+}
+.sp .plate svg{width:21px;height:21px;stroke:var(--c);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sp b{display:block;font-size:14.5px;color:var(--ink);font-weight:600;margin-bottom:4px;line-height:1.32;text-wrap:pretty}
+.sp p{margin:0;font-size:13.3px;color:var(--mut);line-height:1.55;text-wrap:pretty}
+.sp p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+.sp::after{
+  content:"";position:absolute;top:30px;right:-15px;width:11px;height:11px;
+  border-top:1.6px solid var(--line);border-right:1.6px solid var(--line);
+  transform:rotate(45deg);z-index:2;
+}
+:root[dir="rtl"] .sp::after{right:auto;left:-15px;transform:rotate(-135deg)}
+.sp:last-child::after{display:none}
+@media (max-width:760px){.sp::after{display:none}}
+
+/* the single sentence worth memorising */
+.oneline{
+  margin-top:26px;display:flex;gap:14px;align-items:flex-start;border-radius:14px;padding:16px 19px;
+  border:1px solid color-mix(in srgb,var(--c) 30%,transparent);
+  background:color-mix(in srgb,var(--c) 8%,transparent);
+}
+.oneline > svg{width:22px;height:22px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin-top:3px}
+.oneline b.lbl{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .oneline b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.oneline p{margin:0;font-size:15px;color:var(--ink);line-height:1.62;text-wrap:pretty;max-width:78ch}
+.oneline p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+</style>
+<script>
+(function(){var r=document.documentElement;try{
+if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
+r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
+}catch(e){r.dataset.theme='light';}})();
+</script>
+</head>
+<body>
+<header class="top"><div class="top-in">
+    <a class="home" href="../index.html"><b>The Angular Signal</b><span class="l-en">contents</span><span class="l-ar">المحتويات</span></a>
+    <nav class="tracknav"><a href="../roadmap.html" style="--c:var(--beg)"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="../beginner/01-how-an-app-starts.html" style="--c:var(--beg)"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="../intermediate/16-forms.html" style="--c:var(--int)" aria-current="page"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="../advanced/28-change-detection.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="../typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
+    <div class="top-right">
+      <div class="seg" role="group" aria-label="Language">
+        <button id="b-en" aria-pressed="true">EN</button>
+        <button id="b-ar" aria-pressed="false" lang="ar">مصري</button>
+      </div>
+      <div class="seg ico" role="group" aria-label="Theme">
+        <button id="b-lt" aria-pressed="true" title="Light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.2v2.3M12 19.5v2.3M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.2 12h2.3M19.5 12h2.3M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button>
+        <button id="b-dk" aria-pressed="false" title="Dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.7 6.7 0 0 0 11.1 11.1z"/></svg></button>
+      </div>
+    </div>
+  </div></header>
+<main class="page" id="page">
+
+  <div class="eyebrow">
+    <span class="num seq">21 / 48</span>
+    <span class="badge"><span class="l-en">Routing</span><span class="l-ar" dir="auto">التنقل</span></span>
+    <span class="num"><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></span>
+  </div>
+  <h1 class="title"><span class="l-en">Routes are data, guards are functions</span><span class="l-ar" dir="auto">الـ routes مجرد داتا، والـ guards مجرد functions</span></h1>
+  <p class="lead"><span class="l-en">A route config is a plain array you read top to bottom. Lazy loading is one property. Guards are functions that can <code>inject()</code> anything — and the difference between <code>canMatch</code> and <code>canActivate</code> decides whether an unauthorised user <b>downloads your admin bundle</b>.</span><span class="l-ar" dir="auto">ملف الـ routes مصفوفة عادية تقراها من فوق لتحت. الـ lazy loading سطر واحد. والـ guards functions تقدر تعمل <code>inject()</code> لأي حاجة — والفرق بين <code>canMatch</code> و<code>canActivate</code> هو اللي بيحدد هل اللي مش مصرّح له <b>هينزّل bundle الأدمن</b> ولا لأ.</span></p>
+
+  <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
+        <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
+        <div class="node" data-node="cfg" data-kind="cfg">
+          <span class="role"><span class="l-en">the map</span><span class="l-ar" dir="auto">الخريطة</span></span>
+          <span class="file">app.routes<b>.ts</b></span>
+        </div>
+        <div class="node" data-node="guard" data-kind="cfg">
+          <span class="role"><span class="l-en">the gate</span><span class="l-ar" dir="auto">البوابة</span></span>
+          <span class="file">auth<b>.guard.ts</b></span>
+        </div></div><div class="row">
+        <div class="node" data-node="chunk" data-kind="ts">
+          <span class="role"><span class="l-en">its own bundle</span><span class="l-ar" dir="auto">bundle لوحده</span></span>
+          <span class="file">order-page.component<b>.ts</b></span>
+        </div>
+        <div class="node" data-node="boot" data-kind="cfg">
+          <span class="role"><span class="l-en">wires it up</span><span class="l-ar" dir="auto">بيوصّل</span></span>
+          <span class="file">app.config<b>.ts</b></span>
+        </div></div></div>
+
+  <div class="stepbar">
+    <div class="dots"><button class="dot" data-step="0" aria-label="step 1"></button><button class="dot" data-step="1" aria-label="step 2"></button><button class="dot" data-step="2" aria-label="step 3"></button><button class="dot" data-step="3" aria-label="step 4"></button><button class="dot" data-step="4" aria-label="step 5"></button></div>
+    <div class="cap"></div>
+    <button class="iconbtn" data-replay>&#9654;<span class="l-en"> Replay</span><span class="l-ar"> إعادة</span></button>
+  </div>
+
+  <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  <div class="files">
+      <div class="fc" data-file="cfg" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>app.routes.ts<span class="tag"><span class="l-en">the map</span><span class="l-ar" dir="auto">الخريطة</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Routes</i> } <i class="t-key">from</i> <i class="t-str">'@angular/router'</i>;</span><span class="ln" data-l="2"><i class="t-key">import</i> { authGuard, adminMatch } <i class="t-key">from</i> <i class="t-str">'./auth.guard'</i>;</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-key">export</i> <i class="t-key">const</i> routes: <i class="t-type">Routes</i> = [</span><span class="ln" data-l="5">  { path: <i class="t-str">''</i>, pathMatch: <i class="t-str">'full'</i>, redirectTo: <i class="t-str">'orders'</i> },</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">  {</span><span class="ln" data-l="8">    path: <i class="t-str">'orders/:id'</i>,</span><span class="ln" data-l="9">    title: <i class="t-str">'Order details'</i>,</span><span class="ln" data-l="10">    loadComponent: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./orders/order-page.component'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type">OrderPage</i>),</span><span class="ln" data-l="11">    canActivate: [authGuard],</span><span class="ln" data-l="12">    data: { section: <i class="t-str">'sales'</i> },</span><span class="ln" data-l="13">  },</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15">  {</span><span class="ln" data-l="16">    path: <i class="t-str">'admin'</i>,</span><span class="ln" data-l="17">    canMatch: [adminMatch],        <i class="t-com">// checked BEFORE the chunk downloads</i></span><span class="ln" data-l="18">    loadChildren: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./admin/admin.routes'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type">ADMIN_ROUTES</i>),</span><span class="ln" data-l="19">  },</span><span class="ln" data-l="20"> </span><span class="ln" data-l="21">  { path: <i class="t-str">'**'</i>, loadComponent: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./not-found.component'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type">NotFound</i>) },</span><span class="ln" data-l="22">];</span></pre>
+      </div>
+      <div class="fc" data-file="guard" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>auth.guard.ts<span class="tag"><span class="l-en">plain functions</span><span class="l-ar" dir="auto">functions عادية</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { inject } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"><i class="t-key">import</i> { <i class="t-type">CanActivateFn</i>, <i class="t-type">CanMatchFn</i>, <i class="t-type">Router</i> } <i class="t-key">from</i> <i class="t-str">'@angular/router'</i>;</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-key">export</i> <i class="t-key">const</i> authGuard: <i class="t-type">CanActivateFn</i> = (route, state) =&gt; {</span><span class="ln" data-l="5">  <i class="t-key">const</i> session = <i class="t-fn">inject</i>(<i class="t-type">Session</i>);</span><span class="ln" data-l="6">  <i class="t-key">if</i> (session.<i class="t-fn">isSignedIn</i>()) <i class="t-key">return</i> <i class="t-key">true</i>;</span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-com">// a UrlTree redirects instead of merely blocking</i></span><span class="ln" data-l="9">  <i class="t-key">return</i> <i class="t-fn">inject</i>(<i class="t-type">Router</i>).<i class="t-fn">createUrlTree</i>([<i class="t-str">'/sign-in'</i>], {</span><span class="ln" data-l="10">    queryParams: { next: state.url },</span><span class="ln" data-l="11">  });</span><span class="ln" data-l="12">};</span><span class="ln" data-l="13"> </span><span class="ln" data-l="14"><i class="t-com">// false here makes the router skip the route and keep matching —</i></span><span class="ln" data-l="15"><i class="t-com">// the lazy chunk is never requested at all</i></span><span class="ln" data-l="16"><i class="t-key">export</i> <i class="t-key">const</i> adminMatch: <i class="t-type">CanMatchFn</i> = () =&gt; <i class="t-fn">inject</i>(<i class="t-type">Session</i>).<i class="t-fn">isAdmin</i>();</span></pre>
+      </div>
+      <div class="fc" data-file="chunk" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>order-page.component.ts<span class="tag"><span class="l-en">the page</span><span class="l-ar" dir="auto">الصفحة</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">OrderPage</i> {</span><span class="ln" data-l="2">  <i class="t-com">// withComponentInputBinding() fills these from the URL</i></span><span class="ln" data-l="3">  <i class="t-key">readonly</i> id  = input.required&lt;<i class="t-key">string</i>&gt;();   <i class="t-com">// :id</i></span><span class="ln" data-l="4">  <i class="t-key">readonly</i> tab = <i class="t-fn">input</i>(<i class="t-str">'items'</i>);             <i class="t-com">// ?tab=</i></span><span class="ln" data-l="5">  <i class="t-key">readonly</i> section = <i class="t-fn">input</i>(<i class="t-str">''</i>);              <i class="t-com">// data: { section }</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">  <i class="t-com">// no ActivatedRoute, no snapshot, no paramMap subscription.</i></span><span class="ln" data-l="8">  <i class="t-com">// navigating /orders/1 → /orders/2 reuses the component and</i></span><span class="ln" data-l="9">  <i class="t-com">// id() simply becomes '2'.</i></span><span class="ln" data-l="10">  <i class="t-key">readonly</i> order = httpResource&lt;<i class="t-type">Order</i>&gt;(() =&gt; <i class="t-str">`/api/orders/${this.id()}`</i>);</span><span class="ln" data-l="11">}</span></pre>
+      </div>
+      <div class="fc" data-file="boot" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>app.config.ts<span class="tag"><span class="l-en">wiring</span><span class="l-ar" dir="auto">التوصيل</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { provideRouter, withComponentInputBinding,</span><span class="ln" data-l="2">         withInMemoryScrolling, withPreloading, <i class="t-type">PreloadAllModules</i> } <i class="t-key">from</i> <i class="t-str">'@angular/router'</i>;</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-key">export</i> <i class="t-key">const</i> appConfig: <i class="t-type">ApplicationConfig</i> = {</span><span class="ln" data-l="5">  providers: [</span><span class="ln" data-l="6">    <i class="t-fn">provideRouter</i>(</span><span class="ln" data-l="7">      routes,</span><span class="ln" data-l="8">      <i class="t-fn">withComponentInputBinding</i>(),</span><span class="ln" data-l="9">      <i class="t-fn">withInMemoryScrolling</i>({ scrollPositionRestoration: <i class="t-str">'enabled'</i>, anchorScrolling: <i class="t-str">'enabled'</i> }),</span><span class="ln" data-l="10">      <i class="t-fn">withPreloading</i>(<i class="t-type">PreloadAllModules</i>),   <i class="t-com">// fetch lazy chunks once idle</i></span><span class="ln" data-l="11">    ),</span><span class="ln" data-l="12">  ],</span><span class="ln" data-l="13">};</span></pre>
+      </div></div>
+
+  
+  <div class="example">
+    <div class="exhead">
+      <span class="extag"><span class="l-en">Real example</span><span class="l-ar">مثال حقيقي</span></span>
+      <b><span class="l-en">A list page that keeps its filters in the URL</span><span class="l-ar" dir="auto">صفحة لستة محتفظة بالفلاتر في الـ URL</span></b>
+    </div>
+    <p class="exlead"><span class="l-en">Filters live in query params, so the back button works, a refresh keeps the view, and a colleague can paste the link into chat and see exactly what you were looking at. The component still just reads inputs.</span><span class="l-ar" dir="auto">الفلاتر عايشة في الـ query params، فزرار الرجوع بيشتغل، والـ refresh مبيضيّعش العرض، وزميلك يقدر يلزق اللينك في الشات ويشوف اللي إنت كنت شايفه بالظبط. والـ component لسه بيقرا inputs وبس.</span></p>
+    <div class="files">
+      <div class="fc" data-file="r1" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>orders-list.component.ts<span class="tag"><span class="l-en">reads the URL</span><span class="l-ar" dir="auto">بيقرا الـ URL</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">OrdersList</i> {</span><span class="ln" data-l="2">  <i class="t-key">private</i> <i class="t-key">readonly</i> router = <i class="t-fn">inject</i>(<i class="t-type">Router</i>);</span><span class="ln" data-l="3">  <i class="t-key">private</i> <i class="t-key">readonly</i> route = <i class="t-fn">inject</i>(<i class="t-type">ActivatedRoute</i>);</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5">  <i class="t-key">readonly</i> status = input&lt;<i class="t-str">'all'</i> | <i class="t-str">'paid'</i> | <i class="t-str">'failed'</i>&gt;(<i class="t-str">'all'</i>);   <i class="t-com">// ?status=</i></span><span class="ln" data-l="6">  <i class="t-key">readonly</i> page = <i class="t-fn">input</i>(<i class="t-num">1</i>, { transform: numberAttribute });     <i class="t-com">// ?page=</i></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-key">readonly</i> data = httpResource&lt;<i class="t-type">Page</i>&lt;<i class="t-type">Order</i>&gt;&gt;(() =&gt;</span><span class="ln" data-l="9">    <i class="t-str">`/api/orders?status=${this.status()}&amp;page=${this.page()}`</i>);</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">  <i class="t-fn">setStatus</i>(status: <i class="t-key">string</i>) {</span><span class="ln" data-l="12">    <i class="t-com">// change the URL — the inputs follow, the resource refetches</i></span><span class="ln" data-l="13">    <i class="t-key">this</i>.router.<i class="t-fn">navigate</i>([], {</span><span class="ln" data-l="14">      relativeTo: <i class="t-key">this</i>.route,</span><span class="ln" data-l="15">      queryParams: { status, page: <i class="t-num">1</i> },</span><span class="ln" data-l="16">      queryParamsHandling: <i class="t-str">'merge'</i>,</span><span class="ln" data-l="17">    });</span><span class="ln" data-l="18">  }</span><span class="ln" data-l="19">}</span></pre>
+      </div>
+      <div class="fc" data-file="r2" data-lang="html">
+        <div class="fc-h"><span class="d"></span>orders-list.component.html<span class="tag"><span class="l-en">the controls</span><span class="l-ar" dir="auto">التحكم</span></span></div>
+        <pre><span class="ln" data-l="1"><i class="t-key">@for</i> (s of [<i class="t-str">'all'</i>, <i class="t-str">'paid'</i>, <i class="t-str">'failed'</i>]; track s) {</span><span class="ln" data-l="2">  <i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"setStatus(s)"</i> <i class="t-bind">[class.on]</i>=<i class="t-str">"status() === s"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ s }}</i><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="3">}</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><i class="t-key">@if</i> (data.isLoading()) { <i class="t-tag">&lt;app-skeleton</i> <i class="t-tag">/&gt;</i> }</span><span class="ln" data-l="6"><i class="t-key">@else</i> { <i class="t-key">@for</i> (o of data.value()?.items ?? []; track o.id) { <i class="t-tag">&lt;app-order-row</i> <i class="t-bind">[order]</i>=<i class="t-str">"o"</i> <i class="t-tag">/&gt;</i> } }</span></pre>
+      </div></div>
+  </div>
+
+  <div class="gotchas">
+    <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
+    <ul><li><span class="l-en"><code class="i">canActivate</code> runs <b>after</b> the lazy chunk downloads. For role-gated features use <code class="i">canMatch</code> so the bundle is never even requested.</span><span class="l-ar" dir="auto"><code class="i">canActivate</code> بيشتغل <b>بعد</b> ما الـ chunk ينزل. للحاجات المربوطة بصلاحيات استعمل <code class="i">canMatch</code> عشان الـ bundle ميتطلبش أصلاً.</span></li><li><span class="l-en">Route order matters. <code class="i">**</code> must be last, and a <code class="i">path: ''</code> without <code class="i">pathMatch: 'full'</code> matches everything.</span><span class="l-ar" dir="auto">ترتيب الراوتس مهم. <code class="i">**</code> لازم تبقى الأخيرة، و<code class="i">path: ''</code> من غير <code class="i">pathMatch: 'full'</code> بيطابق كل حاجة.</span></li><li><span class="l-en">Reading <code class="i">route.snapshot.params</code> once is the classic bug: navigating <code class="i">/user/1</code> → <code class="i">/user/2</code> reuses the component and the snapshot never changes. Use input binding or <code class="i">paramMap</code>.</span><span class="l-ar" dir="auto">قراية <code class="i">route.snapshot.params</code> مرة واحدة دي الباج الكلاسيكي: التنقل من <code class="i">/user/1</code> لـ <code class="i">/user/2</code> بيعيد استخدام نفس الـ component والـ snapshot مبيتغيرش. استعمل input binding أو <code class="i">paramMap</code>.</span></li><li><span class="l-en"><code class="i">withComponentInputBinding()</code> only fills inputs whose <b>name matches</b> the param, query param or data key. A typo is silent.</span><span class="l-ar" dir="auto"><code class="i">withComponentInputBinding()</code> بيملا بس الـ inputs اللي <b>اسمها مطابق</b> للـ param أو الـ query param أو مفتاح الـ data. أي غلطة إملائية بتعدي بالسكوت.</span></li><li><span class="l-en">Query params arrive as strings. <code class="i">input(1, { transform: numberAttribute })</code> saves you a pile of <code class="i">+x</code> conversions.</span><span class="l-ar" dir="auto">الـ query params بتوصل strings. و<code class="i">input(1, { transform: numberAttribute })</code> بيوفر عليك كومة تحويلات <code class="i">+x</code>.</span></li></ul>
+  </div>
+
+  <nav class="pager">
+    <a class="pv" href="../intermediate/20-queries.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en"><code>viewChild</code> and <code>contentChild</code></span><span class="l-ar" dir="auto"><code>viewChild</code> و <code>contentChild</code></span></b></a>
+    <a class="nx" href="../intermediate/22-http.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">HTTP without the <code>subscribe</code></span><span class="l-ar" dir="auto">HTTP من غير <code>subscribe</code></span></b></a>
+  </nav>
+</main>
+
+<script>
+const D = {"edges":[{"id":"e1","from":"boot","to":"cfg","a":"top","b":"bottom","label":"provideRouter(routes)","packet":"routes"},{"id":"e2","from":"cfg","to":"guard","a":"right","b":"left","label":"canActivate","packet":"/orders/42"},{"id":"e3","from":"guard","to":"chunk","a":"bottom","b":"right","label":"import()","packet":"chunk.js"}],"steps":[{"t":{"en":"Bootstrap hands the route array to the router. \u003ccode class=\"i\"\u003ewithComponentInputBinding()\u003c/code\u003e is the flag that turns URL segments into component inputs.","ar":"الإقلاع بيسلّم مصفوفة الراوتس للراوتر. و\u003ccode class=\"i\"\u003ewithComponentInputBinding()\u003c/code\u003e هو السطر اللي بيحوّل أجزاء الـ URL لـ inputs في الـ component."},"edge":"e1","hl":{"boot":[7,8]}},{"t":{"en":"A navigation to \u003ccode class=\"i\"\u003e/orders/42\u003c/code\u003e matches the second route. Its guards run before anything renders.","ar":"التنقل لـ \u003ccode class=\"i\"\u003e/orders/42\u003c/code\u003e بيطابق الراوت التاني. والـ guards بتاعته بتشتغل قبل ما أي حاجة تترسم."},"edge":"e2","hl":{"cfg":[8,11]}},{"t":{"en":"The guard is a function with no class and no provider entry. It runs in an injection context, so it can reach the session and the router directly.","ar":"الـ guard function من غير كلاس ولا provider. بتشتغل جوه injection context، فبتوصل للـ session وللراوتر على طول."},"edge":null,"hl":{"guard":[4,5,6,9]}},{"t":{"en":"Only once the gate opens does \u003ccode class=\"i\"\u003eloadComponent\u003c/code\u003e run the dynamic \u003ccode class=\"i\"\u003eimport()\u003c/code\u003e and pull the chunk over the network.","ar":"وبس لما البوابة تفتح، \u003ccode class=\"i\"\u003eloadComponent\u003c/code\u003e بينفّذ الـ \u003ccode class=\"i\"\u003eimport()\u003c/code\u003e الديناميكي وبينزّل الـ chunk من الشبكة."},"edge":"e3","hl":{"cfg":[10]}},{"t":{"en":"The page reads \u003ccode class=\"i\"\u003eid()\u003c/code\u003e as an input. Navigating from \u003ccode class=\"i\"\u003e/orders/1\u003c/code\u003e to \u003ccode class=\"i\"\u003e/orders/2\u003c/code\u003e reuses the component — the signal just changes, and the resource refetches.","ar":"الصفحة بتقرا \u003ccode class=\"i\"\u003eid()\u003c/code\u003e كـ input. والتنقل من \u003ccode class=\"i\"\u003e/orders/1\u003c/code\u003e لـ \u003ccode class=\"i\"\u003e/orders/2\u003c/code\u003e بيعيد استخدام نفس الـ component — الـ signal بتتغير بس، والـ resource بيجيب من جديد."},"edge":null,"hl":{"chunk":[3,10]}}]};
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const page = $('#page');
+function relayout(){ requestAnimationFrame(layout); }
+
+/* ---------- language + theme, shared by every page ---------- */
+function _g(id){ return document.getElementById(id); }
+function syncUI(){
+  const r = document.documentElement;
+  const l = r.dataset.lang === 'ar' ? 'ar' : 'en';
+  const t = r.dataset.theme === 'dark' ? 'dark' : 'light';
+  const set = (id, on) => { const b = _g(id); if (b) b.setAttribute('aria-pressed', String(on)); };
+  set('b-en', l === 'en'); set('b-ar', l === 'ar');
+  set('b-lt', t === 'light'); set('b-dk', t === 'dark');
+}
+function setLang(l){
+  const r = document.documentElement;
+  r.dataset.lang = l;
+  r.dir  = l === 'ar' ? 'rtl' : 'ltr';
+  r.lang = l === 'ar' ? 'ar-EG' : 'en';
+  try { localStorage.setItem('tas-lang', l); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+function setTheme(t){
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('tas-theme', t); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+_g('b-en').onclick = () => setLang('en');
+_g('b-ar').onclick = () => setLang('ar');
+_g('b-lt').onclick = () => setTheme('light');
+_g('b-dk').onclick = () => setTheme('dark');
+syncUI();
+
+/* ---------- edge geometry ---------- */
+function anchorPt(r, side, base){
+  const x = r.left - base.left, y = r.top - base.top, w = r.width, h = r.height;
+  if (side === 'left')  return { x: x,         y: y + h / 2, nx: -1, ny: 0 };
+  if (side === 'right') return { x: x + w,     y: y + h / 2, nx:  1, ny: 0 };
+  if (side === 'top')   return { x: x + w / 2, y: y,         nx: 0, ny: -1 };
+  return                       { x: x + w / 2, y: y + h,     nx: 0, ny:  1 };
+}
+
+function layout(){
+  const stage = $('.stage'), svg = $('.stage svg');
+  if (!stage) return;
+  const base = stage.getBoundingClientRect();
+  svg.setAttribute('width', base.width);
+  svg.setAttribute('height', base.height);
+  D.edges.forEach(e => {
+    const a = $('[data-node="' + e.from + '"]'), b = $('[data-node="' + e.to + '"]');
+    if (!a || !b) return;
+    const p1 = anchorPt(a.getBoundingClientRect(), e.a, base);
+    const p2 = anchorPt(b.getBoundingClientRect(), e.b, base);
+    const d = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+    const k = Math.max(40, Math.min(140, d * 0.45));
+    const g = $('[data-edge="' + e.id + '"]');
+    const wire = $('.wire', g), flow = $('.flow', g), head = $('.head', g), txt = $('text', g);
+    const dd = 'M' + p1.x + ',' + p1.y + ' C' + (p1.x + p1.nx * k) + ',' + (p1.y + p1.ny * k) +
+               ' ' + (p2.x + p2.nx * k) + ',' + (p2.y + p2.ny * k) + ' ' + p2.x + ',' + p2.y;
+    wire.setAttribute('d', dd);
+    flow.setAttribute('d', dd);
+    const L = wire.getTotalLength();
+    const end = wire.getPointAtLength(Math.max(0, L - 1));
+    const pre = wire.getPointAtLength(Math.max(0, L - 12));
+    const ang = Math.atan2(end.y - pre.y, end.x - pre.x), A = 0.42, r = 9;
+    head.setAttribute('d',
+      'M' + end.x + ',' + end.y +
+      ' L' + (end.x - r * Math.cos(ang - A)) + ',' + (end.y - r * Math.sin(ang - A)) +
+      ' L' + (end.x - r * Math.cos(ang + A)) + ',' + (end.y - r * Math.sin(ang + A)) + ' Z');
+    const mid = wire.getPointAtLength(L * 0.5);
+    txt.setAttribute('x', mid.x);
+    txt.setAttribute('y', mid.y - 9);
+    txt.setAttribute('text-anchor', 'middle');
+    txt.textContent = e.label;
+  });
+}
+
+/* ---------- steps ---------- */
+let RUN = 0, step = 0;
+
+function fly(edgeId, token){
+  return new Promise(res => {
+    const g = $('[data-edge="' + edgeId + '"]'), wire = $('.wire', g);
+    const pk = $('.packet'), rect = $('rect', pk), txt = $('text', pk);
+    const e = D.edges.find(x => x.id === edgeId);
+    txt.textContent = e.packet || e.label;
+    txt.setAttribute('text-anchor', 'middle');
+    txt.setAttribute('x', 0); txt.setAttribute('y', 4);
+    const w = Math.max(38, txt.getComputedTextLength() + 20);
+    rect.setAttribute('x', -w / 2); rect.setAttribute('y', -12);
+    rect.setAttribute('width', w);  rect.setAttribute('height', 24);
+    const L = wire.getTotalLength();
+    if (REDUCED || !L) { pk.style.opacity = 0; return res(); }
+    const dur = 900, t0 = performance.now();
+    (function frame(now){
+      if (token !== RUN) { pk.style.opacity = 0; return res(); }
+      const t = Math.min(1, (now - t0) / dur);
+      const q = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      const p = wire.getPointAtLength(q * L);
+      pk.setAttribute('transform', 'translate(' + p.x + ',' + p.y + ')');
+      pk.style.opacity = t < .1 ? t / .1 : t > .9 ? (1 - t) / .1 : 1;
+      if (t < 1) requestAnimationFrame(frame);
+      else { pk.style.opacity = 0; res(); }
+    })(performance.now());
+  });
+}
+
+function paint(i){
+  $$('.hl').forEach(n => n.classList.remove('hl'));
+  $$('.fc.active,.node.active').forEach(n => n.classList.remove('active'));
+  $$('.dot').forEach((d, k) => d.classList.toggle('on', k === i));
+  const s = D.steps[i];
+  $('.cap').innerHTML =
+    '<span class="n">' + String(i + 1).padStart(2, '0') + '/' + String(D.steps.length).padStart(2, '0') + '</span>' +
+    '<span class="l-en">' + s.t.en + '</span><span class="l-ar" dir="auto">' + s.t.ar + '</span>';
+  D.edges.forEach(e => {
+    const lit = D.steps.slice(0, i + 1).some(st => st.edge === e.id);
+    $('[data-edge="' + e.id + '"]').classList.toggle('lit', lit);
+  });
+  const touched = new Set();
+  Object.entries(s.hl).forEach(([fid, lines]) => {
+    const card = $('[data-file="' + fid + '"]');
+    if (card) {
+      card.classList.add('active');
+      lines.forEach(l => { const n = $('[data-l="' + l + '"]', card); if (n) n.classList.add('hl'); });
+    }
+    touched.add(fid);
+  });
+  if (s.edge) { const e = D.edges.find(x => x.id === s.edge); touched.add(e.from); touched.add(e.to); }
+  touched.forEach(id => { const n = $('[data-node="' + id + '"]'); if (n) n.classList.add('active'); });
+}
+
+async function goStep(i, animate = true){
+  step = Math.max(0, Math.min(D.steps.length - 1, i));
+  const token = ++RUN;
+  paint(step);
+  if (animate && D.steps[step].edge) await fly(D.steps[step].edge, token);
+}
+
+async function play(){
+  const token = ++RUN;
+  for (let i = 0; i < D.steps.length; i++){
+    if (token !== RUN) return;
+    step = i; paint(i);
+    if (D.steps[i].edge) await fly(D.steps[i].edge, token);
+    else await new Promise(r => setTimeout(r, REDUCED ? 0 : 620));
+    if (token !== RUN) return;
+    if (i < D.steps.length - 1) await new Promise(r => setTimeout(r, REDUCED ? 0 : 520));
+  }
+}
+
+document.addEventListener('click', e => {
+  const dot = e.target.closest('.dot');
+  if (dot) { RUN++; return goStep(+dot.dataset.step); }
+  if (e.target.closest('[data-replay]')) play();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') { RUN++; goStep(step + 1); }
+  else if (e.key === 'ArrowLeft') { RUN++; goStep(step - 1, false); }
+  else if (e.key.toLowerCase() === 'r') play();
+});
+
+let rt;
+addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(layout, 140); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+
+layout();
+paint(0);
+new IntersectionObserver((en, o) => {
+  if (en[0].isIntersecting) { o.disconnect(); layout(); play(); }
+}, { threshold: .25 }).observe($('.stage'));
+</script>
+</body>
+</html>
