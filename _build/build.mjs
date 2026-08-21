@@ -35,6 +35,7 @@ const CSS  = readFileSync(join(HERE, 'deck.css'), 'utf8');
 
 const PLAIN = (await import('./content/plain.mjs')).default;
 const DOC = (await import('./content/typescript.mjs')).default;
+const JSDOC = (await import('./content/javascript.mjs')).default;
 const MAP = (await import('./content/roadmap.mjs')).default;
 
 const TRACKS = [
@@ -273,6 +274,8 @@ function trackNav(current, base) {
   });
   const mapCur = current === 'roadmap' ? ' aria-current="page"' : '';
   rows.unshift(`<a href="${base}roadmap.html" style="--c:var(--beg)"${mapCur}><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a>`);
+  const jsCur = current === 'javascript' ? ' aria-current="page"' : '';
+  rows.push(`<a href="${base}javascript-for-angular.html" style="--c:var(--js)"${jsCur}><i></i><span class="l-en">JavaScript</span><span class="l-ar">JavaScript</span></a>`);
   const tsCur = current === 'typescript' ? ' aria-current="page"' : '';
   rows.push(`<a href="${base}typescript-for-angular.html" style="--c:var(--ts)"${tsCur}><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a>`);
   return rows.join('');
@@ -583,11 +586,11 @@ function docBlock(b) {
   return '';
 }
 
-function docPage() {
-  const rail = DOC.sections.map((sec, k) =>
+function docPage(D, o) {
+  const rail = D.sections.map((sec, k) =>
     `<li><a href="#${sec.id}" data-rail="${sec.id}"><em>${String(k + 1).padStart(2, '0')}</em><span>${bi(sec.title).replace(/<code>|<\/code>/g, '')}</span></a></li>`).join('');
 
-  const body = DOC.sections.map(sec => `
+  const body = D.sections.map(sec => `
       <section class="sec" id="${sec.id}">
         <div class="sec-kick">${bi(sec.kicker)}</div>
         <h2>${bi(sec.title)}</h2>
@@ -600,26 +603,26 @@ function docPage() {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TypeScript for Angular</title>
-<meta name="description" content="${esc(DOC.lead.en.replace(/<[^>]+>/g, '').slice(0, 180))}">
+<title>${esc(o.tab)}</title>
+<meta name="description" content="${esc(D.lead.en.replace(/<[^>]+>/g, '').slice(0, 180))}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="${FONTS}" rel="stylesheet">
 <style>
-:root{--c:var(--ts)}
+:root{--c:var(${o.ink})}
 ${CSS}</style>
 ${BOOT}
 </head>
 <body>
-${chrome('typescript', '')}
+${chrome(o.id, '')}
 <main class="page" id="page">
   <div class="eyebrow">
-    <span class="num seq">00</span>
+    <span class="num seq">${o.num}</span>
     <span class="badge"><span class="l-en">Prerequisite</span><span class="l-ar">قبل ما تبدأ</span></span>
-    <span class="num"><span class="l-en">Read this first</span><span class="l-ar">اقرا دي الأول</span></span>
+    <span class="num">${bi(o.kicker)}</span>
   </div>
-  <h1 class="title">${bi(DOC.title)}</h1>
-  <p class="lead">${bi(DOC.lead)}</p>
+  <h1 class="title">${bi(D.title)}</h1>
+  <p class="lead">${bi(D.lead)}</p>
 
   <div class="doc">
     <nav class="doc-rail">
@@ -630,11 +633,8 @@ ${chrome('typescript', '')}
   </div>
 
   <nav class="pager">
-    <div class="void"></div>
-    <a class="nx" href="${FLAT[0].track.id}/${FLAT[0].slug}.html">
-      <em><span class="l-en">Start the magazine</span><span class="l-ar">ابدأ المجلة</span> &rarr;</em>
-      <b>${bi(FLAT[0].title)}</b>
-    </a>
+    ${o.prev ? `<a class="pv" href="${o.prev.href}"><em>&larr; ${bi(o.prev.kick)}</em><b>${bi(o.prev.title)}</b></a>` : '<div class="void"></div>'}
+    <a class="nx" href="${o.next.href}"><em>${bi(o.next.kick)} &rarr;</em><b>${bi(o.next.title)}</b></a>
   </nav>
 </main>
 
@@ -906,9 +906,22 @@ for (const t of TRACKS) {
 FLAT.forEach((a, i) => {
   writeFileSync(join(ROOT, a.track.id, a.slug + '.html'), page(a, i));
 });
-writeFileSync(join(ROOT, 'typescript-for-angular.html'), docPage());
+writeFileSync(join(ROOT, 'javascript-for-angular.html'), docPage(JSDOC, {
+  id: 'javascript', ink: '--js', num: '00', tab: 'JavaScript for Angular',
+  kicker: { en: 'Read this first of all', ar: 'اقرا دي قبل أي حاجة' },
+  next: { href: 'typescript-for-angular.html',
+          kick: { en: 'Then', ar: 'وبعدين' }, title: DOC.title },
+}));
+writeFileSync(join(ROOT, 'typescript-for-angular.html'), docPage(DOC, {
+  id: 'typescript', ink: '--ts', num: '01', tab: 'TypeScript for Angular',
+  kicker: { en: 'Read this second', ar: 'اقرا دي بعدها' },
+  prev: { href: 'javascript-for-angular.html',
+          kick: { en: 'Before this', ar: 'قبل دي' }, title: JSDOC.title },
+  next: { href: FLAT[0].track.id + '/' + FLAT[0].slug + '.html',
+          kick: { en: 'Start the magazine', ar: 'ابدأ المجلة' }, title: FLAT[0].title },
+}));
 writeFileSync(join(ROOT, 'roadmap.html'), mapPage());
 writeFileSync(join(ROOT, 'index.html'), index());
 
-console.log('built ' + FLAT.length + ' topic pages + roadmap.html + typescript-for-angular.html + index.html');
+console.log('built ' + FLAT.length + ' topic pages + roadmap + javascript + typescript + index');
 TRACKS.forEach(t => console.log('  ' + t.id + '/  → ' + t.arts.map(a => a.slug).join(', ')));

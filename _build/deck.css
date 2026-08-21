@@ -20,7 +20,7 @@
   --beg:#0c9280;    /* track 1 */
   --int:#5b3ad4;    /* track 2 */
   --adv:#c60059;    /* track 3 */
-  --ts:#1566cc; --html:#c04d1a; --svc:#8a5f00; --cfg:#5b3ad4;
+  --ts:#1566cc; --js:#9a6410; --html:#c04d1a; --svc:#8a5f00; --cfg:#5b3ad4;
   /* syntax */
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
@@ -41,7 +41,7 @@
   --glow1:16%; --glow2:8%;
   --ink:#eceefb; --mut:#98a0c8; --dim:#69719e; --onc:#0b0d1c;
   --beg:#2ee6c5; --int:#8b6cff; --adv:#ff2e88;
-  --ts:#4a9eff; --html:#ff7a45; --svc:#ffb020; --cfg:#8b6cff;
+  --ts:#4a9eff; --js:#ffc857; --html:#ff7a45; --svc:#ffb020; --cfg:#8b6cff;
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
