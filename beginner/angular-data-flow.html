@@ -12,6 +12,8 @@
   --bg:#0b0d1c; --bg2:#101430; --card:#141935; --card2:#171d3d;
   --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.055);
   --ink:#ecEEfb; --mut:#98a0c8; --dim:#69719e;
+  --ok:#3ddc97;     /* quiz: right answer */
+  --no:#ff5470;     /* quiz: wrong answer */
   --down:#ff2e88;   /* data going DOWN: parent -> child */
   --up:#2ee6c5;     /* data going UP: child -> parent */
   --side:#ffb020;   /* sideways: service / siblings */
@@ -88,7 +90,7 @@ h1.title code{font-family:var(--mono);font-size:.82em;font-weight:600;color:var(
 /* ---------- stage / diagram ---------- */
 .stage{position:relative;margin:6px 0 4px;padding:26px 8px;display:flex;flex-direction:column;gap:74px}
 .stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
-.row{display:flex;justify-content:center;gap:clamp(28px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
+.row{display:flex;justify-content:center;gap:clamp(92px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
 .node{
   background:linear-gradient(180deg,var(--card2),var(--card));
   border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:172px;
@@ -191,6 +193,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:rgba(255,255,255,.07);p
   box-shadow:0 14px 34px -16px #f20089;
 }
 .cta:hover{filter:brightness(1.08)}
+.cta2{background:none;border:1px solid var(--line);color:var(--mut);box-shadow:none;margin-left:10px}
+.cta2:hover{filter:none;color:var(--ink);border-color:color-mix(in srgb,var(--route) 55%,transparent)}
 .demo{position:relative;height:340px;border:1px solid var(--line2);border-radius:16px;background:
   linear-gradient(180deg,rgba(255,255,255,.035),transparent),
   repeating-linear-gradient(0deg,transparent 0 27px,rgba(255,255,255,.022) 27px 28px)}
@@ -247,6 +251,125 @@ code.i{font-family:var(--mono);font-size:.9em;background:rgba(255,255,255,.07);p
 .chk p{margin:0;color:var(--mut);font-size:13.4px}
 .sechead{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:28px 0 12px}
 
+/* ---------- plain words + picture strip ---------- */
+.say{
+  display:flex;gap:13px;align-items:flex-start;margin:0 0 12px;padding:13px 16px;
+  border:1px solid var(--line2);border-radius:11px;background:rgba(255,255,255,.03);
+}
+.say .st{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);flex-shrink:0;padding-top:4px}
+.say p{margin:0;font-size:14.6px;line-height:1.6;color:var(--ink);max-width:88ch}
+.say p b{color:var(--c);font-weight:600}
+
+.strip{
+  display:grid;grid-template-columns:repeat(3,1fr);margin:0 0 22px;
+  border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--card);
+}
+.strip .pan{
+  position:relative;padding:17px 17px 16px;display:flex;flex-direction:column;align-items:center;
+  text-align:center;gap:10px;border-left:1px solid var(--line2);
+}
+.strip .pan:first-child{border-left:0}
+.strip .pan svg{width:38px;height:38px;fill:none;stroke:var(--c);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.strip .pan p{margin:0;font-size:13.4px;line-height:1.55;color:var(--mut)}
+.strip .pan p b{color:var(--ink);font-weight:600}
+.strip .pan .step{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--dim)}
+.strip .pan + .pan::before{
+  content:"";position:absolute;left:-6px;top:50%;width:11px;height:11px;margin-top:-6px;
+  border-top:1.5px solid var(--line);border-right:1.5px solid var(--line);
+  transform:rotate(45deg);background:var(--card);
+}
+.edge text.plain{font-size:9.5px;fill:var(--mut);letter-spacing:.01em;opacity:.85}
+.edge.lit text.plain{fill:var(--mut);opacity:1}
+
+@media (max-width:900px){
+  .strip{grid-template-columns:1fr}
+  .strip .pan{border-left:0;border-top:1px solid var(--line2);flex-direction:row;text-align:left;gap:14px}
+  .strip .pan:first-child{border-top:0}
+  .strip .pan svg{width:30px;height:30px;flex-shrink:0}
+  .strip .pan + .pan::before{left:50%;top:-6px;margin:0 0 0 -6px;transform:rotate(135deg)}
+  .say{flex-direction:column;gap:6px}
+}
+
+/* ---------- back into the Beginner track ---------- */
+.hud a.deckout{
+  display:inline-block;width:auto;flex:none;font-family:var(--mono);font-size:10.5px;
+  color:var(--mut);text-decoration:none;white-space:nowrap;background:rgba(255,255,255,.05);
+  border:1px solid var(--line);border-radius:8px;padding:5px 10px;
+}
+.hud a.deckout:hover{color:var(--ink);border-color:color-mix(in srgb,var(--route) 55%,transparent)}
+.hud .bar{min-width:70px}
+@media (max-width:1100px){.hud a.deckout[data-side]{display:none}}
+
+/* ---------- quiz ---------- */
+.quiz{display:grid;gap:14px}
+.qbar{
+  position:sticky;top:0;z-index:6;display:flex;align-items:center;gap:14px;
+  padding:11px 14px;border:1px solid var(--line2);border-radius:11px;
+  background:rgba(11,13,28,.9);backdrop-filter:blur(10px);
+}
+.qbar .qtxt{font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap}
+.qbar .qtxt b{color:var(--ink);font-weight:600}
+.qbar .qtxt em{font-style:normal;color:var(--ok);font-weight:600}
+.qmeter{flex:1;min-width:60px;height:4px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden}
+.qmeter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--c),var(--ok));transition:width .35s cubic-bezier(.2,.7,.3,1)}
+
+.qcard{background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:17px 19px;transition:border-color .3s}
+.qcard.right{border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
+.qcard.wrong{border-color:color-mix(in srgb,var(--no) 45%,transparent)}
+.qhead{display:flex;gap:13px;align-items:baseline;margin-bottom:13px}
+.qnum{font-family:var(--mono);font-size:11px;color:var(--c);flex-shrink:0}
+.qask{font-size:15px;line-height:1.45;color:var(--ink);font-weight:500}
+.qcode{border:1px solid var(--line2);border-radius:10px;overflow:hidden;margin-bottom:12px;background:rgba(0,0,0,.24)}
+.qcf{padding:7px 13px;border-bottom:1px solid var(--line2);background:rgba(255,255,255,.022);
+     font-family:var(--mono);font-size:11px;color:var(--dim)}
+.qcode pre{font-size:12px;padding:10px 0}
+
+.opts{display:grid;gap:8px}
+.opt{
+  display:flex;gap:11px;align-items:flex-start;width:100%;text-align:left;cursor:pointer;
+  background:rgba(255,255,255,.028);border:1px solid var(--line2);border-radius:9px;
+  padding:10px 13px;color:var(--mut);font-family:var(--body);font-size:13.8px;line-height:1.45;transition:.18s;
+}
+.opt .k{font-family:var(--mono);font-size:11px;color:var(--dim);border:1px solid var(--line);
+        border-radius:5px;padding:0 6px;flex-shrink:0;line-height:1.55}
+.opt .ot{flex:1;min-width:0}
+.opt .mark{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;flex-shrink:0;line-height:1.9}
+.opt:hover{color:var(--ink);background:rgba(255,255,255,.055);border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.qcard.done .opt,.qcard.done .opt:hover{cursor:default;background:rgba(255,255,255,.028);border-color:var(--line2);color:var(--mut)}
+.qcard.done .opt.ok{color:var(--ink);border-color:color-mix(in srgb,var(--ok) 55%,transparent);background:color-mix(in srgb,var(--ok) 11%,transparent)}
+.qcard.done .opt.ok .k{color:var(--ok);border-color:currentColor}
+.qcard.done .opt.ok .mark{color:var(--ok)}
+.qcard.done .opt.ok .mark::after{content:"right answer"}
+.qcard.done .opt.no{color:var(--ink);border-color:color-mix(in srgb,var(--no) 55%,transparent);background:color-mix(in srgb,var(--no) 10%,transparent)}
+.qcard.done .opt.no .k{color:var(--no);border-color:currentColor}
+.qcard.done .opt.no .mark{color:var(--no)}
+.qcard.done .opt.no .mark::after{content:"you picked"}
+
+.why{
+  display:flex;gap:13px;align-items:flex-start;flex-wrap:wrap;margin-top:13px;padding:13px 15px;
+  border:1px solid var(--line2);border-radius:10px;background:rgba(255,255,255,.028);
+  animation:rise .3s cubic-bezier(.2,.7,.3,1);
+}
+.why[hidden]{display:none}
+.why .wt{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);flex-shrink:0;padding-top:3px}
+.why p{margin:0;flex:1;min-width:230px;font-size:13.6px;line-height:1.65;color:var(--mut)}
+.why p b{color:var(--ink);font-weight:600}
+
+.qend{
+  border:1px solid var(--line2);border-radius:12px;padding:20px;text-align:center;
+  background:linear-gradient(180deg,var(--card2),var(--card));
+}
+.qend .sc{display:block;font-family:var(--disp);font-weight:800;font-size:30px;letter-spacing:-.03em;color:var(--ink)}
+.qend p{margin:6px 0 14px;color:var(--mut);font-size:13.6px}
+.qend .revs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.qend .revs:empty{display:none}
+
+@media (max-width:900px){
+  .qbar{flex-wrap:wrap;gap:10px}
+  .qmeter{order:3;flex-basis:100%}
+  .qcard{padding:14px 15px}
+}
+
 @media (max-width:900px){
   :root{--rail:0px}
   .deck{grid-template-columns:1fr}
@@ -268,7 +391,7 @@ code.i{font-family:var(--mono);font-size:.9em;background:rgba(255,255,255,.07);p
   <aside class="rail">
     <div class="brand"><b>Angular data flow</b><span>component communication</span></div>
     <nav class="rail-list" id="rail"></nav>
-    <div class="rail-foot"><kbd>&rarr;</kbd> next step &nbsp; <kbd>&larr;</kbd> back<br><kbd>N</kbd><kbd>P</kbd> change slide &nbsp; <kbd>R</kbd> replay</div>
+    <div class="rail-foot"><kbd>&rarr;</kbd> next step &nbsp; <kbd>&larr;</kbd> back<br><kbd>N</kbd><kbd>P</kbd> change slide &nbsp; <kbd>R</kbd> replay<br><kbd>1</kbd>&ndash;<kbd>4</kbd> answer a quiz</div>
   </aside>
   <div class="main">
     <div class="viewport" id="viewport"></div>
@@ -278,7 +401,8 @@ code.i{font-family:var(--mono);font-size:.9em;background:rgba(255,255,255,.07);p
         <button class="iconbtn" id="next">Next &rarr;</button>
       </div>
       <div class="bar"><i id="barfill"></i></div>
-      <div class="pos" id="pos">01 / 13</div>
+      <div class="pos" id="pos">01 / 22</div>
+      <a class="deckout" data-side href="10-inputs-outputs.html" title="input(), output(), model()">&larr; prev topic</a><a class="deckout" href="index.html" title="Beginner track">Beginner track</a><a class="deckout" data-side href="11-services-di.html" title="When two components need the same fact">next topic &rarr;</a>
     </div>
   </div>
 </div>
@@ -304,6 +428,12 @@ const SLIDES = [
 
 /* 02 ------------------------------------------------------- */
 {
+  analogy:{
+    say:`The parent is a <b>manager</b>. It writes the value on a note, keeps the original, and hands a copy down to the child. The child only reads the note — it never decides what is written on it.`,
+    strip:[
+      {ic:'note', t:`The <b>parent</b> holds the value. Nobody else has it yet.`},
+      {ic:'down', t:`It hands a copy down through the tag: <b>[user]="user"</b>.`},
+      {ic:'person', t:`The <b>child</b> receives it and draws it. That is all it does.`}]},
   id:'input', num:'02', rail:'@Input — down', c:C.down, badge:'Parent → Child',
   title:'Pass data <code>down</code> with @Input()',
   lead:'Use it when the child tag is written inside the parent template. The parent stays the owner of the value; the child only displays what it is given.',
@@ -314,9 +444,9 @@ const SLIDES = [
      {id:'cts',role:'receives it',file:'child.component',ext:'.ts',kind:'ts'}]
   ],
   edges:[
-    {id:'e1',from:'pts',to:'phtml',a:'right',b:'left',label:'user',packet:'user'},
-    {id:'e2',from:'phtml',to:'cts',a:'bottom',b:'top',label:'[user]="user"',packet:'{ name }'},
-    {id:'e3',from:'cts',to:'chtml',a:'left',b:'right',label:'{{ }}',packet:'Sara'}
+    {id:'e1',from:'pts',to:'phtml',a:'right',b:'left',label:'user',packet:'user',plain:'it lives here'},
+    {id:'e2',from:'phtml',to:'cts',a:'bottom',b:'top',label:'[user]="user"',packet:'{ name }',plain:'it crosses into the child'},
+    {id:'e3',from:'cts',to:'chtml',a:'left',b:'right',label:'{{ }}',packet:'Sara',plain:'prints it'}
   ],
   files:[
     {id:'pts',name:'parent.component.ts',lang:'ts',tag:'source',code:[
@@ -411,6 +541,12 @@ const SLIDES = [
 
 /* 03 ------------------------------------------------------- */
 {
+  analogy:{
+    say:`The child is an <b>employee who rings a bell</b>. It does not touch the parent's data. It announces "this just happened", and the manager decides what to do about it.`,
+    strip:[
+      {ic:'person', t:`Something happens inside the <b>child</b> — a click, a submit.`},
+      {ic:'up', t:`The child rings the bell upward: <b>emit(value)</b>.`},
+      {ic:'bell', t:`The <b>parent</b> was listening with <b>(saved)</b> and reacts.`}]},
   id:'output', num:'03', rail:'@Output — up', c:C.up, badge:'Child → Parent',
   title:'Send events <code>up</code> with @Output()',
   lead:'The child never changes the parent\u2019s data itself. It announces "this happened", and the parent decides what to do about it.',
@@ -421,9 +557,9 @@ const SLIDES = [
      {id:'cts',role:'emits',file:'child.component',ext:'.ts',kind:'ts'}]
   ],
   edges:[
-    {id:'e1',from:'chtml',to:'cts',a:'right',b:'left',label:'(click)',packet:'click'},
-    {id:'e2',from:'cts',to:'phtml',a:'top',b:'bottom',label:'emit(text)',packet:'"hello"'},
-    {id:'e3',from:'phtml',to:'pts',a:'left',b:'right',label:'$event',packet:'$event'}
+    {id:'e1',from:'chtml',to:'cts',a:'right',b:'left',label:'(click)',packet:'click',plain:'the user does something'},
+    {id:'e2',from:'cts',to:'phtml',a:'top',b:'bottom',label:'emit(text)',packet:'"hello"',plain:'the child shouts upward'},
+    {id:'e3',from:'phtml',to:'pts',a:'left',b:'right',label:'$event',packet:'$event',plain:'the parent catches it'}
   ],
   files:[
     {id:'chtml',name:'child.component.html',lang:'html',tag:'trigger',code:[
@@ -522,6 +658,12 @@ const SLIDES = [
 
 /* 04 ------------------------------------------------------- */
 {
+  analogy:{
+    say:`One value, <b>two people allowed to edit it</b> — like a shared shopping list on the fridge. Whoever changes it, both of them are looking at the same list a second later.`,
+    strip:[
+      {ic:'field', t:`The <b>parent</b> owns the number and shows it to the child.`},
+      {ic:'twoway', t:`<b>[(count)]</b> is one wire down plus one wire back up.`},
+      {ic:'person', t:`The child changes it, the parent's copy changes too.`}]},
   id:'twoway', num:'04', rail:'[( two-way )]', c:C.down, badge:'Both directions',
   title:'Two-way binding <code>[(value)]</code>',
   lead:'Banana-in-a-box is not magic: it is an @Input plus an @Output glued together by a naming convention. Getting the name wrong is why it silently stops working.',
@@ -531,9 +673,9 @@ const SLIDES = [
     [{id:'cts',role:'in + out',file:'counter.component',ext:'.ts',kind:'ts'}]
   ],
   edges:[
-    {id:'e0',from:'pts',to:'phtml',a:'right',b:'left',label:'count',packet:'0'},
-    {id:'e1',from:'phtml',to:'cts',a:'bottom',b:'top',label:'[value]',packet:'0'},
-    {id:'e2',from:'cts',to:'phtml',a:'right',b:'right',label:'valueChange',packet:'1'}
+    {id:'e0',from:'pts',to:'phtml',a:'right',b:'left',label:'count',packet:'0',plain:'the parent\'s number'},
+    {id:'e1',from:'phtml',to:'cts',a:'bottom',b:'top',label:'[value]',packet:'0',plain:'goes down as usual'},
+    {id:'e2',from:'cts',to:'phtml',a:'right',b:'right',label:'valueChange',packet:'1',plain:'and comes back changed'}
   ],
   files:[
     {id:'pts',name:'parent.component.ts',lang:'ts',tag:'owner',code:[
@@ -613,6 +755,12 @@ const SLIDES = [
 
 /* 05 ------------------------------------------------------- */
 {
+  analogy:{
+    say:`Here you are not <b>sending</b> anything. You want the child to <b>do</b> something — like picking up the TV remote instead of walking over and pushing the buttons yourself.`,
+    strip:[
+      {ic:'person', t:`The parent needs an <b>action</b>, not a value: clear this form.`},
+      {ic:'remote', t:`<b>#ref</b> or <b>viewChild()</b> hands it the child instance.`},
+      {ic:'field', t:`It calls <b>kid.reset()</b> and the code runs inside the child.`}]},
   id:'viewchild', num:'05', rail:'#ref & viewChild', c:C.down, badge:'Parent → Child (imperative)',
   title:'Call the child directly: <code>#ref</code> + viewChild()',
   lead:'For actions rather than data — focus(), reset(), openDialog(). The parent gets the actual child instance and calls its public methods.',
@@ -622,8 +770,8 @@ const SLIDES = [
     [{id:'cts',role:'exposes methods',file:'child.component',ext:'.ts',kind:'ts'}]
   ],
   edges:[
-    {id:'e1',from:'phtml',to:'pts',a:'left',b:'right',label:'#kid instance',packet:'ChildComponent'},
-    {id:'e2',from:'pts',to:'cts',a:'bottom',b:'top',label:'kid.reset()',packet:'reset()'}
+    {id:'e1',from:'phtml',to:'pts',a:'left',b:'right',label:'#kid instance',packet:'ChildComponent',plain:'grabs the child'},
+    {id:'e2',from:'pts',to:'cts',a:'bottom',b:'top',label:'kid.reset()',packet:'reset()',plain:'and calls a method on it'}
   ],
   files:[
     {id:'phtml',name:'parent.component.html',lang:'html',tag:'the wire',code:[
@@ -714,6 +862,12 @@ const SLIDES = [
 
 /* 06 ------------------------------------------------------- */
 {
+  analogy:{
+    say:`The wrapper is a <b>picture frame</b>. It has a hole in the middle and no idea what picture goes in — the page decides that, and the frame only decides where the hole sits.`,
+    strip:[
+      {ic:'frame', t:`The card leaves a hole in its template: <b>&lt;ng-content&gt;</b>.`},
+      {ic:'box', t:`The page writes markup between the card's tags.`},
+      {ic:'person', t:`It lands in the hole — but it still belongs to the <b>page</b>.`}]},
   id:'content', num:'06', rail:'ng-content', c:C.down, badge:'Outer template → Wrapper',
   title:'Projected content: <code>&lt;ng-content&gt;</code>',
   lead:'For wrappers — card, modal, tabs, form field. The markup is written outside, but rendered inside. That is why the wrapper cannot see it with @ViewChild.',
@@ -723,8 +877,8 @@ const SLIDES = [
      {id:'cardts',role:'queries it',file:'card.component',ext:'.ts',kind:'ts'}]
   ],
   edges:[
-    {id:'e1',from:'app',to:'cardhtml',a:'bottom',b:'top',label:'projected nodes',packet:'<h2>…'},
-    {id:'e2',from:'app',to:'cardts',a:'right',b:'top',label:'@ContentChild',packet:'ref'}
+    {id:'e1',from:'app',to:'cardhtml',a:'bottom',b:'top',label:'projected nodes',packet:'<h2>…',plain:'your markup drops into the slot'},
+    {id:'e2',from:'app',to:'cardts',a:'right',b:'top',label:'@ContentChild',packet:'ref',plain:'the wrapper can read it too'}
   ],
   files:[
     {id:'app',name:'app.component.html',lang:'html',tag:'outside',code:[
@@ -802,6 +956,12 @@ const SLIDES = [
 
 /* 07 ------------------------------------------------------- */
 {
+  analogy:{
+    say:`A child asks <b>"who is holding me?"</b> — the way a passenger asks which bus they are on. Angular walks up the tree and hands it the real container object.`,
+    strip:[
+      {ic:'tabs', t:`Each <b>&lt;app-tab&gt;</b> is written inside <b>&lt;app-tabs&gt;</b>.`},
+      {ic:'plug', t:`The tab does <b>inject(TabsComponent)</b> and gets the wrapper.`},
+      {ic:'person', t:`It registers itself, so the wrapper can drive all of them.`}]},
   id:'parentdi', num:'07', rail:'inject(parent)', c:C.up, badge:'Child → its container',
   title:'The child injects its <code>parent</code>',
   lead:'How compound components work: tabs, accordions, radio groups, form fields. The container never receives its children as an @Input — the children introduce themselves.',
@@ -811,8 +971,8 @@ const SLIDES = [
     [{id:'tabts',role:'registers itself',file:'tab.component',ext:'.ts',kind:'ts'}]
   ],
   edges:[
-    {id:'e1',from:'tabshtml',to:'tabts',a:'bottom',b:'top',label:'renders <app-tab>',packet:'create'},
-    {id:'e2',from:'tabts',to:'tabsts',a:'left',b:'bottom',label:'register(this)',packet:'this'}
+    {id:'e1',from:'tabshtml',to:'tabts',a:'bottom',b:'top',label:'renders <app-tab>',packet:'create',plain:'the container draws its children'},
+    {id:'e2',from:'tabts',to:'tabsts',a:'left',b:'bottom',label:'register(this)',packet:'this',plain:'each child reports back in'}
   ],
   files:[
     {id:'usage',name:'app.component.html',lang:'html',tag:'usage',code:[
@@ -902,6 +1062,12 @@ const SLIDES = [
 
 /* 08 ------------------------------------------------------- */
 {
+  analogy:{
+    say:`A service is a <b>shelf in a shared room</b>. It does not live inside any component, so two components that have never met can still put things on it and take things off it.`,
+    strip:[
+      {ic:'shelf', t:`The <b>service</b> lives outside the component tree.`},
+      {ic:'box', t:`One component puts a value on the shelf: <b>add(item)</b>.`},
+      {ic:'bell', t:`A <b>BehaviorSubject</b> tells every listener the moment it changes.`}]},
   id:'service', num:'08', rail:'Shared service', c:C.side, badge:'Siblings / anywhere',
   title:'Any distance: a <code>shared service</code>',
   lead:'When the two components are siblings, cousins, or on opposite sides of the app, stop threading inputs through the tree. Put the state in a service both of them inject.',
@@ -911,8 +1077,8 @@ const SLIDES = [
     [{id:'svc',role:'holds the state',file:'cart.service',ext:'.ts',kind:'svc'}]
   ],
   edges:[
-    {id:'e1',from:'writerTs',to:'svc',a:'bottom',b:'left',label:'add(item)',packet:'item'},
-    {id:'e2',from:'svc',to:'readerTs',a:'right',b:'bottom',label:'items$ emits',packet:'[ … ]'}
+    {id:'e1',from:'writerTs',to:'svc',a:'bottom',b:'left',label:'add(item)',packet:'item',plain:'one side writes to the shelf'},
+    {id:'e2',from:'svc',to:'readerTs',a:'right',b:'bottom',label:'items$ emits',packet:'[ … ]',plain:'everyone listening is told'}
   ],
   files:[
     {id:'svc',name:'cart.service.ts',lang:'ts',tag:'single instance',code:[
@@ -1010,6 +1176,12 @@ const SLIDES = [
 
 /* 09 ------------------------------------------------------- */
 {
+  analogy:{
+    say:`A signal is a value that <b>announces itself</b>. You do not subscribe and you do not unsubscribe — you just read it, and anything that read it redraws when it changes.`,
+    strip:[
+      {ic:'radio', t:`The store holds <b>signal()</b> values instead of subjects.`},
+      {ic:'person', t:`You read one like a function: <b>count()</b>.`},
+      {ic:'frame', t:`Every template that read it redraws itself. Nothing to clean up.`}]},
   id:'signals', num:'09', rail:'Signal store', c:C.side, badge:'Shared state, modern',
   title:'The same thing with <code>signals</code>',
   lead:'Angular 16+ gives you shared state without streams, subscriptions or the async pipe. The service is a small store; templates just call the signal.',
@@ -1019,8 +1191,8 @@ const SLIDES = [
     [{id:'store',role:'the store',file:'cart.store',ext:'.ts',kind:'svc'}]
   ],
   edges:[
-    {id:'e1',from:'writerTs',to:'store',a:'bottom',b:'left',label:'add(item)',packet:'item'},
-    {id:'e2',from:'store',to:'readerHtml',a:'right',b:'bottom',label:'items() changed',packet:'re-render'}
+    {id:'e1',from:'writerTs',to:'store',a:'bottom',b:'left',label:'add(item)',packet:'item',plain:'the writer updates the signal'},
+    {id:'e2',from:'store',to:'readerHtml',a:'right',b:'bottom',label:'items() changed',packet:'re-render',plain:'readers redraw themselves'}
   ],
   files:[
     {id:'store',name:'cart.store.ts',lang:'ts',tag:'store',code:[
@@ -1115,6 +1287,12 @@ const SLIDES = [
 
 /* 10 ------------------------------------------------------- */
 {
+  analogy:{
+    say:`Two pages never share a template, so there is no wire between them. The value travels the way a <b>luggage tag</b> travels — attached to the address itself.`,
+    strip:[
+      {ic:'sign', t:`The list page navigates to <b>/orders/42</b>.`},
+      {ic:'tag', t:`The id rides <b>inside the URL</b>, not in a variable.`},
+      {ic:'person', t:`The detail page reads it back out and loads that order.`}]},
   id:'route', num:'10', rail:'Between routes', c:C.route, badge:'Page → Page',
   title:'Different pages: the <code>URL</code> is the channel',
   lead:'Two routed components are never parent and child, so inputs and outputs cannot reach. The router config is the contract between them.',
@@ -1125,9 +1303,9 @@ const SLIDES = [
      {id:'detailTs',role:'receives',file:'user-detail.component',ext:'.ts',kind:'ts'}]
   ],
   edges:[
-    {id:'e1',from:'listTs',to:'routesTs',a:'right',b:'left',label:'/user/7?tab=orders',packet:'URL'},
-    {id:'e2',from:'routesTs',to:'detailTs',a:'bottom',b:'top',label:'id = "7"',packet:'params'},
-    {id:'e3',from:'detailTs',to:'detailHtml',a:'left',b:'right',label:'{{ id() }}',packet:'7'}
+    {id:'e1',from:'listTs',to:'routesTs',a:'right',b:'left',label:'/user/7?tab=…',packet:'URL',plain:'into the URL'},
+    {id:'e2',from:'routesTs',to:'detailTs',a:'bottom',b:'top',label:'id = "7"',packet:'params',plain:'the router hands it to the page'},
+    {id:'e3',from:'detailTs',to:'detailHtml',a:'left',b:'right',label:'{{ id() }}',packet:'7',plain:'shows it'}
   ],
   files:[
     {id:'listTs',name:'user-list.component.ts',lang:'ts',tag:'sender',code:[
@@ -1229,14 +1407,533 @@ const SLIDES = [
 },
 
 /* 11 ------------------------------------------------------- */
-{ kind:'table', num:'11', rail:'Cheat sheet', c:C.route,
+{
+  id:'dialog', num:'11', rail:'Dialog in & out', c:C.route, badge:'Page ↔ Dialog',
+  analogy:{
+    say:`A dialog is like <b>sending someone into a room with a note</b> and waiting at the door. You hand them the note on the way in, and they hand you an answer on the way out.`,
+    strip:[
+      {ic:'window', t:`<b>dialog.open()</b> creates it in code. No tag was ever written.`},
+      {ic:'note', t:`What you put in <b>data:</b> is the note going in.`},
+      {ic:'mail', t:`<b>afterClosed()</b> delivers the answer coming back.`}]},
+  title:'Open a dialog <code>with</code> data, get an answer back',
+  lead:'A dialog is not written inside your template, so there is no tag to bind to and @Input() does not apply. You hand it data when you open it, and it hands you a result when it closes.',
+  nodes:[
+    [{id:'pagets',role:'opens it',file:'orders.component',ext:'.ts',kind:'ts'}],
+    [{id:'dlgts',role:'reads the note',file:'confirm-dialog.component',ext:'.ts',kind:'ts'},
+     {id:'dlghtml',role:'the two buttons',file:'confirm-dialog.component',ext:'.html',kind:'html'}]
+  ],
+  edges:[
+    {id:'e1',from:'pagets',to:'dlgts',a:'bottom',b:'top',label:'data: { name }',packet:'{ name }',plain:'the note going in'},
+    {id:'e2',from:'dlgts',to:'dlghtml',a:'right',b:'left',label:'data.name',packet:'"Order 42"',plain:'renders it'},
+    {id:'e3',from:'dlghtml',to:'pagets',a:'top',b:'bottom',label:'close(true)',packet:'true',plain:'the answer coming out'}
+  ],
+  files:[
+    {id:'pagets',name:'orders.component.ts',lang:'ts',tag:'opens it',code:[
+      "import { inject } from '@angular/core';",
+      "import { MatDialog } from '@angular/material/dialog';",
+      "",
+      "export class OrdersComponent {",
+      "  private dialog = inject(MatDialog);",
+      "",
+      "  remove(order: Order) {",
+      "    const ref = this.dialog.open(ConfirmDialog, {",
+      "      data: { name: order.name },          // <-- goes IN",
+      "    });",
+      "",
+      "    ref.afterClosed().subscribe(yes => {   // <-- comes OUT",
+      "      if (yes === true) this.api.delete(order.id);",
+      "    });",
+      "  }",
+      "}"]},
+    {id:'dlgts',name:'confirm-dialog.component.ts',lang:'ts',tag:'receiver',code:[
+      "import { inject } from '@angular/core';",
+      "import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';",
+      "",
+      "export class ConfirmDialog {",
+      "  data = inject(MAT_DIALOG_DATA);         // the note it was handed",
+      "  private ref = inject(MatDialogRef<ConfirmDialog>);",
+      "",
+      "  answer(yes: boolean) {",
+      "    this.ref.close(yes);                  // the answer going back",
+      "  }",
+      "}"]},
+    {id:'dlghtml',name:'confirm-dialog.component.html',lang:'html',tag:'output',code:[
+      "<h2>Delete {{ data.name }}?</h2>",
+      "",
+      "<button (click)=\"answer(false)\">Cancel</button>",
+      "<button (click)=\"answer(true)\">Delete</button>"]},
+    {id:'plain',name:'the same thing with no library at all',lang:'ts',tag:'no material',code:[
+      "// a dialog is only a component you show and hide",
+      "open = signal<Order | null>(null);",
+      "",
+      "// in the template:",
+      "//   @if (open(); as order) {",
+      "//     <app-confirm [name]=\"order.name\"",
+      "//                  (answered)=\"onAnswer($event)\" />",
+      "//   }",
+      "",
+      "// which is @Input() down and @Output() up all over again"]}
+  ],
+  steps:[
+    {t:'The page owns the order and wants a yes / no before it deletes anything.',hl:{pagets:[7]}},
+    {t:'open() builds the dialog in code. Everything inside data: is the note you hand it.',edge:'e1',hl:{pagets:[8,9,10]}},
+    {t:'Inside the dialog, MAT_DIALOG_DATA is that note. The template renders it.',edge:'e2',hl:{dlgts:[5],dlghtml:[1]}},
+    {t:'close(true) shuts the dialog and pushes the answer into afterClosed() back on the page.',edge:'e3',hl:{dlgts:[8,9],pagets:[12,13]}}
+  ],
+  example:{
+    name:'Edit a row in a dialog and get the edited row back',
+    what:'Same two directions, bigger payload: the row goes in, the saved version comes out. Note that the page passes an id and the dialog loads its own copy — handing over the live object is how you end up with a half-edited row on screen after Cancel.',
+    files:[
+      {id:'y1',name:'users.component.ts',lang:'ts',tag:'the page',code:[
+        "edit(user: User) {",
+        "  const ref = this.dialog.open(UserFormDialog, {",
+        "    data: { id: user.id },      // pass the id, not the object",
+        "    width: '520px',",
+        "  });",
+        "",
+        "  ref.afterClosed().subscribe(saved => {",
+        "    if (!saved) return;         // Esc or Cancel",
+        "    this.users.update(list =>",
+        "      list.map(u => u.id === saved.id ? saved : u));",
+        "  });",
+        "}"]},
+      {id:'y2',name:'user-form-dialog.component.ts',lang:'ts',tag:'the dialog',code:[
+        "export class UserFormDialog {",
+        "  private data = inject(MAT_DIALOG_DATA);",
+        "  private ref = inject(MatDialogRef<UserFormDialog>);",
+        "",
+        "  user = toSignal(this.api.get(this.data.id));",
+        "",
+        "  save(form: User) {",
+        "    this.api.update(form).subscribe(saved =>",
+        "      this.ref.close(saved));    // the payload going back",
+        "  }",
+        "}"]}
+    ]
+  },
+  gotchas:[
+    '<code class="i">afterClosed()</code> emits <b>undefined</b> on Esc and on a backdrop click. Handle that branch first.',
+    'No template wrote the tag, so <b>@Input() and @Output() do not apply here</b> — use <code class="i">data:</code> and <code class="i">close()</code>.',
+    'Type it: <code class="i">dialog.open&lt;Dlg, DataIn, ResultOut&gt;(...)</code> and afterClosed() becomes properly typed.',
+    'Pass an <b>id</b>, not the live object. Handing over the object lets the dialog edit your row even when the user cancels.',
+    'Rolling your own? It is a component behind <code class="i">@if</code> — and then it is plain @Input() and @Output() again.'
+  ]
+},
+
+/* 12 ------------------------------------------------------- */
+{
+  id:'dynamic', num:'12', rail:'Dynamic components', c:C.down, badge:'Created in code',
+  analogy:{
+    say:`Normally you write the tag and Angular fills it in. Here you do not know which component to show until the app is running — so you <b>build it yourself and push the values in by hand</b>.`,
+    strip:[
+      {ic:'wand', t:`The component class is now <b>data</b>, sitting in an array.`},
+      {ic:'box', t:`<b>ngComponentOutlet</b> creates whichever one you point it at.`},
+      {ic:'down', t:`Its inputs are set with <b>an object</b>, or with setInput().`}]},
+  title:'Feed a component you create <code>in code</code>',
+  lead:'A dashboard of widgets, a wizard, a page built from CMS blocks: you do not know the component until runtime, so there is no tag to write and no binding to use. You pass the class around like any other value.',
+  nodes:[
+    [{id:'hostts',role:'picks the class',file:'dashboard.component',ext:'.ts',kind:'ts'},
+     {id:'hosthtml',role:'the outlet',file:'dashboard.component',ext:'.html',kind:'html'}],
+    [{id:'widgetts',role:'the created one',file:'chart-widget.component',ext:'.ts',kind:'ts'}]
+  ],
+  edges:[
+    {id:'e1',from:'hostts',to:'hosthtml',a:'right',b:'left',label:'w.cmp',packet:'ChartWidget',plain:'the class itself'},
+    {id:'e2',from:'hosthtml',to:'widgetts',a:'bottom',b:'top',label:'inputs: { title }',packet:'{ title }',plain:'inputs set by hand'}
+  ],
+  files:[
+    {id:'hostts',name:'dashboard.component.ts',lang:'ts',tag:'source',code:[
+      "import { ChartWidget } from './chart-widget.component';",
+      "import { TableWidget } from './table-widget.component';",
+      "",
+      "export class DashboardComponent {",
+      "  widgets = [",
+      "    { cmp: ChartWidget, inputs: { title: 'Sales' } },",
+      "    { cmp: TableWidget, inputs: { title: 'Orders' } },",
+      "  ];",
+      "}"]},
+    {id:'hosthtml',name:'dashboard.component.html',lang:'html',tag:'the wire',code:[
+      "@for (w of widgets; track w.cmp) {",
+      "  <ng-container",
+      "    [ngComponentOutlet]=\"w.cmp\"",
+      "    [ngComponentOutletInputs]=\"w.inputs\">",
+      "  </ng-container>",
+      "}"]},
+    {id:'widgetts',name:'chart-widget.component.ts',lang:'ts',tag:'receiver',code:[
+      "export class ChartWidget {",
+      "  title = input('');             // an ordinary input",
+      "  points = input<number[]>([]);",
+      "",
+      "  // nothing in here knows it was created dynamically",
+      "}"]},
+    {id:'imp',name:'when you need the instance itself',lang:'ts',tag:'imperative',code:[
+      "private host = inject(ViewContainerRef);",
+      "",
+      "show() {",
+      "  const ref = this.host.createComponent(ChartWidget);",
+      "",
+      "  ref.setInput('title', 'Sales');           // inputs",
+      "  ref.instance.saved.subscribe(v => ...);   // outputs",
+      "",
+      "  // ref.destroy() when you are finished with it",
+      "}"]}
+  ],
+  steps:[
+    {t:'The list of widgets is plain data. The component class itself is the value being passed around.',hl:{hostts:[5,6,7,8]}},
+    {t:'ngComponentOutlet takes that class and builds the component. No tag for it was ever written.',edge:'e1',hl:{hosthtml:[2,3]}},
+    {t:'ngComponentOutletInputs is your [prop]="value" — written as one object instead.',edge:'e2',hl:{hosthtml:[4]}},
+    {t:'Inside, it is a completely ordinary component with completely ordinary inputs.',hl:{widgetts:[2,3]}}
+  ],
+  example:{
+    name:'A page built from CMS blocks',
+    what:'The server sends a list of blocks, each with a type and its own props. A map turns the type string into a component class, and the page renders whatever came back — add a new block type by adding one line to the map.',
+    files:[
+      {id:'z1',name:'blocks.ts',lang:'ts',tag:'the map',code:[
+        "export const BLOCKS: Record<string, Type<unknown>> = {",
+        "  hero:  HeroBlock,",
+        "  faq:   FaqBlock,",
+        "  video: VideoBlock,",
+        "};"]},
+      {id:'z2',name:'page.component.html',lang:'html',tag:'the outlet',code:[
+        "@for (b of blocks(); track b.id) {",
+        "  <ng-container",
+        "    [ngComponentOutlet]=\"BLOCKS[b.type]\"",
+        "    [ngComponentOutletInputs]=\"b.props\">",
+        "  </ng-container>",
+        "} @empty {",
+        "  <p>This page has no content yet.</p>",
+        "}"]}
+    ]
+  },
+  gotchas:[
+    'There is no outputs binding on the directive. Need events back? Use <code class="i">createComponent()</code> and subscribe to <code class="i">ref.instance</code>.',
+    '<code class="i">setInput()</code> also marks the component dirty. Assigning <code class="i">ref.instance.title = x</code> does not, and OnPush ignores it.',
+    'The inputs object keys must be the <b>input names</b>. A typo is silent — nothing throws.',
+    'Know both components at compile time? A plain <code class="i">@if</code> or <code class="i">@switch</code> is simpler and keeps your types.',
+    'Components you create with <code class="i">createComponent()</code> are yours to <code class="i">destroy()</code>; the outlet cleans up after itself.'
+  ]
+},
+
+/* 13 ------------------------------------------------------- */
+{
+  id:'routeinput', num:'13', rail:'URL → @Input', c:C.route, badge:'Router does the unpacking',
+  analogy:{
+    say:`Same journey as the routes slide, but the router unpacks the luggage for you: the <b>address label arrives as an ordinary input</b>, exactly as if a parent had bound it.`,
+    strip:[
+      {ic:'sign', t:`The URL is <b>/user/7?tab=orders</b>.`},
+      {ic:'plug', t:`One line at bootstrap: <b>withComponentInputBinding()</b>.`},
+      {ic:'field', t:`The page just writes <b>id = input()</b>. No ActivatedRoute.`}]},
+  title:'Turn route params straight into <code>@Input()</code>s',
+  lead:'Since Angular 16 you can stop injecting ActivatedRoute for the simple cases. Switch one flag on at bootstrap and the router writes path params, query params and resolved data onto inputs with matching names.',
+  nodes:[
+    [{id:'cfg',role:'switches it on',file:'app.config',ext:'.ts',kind:'cfg'},
+     {id:'routes',role:'names the param',file:'app.routes',ext:'.ts',kind:'cfg'}],
+    [{id:'pagets',role:'plain inputs',file:'user-detail.component',ext:'.ts',kind:'ts'},
+     {id:'pagehtml',role:'renders',file:'user-detail.component',ext:'.html',kind:'html'}]
+  ],
+  edges:[
+    {id:'e1',from:'cfg',to:'routes',a:'right',b:'left',label:'component input binding',packet:'on',plain:'switched on at bootstrap'},
+    {id:'e2',from:'routes',to:'pagets',a:'bottom',b:'top',label:':id  →  id',packet:'id = "7"',plain:'same name, same value'},
+    {id:'e3',from:'pagets',to:'pagehtml',a:'right',b:'left',label:'{{ user()?.name }}',packet:'Sara',plain:'draws it'}
+  ],
+  files:[
+    {id:'cfg',name:'app.config.ts',lang:'ts',tag:'one line',code:[
+      "import { provideRouter, withComponentInputBinding } from '@angular/router';",
+      "",
+      "export const appConfig: ApplicationConfig = {",
+      "  providers: [",
+      "    provideRouter(routes, withComponentInputBinding()),",
+      "  ],",
+      "};"]},
+    {id:'routes',name:'app.routes.ts',lang:'ts',tag:'the contract',code:[
+      "export const routes: Routes = [",
+      "  { path: 'user/:id', component: UserDetailComponent },",
+      "",
+      "  // resolved data lands on an input with the same key",
+      "  { path: 'order/:id', component: OrderComponent,",
+      "    resolve: { order: orderResolver } },",
+      "];"]},
+    {id:'pagets',name:'user-detail.component.ts',lang:'ts',tag:'receiver',code:[
+      "export class UserDetailComponent {",
+      "  private api = inject(UserApi);",
+      "",
+      "  id = input.required<string>();   // from the path   /user/:id",
+      "  tab = input('profile');          // from the query  ?tab=orders",
+      "",
+      "  user = signal<User | null>(null);",
+      "",
+      "  constructor() {",
+      "    // runs again every time the id in the URL changes",
+      "    effect(() => this.load(this.id()));",
+      "  }",
+      "}"]},
+    {id:'pagehtml',name:'user-detail.component.html',lang:'html',tag:'output',code:[
+      "<h1>{{ user()?.name }}</h1>",
+      "<p>tab: {{ tab() }}</p>"]},
+    {id:'old',name:'the older way — still the right tool sometimes',lang:'ts',tag:'compare',code:[
+      "// use this when the names do not match, or you need the snapshot",
+      "private route = inject(ActivatedRoute);",
+      "",
+      "ngOnInit() {",
+      "  this.route.paramMap.subscribe(p => this.load(p.get('id')));",
+      "}"]}
+  ],
+  steps:[
+    {t:'One line at bootstrap gives the router permission to write onto component inputs.',hl:{cfg:[5]}},
+    {t:'The route declares the param it carries: :id.',edge:'e1',hl:{routes:[2]}},
+    {t:'A param called id lands on an input called id. The names must match, exactly.',edge:'e2',hl:{pagets:[4,5]}},
+    {t:'Go from /user/1 to /user/2 and the input changes — so the effect runs again. ngOnInit does not.',edge:'e3',hl:{pagets:[11],pagehtml:[1]}}
+  ],
+  example:{
+    name:'A product list that keeps its filters in the URL',
+    what:'Category, sort and page are three inputs and nothing else. Refresh, bookmark, share the link or press the back button and the page comes back exactly as it was — free, because the state was never anywhere but the URL.',
+    files:[
+      {id:'w1',name:'app.routes.ts',lang:'ts',tag:'the contract',code:[
+        "{",
+        "  path: 'products/:category',",
+        "  component: ProductListComponent,",
+        "}",
+        "",
+        "// visited as: /products/shoes?sort=price&page=2"]},
+      {id:'w2',name:'product-list.component.ts',lang:'ts',tag:'three inputs',code:[
+        "category = input.required<string>();               // path param",
+        "sort     = input<'price' | 'new'>('new');          // query param",
+        "page     = input(1, { transform: numberAttribute }); // text -> number",
+        "",
+        "products = computed(() =>",
+        "  this.store.query(this.category(), this.sort(), this.page()));"]}
+    ]
+  },
+  gotchas:[
+    'Without <code class="i">withComponentInputBinding()</code> nothing arrives and nothing warns. Check this line first.',
+    'Matching is <b>by name only</b>. A param <code class="i">:productId</code> will never fill an input called <code class="i">id</code>.',
+    'Everything in a URL is a <b>string</b>. Convert with <code class="i">input(0, { transform: numberAttribute })</code>.',
+    'Order of priority: path param, then query param, then resolved data, then route <code class="i">data</code>.',
+    'The component is reused across /user/1 → /user/2. The input updates, <code class="i">ngOnInit</code> does not run again.'
+  ]
+},
+
+/* 14 ------------------------------------------------------- */
+{
+  id:'cva', num:'14', rail:'Custom form control', c:C.up, badge:'Form ↔ your own widget',
+  analogy:{
+    say:`Angular forms speak one language. <b>ControlValueAccessor is the translator</b> that lets your own widget answer in it — and then <b>formControlName</b> works on it like it works on a plain input.`,
+    strip:[
+      {ic:'clip', t:`The form owns the value: <b>formControlName="colour"</b>.`},
+      {ic:'plug', t:`Your component implements <b>ControlValueAccessor</b>.`},
+      {ic:'twoway', t:`<b>writeValue</b> comes in, the <b>onChange</b> callback goes back out.`}]},
+  title:'Make your own widget work with <code>formControlName</code>',
+  lead:'A form asks every control the same two questions: here is your value, and please tell me when the user changes it. Answer those two and your component becomes a first-class form field — validation, dirty state and all.',
+  nodes:[
+    [{id:'formts',role:'owns the form',file:'profile.component',ext:'.ts',kind:'ts'},
+     {id:'formhtml',role:'binds by name',file:'profile.component',ext:'.html',kind:'html'}],
+    [{id:'cvats',role:'the translator',file:'colour-picker.component',ext:'.ts',kind:'ts'},
+     {id:'cvahtml',role:'the swatches',file:'colour-picker.component',ext:'.html',kind:'html'}]
+  ],
+  edges:[
+    {id:'e1',from:'formhtml',to:'cvats',a:'bottom',b:'top',label:'writeValue(v)',packet:'"red"',plain:'the form pushes the value in'},
+    {id:'e2',from:'cvahtml',to:'cvats',a:'left',b:'right',label:'(click)',packet:'blue',plain:'a click'},
+    {id:'e3',from:'cvats',to:'formts',a:'left',b:'bottom',label:'onChange(v)',packet:'"blue"',plain:'the form is told'}
+  ],
+  files:[
+    {id:'formhtml',name:'profile.component.html',lang:'html',tag:'the wire',code:[
+      "<form [formGroup]=\"form\">",
+      "  <app-colour-picker formControlName=\"colour\" />",
+      "</form>",
+      "",
+      "<p>picked: {{ form.value.colour }}</p>"]},
+    {id:'formts',name:'profile.component.ts',lang:'ts',tag:'owner',code:[
+      "form = inject(FormBuilder).group({",
+      "  colour: ['red'],         // the form owns the value",
+      "});"]},
+    {id:'cvats',name:'colour-picker.component.ts',lang:'ts',tag:'the translator',code:[
+      "@Component({",
+      "  selector: 'app-colour-picker',",
+      "  providers: [{",
+      "    provide: NG_VALUE_ACCESSOR,",
+      "    useExisting: forwardRef(() => ColourPickerComponent),",
+      "    multi: true,",
+      "  }],",
+      "})",
+      "export class ColourPickerComponent implements ControlValueAccessor {",
+      "  value = signal('');",
+      "  private onChange = (v: string) => {};",
+      "  private onTouched = () => {};",
+      "",
+      "  writeValue(v: string) { this.value.set(v); }   // form -> you",
+      "  registerOnChange(fn: any) { this.onChange = fn; }",
+      "  registerOnTouched(fn: any) { this.onTouched = fn; }",
+      "",
+      "  pick(v: string) {",
+      "    this.value.set(v);",
+      "    this.onChange(v);      // <-- the line that updates the form",
+      "    this.onTouched();",
+      "  }",
+      "}"]},
+    {id:'cvahtml',name:'colour-picker.component.html',lang:'html',tag:'the ui',code:[
+      "@for (c of ['red', 'blue', 'green']; track c) {",
+      "  <button type=\"button\"",
+      "          [class.on]=\"c === value()\"",
+      "          (click)=\"pick(c)\">{{ c }}</button>",
+      "}"]}
+  ],
+  steps:[
+    {t:'The form owns the value. The picker has not been told anything yet.',hl:{formts:[1,2]}},
+    {t:'The form calls writeValue() on your component. That is how the value gets in.',edge:'e1',hl:{cvats:[14]}},
+    {t:'The user clicks a swatch. So far this is a normal click handler.',edge:'e2',hl:{cvahtml:[4]}},
+    {t:'pick() calls onChange — the callback the form handed you. form.value.colour is now "blue".',edge:'e3',hl:{cvats:[20],formhtml:[5]}}
+  ],
+  example:{
+    name:'A star rating inside a review form',
+    what:'Exactly the same four methods, a different picture. Once the interface is implemented the field behaves like any other: required validators, touched state, patchValue, reset — none of which you write yourself.',
+    files:[
+      {id:'v1',name:'review.component.html',lang:'html',tag:'just a field',code:[
+        "<form [formGroup]=\"form\">",
+        "  <app-stars formControlName=\"rating\" />",
+        "  <textarea formControlName=\"text\"></textarea>",
+        "",
+        "  @if (form.controls.rating.invalid && form.controls.rating.touched) {",
+        "    <em>Please give it a rating</em>",
+        "  }",
+        "</form>"]},
+      {id:'v2',name:'stars.component.ts',lang:'ts',tag:'same four methods',code:[
+        "export class StarsComponent implements ControlValueAccessor {",
+        "  stars = signal(0);",
+        "  private onChange = (n: number) => {};",
+        "  private onTouched = () => {};",
+        "",
+        "  writeValue(n: number) { this.stars.set(n ?? 0); }",
+        "  registerOnChange(fn: any) { this.onChange = fn; }",
+        "  registerOnTouched(fn: any) { this.onTouched = fn; }",
+        "",
+        "  rate(n: number) {",
+        "    this.stars.set(n);",
+        "    this.onChange(n);",
+        "    this.onTouched();",
+        "  }",
+        "}"]}
+    ]
+  },
+  gotchas:[
+    'Forget the <code class="i">NG_VALUE_ACCESSOR</code> provider and Angular throws <b>No value accessor for form control</b>.',
+    '<code class="i">forwardRef</code> is needed because the class is referenced inside its own decorator, before it exists.',
+    'Never call <code class="i">onChange</code> from inside <code class="i">writeValue</code> — that is an infinite loop.',
+    'Add <code class="i">setDisabledState()</code> too, or <code class="i">form.disable()</code> will do nothing to your widget.',
+    '<code class="i">[(ngModel)]</code>, <code class="i">formControl</code> and <code class="i">formControlName</code> all use this one interface.'
+  ]
+},
+
+/* 15 ------------------------------------------------------- */
+{
+  id:'tplctx', num:'15', rail:'Template + context', c:C.side, badge:'Wrapper → your markup',
+  analogy:{
+    say:`<b>&lt;ng-content&gt;</b> is a picture frame — it takes a finished picture. A <b>&lt;ng-template&gt;</b> is a recipe: the page writes how <i>one</i> row should look, and the table cooks it once per row with its own ingredients.`,
+    strip:[
+      {ic:'table', t:`The page hands over a <b>recipe</b>, not finished markup.`},
+      {ic:'box', t:`The wrapper runs it per row and passes the row <b>into</b> it.`},
+      {ic:'person', t:`The page reads that row back with <b>let-user</b>.`}]},
+  title:'Hand data <code>back</code> to the markup you were given',
+  lead:'A reusable table does not know what a row looks like, and the page does not know the row data until it renders. A template plus a context object solves both directions at the same time — this is how every table library you have used works.',
+  nodes:[
+    [{id:'pagehtml',role:'writes the recipe',file:'users-page.component',ext:'.html',kind:'html'}],
+    [{id:'tblts',role:'holds the recipe',file:'data-table.component',ext:'.ts',kind:'ts'},
+     {id:'tblhtml',role:'runs it per row',file:'data-table.component',ext:'.html',kind:'html'}]
+  ],
+  edges:[
+    {id:'e1',from:'pagehtml',to:'tblts',a:'bottom',b:'top',label:'contentChild(TemplateRef)',packet:'<ng-template>',plain:'the recipe goes in'},
+    {id:'e2',from:'tblts',to:'tblhtml',a:'right',b:'left',label:'rowTpl()',packet:'tpl',plain:'once per row'},
+    {id:'e3',from:'tblhtml',to:'pagehtml',a:'left',b:'bottom',label:'{ $implicit: row }',packet:'row',plain:'the row is handed back'}
+  ],
+  files:[
+    {id:'pagehtml',name:'users-page.component.html',lang:'html',tag:'the recipe',code:[
+      "<app-data-table [rows]=\"users()\">",
+      "  <ng-template #row let-user let-i=\"index\">",
+      "    <td>{{ i + 1 }}</td>",
+      "    <td>{{ user.name }}</td>",
+      "    <td><button (click)=\"edit(user)\">Edit</button></td>",
+      "  </ng-template>",
+      "</app-data-table>"]},
+    {id:'tblts',name:'data-table.component.ts',lang:'ts',tag:'the wrapper',code:[
+      "export class DataTableComponent {",
+      "  rows = input<any[]>([]);",
+      "",
+      "  // the <ng-template> the page wrote, held as a value",
+      "  rowTpl = contentChild.required<TemplateRef<any>>('row');",
+      "}"]},
+    {id:'tblhtml',name:'data-table.component.html',lang:'html',tag:'runs it',code:[
+      "<table>",
+      "  @for (r of rows(); track $index) {",
+      "    <tr>",
+      "      <ng-container",
+      "        [ngTemplateOutlet]=\"rowTpl()\"",
+      "        [ngTemplateOutletContext]=\"{ $implicit: r, index: $index }\">",
+      "      </ng-container>",
+      "    </tr>",
+      "  }",
+      "</table>"]}
+  ],
+  steps:[
+    {t:'The page describes one row — but it is inside <ng-template>, so nothing renders yet.',hl:{pagehtml:[2,3,4,5,6]}},
+    {t:'contentChild() hands the table that template as an object it can hold and reuse.',edge:'e1',hl:{tblts:[5]}},
+    {t:'The table loops over its own rows and stamps the template out once for each one.',edge:'e2',hl:{tblhtml:[2,4,5]}},
+    {t:'The context object is what let-user receives. $implicit is the one a bare let- picks up.',edge:'e3',hl:{tblhtml:[6],pagehtml:[2]}}
+  ],
+  example:{
+    name:'One <app-list> reused for users, orders and products',
+    what:'The shell owns paging, the empty state and the loading spinner. Every page that uses it supplies only the part that is actually different — what one item looks like — and still writes that markup in its own class, with its own methods.',
+    files:[
+      {id:'u1',name:'orders-page.component.html',lang:'html',tag:'one caller',code:[
+        "<app-list [rows]=\"orders()\" [loading]=\"loading()\">",
+        "  <ng-template #item let-order>",
+        "    <b>#{{ order.id }}</b> — {{ order.total | currency }}",
+        "  </ng-template>",
+        "</app-list>"]},
+      {id:'u2',name:'products-page.component.html',lang:'html',tag:'another caller',code:[
+        "<app-list [rows]=\"products()\" [loading]=\"loading()\">",
+        "  <ng-template #item let-p>",
+        "    <img [src]=\"p.image\" [alt]=\"p.title\">",
+        "    <span>{{ p.title }}</span>",
+        "  </ng-template>",
+        "</app-list>"]}
+    ]
+  },
+  gotchas:[
+    '<code class="i">$implicit</code> is what a bare <code class="i">let-x</code> picks up. Every other key needs <code class="i">let-i="index"</code>.',
+    'Everything inside <code class="i">&lt;ng-template&gt;</code> is compiled in the <b>page</b> — its methods and bindings stay there.',
+    'Nothing inside an <code class="i">&lt;ng-template&gt;</code> renders on its own. Forgetting the outlet means a blank table.',
+    'The template runs once per row, so keep pipes cheap and heavy work out of it.',
+    'No data to hand back? Plain <code class="i">&lt;ng-content&gt;</code> is simpler. Use this only when the wrapper supplies values.'
+  ]
+},
+
+/* 16 ------------------------------------------------------- */
+{ kind:'table', num:'16', rail:'Cheat sheet', c:C.route,
   title:'Cheat sheet',
   lead:'Find your row, open the matching slide for the full flow.' },
 
-/* 12 ------------------------------------------------------- */
-{ kind:'debug', num:'12', rail:'Debug: undefined', c:C.down,
+/* 17 ------------------------------------------------------- */
+{ kind:'debug', num:'17', rail:'Debug: undefined', c:C.down,
   title:'"My data is undefined" — the checklist',
-  lead:'Go down the list in order. One of these twelve is almost always the answer.' }
+  lead:'Go down the list in order. One of these twelve is almost always the answer.' },
+
+/* 18 ------------------------------------------------------- */
+{ kind:'quiz', bank:'pick', num:'18', rail:'Quiz 1 — which channel?', c:C.side,
+  title:'Quiz 1 — which channel does this need?',
+  lead:'Ten situations, one right channel each. Answer with a click (or the keys 1–4), then read the why. The button under each explanation opens the slide it came from.' },
+
+/* 19 ------------------------------------------------------- */
+{ kind:'quiz', bank:'code', num:'19', rail:'Quiz 2 — read the code', c:C.up,
+  title:'Quiz 2 — read the code, say what happens',
+  lead:'Every snippet here compiles. The question is always what happens at runtime — which is exactly where the surprises live.' },
+
+/* 20 ------------------------------------------------------- */
+{ kind:'quiz', bank:'fix', num:'20', rail:'Quiz 3 — spot the fix', c:C.down,
+  title:'Quiz 3 — the bug is real, find the fix',
+  lead:'Eight bugs straight out of the checklist before this one. Pick the smallest change that actually solves it — not the one that hides it.' },
+
+/* 21 ------------------------------------------------------- */
+{ kind:'quiz', bank:'more', num:'21', rail:'Quiz 4 — the newer five', c:C.route,
+  title:'Quiz 4 — dialogs, dynamic, routes, forms, templates',
+  lead:'Eleven questions on the five patterns you just met. These are the ones interviewers reach for once they are done asking about @Input.' }
 ];
 /* ============================================================
    ENGINE
@@ -1290,7 +1987,12 @@ const MAP = [
   ['The child needs the component that wraps it', 'inject(Parent)', 'tabs, accordion, radio group', 7, 'FAQ accordion: opening one closes the rest'],
   ['They are siblings, or far apart in the tree', 'shared service + BehaviorSubject', 'no common parent to route through', 8, 'toast messages fired from any page'],
   ['I want shared state without RxJS', 'signal store service', 'Angular 16+, no subscriptions', 9, 'filter sidebar + result list + counter'],
-  ['They are two different pages', 'route params + resolvers', 'the URL is the channel', 10, 'orders list &rarr; order detail, filters in the URL']
+  ['They are two different pages', 'route params + resolvers', 'the URL is the channel', 10, 'orders list &rarr; order detail, filters in the URL'],
+  ['I need a confirm or edit popup', 'dialog data + afterClosed()', 'the dialog is created in code, not in your template', 11, 'delete confirmation on a table row'],
+  ['I do not know which component until runtime', 'ngComponentOutlet', 'widgets, wizards, blocks that come from a CMS', 12, 'a dashboard the user arranges'],
+  ['My page only needs the id from the URL', 'withComponentInputBinding()', 'route params arrive as plain inputs', 13, '/user/7 &rarr; id = input()'],
+  ['My own widget must work inside a form', 'ControlValueAccessor', 'formControlName on a component you wrote', 14, 'a star rating inside a review form'],
+  ['The wrapper must hand data back to my markup', '&lt;ng-template&gt; + context', 'a table that does not know its own rows', 15, 'one list reused for users and orders']
 ];
 
 /* ---------- cheat sheet ---------- */
@@ -1306,7 +2008,12 @@ const TABLE = [
   ['Page &rarr; page', 'route params, query params, <code>resolve</code>', 'app.routes.ts + both pages', 10],
   ['A big object between pages', '<code>navigate(..., { state })</code> or a service', 'both pages', 10],
   ['Server data many components need', 'service + <code>toSignal()</code> / <code>shareReplay(1)</code>', 'x.service.ts', 8],
-  ['Large app, many actions, undo, devtools', 'NgRx or NgRx SignalStore', 'a store folder', 9]
+  ['Large app, many actions, undo, devtools', 'NgRx or NgRx SignalStore', 'a store folder', 9],
+  ['Page &rarr; dialog, and the answer back', '<code>{ data }</code> + <code>afterClosed()</code>', 'the page + the dialog component', 11],
+  ['A component chosen at runtime', '<code>ngComponentOutlet</code> / <code>setInput()</code>', 'host.ts + host.html', 12],
+  ['URL &rarr; an @Input, with no boilerplate', '<code>withComponentInputBinding()</code>', 'app.config.ts + the page', 13],
+  ['Your own widget inside a form', '<code>ControlValueAccessor</code>', 'the widget + its NG_VALUE_ACCESSOR', 14],
+  ['Wrapper hands data to your markup', '<code>&lt;ng-template&gt;</code> + <code>ngTemplateOutletContext</code>', 'both templates + wrapper.ts', 15]
 ];
 
 /* ---------- debug checklist ---------- */
@@ -1325,12 +2032,46 @@ const DEBUG = [
   ['The value is there, the view is not updating', 'Something changed outside Angular (a third party callback, <code class="i">setTimeout</code> in a library). Set a signal, or run it inside <code class="i">NgZone</code>.']
 ];
 
+/* ---------- little pictures for the plain-words strip ---------- */
+const ICON = {
+  person:`<circle cx="12" cy="8" r="3.4"/><path d="M5.5 20.2c0-3.6 2.9-6.4 6.5-6.4s6.5 2.8 6.5 6.4"/>`,
+  note:`<rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.4 8.4h7.2M8.4 12h7.2M8.4 15.6h4.2"/>`,
+  down:`<path d="M12 3.8v15.4M6.4 13.6 12 19.2l5.6-5.6"/>`,
+  up:`<path d="M12 20.2V4.8M6.4 10.4 12 4.8l5.6 5.6"/>`,
+  twoway:`<path d="M8 4.2v15.6M8 4.2 4.8 7.4M8 4.2l3.2 3.2M16 19.8V4.2M16 19.8l-3.2-3.2M16 19.8l3.2-3.2"/>`,
+  bell:`<path d="M6.6 16.8h10.8l-1.6-2.3V10a3.8 3.8 0 0 0-7.6 0v4.5Z"/><path d="M10.3 19.3a1.9 1.9 0 0 0 3.4 0"/>`,
+  mail:`<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4.6 7 7.4 5.9L19.4 7"/>`,
+  box:`<path d="M12 3.2 20.4 7.6v8.8L12 20.8 3.6 16.4V7.6L12 3.2Z"/><path d="M3.6 7.6 12 12l8.4-4.4M12 12v8.8"/>`,
+  shelf:`<rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 10.6h17M3.5 15.4h17M8.2 4v6.6M15.4 10.6v4.8"/>`,
+  frame:`<rect x="3.5" y="4.6" width="17" height="14.8" rx="2"/><rect x="8" y="8.6" width="8" height="6.8" rx="1.2" stroke-dasharray="2.4 2.6"/>`,
+  tabs:`<rect x="3.5" y="8" width="17" height="11.6" rx="2"/><path d="M7 8V5.4h5.2V8"/><path d="M7 13.4h10"/>`,
+  sign:`<path d="M12 3.4v17.2M8.6 20.6h6.8"/><path d="M12 5.8h6.8l-2 2.4 2 2.4H12Z"/><path d="M12 12.4H5.2l2 2.2-2 2.2H12"/>`,
+  remote:`<rect x="8" y="3.4" width="8" height="17.2" rx="2.6"/><circle cx="12" cy="8" r="1.4"/><path d="M10 12.4h4M10 16h4"/>`,
+  window:`<rect x="3.5" y="4.6" width="17" height="14.8" rx="2"/><path d="M3.5 9.2h17"/><path d="m10.6 12.6 4.4 4.4M15 12.6l-4.4 4.4"/>`,
+  wand:`<path d="M4.4 19.6 14.8 9.2"/><path d="m16.6 3.4.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9Z"/><path d="M8.6 5.2l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5Z"/>`,
+  field:`<rect x="3.5" y="8.6" width="17" height="6.8" rx="2"/><path d="M7 12h6"/>`,
+  plug:`<path d="M9.2 3.4v4.8M14.8 3.4v4.8"/><path d="M6.6 8.2h10.8v3.2a5.4 5.4 0 0 1-10.8 0Z"/><path d="M12 16.8v3.8"/>`,
+  radio:`<circle cx="12" cy="12" r="2.1"/><path d="M8.2 15.8a5.4 5.4 0 0 1 0-7.6M15.8 8.2a5.4 5.4 0 0 1 0 7.6M5.4 18.6a9.4 9.4 0 0 1 0-13.2M18.6 5.4a9.4 9.4 0 0 1 0 13.2"/>`,
+  tag:`<path d="M4.2 10.6 10.6 4.2h6a3.4 3.4 0 0 1 3.4 3.4v6l-6.4 6.4a2 2 0 0 1-2.8 0l-6.6-6.6a2 2 0 0 1 0-2.8Z"/><circle cx="15.4" cy="8.6" r="1.3"/>`,
+  table:`<rect x="3.5" y="4.6" width="17" height="14.8" rx="2"/><path d="M3.5 9.4h17M9.4 9.4v10"/>`,
+  clip:`<rect x="5" y="4.6" width="14" height="15.8" rx="2"/><path d="M9 4.6V3.4h6v1.2"/><path d="M8.6 10.4h6.8M8.6 14h4.4"/>`,
+};
+
+const stripBlock = a => `
+  <div class="say"><span class="st">in plain words</span><p>${a.say}</p></div>
+  <div class="strip">${a.strip.map((pn, i) => `
+    <div class="pan">
+      <span class="step">${String(i + 1).padStart(2, '0')}</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true">${ICON[pn.ic] || ICON.box}</svg>
+      <p>${pn.t}</p>
+    </div>`).join('')}</div>`;
+
 /* ---------- slide builders ---------- */
 function buildTitle() {
   return `<div class="hero">
     <div>
       <h1>How data <em>moves</em><br>between Angular<br>components</h1>
-      <p>Nine patterns, each one animated file by file, then shown again as a real feature you would actually build — so you can see exactly where a value leaves one file and where it arrives in the next.</p>
+      <p>Nine patterns, each one animated file by file, then shown again as a real feature you would actually build — so you can see exactly where a value leaves one file and where it arrives in the next. Three quizzes at the end check that it stuck.</p>
       <div class="legend">
         <div><i style="background:var(--down)"></i> down &mdash; parent to child &nbsp;<code class="i">@Input()</code></div>
         <div><i style="background:var(--up)"></i> up &mdash; child to parent &nbsp;<code class="i">@Output()</code></div>
@@ -1338,6 +2079,7 @@ function buildTitle() {
         <div><i style="background:var(--route)"></i> across &mdash; between routed pages</div>
       </div>
       <button class="cta" data-go="1">Find my case &nbsp;&rarr;</button>
+      <button class="cta cta2" data-go="18">Quiz me</button>
     </div>
     <div class="demo">
       <span class="lbl">the two directions</span>
@@ -1366,6 +2108,430 @@ const buildTable = () => `<table class="tbl"><thead><tr><th>Your situation</th><
 const buildDebug = () => `<div class="check">` + DEBUG.map(d =>
   `<div class="chk"><span class="n"></span><div><b>${d[0]}</b><p>${d[1]}</p></div></div>`).join('') + `</div>`;
 
+
+/* ---------- quiz banks ----------
+   q     the question               opts  the four answers
+   code  optional snippets          a     index of the right one
+   why   shown after answering      go    slide that teaches it
+   ------------------------------------------------------------ */
+const QUIZ = {
+
+pick: [
+{ q:`A <code class="i">&lt;app-user-card&gt;</code> tag is written inside <code class="i">users.component.html</code>. The users page already holds the user object; the card only has to draw it.`,
+  opts:[`<b>@Input() / input()</b> — the page binds the value onto the tag`,
+        `<b>@Output()</b> — the card asks the page for a user`,
+        `A shared service that both of them inject`,
+        `A route param in the URL`],
+  a:0, go:2,
+  why:`The child tag lives inside the parent template and the parent owns the value — that is exactly the job of an input. The page stays the owner, the card only draws what it is handed, which is why the same card also works in search results and in "related products".` },
+
+{ q:`Inside <code class="i">&lt;app-search-box&gt;</code> the user presses Enter. The page around it has to run the search.`,
+  opts:[`<b>@Output()</b> with EventEmitter — the box announces it, the page reacts`,
+        `<b>@Input()</b> — the page pushes the search term into the box`,
+        `The box injects the page component and calls its method`,
+        `A route guard on the page`],
+  a:0, go:3,
+  why:`Data goes down, events come up. The box does not know how to search and should not care — it emits "the user searched for X" and the page decides what that means.` },
+
+{ q:`A quantity stepper: the cart row sets the starting number, and the + / - buttons inside the stepper have to change that same number back in the cart row.`,
+  opts:[`Two-way binding — <code class="i">[(quantity)]</code> with <code class="i">model()</code>`,
+        `An @Input() only, and mutate the object inside the child`,
+        `A shared service just for that one number`,
+        `viewChild() from the cart row into the stepper`],
+  a:0, go:4,
+  why:`<code class="i">[(quantity)]</code> is not a separate feature — it is <code class="i">[quantity]</code> and <code class="i">(quantityChange)</code> written on one line. In Angular 17+ <code class="i">quantity = model(1)</code> gives you both halves from a single line.` },
+
+{ q:`After a save succeeds, the parent has to clear the child form and put the cursor back in the first field.`,
+  opts:[`Grab the child with <code class="i">#ref</code> / <code class="i">viewChild()</code> and call <code class="i">child.reset()</code>`,
+        `An @Input() reset flag, watched in ngOnChanges`,
+        `An @Output() emitted from the parent`,
+        `Put the whole form state in a BehaviorSubject`],
+  a:0, go:5,
+  why:`You are not passing a value — you are asking the child to <b>do</b> something. That is an action, so reach for the instance itself. The flag version works too, but then you have to flip it back, which is how "why did my form reset twice" bugs are born.` },
+
+{ q:`You are writing a reusable <code class="i">&lt;app-panel&gt;</code> that must display whatever markup the page puts between its tags — a heading, a table, a button, anything.`,
+  opts:[`<code class="i">&lt;ng-content&gt;</code> — a hole the outer markup drops into`,
+        `An @Input() of type string plus innerHTML`,
+        `One @Input() for every slot you can think of`,
+        `contentChild() on its own`],
+  a:0, go:6,
+  why:`<code class="i">&lt;ng-content&gt;</code> is a slot. The markup is written and compiled in the <b>outer</b> component, so its bindings and click handlers still belong to that page — the panel only decides where it lands.` },
+
+{ q:`Every <code class="i">&lt;app-tab&gt;</code> has to register itself with the <code class="i">&lt;app-tabs&gt;</code> that wraps it, so opening one closes the others.`,
+  opts:[`The tab injects its container: <code class="i">inject(TabsComponent)</code>`,
+        `An @Output() on every tab, wired by hand in the template`,
+        `A global service holding the open tab id`,
+        `A route param per tab`],
+  a:0, go:7,
+  why:`A child can ask the injector for the component that contains it — Angular walks up the DI tree and hands over the real wrapper instance. No template wiring, and it keeps working however deeply the tab is nested.` },
+
+{ q:`A toast message has to be shown from any page in the app. There is no shared parent to route it through.`,
+  opts:[`A service that both sides inject`,
+        `An @Output() chain passed up through every component in between`,
+        `An @Input() passed down through every component in between`,
+        `<code class="i">&lt;ng-content&gt;</code>`],
+  a:0, go:8,
+  why:`No parent-child relationship means no template wire exists. A service lives in the injector, not in the component tree, so anything in the app reaches the same instance. Threading an event up through five components — prop drilling — is the thing you are avoiding.` },
+
+{ q:`You want shared state that several components read, with no subscribe, no unsubscribe and no async pipe. Angular 17.`,
+  opts:[`A service holding <code class="i">signal()</code> and <code class="i">computed()</code>`,
+        `A Subject in a service`,
+        `A static variable on the class`,
+        `localStorage plus a setInterval`],
+  a:0, go:9,
+  why:`A signal is a value you read like a function — <code class="i">count()</code>. Any template that reads it re-renders itself when it changes, and there is nothing to clean up in ngOnDestroy.` },
+
+{ q:`The orders list navigates to the order detail page. The detail page has to know which order to load.`,
+  opts:[`The URL — a route param such as <code class="i">/orders/:id</code>`,
+        `An @Input() on the router outlet`,
+        `A #ref pointing at the other page`,
+        `A variable parked on window`],
+  a:0, go:10,
+  why:`Two routed pages are never parent and child in a template, so no binding exists between them. Putting the id in the URL also makes the page refreshable, bookmarkable and shareable — none of which a variable gives you.` },
+
+{ q:`A filter sidebar and a results list sit side by side under the same page and must stay in sync.`,
+  opts:[`A shared service both inject — or lift the state into the page that holds them`,
+        `Bind one sibling straight to the other in the template`,
+        `An @Input() from the sidebar to the list`,
+        `The list reads the sidebar with viewChild()`],
+  a:0, go:8,
+  why:`Siblings cannot see each other — there is no template between them. Either lift the state up into the page that holds both and pass it down and back up, or, once more than two components care about it, put it in a service.` }
+],
+
+code: [
+{ q:`What is the value of <code class="i">title</code> inside the child?`,
+  code:[{name:`parent.component.html`,lang:`html`,lines:[
+      `<app-child title="Hello"></app-child>`]},
+    {name:`child.component.ts`,lang:`ts`,lines:[
+      `@Input() title = '';`]}],
+  opts:[`The string "Hello"`,
+        `undefined — the brackets are missing`,
+        `Whatever the parent property named Hello holds`,
+        `A compile error`],
+  a:0, go:2,
+  why:`No brackets means a plain, static string. <code class="i">[title]="Hello"</code> would instead go looking for a <b>property</b> called Hello on the parent class — and quietly find nothing.` },
+
+{ q:`What does this log?`,
+  code:[{name:`child.component.ts`,lang:`ts`,lines:[
+      `export class ChildComponent {`,
+      `  @Input() user!: User;`,
+      ``,
+      `  constructor() {`,
+      `    console.log(this.user);`,
+      `  }`,
+      `}`]}],
+  opts:[`undefined`,
+        `The user object sent by the parent`,
+        `null`,
+        `It throws — user has no initial value`],
+  a:0, go:2,
+  why:`Angular builds the class first and assigns the inputs afterwards. The earliest safe place to read one is <code class="i">ngOnInit</code>; use <code class="i">ngOnChanges</code>, a setter, or an <code class="i">effect()</code> with signal inputs if you also need later values.` },
+
+{ q:`The user clicks, <code class="i">send()</code> runs. What does the parent see?`,
+  code:[{name:`child.component.ts`,lang:`ts`,lines:[
+      `@Output() saved = new EventEmitter<string>();`,
+      ``,
+      `send() { this.saved.emit('ok'); }`]},
+    {name:`parent.component.html`,lang:`html`,lines:[
+      `<app-child></app-child>`]}],
+  opts:[`Nothing at all — nobody is listening`,
+        `It receives 'ok'`,
+        `A runtime error about a missing handler`,
+        `'ok', but only on the next change detection pass`],
+  a:0, go:3,
+  why:`An emit with no listener is silent by design. The parent has to bind the event: <code class="i">&lt;app-child (saved)="onSaved($event)"&gt;</code> — and the emitted value arrives as <code class="i">$event</code>.` },
+
+{ q:`For this line to compile and actually work, what must the child expose?`,
+  code:[{name:`parent.component.html`,lang:`html`,lines:[
+      `<app-counter [(count)]="total"></app-counter>`]}],
+  opts:[`<code class="i">count = model(0)</code> — or @Input() count plus @Output() countChange`,
+        `An @Input() named count, nothing else`,
+        `An @Output() named count, nothing else`,
+        `@Input() count plus @Output() changed`],
+  a:0, go:4,
+  why:`Angular expands <code class="i">[(count)]</code> into <code class="i">[count]</code> and <code class="i">(countChange)</code>. The output name is the input name plus the word Change, spelled exactly — <code class="i">changed</code> will not do.` },
+
+{ q:`What happens on the first render?`,
+  code:[{name:`form.component.ts`,lang:`ts`,lines:[
+      `@ViewChild('box') box!: ElementRef;`,
+      ``,
+      `ngOnInit() {`,
+      `  this.box.nativeElement.focus();`,
+      `}`]}],
+  opts:[`It throws — box is still undefined in ngOnInit`,
+        `The input gets focused`,
+        `Nothing happens, silently`,
+        `It focuses only on the second render`],
+  a:0, go:5,
+  why:`View queries are filled in once the template has been created, which is <code class="i">ngAfterViewInit</code>. The signal form <code class="i">box = viewChild&lt;ElementRef&gt;('box')</code> is safer — read it inside an <code class="i">effect()</code> and it runs when the element really exists.` },
+
+{ q:`ChildComponent is standalone and is not listed in <code class="i">imports</code>. What do you get on screen?`,
+  code:[{name:`parent.component.ts`,lang:`ts`,lines:[
+      `@Component({`,
+      `  selector: 'app-parent',`,
+      `  imports: [],`,
+      `  template: '<app-child></app-child>',`,
+      `})`,
+      `export class ParentComponent {}`]}],
+  opts:[`An empty area — the unknown tag renders nothing`,
+        `The child renders normally`,
+        `The whole app fails to start`,
+        `The child renders once, then disappears`],
+  a:0, go:2,
+  why:`Angular treats a tag it does not know as plain HTML: nothing appears, nothing obviously breaks. Dev mode logs an "is not a known element" warning that is very easy to scroll past — so check the imports array first whenever a component has "vanished".` },
+
+{ q:`Two sibling components inject CartService, and one of them carries this providers line. What do they share?`,
+  code:[{name:`cart.service.ts`,lang:`ts`,lines:[
+      `@Injectable({ providedIn: 'root' })`,
+      `export class CartService { items = signal<Item[]>([]); }`]},
+    {name:`cart-badge.component.ts`,lang:`ts`,lines:[
+      `@Component({`,
+      `  selector: 'app-cart-badge',`,
+      `  providers: [CartService],   // <-- here`,
+      `})`]}],
+  opts:[`Nothing — the component with providers gets its own private copy`,
+        `The same instance; providedIn: 'root' wins`,
+        `The same instance, but only after the first change`,
+        `It throws: the service is provided twice`],
+  a:0, go:8,
+  why:`A service listed in a component's <code class="i">providers</code> is created fresh for that component and its children, and it shadows the root one. Delete the line and both siblings resolve to the single root instance. This is the number one cause of "my service forgot the value".` },
+
+{ q:`B subscribes after A has already emitted. What is logged?`,
+  code:[{name:`chat.service.ts`,lang:`ts`,lines:[
+      `private sub = new Subject<string>();`,
+      `msg$ = this.sub.asObservable();`,
+      ``,
+      `// A — runs on app start`,
+      `this.sub.next('hi');`,
+      ``,
+      `// B — a component created a second later`,
+      `this.chat.msg$.subscribe(v => console.log(v));`]}],
+  opts:[`Nothing`,
+        `'hi'`,
+        `undefined`,
+        `'hi', once for every subscriber`],
+  a:0, go:8,
+  why:`A plain <code class="i">Subject</code> has no memory: it only forwards what happens after you subscribe. <code class="i">new BehaviorSubject('')</code> keeps the latest value and hands it to every new subscriber immediately — which is what shared state almost always wants.` },
+
+{ q:`The screen shows one item, then <code class="i">add()</code> runs. What renders?`,
+  code:[{name:`list.component.ts`,lang:`ts`,lines:[
+      `items = signal<string[]>(['a']);`,
+      ``,
+      `add() {`,
+      `  this.items().push('b');`,
+      `}`]}],
+  opts:[`Still one item — the signal never changed`,
+        `Two items`,
+        `Two items, but only after the next click anywhere`,
+        `It throws: signals are read-only`],
+  a:0, go:9,
+  why:`<code class="i">items()</code> hands you the array itself, and pushing into it leaves the signal holding the exact same reference — so it notifies nobody. Replace the value instead: <code class="i">this.items.update(a =&gt; [...a, 'b'])</code>.` },
+
+{ q:`You are on <code class="i">/user/1</code> and click a link to <code class="i">/user/2</code>. What do you see?`,
+  code:[{name:`user-detail.component.ts`,lang:`ts`,lines:[
+      `ngOnInit() {`,
+      `  const id = this.route.snapshot.paramMap.get('id');`,
+      `  this.loadUser(id);`,
+      `}`]}],
+  opts:[`User 1 stays on the screen`,
+        `User 2 loads`,
+        `The browser does a full page reload`,
+        `The router throws a navigation error`],
+  a:0, go:10,
+  why:`Same route, same component — Angular reuses the instance instead of destroying it, so <code class="i">ngOnInit</code> never runs again and the snapshot is never re-read. Subscribe to <code class="i">this.route.paramMap</code> and load on every emission.` }
+],
+
+fix: [
+{ q:`An <code class="i">&lt;app-child&gt;</code> tag renders nothing at all and nothing is thrown. What do you check first?`,
+  opts:[`That ChildComponent is in the parent's <code class="i">imports: []</code>`,
+        `That the child declares an @Input()`,
+        `That the service is providedIn: 'root'`,
+        `That change detection is not OnPush`],
+  a:0, go:2,
+  why:`With standalone components an unimported tag is just unknown HTML — empty output, no crash. It is the most common "nothing happens" bug and the cheapest one to rule out.` },
+
+{ q:`An <code class="i">@Input() config</code> read in the constructor is always undefined. Smallest correct fix?`,
+  opts:[`Read it in <code class="i">ngOnInit()</code> instead`,
+        `Give it a default: <code class="i">@Input() config = {}</code>`,
+        `Wrap the read in setTimeout()`,
+        `Turn it into an @Output()`],
+  a:0, go:2,
+  why:`Inputs are assigned after the constructor and before the first ngOnInit, so ngOnInit is the earliest point where the parent value exists. A default only hides the symptom — you still never see what the parent sent. setTimeout happens to work, which makes it a trap.` },
+
+{ q:`The child runs <code class="i">this.user.name = 'Ali'</code> and the parent's object changes too. Why?`,
+  opts:[`Objects are handed over by reference, not copied`,
+        `Two-way binding is on by default for objects`,
+        `Angular emits inputs back up to the parent`,
+        `Because the parent uses OnPush`],
+  a:0, go:2,
+  why:`An input passes the same object, so both classes are holding one thing. If the parent must stay untouched, copy it in the child (<code class="i">{ ...this.user }</code>) or — better — emit the change upward and let the owner apply it.` },
+
+{ q:`The parent binds <code class="i">(saved)="onSaved($event)"</code>, the handler runs, but <code class="i">$event</code> is always undefined.`,
+  opts:[`The child calls <code class="i">emit()</code> with no argument`,
+        `The output is missing its @Output() decorator`,
+        `$event only works on real DOM events`,
+        `The handler has to be async`],
+  a:0, go:3,
+  why:`<code class="i">$event</code> <b>is</b> whatever you hand to emit. <code class="i">this.saved.emit()</code> sends nothing; <code class="i">this.saved.emit(this.form.value)</code> sends the payload. Type the emitter — <code class="i">EventEmitter&lt;Order&gt;</code> — and the compiler catches this for you.` },
+
+{ q:`<code class="i">[(size)]="s"</code> pushes the value down correctly, but the parent never hears about changes.`,
+  opts:[`An output named exactly <code class="i">sizeChange</code> is missing`,
+        `The input needs an alias`,
+        `The parent needs an ngOnChanges`,
+        `A second [size] binding is missing`],
+  a:0, go:4,
+  why:`The write-back half of a two-way binding is the <code class="i">xChange</code> output, and the child has to call <code class="i">emit()</code> on it when the value changes. <code class="i">size = model(0)</code> creates both halves and emits for you.` },
+
+{ q:`A shared BehaviorSubject works inside each page, but every page shows a different value.`,
+  opts:[`The service is listed in a component's <code class="i">providers</code>`,
+        `BehaviorSubject should have been a plain Subject`,
+        `The async pipe is missing`,
+        `The subscription was never unsubscribed`],
+  a:0, go:8,
+  why:`Each component that provides the service gets its own instance, so every page is talking to a different subject. Provide it once with <code class="i">@Injectable({ providedIn: 'root' })</code> and remove it from every component's providers array.` },
+
+{ q:`Data arrives from an HTTP call, but the template throws <code class="i">Cannot read properties of undefined</code> before it does.`,
+  opts:[`The first render happens before the response — give a default, guard with <code class="i">@if</code>, or use the async pipe`,
+        `The HttpClient service is missing providedIn: 'root'`,
+        `The response has to be mapped into a class`,
+        `The component is missing an @Input()`],
+  a:0, go:8,
+  why:`<code class="i">subscribe()</code> is asynchronous: Angular renders once immediately, with the property still empty. Start from a safe value (<code class="i">items: Item[] = []</code>), wrap the block in <code class="i">@if (user())</code>, or let the async pipe render only once there is something to render.` },
+
+{ q:`A third-party widget calls you back with a new value. You assign it to a class property and the screen never updates.`,
+  opts:[`The callback ran outside Angular — store it in a <code class="i">signal()</code>, or run it inside <code class="i">NgZone.run()</code>`,
+        `The property has to be public`,
+        `The list is missing a trackBy`,
+        `The component needs an @Input()`],
+  a:0, go:9,
+  why:`Angular only re-checks the view when it knows something happened. A callback fired from outside its zone changes the value silently. A <code class="i">signal()</code> notifies on its own whichever zone set it — which is exactly why zoneless apps lean on signals.` }
+],
+
+more: [
+{ q:`You open a confirm dialog and the user presses Esc. What does <code class="i">afterClosed()</code> emit?`,
+  opts:[`undefined`, `false`, `null`, `Nothing — it never emits at all`],
+  a:0, go:11,
+  why:`Esc and a backdrop click both close the dialog without a result, so you get <code class="i">undefined</code>. Handle that branch explicitly — this is why a "delete" confirm should test <code class="i">=== true</code> rather than trusting whatever came back.` },
+
+{ q:`Why can a dialog component not just use <code class="i">@Input()</code> for the data you pass it?`,
+  opts:[`It is created in code — no template ever wrote its tag, so there is nothing to bind`,
+        `Because dialogs are always lazy loaded`,
+        `Because @Input() only works on standalone components`,
+        `It can, as soon as you import MatDialogModule`],
+  a:0, go:11,
+  why:`Bindings live in a template. <code class="i">dialog.open()</code> builds the component itself, so no <code class="i">&lt;app-confirm&gt;</code> tag exists anywhere — which is exactly why data goes in through <code class="i">data:</code> and comes back through <code class="i">close()</code>.` },
+
+{ q:`Which one sets an input on a component you built with <code class="i">createComponent()</code>?`,
+  opts:[`<code class="i">ref.setInput('title', 'Sales')</code>`,
+        `<code class="i">ref.instance.title = 'Sales'</code>`,
+        `<code class="i">ref.inputs.title = 'Sales'</code>`,
+        `<code class="i">ref.location.nativeElement.title = 'Sales'</code>`],
+  a:0, go:12,
+  why:`<code class="i">setInput()</code> writes the value <b>and</b> marks the component dirty, so it re-renders under OnPush and <code class="i">ngOnChanges</code> fires. Assigning straight to <code class="i">ref.instance</code> does neither — the value is there, the screen is not.` },
+
+{ q:`When is <code class="i">ngComponentOutlet</code> the wrong tool?`,
+  opts:[`When you already know the two possible components — use @if or @switch`,
+        `When the list comes from an API`,
+        `When the components have inputs`,
+        `When you are inside an @for block`],
+  a:0, go:12,
+  why:`Dynamic components cost you type safety and readability. If the set of components is known when you write the code, a plain <code class="i">@if</code> or <code class="i">@switch</code> is simpler, typed, and far easier to debug.` },
+
+{ q:`Your page declares <code class="i">id = input.required&lt;string&gt;()</code>, the URL is /user/7, and <code class="i">withComponentInputBinding()</code> is missing from app.config.ts.`,
+  opts:[`Nothing is ever written to the input — a required one then throws when read`,
+        `It works anyway; the flag is only for query params`,
+        `The router throws a navigation error`,
+        `id is set to the whole URL string`],
+  a:0, go:13,
+  why:`The binding happens only if you opted in. Without that single line the router never writes to inputs at all — and for an <b>optional</b> input it fails completely silently, which is the part that costs an afternoon.` },
+
+{ q:`The route is <code class="i">/product/:productId</code> and the page declares <code class="i">id = input()</code>. Does the value arrive?`,
+  opts:[`No — the input name has to match the param name`,
+        `Yes, the router matches by position`,
+        `Yes, if there is only one param`,
+        `Only when a resolver is present`],
+  a:0, go:13,
+  why:`Route input binding matches <b>by name only</b>. Rename the param to <code class="i">:id</code>, rename the input to <code class="i">productId</code>, or go back to <code class="i">ActivatedRoute</code> for that page.` },
+
+{ q:`A route param lands on an input you typed as <code class="i">number</code>. What is really in it at runtime?`,
+  opts:[`A string — add <code class="i">{ transform: numberAttribute }</code>`,
+        `A number; TypeScript converts it`,
+        `NaN`,
+        `undefined until the resolver finishes`],
+  a:0, go:13,
+  why:`Everything in a URL is text, and TypeScript types vanish at runtime — nothing is converting anything for you. <code class="i">input(1, { transform: numberAttribute })</code> is what actually does the work.` },
+
+{ q:`Angular throws <code class="i">No value accessor for form control with name: "colour"</code>. What is missing?`,
+  opts:[`The component does not provide NG_VALUE_ACCESSOR`,
+        `The FormGroup was never created`,
+        `formControlName should have been formControl`,
+        `The component is not standalone`],
+  a:0, go:14,
+  why:`A form control needs a translator, and your component volunteers by adding <code class="i">{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() =&gt; MyComponent), multi: true }</code> to its own providers.` },
+
+{ q:`In a ControlValueAccessor, which one tells the form that the user changed something?`,
+  opts:[`The callback you stored in <code class="i">registerOnChange</code>`,
+        `<code class="i">writeValue()</code>`,
+        `<code class="i">ngOnChanges()</code>`,
+        `<code class="i">setDisabledState()</code>`],
+  a:0, go:14,
+  why:`<code class="i">writeValue</code> is the form talking to you; the <code class="i">onChange</code> callback is you talking back to the form. Calling onChange from inside writeValue is the classic infinite loop.` },
+
+{ q:`A wrapper has to hand data <b>back</b> to the markup the page passed in. Which one does that?`,
+  opts:[`<code class="i">&lt;ng-template&gt;</code> with <code class="i">ngTemplateOutletContext</code>`,
+        `<code class="i">&lt;ng-content&gt;</code>`,
+        `An @Input() on the wrapper`,
+        `<code class="i">inject()</code> the page component`],
+  a:0, go:15,
+  why:`<code class="i">&lt;ng-content&gt;</code> can only re-place markup that was already finished — it cannot supply values. A template is a recipe the wrapper runs once per row, passing the row in through the context object.` },
+
+{ q:`In <code class="i">&lt;ng-template #row let-user let-i="index"&gt;</code>, where does <code class="i">user</code> come from?`,
+  opts:[`The <code class="i">$implicit</code> key of the context object`,
+        `A property called user on the wrapper class`,
+        `A property called user on the page class`,
+        `It is a new, empty variable`],
+  a:0, go:15,
+  why:`A bare <code class="i">let-x</code> always picks up the context's <code class="i">$implicit</code> value, whatever you name it. Every other variable is looked up by key — <code class="i">let-i="index"</code> reads <code class="i">context.index</code>.` }
+]
+
+};
+
+const LETTER = ['A', 'B', 'C', 'D'];
+
+const qcodeBlock = c => `
+  <div class="qcode">
+    ${c.name ? `<div class="qcf">${c.name}</div>` : ''}
+    <pre>${c.lines.map(l => `<span class="ln">${hi(l, c.lang) || ' '}</span>`).join('')}</pre>
+  </div>`;
+
+function buildQuiz(s) {
+  const bank = QUIZ[s.bank];
+  return `<div class="quiz" data-bank="${s.bank}">
+    <div class="qbar">
+      <span class="qtxt"><b class="qdone">0</b> / ${bank.length} answered</span>
+      <div class="qmeter"><i></i></div>
+      <span class="qtxt"><em class="qright">0</em> right</span>
+      <button class="iconbtn" data-reset>&#8635; Reset</button>
+    </div>` +
+    bank.map((q, i) => `
+    <div class="qcard" data-q="${i}">
+      <div class="qhead"><span class="qnum">Q${String(i + 1).padStart(2, '0')}</span><span class="qask">${q.q}</span></div>
+      ${(q.code || []).map(qcodeBlock).join('')}
+      <div class="opts">${q.opts.map((o, k) =>
+        `<button class="opt" data-o="${k}"><span class="k">${LETTER[k]}</span><span class="ot">${o}</span><span class="mark"></span></button>`).join('')}</div>
+      <div class="why" hidden>
+        <span class="wt">why</span><p>${q.why}</p>
+        ${q.go ? `<button class="iconbtn" data-go="${q.go}">Open ${SLIDES[q.go].num} &nbsp;&rarr;</button>` : ''}
+      </div>
+    </div>`).join('') + `
+    <div class="qend" hidden>
+      <b class="sc"></b><p></p>
+      <div class="revs"></div>
+      <button class="iconbtn" data-reset>&#8635; Try again</button>
+    </div>
+  </div>`;
+}
+
 const exampleBlock = x => `
   <div class="example">
     <div class="exhead"><span class="extag">Real example</span><b>${x.name}</b></div>
@@ -1376,9 +2542,10 @@ const exampleBlock = x => `
 function buildPattern(s) {
   const rows = s.nodes.map(r => `<div class="row">${r.map(nodeBox).join('')}</div>`).join('');
   const svg = `<svg><g class="edges">${s.edges.map(e =>
-    `<g class="edge" data-edge="${e.id}"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>`).join('')}
+    `<g class="edge" data-edge="${e.id}"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text><text class="plain"></text></g>`).join('')}
     <g class="packet"><rect></rect><text></text></g></g></svg>`;
   return `
+    ${s.analogy ? stripBlock(s.analogy) : ''}
     <div class="stage">${svg}${rows}</div>
     <div class="stepbar">
       <div class="dots">${s.steps.map((_, i) => `<button class="dot" data-step="${i}" aria-label="step ${i + 1}"></button>`).join('')}</div>
@@ -1406,6 +2573,7 @@ SLIDES.forEach((s, i) => {
     : s.kind === 'map' ? buildMap()
     : s.kind === 'table' ? buildTable()
     : s.kind === 'debug' ? buildDebug()
+    : s.kind === 'quiz' ? buildQuiz(s)
     : buildPattern(s);
   el.innerHTML = head + body;
   viewport.appendChild(el);
@@ -1426,6 +2594,39 @@ function anchorPt(r, side, base) {
   if (side === 'right') return { x: x + w, y: y + h / 2, nx: 1, ny: 0 };
   if (side === 'top') return { x: x + w / 2, y: y, nx: 0, ny: -1 };
   return { x: x + w / 2, y: y + h, nx: 0, ny: 1 };
+}
+
+const SVGNS = 'http://www.w3.org/2000/svg';
+
+/* Write text on a wire without a node ever covering it: one line if it fits,
+   otherwise two balanced lines, and only then shrink. */
+function fitLabel(t, text, size, room, y, dir) {
+  t.style.fontSize = '';
+  t.textContent = text;
+  t.setAttribute('y', y);
+  if (!text || room === Infinity || t.getComputedTextLength() <= room) return;
+
+  let widest = t.getComputedTextLength();
+  const words = text.split(' ');
+  if (words.length > 1) {
+    let cut = 1, best = Infinity;
+    for (let i = 1; i < words.length; i++) {
+      const d = Math.abs(words.slice(0, i).join(' ').length - words.slice(i).join(' ').length);
+      if (d < best) { best = d; cut = i; }
+    }
+    const lines = [words.slice(0, cut).join(' '), words.slice(cut).join(' ')];
+    const x = t.getAttribute('x');
+    t.textContent = '';
+    lines.forEach((ln, i) => {
+      const sp = document.createElementNS(SVGNS, 'tspan');
+      sp.setAttribute('x', x);
+      sp.setAttribute('y', dir === 'up' ? y - (1 - i) * size * 1.15 : y + i * size * 1.15);
+      sp.textContent = ln;
+      t.appendChild(sp);
+    });
+    widest = Math.max(...[...t.childNodes].map(sp => sp.getComputedTextLength()));
+  }
+  if (widest > room) t.style.fontSize = Math.max(8, size * room / widest).toFixed(2) + 'px';
 }
 
 function layout(el) {
@@ -1459,10 +2660,14 @@ function layout(el) {
     head.setAttribute('d',
       `M${end.x},${end.y} L${end.x - r * Math.cos(ang - A)},${end.y - r * Math.sin(ang - A)} L${end.x - r * Math.cos(ang + A)},${end.y - r * Math.sin(ang + A)} Z`);
     const mid = wire.getPointAtLength(L * 0.5);
-    txt.setAttribute('x', mid.x);
-    txt.setAttribute('y', mid.y - 9);
-    txt.setAttribute('text-anchor', 'middle');
-    txt.textContent = e.label;
+    const plain = $('text.plain', g);
+    // a wire drawn straight across a row only has the gap between the two
+    // boxes to write in; anywhere else there is open space
+    const inRow = (e.a === 'right' && e.b === 'left') || (e.a === 'left' && e.b === 'right');
+    const room = inRow ? Math.abs(p2.x - p1.x) - 6 : Infinity;
+    [txt, plain].forEach(t => { t.setAttribute('x', mid.x); t.setAttribute('text-anchor', 'middle'); });
+    fitLabel(txt, e.label, 10.5, room, mid.y - 9, 'up');
+    fitLabel(plain, room < 80 ? '' : (e.plain || ''), 9.5, room, mid.y + 15, 'down');
   });
 }
 
@@ -1566,12 +2771,75 @@ function prev() {
   else if (cur > 0) goSlide(cur - 1);
 }
 
+/* ---------- quiz engine ---------- */
+function scoreQuiz(quiz) {
+  const bank = QUIZ[quiz.dataset.bank];
+  const cards = $$('.qcard', quiz);
+  const done = cards.filter(c => c.classList.contains('done')).length;
+  const right = cards.filter(c => c.classList.contains('right')).length;
+  $('.qdone', quiz).textContent = done;
+  $('.qright', quiz).textContent = right;
+  $('.qmeter i', quiz).style.width = (done / bank.length * 100) + '%';
+
+  const end = $('.qend', quiz);
+  if (done < bank.length) { end.hidden = true; return; }
+  const pct = right / bank.length;
+  $('.sc', end).textContent = `${right} / ${bank.length}`;
+  $('p', end).textContent =
+    pct === 1 ? 'Every one right. You can explain this section to somebody else now.'
+    : pct >= .7 ? 'Solid. Re-open the slides below for the ones that got away.'
+    : 'Worth another pass — open the slides below, then hit Try again.';
+  const missed = [...new Set(cards.filter(c => c.classList.contains('wrong'))
+    .map(c => QUIZ[quiz.dataset.bank][+c.dataset.q].go).filter(Boolean))];
+  $('.revs', end).innerHTML = missed.map(g =>
+    `<button class="iconbtn" data-go="${g}">${SLIDES[g].rail}</button>`).join('');
+  end.hidden = false;
+}
+
+function answer(btn) {
+  const card = btn.closest('.qcard');
+  if (card.classList.contains('done')) return;
+  const quiz = card.closest('.quiz');
+  const q = QUIZ[quiz.dataset.bank][+card.dataset.q];
+  const pick = +btn.dataset.o;
+  card.classList.add('done', pick === q.a ? 'right' : 'wrong');
+  $$('.opt', card).forEach((o, k) => {
+    if (k === q.a) o.classList.add('ok');
+    else if (k === pick) o.classList.add('no');
+  });
+  $('.why', card).hidden = false;
+  scoreQuiz(quiz);
+}
+
+function resetQuiz(quiz) {
+  $$('.qcard', quiz).forEach(c => {
+    c.classList.remove('done', 'right', 'wrong');
+    $$('.opt', c).forEach(o => o.classList.remove('ok', 'no'));
+    $('.why', c).hidden = true;
+  });
+  scoreQuiz(quiz);
+  viewport.scrollTop = 0;
+}
+
+/* keys 1-4 answer the first question you have not done yet */
+function quizKey(n) {
+  const el = slideEls[cur];
+  const card = $('.qcard:not(.done)', el);
+  if (!card) return;
+  const opt = $$('.opt', card)[n - 1];
+  if (!opt) return;
+  answer(opt);
+  const nextCard = $('.qcard:not(.done)', el);
+  (nextCard || $('.qend', el)).scrollIntoView({ block: 'center', behavior: REDUCED ? 'auto' : 'smooth' });
+}
+
 /* ---------- events ---------- */
 $('#next').onclick = next;
 $('#prev').onclick = prev;
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') return;
   const k = e.key;
+  if (SLIDES[cur].kind === 'quiz' && k >= '1' && k <= '4') { e.preventDefault(); return quizKey(+k); }
   if (k === 'ArrowRight' || k === ' ' || k === 'PageDown') { e.preventDefault(); next(); }
   else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); prev(); }
   else if (k === 'n' || k === 'N') goSlide(cur + 1);
@@ -1583,6 +2851,10 @@ document.addEventListener('keydown', e => {
 viewport.addEventListener('click', e => {
   const go = e.target.closest('[data-go]');
   if (go) return goSlide(+go.dataset.go);
+  const opt = e.target.closest('.opt');
+  if (opt) return answer(opt);
+  const rst = e.target.closest('[data-reset]');
+  if (rst) return resetQuiz(rst.closest('.quiz'));
   const dot = e.target.closest('.dot');
   if (dot) { RUN++; return goStep(+dot.dataset.step); }
   if (e.target.closest('[data-replay]')) play();

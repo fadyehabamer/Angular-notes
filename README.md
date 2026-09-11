@@ -23,6 +23,9 @@ index.html                   contents / cover
 beginner/       01–15        how an app starts → HTTP basics
 intermediate/   16–27        reactive forms → UI libraries
 advanced/       28–48        change detection → micro frontends
+beginner/project.html       build project: to-do app, then shopping cart
+intermediate/project.html   build project: the real store on a public API
+advanced/project.html       build project: the production pass
 angular-data-flow.html       companion deck: nine communication channels
 ```
 
@@ -60,6 +63,11 @@ node _build/build.mjs
   per topic: `slug`, `badge`, `title`, `lead`, `nodes`, `edges`, `files`,
   `steps`, `example`, `gotchas`, every text field carrying `{ en, ar }`.
   `example` may be an array.
+- `_build/content/projects.mjs` — the three end-of-track build projects,
+  one per level. Written in the reference-document shape (sections and
+  blocks, including `step` and `chk`), rendered by the same engine as the
+  TypeScript page into `<track>/project.html`, and spliced into the reading
+  order after each track's last topic.
 - `_build/content/plain.mjs` — the beginner layer, keyed by **base slug** (no
   number), so it does not care which track a topic ends up in: `say`, `like`,
   `when`, `one`, and a `strip` of three or four `{ i, t, p }` panels. `i` names

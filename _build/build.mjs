@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hlLines, esc } from './hl.mjs';
@@ -34,6 +34,8 @@ const CSS  = readFileSync(join(HERE, 'deck.css'), 'utf8');
 })();
 
 const PLAIN = (await import('./content/plain.mjs')).default;
+const WIRES = (await import('./content/wires.mjs')).default;
+const QUIZ  = (await import('./content/quiz.mjs')).default;
 const DOC = (await import('./content/typescript.mjs')).default;
 const JSDOC = (await import('./content/javascript.mjs')).default;
 const MAP = (await import('./content/roadmap.mjs')).default;
@@ -263,14 +265,46 @@ for (const t of TRACKS) for (const a of t.arts) {
   if (badIcon.length) { console.error('unknown icon: ' + badIcon.join(', ')); process.exit(1); }
 }
 
+/* plain-English words for the wires, and the check-yourself quiz.
+   Both are keyed by base slug and both are optional: a topic without
+   them still builds, it just loses that block. */
+{
+  const noWires = [], badWire = [], noQuiz = [], badQuiz = [];
+  for (const t of TRACKS) for (const a of t.arts) {
+    const k = base(a.slug);
+    const w = WIRES[k];
+    if (!w) noWires.push(k);
+    else {
+      for (const id of Object.keys(w))
+        if (!a.edges.some(e => e.id === id)) badWire.push(k + ' -> ' + id);
+      for (const e of a.edges) if (w[e.id]) e.plain = w[e.id];
+    }
+    a.quiz = QUIZ[k] || null;
+    if (!a.quiz) noQuiz.push(k);
+    else a.quiz.forEach((q, i) => {
+      const where = k + ' q' + (i + 1);
+      if (!Number.isInteger(q.a) || q.a < 0 || q.a >= q.opts.length) badQuiz.push(where + ': answer index');
+      if (q.opts.length !== 4) badQuiz.push(where + ': needs 4 options');
+      if (!q.q || !q.why) badQuiz.push(where + ': missing question or why');
+      for (const c of q.code || []) {
+        if (!c.lines || !c.lines.length) badQuiz.push(where + ': empty code block');
+        if (!['ts', 'html'].includes(c.lang)) badQuiz.push(where + ': bad lang ' + c.lang);
+      }
+    });
+  }
+  if (noWires.length) console.warn('  no wire words yet (' + noWires.length + '): ' + noWires.join(', '));
+  if (noQuiz.length)  console.warn('  no quiz yet (' + noQuiz.length + '): ' + noQuiz.join(', '));
+  if (badWire.length) { console.error('wire words point at an edge that does not exist: ' + badWire.join(', ')); process.exit(1); }
+  if (badQuiz.length) { console.error('quiz problems:\n  ' + badQuiz.join('\n  ')); process.exit(1); }
+}
+
 const FLAT = TRACKS.flatMap(t => t.arts.map(a => ({ ...a, track: t })));
 const href = (a, fromTrack) => (fromTrack ? '../' : '') + a.track.id + '/' + a.slug + '.html';
 
 function trackNav(current, base) {
   const rows = TRACKS.map(t => {
-    const first = t.arts[0];
     const cur = t.id === current ? ' aria-current="page"' : '';
-    return `<a href="${base}${t.id}/${first.slug}.html" style="--c:var(${t.ink})"${cur}><i></i>${bi(t.name)}</a>`;
+    return `<a href="${base}${t.id}/index.html" style="--c:var(${t.ink})"${cur}><i></i>${bi(t.name)}</a>`;
   });
   const mapCur = current === 'roadmap' ? ' aria-current="page"' : '';
   rows.unshift(`<a href="${base}roadmap.html" style="--c:var(--beg)"${mapCur}><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a>`);
@@ -291,12 +325,57 @@ function chrome(current, base = '../') {
   </div></header>`;
 }
 
+/* ---------- check yourself ---------- */
+const LETTER = ['A', 'B', 'C', 'D'];
+
+const qcodeBlock = c => `
+        <div class="qcode">${c.name ? `<div class="qcf">${esc(c.name)}</div>` : ''}
+          <pre>${hlLines(c.lines, c.lang).map(l => `<span class="ln">${l || ' '}</span>`).join('')}</pre>
+        </div>`;
+
+const quizBlock = q => !q ? '' : `
+  <p class="sechead"><span class="l-en">Check yourself</span><span class="l-ar">اختبر نفسك</span></p>
+  <div class="quiz" data-n="${q.length}">
+    <div class="qbar">
+      <span class="qtxt"><b class="qdone">0</b> / ${q.length} <span class="l-en">answered</span><span class="l-ar">مُجاوبة</span></span>
+      <div class="qmeter"><i></i></div>
+      <span class="qtxt"><em class="qright">0</em> <span class="l-en">right</span><span class="l-ar">صح</span></span>
+      <button class="iconbtn" data-reset>&#8635;<span class="l-en"> Reset</span><span class="l-ar"> من الأول</span></button>
+    </div>
+    ${q.map((it, i) => `
+    <div class="qcard" data-q="${i}" data-a="${it.a}">
+      <div class="qhead">
+        <span class="qnum">Q${String(i + 1).padStart(2, '0')}</span>
+        <span class="qask">${bi(it.q)}</span>
+      </div>
+      ${(it.code || []).map(qcodeBlock).join('')}
+      <div class="opts">${it.opts.map((o, k) => `
+        <button class="opt" data-o="${k}"><span class="k">${LETTER[k]}</span><span class="ot">${bi(o)}</span><span class="mark"></span></button>`).join('')}
+      </div>
+      <div class="why" hidden>
+        <span class="wt"><span class="l-en">why</span><span class="l-ar">ليه</span></span>
+        <p>${bi(it.why)}</p>
+      </div>
+    </div>`).join('')}
+    <div class="qend" hidden>
+      <b class="sc"></b><p></p>
+      <button class="iconbtn" data-reset>&#8635;<span class="l-en"> Try again</span><span class="l-ar"> جرّب تاني</span></button>
+    </div>
+  </div>`;
+
 /* ---------- the per-topic page ---------- */
 function page(a, i) {
   const prev = FLAT[i - 1], next = FLAT[i + 1];
+  /* a companion sits between two numbered topics, so the pager steps into it
+     rather than over it */
+  const cA = companionAfter(a), cB = companionBefore(a, i);
+  const pvHref = cB ? '../' + a.track.id + '/' + cB.file : (prev ? href(prev, true) : null);
+  const pvName = cB ? bi(cB.name) : (prev ? bi(prev.title) : null);
+  const nxHref = cA ? '../' + a.track.id + '/' + cA.file : (next ? href(next, true) : null);
+  const nxName = cA ? bi(cA.name) : (next ? bi(next.title) : null);
   const rows = a.nodes.map(r => `<div class="row">${r.map(nodeBox).join('')}</div>`).join('');
   const svg = `<svg aria-hidden="true"><g class="edges">${a.edges.map(e =>
-        `<g class="edge" data-edge="${e.id}"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>`).join('')}
+        `<g class="edge" data-edge="${e.id}"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text><text class="plain"></text></g>`).join('')}
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg>`;
 
   const jsonSafe = o => JSON.stringify(o)
@@ -304,7 +383,7 @@ function page(a, i) {
     .replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 
   const runtime = jsonSafe({
-    edges: a.edges.map(e => ({ id: e.id, from: e.from, to: e.to, a: e.a, b: e.b, label: e.label, packet: e.packet })),
+    edges: a.edges.map(e => ({ id: e.id, from: e.from, to: e.to, a: e.a, b: e.b, label: e.label, packet: e.packet, plain: e.plain || null })),
     steps: a.steps.map(s => ({ t: s.t, edge: s.edge || null, hl: s.hl || {} })),
   });
 
@@ -396,9 +475,11 @@ ${chrome(a.track.id)}
     </div>
   </div>` : ''}
 
+  ${quizBlock(a.quiz)}
+
   <nav class="pager">
-    ${prev ? `<a class="pv" href="${href(prev, true)}"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b>${bi(prev.title)}</b></a>` : '<div class="void"></div>'}
-    ${next ? `<a class="nx" href="${href(next, true)}"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b>${bi(next.title)}</b></a>` : '<div class="void"></div>'}
+    ${pvHref ? `<a class="pv" href="${pvHref}"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b>${pvName}</b></a>` : '<div class="void"></div>'}
+    ${nxHref ? `<a class="nx" href="${nxHref}"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b>${nxName}</b></a>` : '<div class="void"></div>'}
   </nav>
 </main>
 
@@ -449,11 +530,51 @@ function layout(){
       ' L' + (end.x - r * Math.cos(ang - A)) + ',' + (end.y - r * Math.sin(ang - A)) +
       ' L' + (end.x - r * Math.cos(ang + A)) + ',' + (end.y - r * Math.sin(ang + A)) + ' Z');
     const mid = wire.getPointAtLength(L * 0.5);
-    txt.setAttribute('x', mid.x);
-    txt.setAttribute('y', mid.y - 9);
-    txt.setAttribute('text-anchor', 'middle');
-    txt.textContent = e.label;
+    const plain = $('text.plain', g);
+    /* a wire drawn straight across a row only has the gap between the two
+       boxes to write in; anywhere else there is open space */
+    const inRow = (e.a === 'right' && e.b === 'left') || (e.a === 'left' && e.b === 'right');
+    const room = inRow ? Math.abs(p2.x - p1.x) - 6 : Infinity;
+    [txt, plain].forEach(t => { t.setAttribute('x', mid.x); t.setAttribute('text-anchor', 'middle'); });
+    fitLabel(txt, e.label, 10.5, room, mid.y - 9, 'up');
+    fitLabel(plain, room < 80 ? '' : plainWords(e), 9.5, room, mid.y + 15, 'down');
   });
+}
+
+/* the plain-English (or plain-Arabic) words under a wire */
+function plainWords(e){
+  if (!e.plain) return '';
+  return document.documentElement.dataset.lang === 'ar' ? e.plain.ar : e.plain.en;
+}
+
+/* one line if it fits, otherwise two balanced lines, and only then shrink */
+function fitLabel(t, text, size, room, y, dir){
+  t.style.fontSize = '';
+  t.textContent = text;
+  t.setAttribute('y', y);
+  if (!text || room === Infinity || t.getComputedTextLength() <= room) return;
+
+  let widest = t.getComputedTextLength();
+  const words = text.split(' ');
+  if (words.length > 1) {
+    let cut = 1, best = Infinity;
+    for (let i = 1; i < words.length; i++) {
+      const d = Math.abs(words.slice(0, i).join(' ').length - words.slice(i).join(' ').length);
+      if (d < best) { best = d; cut = i; }
+    }
+    const lines = [words.slice(0, cut).join(' '), words.slice(cut).join(' ')];
+    const x = t.getAttribute('x');
+    t.textContent = '';
+    lines.forEach((ln, i) => {
+      const sp = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+      sp.setAttribute('x', x);
+      sp.setAttribute('y', dir === 'up' ? y - (1 - i) * size * 1.15 : y + i * size * 1.15);
+      sp.textContent = ln;
+      t.appendChild(sp);
+    });
+    widest = Math.max.apply(null, [].map.call(t.childNodes, sp => sp.getComputedTextLength()));
+  }
+  if (widest > room) t.style.fontSize = Math.max(8, size * room / widest).toFixed(2) + 'px';
 }
 
 /* ---------- steps ---------- */
@@ -530,12 +651,76 @@ async function play(){
   }
 }
 
+/* ---------- check yourself ---------- */
+function qScore(quiz){
+  const cards = $$('.qcard', quiz);
+  const n = cards.length;
+  const done = cards.filter(c => c.classList.contains('done')).length;
+  const right = cards.filter(c => c.classList.contains('right')).length;
+  $('.qdone', quiz).textContent = done;
+  $('.qright', quiz).textContent = right;
+  $('.qmeter i', quiz).style.width = (done / n * 100) + '%';
+  const end = $('.qend', quiz);
+  if (done < n) { end.hidden = true; return; }
+  const pct = right / n;
+  $('.sc', end).textContent = right + ' / ' + n;
+  const msg = pct === 1
+    ? ['Every one right. You could teach this page now.', 'كلها صح. تقدر تشرح الصفحة دي لحد تاني دلوقتي.']
+    : pct >= 0.6
+      ? ['Good. Read the why under the ones you missed, then try again.', 'حلو. اقرا الـ "ليه" تحت اللي غلط، وبعدين جرّب تاني.']
+      : ['Worth another read of the pictures above, then try again.', 'يستحق قراية تانية للصور اللي فوق، وبعدين جرّب تاني.'];
+  $('p', end).innerHTML = '<span class="l-en">' + msg[0] + '</span><span class="l-ar" dir="auto">' + msg[1] + '</span>';
+  end.hidden = false;
+}
+
+function qAnswer(btn){
+  const card = btn.closest('.qcard');
+  if (card.classList.contains('done')) return;
+  const quiz = card.closest('.quiz');
+  const right = +card.dataset.a, pick = +btn.dataset.o;
+  card.classList.add('done');
+  card.classList.add(pick === right ? 'right' : 'wrong');
+  $$('.opt', card).forEach((o, k) => {
+    if (k === right) o.classList.add('ok');
+    else if (k === pick) o.classList.add('no');
+  });
+  $('.why', card).hidden = false;
+  qScore(quiz);
+}
+
+function qReset(quiz){
+  $$('.qcard', quiz).forEach(c => {
+    c.classList.remove('done', 'right', 'wrong');
+    $$('.opt', c).forEach(o => o.classList.remove('ok', 'no'));
+    $('.why', c).hidden = true;
+  });
+  qScore(quiz);
+  quiz.scrollIntoView({ block: 'start', behavior: REDUCED ? 'auto' : 'smooth' });
+}
+
 document.addEventListener('click', e => {
   const dot = e.target.closest('.dot');
   if (dot) { RUN++; return goStep(+dot.dataset.step); }
-  if (e.target.closest('[data-replay]')) play();
+  if (e.target.closest('[data-replay]')) return play();
+  const opt = e.target.closest('.opt');
+  if (opt) return qAnswer(opt);
+  const rst = e.target.closest('[data-reset]');
+  if (rst) return qReset(rst.closest('.quiz'));
 });
 document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  const quiz = $('.quiz');
+  if (quiz && e.key >= '1' && e.key <= '4') {
+    const card = $('.qcard:not(.done)', quiz);
+    if (!card) return;
+    const opt = $$('.opt', card)[+e.key - 1];
+    if (!opt) return;
+    e.preventDefault();
+    qAnswer(opt);
+    const nx = $('.qcard:not(.done)', quiz) || $('.qend', quiz);
+    if (nx) nx.scrollIntoView({ block: 'center', behavior: REDUCED ? 'auto' : 'smooth' });
+    return;
+  }
   if (e.key === 'ArrowRight') { RUN++; goStep(step + 1); }
   else if (e.key === 'ArrowLeft') { RUN++; goStep(step - 1, false); }
   else if (e.key.toLowerCase() === 'r') play();
@@ -555,6 +740,191 @@ new IntersectionObserver((en, o) => {
 </html>`;
 }
 
+
+/* ---------- a landing page per track: what is in it, in order ---------- */
+/* Hand-written companion decks that are not part of the numbered syllabus.
+   The file is authored in place, inside the track folder, and the build never
+   rewrites it — the clean step below removes only what it generated.
+   `after` places it in the reading order, and every list on the site — the
+   track page, the contents page, the roadmap and the prev/next pager — is
+   built from `trackItems()` below, so the order is stated once. */
+const COMPANIONS = {
+  beginner: [{
+    file: 'angular-data-flow.html', // authored at beginner/angular-data-flow.html
+    after: 'inputs-outputs',        // it is the deep dive that follows that topic
+    kick: {en:'Companion deck', ar:'ملف مصاحب'},
+    name: {en:'Angular data flow — how components talk to each other', ar:'انتقال البيانات في أنجولار — إزاي الـ components بتتكلم مع بعضها'},
+    say:  {en:'Fourteen ways a value gets from one component to another, each one animated file by file: <b>@Input</b> down, <b>@Output</b> up, two-way, services, signals, routes, dialogs and more — then four quizzes.',
+           ar:'أربعتاشر طريقة القيمة بتوصل بيها من component لواحد تاني، وكل واحدة متحركة ملف ملف: <b>@Input</b> لتحت، و<b>@Output</b> لفوق، والاتجاهين، والـ services، والـ signals، والمسارات، والـ dialogs وغيرهم — وبعدها أربع اختبارات.'},
+  }],
+};
+
+/* End-of-track build projects. One per level, generated from
+   _build/content/projects.mjs into <track>/project.html, and spliced into the
+   reading order after the last topic of the track (that is what `end: true`
+   means below). The roadmap's "Build this" card links to them. */
+const PRJ = await import('./content/projects.mjs');
+const PROJECTS = {
+  beginner: PRJ.beginner, intermediate: PRJ.intermediate, advanced: PRJ.advanced,
+};
+const projectCompanion = t => ({
+  file: 'project.html',
+  end: true,
+  kick: {en:'Build project', ar:'مشروع عملي'},
+  name: PROJECTS[t.id].title,
+  say:  PROJECTS[t.id].say,
+});
+
+/* one track's reading order: numbered topics with companions spliced in */
+function trackItems(t) {
+  const extras = [...(COMPANIONS[t.id] || []), projectCompanion(t)];
+  const items = [];
+  for (const a of t.arts) {
+    items.push({ a });
+    for (const x of extras) if (x.after === base(a.slug)) items.push({ x });
+  }
+  for (const x of extras) if (x.end || !t.arts.some(a => base(a.slug) === x.after)) items.push({ x });
+  return items;
+}
+/* the companion that reads immediately after this article, or before it */
+const companionAfter = a => {
+  const x = (COMPANIONS[a.track.id] || []).find(x => x.after === base(a.slug));
+  if (x) return x;
+  const t = a.track;
+  return t.arts.length && t.arts[t.arts.length - 1].slug === a.slug ? projectCompanion(t) : undefined;
+};
+const companionBefore = (a, i) => {
+  const p = FLAT[i - 1];
+  if (!p || p.track.id !== a.track.id) return undefined;
+  return (COMPANIONS[a.track.id] || []).find(x => x.after === base(p.slug));
+};
+
+function trackPage(t, ti) {
+  const prev = TRACKS[ti - 1], next = TRACKS[ti + 1];
+  const quizzes = t.arts.filter(a => a.quiz).length;
+  const items = trackItems(t);
+
+  return `<!DOCTYPE html>
+<html lang="en" data-lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(bi(t.name).replace(/<[^>]+>/g, ' ').trim())} — The Angular Signal</title>
+<meta name="description" content="${esc(t.dek.en.replace(/<[^>]+>/g, '').slice(0, 180))}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="${FONTS}" rel="stylesheet">
+<style>
+:root{--c:var(${t.ink})}
+${CSS}
+.thero{border-top:3px solid var(--c);padding-top:18px;margin-bottom:6px}
+.thero .tkick{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+:root[dir="rtl"] .thero .tkick{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.thero h1{font-family:var(--disp);font-weight:800;font-size:clamp(34px,5.6vw,60px);line-height:1;letter-spacing:-.035em;color:var(--c);margin:8px 0 12px}
+:root[dir="rtl"] .thero h1{letter-spacing:0;line-height:1.3}
+.thero p.dek{margin:0;color:var(--mut);font-size:16px;line-height:1.7;max-width:70ch;text-wrap:pretty}
+.tmeta{display:flex;gap:20px;flex-wrap:wrap;margin:18px 0 4px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+:root[dir="rtl"] .tmeta{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:13px}
+.tstart{display:inline-flex;align-items:center;gap:10px;margin-top:18px;text-decoration:none;
+  background:var(--c);color:var(--onc);border-radius:10px;padding:12px 20px;font-weight:600;font-size:14.5px}
+.tstart:hover{filter:brightness(1.07)}
+.tlist{display:grid;gap:11px;margin-top:6px}
+.tlist a{display:flex;gap:15px;align-items:flex-start;text-decoration:none;border:1px solid var(--line2);
+  border-radius:13px;padding:15px 17px;background:var(--card);transition:.2s;min-width:0}
+.tlist a:hover{background:var(--card2);border-color:color-mix(in srgb,var(--c) 45%,transparent);transform:translateY(-2px)}
+.tlist em{font-family:var(--mono);font-style:normal;font-size:12px;color:var(--c);flex:none;padding-top:3px;min-width:22px}
+:root[dir="rtl"] .tlist em{direction:ltr;unicode-bidi:isolate}
+.tlist .tt{min-width:0;flex:1}
+.tlist .tt > b{display:block;font-family:var(--disp);font-weight:700;font-size:17.5px;letter-spacing:-.015em;
+  color:var(--ink);line-height:1.3;margin-bottom:5px;text-wrap:pretty}
+:root[dir="rtl"] .tlist .tt > b{letter-spacing:0;line-height:1.5}
+/* the summary is a sentence: its <b> stays inline emphasis, not a heading */
+.tlist .tsay b{display:inline;font:inherit;font-weight:600;color:var(--ink)}
+.tlist .tsay{display:block;color:var(--mut);font-size:13.6px;line-height:1.6;text-wrap:pretty}
+.tlist .tsay code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+/* a companion deck sits in the reading order but keeps out of the numbering */
+.tlist a.extra{background:var(--sunk);border-style:dashed}
+.tlist a.extra:hover{background:var(--card2);border-style:solid}
+.tlist i.tb{display:inline-block;font-style:normal;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--c);border:1px solid currentColor;border-radius:99px;padding:2px 8px;margin-top:9px}
+:root[dir="rtl"] .tlist i.tb{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.tother{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-top:8px}
+.tother a{text-decoration:none;border:1px solid var(--line2);border-radius:13px;padding:15px 17px;background:var(--card);transition:.2s}
+.tother a:hover{background:var(--card2)}
+/* only the card's own kicker line — not the l-en/l-ar spans nested in the others */
+.tother a > span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+:root[dir="rtl"] .tother a > span{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.tother b span,.tother .tcount span{display:inline;font:inherit;letter-spacing:inherit;text-transform:none;color:inherit;margin:0}
+.tother b{display:block;font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:-.02em;color:var(--ink)}
+:root[dir="rtl"] .tother b{letter-spacing:0}
+.tother .tcount{display:block;font-style:normal;margin-top:5px;font-size:13px;color:var(--mut)}
+</style>
+${BOOT}
+</head>
+<body>
+${chrome(t.id)}
+<main class="page" id="page">
+
+  <div class="thero">
+    <span class="tkick">${bi(t.kicker)}</span>
+    <h1>${bi(t.name)}</h1>
+    <p class="dek">${bi(t.dek)}</p>
+    <div class="tmeta">
+      <span><span class="l-en">${t.arts.length} topics</span><span class="l-ar">${t.arts.length} موضوع</span></span>
+      <span><span class="l-en">${quizzes} quizzes</span><span class="l-ar">${quizzes} اختبار</span></span>
+      <span><span class="l-en">${t.arts[0].num} &ndash; ${t.arts[t.arts.length - 1].num} of ${FLAT.length}</span><span class="l-ar" dir="auto">${t.arts[0].num} &ndash; ${t.arts[t.arts.length - 1].num} من ${FLAT.length}</span></span>
+    </div>
+    <a class="tstart" href="${t.arts[0].slug}.html">
+      <span class="l-en">Start here &rarr;</span><span class="l-ar">ابدأ من هنا &rarr;</span>
+    </a>
+  </div>
+
+  <p class="sechead"><span class="l-en">Every topic in this track, in reading order</span><span class="l-ar">كل مواضيع المستوى ده، بترتيب القراية</span></p>
+  <div class="tlist">${items.map(it => it.a ? `
+    <a href="${it.a.slug}.html">
+      <em>${it.a.num}</em>
+      <span class="tt">
+        <b>${bi(it.a.title)}</b>
+        ${it.a.plain ? `<span class="tsay">${bi(it.a.plain.say)}</span>` : `<span class="tsay">${bi(it.a.lead).replace(/<[^>]+>/g, '').slice(0, 150)}…</span>`}
+        <i class="tb">${bi(it.a.badge)}</i>
+      </span>
+    </a>` : `
+    <a class="extra" href="${it.x.file}">
+      <em>&#43;</em>
+      <span class="tt">
+        <b>${bi(it.x.name)}</b>
+        <span class="tsay">${bi(it.x.say)}</span>
+        <i class="tb">${bi(it.x.kick)}</i>
+      </span>
+    </a>`).join('')}
+  </div>
+
+  <p class="sechead"><span class="l-en">The other tracks</span><span class="l-ar">المستويات التانية</span></p>
+  <div class="tother">
+    ${TRACKS.filter(o => o.id !== t.id).map(o => `
+    <a href="../${o.id}/index.html" style="--c:var(${o.ink})">
+      <span>${bi(o.kicker)}</span>
+      <b style="color:var(${o.ink})">${bi(o.name)}</b>
+      <em class="tcount">${o.arts.length} <span class="l-en">topics</span><span class="l-ar">موضوع</span></em>
+    </a>`).join('')}
+    <a href="../roadmap.html" style="--c:var(--beg)">
+      <span><span class="l-en">In what order</span><span class="l-ar">بأي ترتيب</span></span>
+      <b><span class="l-en">The learning path</span><span class="l-ar">خطة التعلّم</span></b>
+    </a>
+  </div>
+
+  <nav class="pager">
+    ${prev ? `<a class="pv" href="../${prev.id}/index.html"><em>&larr; <span class="l-en">Previous track</span><span class="l-ar">المستوى السابق</span></em><b>${bi(prev.name)}</b></a>` : '<div class="void"></div>'}
+    ${next ? `<a class="nx" href="../${next.id}/index.html"><em><span class="l-en">Next track</span><span class="l-ar">المستوى التالي</span> &rarr;</em><b>${bi(next.name)}</b></a>` : '<div class="void"></div>'}
+  </nav>
+</main>
+
+<script>
+${UI_JS}
+</script>
+</body>
+</html>`;
+}
 
 /* ---------- the TypeScript reference page ---------- */
 function docBlock(b) {
@@ -583,6 +953,11 @@ function docBlock(b) {
       <tbody>${b.rows.map(r => `<tr>${r.en.map((c, k) =>
         `<td><span class="l-en">${c}</span><span class="l-ar" dir="auto">${r.ar[k]}</span></td>`).join('')}</tr>`).join('')}</tbody>
     </table></div>`;
+  if (b.t === 'step') return `<div class="pstep"${b.id ? ` id="${b.id}"` : ''}>
+      <div class="pstep-h"><span class="pstep-n">${esc(b.n)}</span><b>${bi(b.title)}</b></div>
+      ${(b.blocks || []).map(docBlock).join('')}
+    </div>`;
+  if (b.t === 'chk') return `<div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p>${bi(b)}</p></div>`;
   return '';
 }
 
@@ -618,7 +993,7 @@ ${chrome(o.id, '')}
 <main class="page" id="page">
   <div class="eyebrow">
     <span class="num seq">${o.num}</span>
-    <span class="badge"><span class="l-en">Prerequisite</span><span class="l-ar">قبل ما تبدأ</span></span>
+    <span class="badge">${bi(o.badge || { en: 'Prerequisite', ar: 'قبل ما تبدأ' })}</span>
     <span class="num">${bi(o.kicker)}</span>
   </div>
   <h1 class="title">${bi(D.title)}</h1>
@@ -691,11 +1066,13 @@ function mapPage() {
       list = `<a href="typescript-for-angular.html"><em>00</em><span>${bi(DOC.title)}</span></a>`;
     } else {
       const t = TRACKS.find(x => x.id === ph.source);
-      list = t.arts.map(a =>
-        `<a href="${t.id}/${a.slug}.html"><em>${a.num}</em><span>${bi(a.title)}</span></a>`).join('');
+      list = trackItems(t).map(it => it.a
+        ? `<a href="${t.id}/${it.a.slug}.html"><em>${it.a.num}</em><span>${bi(it.a.title)}</span></a>`
+        : `<a class="extra" href="${t.id}/${it.x.file}"><em>&#43;</em><span>${bi(it.x.name)}</span></a>`).join('');
     }
     const ink = ph.source === 'typescript' ? '--ts'
               : (TRACKS.find(x => x.id === ph.source) || {}).ink;
+    const pt = ph.source === 'typescript' ? null : TRACKS.find(x => x.id === ph.source);
     return `
       <div class="phase" style="--c:var(${ink})">
         <div class="phase-h">
@@ -708,6 +1085,7 @@ function mapPage() {
         <div class="phase-build">
           <b><span class="l-en">Build this</span><span class="l-ar">ابني ده</span></b>
           <p>${bi(ph.build)}</p>
+          ${pt ? `<a class="build-link" href="${pt.id}/project.html"><span class="l-en">Open the step-by-step project &rarr;</span><span class="l-ar">افتح المشروع خطوة بخطوة &lrm;&rarr;&lrm;</span></a>` : ''}
         </div>
       </div>`;
   }).join('');
@@ -742,6 +1120,25 @@ ${chrome('roadmap', '')}
 
   <p class="sechead"><span class="l-en">The order to do it in</span><span class="l-ar">الترتيب اللي تمشي بيه</span></p>
   ${phases}
+
+  <p class="sechead" style="margin-top:44px"><span class="l-en">The build projects, step by step</span><span class="l-ar">مشاريع البناء، خطوة بخطوة</span></p>
+  <p style="color:var(--mut);max-width:74ch;margin:0 0 4px">
+    <span class="l-en">One project page per level, sitting at the end of its track: complete code for every step, a checkpoint after each one, and the best-practice habits baked in as you go — standalone components, signals-first state, typed forms, budgets, tests, CI.</span>
+    <span class="l-ar" dir="auto">صفحة مشروع لكل مستوى، في آخر مستواه: الكود كامل لكل خطوة، ونقطة فحص بعد كل خطوة، والعادات الصح متبنية وإنت ماشي — standalone components، وsignals الأول، وforms بأنواع، وbudgets، وتستات، وCI.</span>
+  </p>
+  <div class="blds">
+    ${TRACKS.map(t => {
+      const blds = MAP.builds.filter(b => b.track === t.id);
+      if (!blds.length) return '';
+      return `<section class="blds-track" style="--c:var(${t.ink})">
+        <b>${bi(t.name)}</b>
+        ${blds.map(b => `<div class="blds-item">
+          <a class="build-link" href="${b.href}">${bi(b.label)} &rarr;</a>
+          <p>${bi(b.blurb)}</p>
+        </div>`).join('')}
+      </section>`;
+    }).join('')}
+  </div>
 
   <p class="sechead" style="margin-top:44px"><span class="l-en">The rest of the road</span><span class="l-ar">باقي الطريق</span></p>
   <p style="color:var(--mut);max-width:74ch;margin:0 0 4px">
@@ -780,13 +1177,17 @@ function index() {
       <section class="tcol" style="--c:var(${t.ink})">
         <div class="thead">
           <span class="tkick">${bi(t.kicker)}</span>
-          <h2>${bi(t.name)}</h2>
+          <h2><a href="${t.id}/index.html" style="color:inherit;text-decoration:none">${bi(t.name)}</a></h2>
           <p>${bi(t.dek)}</p>
         </div>
-        <ol>${t.arts.map(a => `
-          <li><a href="${t.id}/${a.slug}.html">
-            <em>${a.num}</em>
-            <span><b>${bi(a.title)}</b><i>${bi(a.badge)}</i></span>
+        <ol>${trackItems(t).map(it => it.a ? `
+          <li><a href="${t.id}/${it.a.slug}.html">
+            <em>${it.a.num}</em>
+            <span><b>${bi(it.a.title)}</b><i>${bi(it.a.badge)}</i></span>
+          </a></li>` : `
+          <li><a class="extra" href="${t.id}/${it.x.file}">
+            <em>&#43;</em>
+            <span><b>${bi(it.x.name)}</b><i>${bi(it.x.kick)}</i></span>
           </a></li>`).join('')}
         </ol>
       </section>`).join('');
@@ -887,7 +1288,7 @@ ${BOOT}
     <div><b><span class="l-en">Two languages, two skins</span><span class="l-ar">لغتين وشكلين</span></b>
       <p><span class="l-en">Every page carries the English and the Egyptian Arabic text, and comes in light or dark. Both switches are top right and both are remembered. Code, file names and diagrams stay left to right whatever you pick.</span><span class="l-ar" dir="auto">كل صفحة فيها النص بالإنجليزي وبالمصري، وبتيجي فاتحة أو غامقة. السويتشين فوق على الشمال والاتنين بيتحفظوا. والكود وأسماء الملفات والرسومات بتفضل من الشمال لليمين في أي اختيار.</span></p></div>
     <div><b><span class="l-en">Companion</span><span class="l-ar">ملف مصاحب</span></b>
-      <p><span class="l-en">Chasing a value between two components? <a href="angular-data-flow.html">Angular data flow</a> covers the nine communication channels in the same format.</span><span class="l-ar" dir="auto">بتدوّر على قيمة بين اتنين components؟ ملف <a href="angular-data-flow.html">Angular data flow</a> بيغطي التسع قنوات بنفس الشكل ده.</span></p></div>
+      <p><span class="l-en">Chasing a value between two components? <a href="beginner/angular-data-flow.html">Angular data flow</a> covers fourteen ways a value travels, in the same format.</span><span class="l-ar" dir="auto">بتدوّر على قيمة بين اتنين components؟ ملف <a href="beginner/angular-data-flow.html">Angular data flow</a> بيغطي أربعتاشر طريقة القيمة بتنتقل بيها، بنفس الشكل ده.</span></p></div>
   </div>
 </div>
 
@@ -899,10 +1300,24 @@ ${UI_JS}
 }
 
 /* ---------- write ---------- */
+/* Remove only this build's own output. Anything else in a track folder is
+   hand-authored (the companion decks) and must survive the rebuild. */
+const GENERATED = /^(\d\d-.+|index|project)\.html$/;
 for (const t of TRACKS) {
-  rmSync(join(ROOT, t.id), { recursive: true, force: true });
-  mkdirSync(join(ROOT, t.id), { recursive: true });
+  const dir = join(ROOT, t.id);
+  if (!existsSync(dir)) { mkdirSync(dir, { recursive: true }); continue; }
+  for (const f of readdirSync(dir)) if (GENERATED.test(f)) rmSync(join(dir, f));
 }
+TRACKS.forEach((t, ti) => {
+  writeFileSync(join(ROOT, t.id, 'index.html'), trackPage(t, ti));
+  for (const x of COMPANIONS[t.id] || []) {
+    if (!existsSync(join(ROOT, t.id, x.file)))
+      console.warn('  ! ' + t.id + '/' + x.file + ' is in COMPANIONS but not on disk');
+    if (!t.arts.some(a => base(a.slug) === x.after))
+      console.warn('  ! companion "' + x.file + '" points at "' + x.after + '", not in ' + t.id);
+  }
+  if (!PROJECTS[t.id]) { console.error('  ! no entry in _build/content/projects.mjs for track "' + t.id + '"'); process.exit(1); }
+});
 FLAT.forEach((a, i) => {
   writeFileSync(join(ROOT, a.track.id, a.slug + '.html'), page(a, i));
 });
@@ -923,5 +1338,27 @@ writeFileSync(join(ROOT, 'typescript-for-angular.html'), docPage(DOC, {
 writeFileSync(join(ROOT, 'roadmap.html'), mapPage());
 writeFileSync(join(ROOT, 'index.html'), index());
 
-console.log('built ' + FLAT.length + ' topic pages + roadmap + javascript + typescript + index');
+/* ---------- the three end-of-track build-project pages ---------- */
+for (const [ti, t] of TRACKS.entries()) {
+  const prevTrack = TRACKS[ti - 1], nextTrack = TRACKS[ti + 1];
+  writeFileSync(join(ROOT, t.id, 'project.html'), docPage(PROJECTS[t.id], {
+    id: t.id, ink: t.ink, num: t.arts[0].num, tab: PROJECTS[t.id].tab,
+    badge: { en: 'Build project', ar: 'مشروع عملي' },
+    kicker: { en: 'The ' + t.name.en.toLowerCase() + ' track', ar: 'مستوى ' + t.name.ar },
+    prev: prevTrack
+      ? { href: '../' + prevTrack.id + '/project.html',
+          kick: { en: 'Previous project', ar: 'المشروع اللي فات' },
+          title: PROJECTS[prevTrack.id].title }
+      : { href: 'typescript-for-angular.html',
+          kick: { en: 'Before this', ar: 'قبل دي' }, title: DOC.title },
+    next: nextTrack
+      ? { href: '../' + nextTrack.id + '/index.html',
+          kick: { en: 'Next level', ar: 'المستوى اللي بعده' }, title: nextTrack.name }
+      : { href: 'roadmap.html',
+          kick: { en: 'Back to', ar: 'رجوع لـ' },
+          title: { en: 'The learning path', ar: 'خطة التعلّم' } },
+  }));
+}
+
+console.log('built ' + FLAT.length + ' topic pages + roadmap + javascript + typescript + 3 build projects + index');
 TRACKS.forEach(t => console.log('  ' + t.id + '/  → ' + t.arts.map(a => a.slug).join(', ')));

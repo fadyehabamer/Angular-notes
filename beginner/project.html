@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Build: to-do app &amp; shopping cart</title>
+<meta name="description" content="This is the "Build this" card from phase 01 of the learning path, turned into a real walkthrough: complete code at every step, and a checkpoint after each one so you always know wh">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Cairo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--c:var(--beg)}
+/* ============================================================
+   Two skins, one set of names. Light is the default; the top-bar
+   switch stamps data-theme="dark" on the root element, and only the
+   below change. Never hard-code a colour outside these blocks.
+   ============================================================ */
+:root{
+  color-scheme:light;
+  /* surfaces */
+  --bg:#f3f4fb; --bg2:#eaecf7; --card:#ffffff; --card2:#f7f8fd; --code:#fbfbff;
+  --line:rgba(23,27,64,.14); --line2:rgba(23,27,64,.08);
+  --sunk:rgba(23,27,64,.03); --sunk2:rgba(23,27,64,.05); --hover:rgba(23,27,64,.05);
+  --chip:rgba(23,27,64,.065); --chipink:#3a3f70;
+  --topbg:rgba(248,249,254,.84);
+  --wire:rgba(23,27,64,.24); --dotbg:rgba(23,27,64,.17);
+  --nodesh:0 12px 26px -20px rgba(23,27,64,.55), inset 0 1px 0 #fff;
+  --glow1:9%; --glow2:5%;
+  /* ink */
+  --ink:#12142c; --mut:#4d5480; --dim:#767d9f; --onc:#ffffff;
+  --ok:#0a8f5b; --no:#c62348;   /* quiz: right / wrong */
+  /* track accents — darkened so they carry on paper */
+  --beg:#0c9280;    /* track 1 */
+  --int:#5b3ad4;    /* track 2 */
+  --adv:#c60059;    /* track 3 */
+  --ts:#1566cc; --js:#9a6410; --html:#c04d1a; --svc:#8a5f00; --cfg:#5b3ad4;
+  /* syntax */
+  --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
+  --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
+  --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0b0d1c; --bg2:#101430; --card:#141935; --card2:#171d3d; --code:transparent;
+  --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.055);
+  --sunk:rgba(255,255,255,.03); --sunk2:rgba(255,255,255,.05); --hover:rgba(255,255,255,.04);
+  --chip:rgba(255,255,255,.07); --chipink:#cfd6ff;
+  --topbg:rgba(8,10,22,.72);
+  --wire:rgba(255,255,255,.13); --dotbg:rgba(255,255,255,.16);
+  --nodesh:0 10px 26px -18px #000, inset 0 1px 0 rgba(255,255,255,.05);
+  --glow1:16%; --glow2:8%;
+  --ink:#eceefb; --mut:#98a0c8; --dim:#69719e; --onc:#0b0d1c;
+  --ok:#3ddc97; --no:#ff5470;
+  --beg:#2ee6c5; --int:#8b6cff; --adv:#ff2e88;
+  --ts:#4a9eff; --js:#ffc857; --html:#ff7a45; --svc:#ffb020; --cfg:#8b6cff;
+  --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
+  --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
+  --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:
+    radial-gradient(1100px 700px at 78% -10%,color-mix(in srgb,var(--c) var(--glow1),transparent),transparent 62%),
+    radial-gradient(900px 600px at 4% 108%,color-mix(in srgb,var(--adv) var(--glow2),transparent),transparent 62%),
+    var(--bg);
+  color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--c);color:var(--onc)}
+:focus-visible{outline:2px solid var(--c);outline-offset:3px;border-radius:6px}
+a{color:var(--c)}
+code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+
+/* ---------- language ---------- */
+:root[data-lang="en"] .l-ar{display:none !important}
+:root[data-lang="ar"] .l-en{display:none !important}
+:root[dir="rtl"]{
+  --disp:'Cairo','IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+}
+:root[dir="rtl"] h1.title{line-height:1.32;letter-spacing:0}
+:root[dir="rtl"] .lead{font-size:15px;line-height:1.75}
+:root[dir="rtl"] .num,:root[dir="rtl"] .badge{letter-spacing:.04em}
+/* keep neighbouring runs from reordering each other in RTL */
+.kick span,.cover-top span{unicode-bidi:isolate}
+/* diagrams and code always read left-to-right */
+.stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
+
+/* ---------- top bar ---------- */
+.top{
+  position:sticky;top:0;z-index:40;background:var(--topbg);
+  backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);
+  border-bottom:1px solid var(--line2);
+}
+.top-in{
+  max-width:1220px;margin:0 auto;padding:9px clamp(16px,3.4vw,40px);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.home{
+  display:inline-flex;align-items:baseline;gap:9px;text-decoration:none;white-space:nowrap;
+}
+.home b{
+  font-family:var(--disp);font-weight:800;font-size:15.5px;letter-spacing:-.02em;
+  background:linear-gradient(92deg,#e40035,#f20089 45%,#9717e2);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.home span{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase}
+.tracknav{display:flex;gap:4px;flex-wrap:wrap;margin-inline-start:6px}
+.tracknav a{
+  font-size:12.5px;font-weight:600;text-decoration:none;color:var(--dim);
+  padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.tracknav a i{width:7px;height:7px;border-radius:99px;background:currentColor;display:block;flex:none}
+.tracknav a:hover{color:var(--mut);background:var(--hover)}
+.tracknav a[aria-current="page"]{color:var(--onc);background:var(--c)}
+.top-right{display:flex;align-items:center;gap:8px;margin-inline-start:auto}
+.seg{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:var(--hover)}
+.seg button{
+  appearance:none;border:0;background:none;cursor:pointer;padding:5px 12px;
+  font-family:var(--body);font-size:12.5px;font-weight:600;color:var(--dim);line-height:1.5;
+}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--c);color:var(--onc)}
+
+/* ---------- article shell ---------- */
+.page{max-width:1220px;margin:0 auto;padding:clamp(24px,3.6vw,44px) clamp(16px,3.4vw,40px) 0}
+.eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.num{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.16em}
+/* a numeric counter must not be reordered by the bidi algorithm */
+.num.seq{direction:ltr;unicode-bidi:isolate}
+:root[dir="rtl"] .num:not(.seq){font-family:var(--body);letter-spacing:0;font-size:12.5px}
+.badge{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;border:1px solid currentColor;color:var(--c);
+  background:color-mix(in srgb,var(--c) 12%,transparent);
+}
+:root[dir="rtl"] .badge{font-family:var(--body);font-weight:600;text-transform:none;font-size:11.5px}
+h1.title{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.03em;line-height:1.02;
+  font-size:clamp(28px,4vw,46px);margin:0 0 10px;text-wrap:balance;
+}
+h1.title code{font-family:var(--mono);font-size:.82em;font-weight:600;color:var(--c);letter-spacing:0}
+.lead{color:var(--mut);max-width:74ch;margin:0 0 22px;font-size:15.5px;text-wrap:pretty}
+.lead b{color:var(--ink);font-weight:600}
+
+/* ---------- stage / diagram ---------- */
+.stage{position:relative;margin:6px 0 4px;padding:26px 8px;display:flex;flex-direction:column;gap:74px}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.row{display:flex;justify-content:center;gap:clamp(92px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
+.node{
+  background:linear-gradient(180deg,var(--card2),var(--card));
+  border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:172px;
+  box-shadow:var(--nodesh);
+  transition:border-color .3s,box-shadow .3s,transform .3s;
+}
+.node .role{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:3px;font-family:var(--mono)}
+:root[dir="rtl"] .node .role{font-family:var(--body);font-size:11px;letter-spacing:0;text-transform:none}
+:root[dir="rtl"] .home span{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .fc-h .tag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .pager a em{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .stepbar .cap span.n{direction:ltr;unicode-bidi:isolate}
+.node .file{font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--ink);white-space:nowrap;display:block}
+.node[data-kind="ts"] .file b{color:var(--ts)}
+.node[data-kind="html"] .file b{color:var(--html)}
+.node[data-kind="svc"] .file b{color:var(--svc)}
+.node[data-kind="cfg"] .file b{color:var(--cfg)}
+.node.active{border-color:color-mix(in srgb,var(--c) 65%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent),0 0 34px -8px var(--c);transform:translateY(-2px)}
+.edge path.wire{fill:none;stroke:var(--wire);stroke-width:1.6}
+.edge path.head{fill:var(--wire);stroke:none}
+.edge.lit path.head{fill:var(--c)}
+.edge path.flow{fill:none;stroke:var(--c);stroke-width:2.2;stroke-dasharray:5 9;opacity:0;stroke-linecap:round}
+.edge.lit path.wire{stroke:color-mix(in srgb,var(--c) 40%,transparent)}
+.edge.lit path.flow{opacity:1;animation:march 1s linear infinite}
+@keyframes march{to{stroke-dashoffset:-28}}
+.edge text{font-family:var(--mono);font-size:10.5px;fill:var(--dim);paint-order:stroke;stroke:var(--bg);stroke-width:5px;stroke-linejoin:round}
+.edge.lit text{fill:var(--c)}
+.packet{opacity:0}
+.packet rect{fill:var(--c)}
+.packet text{font-family:var(--mono);font-size:11px;font-weight:600;fill:var(--onc);stroke:none}
+
+/* ---------- step bar ---------- */
+.stepbar{
+  display:flex;align-items:center;gap:14px;margin:8px 0 22px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk);
+}
+.stepbar .dots{display:flex;gap:6px;flex-shrink:0}
+.stepbar .dot{width:7px;height:7px;border-radius:99px;background:var(--dotbg);cursor:pointer;border:0;padding:0;transition:.2s}
+.stepbar .dot.on{background:var(--c);box-shadow:0 0 10px -1px var(--c);transform:scale(1.25)}
+.stepbar .cap{flex:1;min-width:0;font-size:14px;color:var(--ink);text-wrap:pretty}
+.stepbar .cap span.n{color:var(--dim);font-family:var(--mono);font-size:11px;margin-inline-end:8px}
+.iconbtn{
+  background:var(--sunk2);border:1px solid var(--line);color:var(--mut);
+  border-radius:8px;padding:5px 11px;font-family:var(--mono);font-size:11px;cursor:pointer;white-space:nowrap;
+}
+.iconbtn:hover{color:var(--ink);border-color:color-mix(in srgb,var(--c) 55%,transparent)}
+
+/* ---------- code cards ---------- */
+.sechead{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:28px 0 12px}
+:root[dir="rtl"] .sechead{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.files{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:14px}
+.fc{background:var(--card);border:1px solid var(--line2);border-radius:12px;overflow:hidden;transition:border-color .3s;min-width:0}
+.fc.active{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.fc-h{
+  display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid var(--line2);
+  background:var(--sunk);font-family:var(--mono);font-size:11.5px;color:var(--mut);
+}
+.fc-h .d{width:7px;height:7px;border-radius:99px;flex-shrink:0}
+.fc[data-lang="ts"] .d{background:var(--ts)}
+.fc[data-lang="html"] .d{background:var(--html)}
+.fc[data-lang="json"] .d{background:var(--svc)}
+.fc[data-lang="bash"] .d{background:var(--beg)}
+.fc-h .tag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:var(--mono);font-size:12.2px;line-height:1.72;scrollbar-width:thin}
+.ln{display:block;padding:0 15px;white-space:pre;border-left:2px solid transparent;transition:background .25s,border-color .25s}
+.ln.hl{background:color-mix(in srgb,var(--c) 13%,transparent);border-left-color:var(--c)}
+.t-key{color:var(--t-key)}.t-str{color:var(--t-str)}.t-com{color:var(--t-com);font-style:italic}
+.t-dec{color:var(--t-dec)}.t-tag{color:var(--t-tag)}.t-bind{color:var(--t-bind)}.t-num{color:var(--t-num)}
+.t-fn{color:var(--t-fn)}.t-type{color:var(--t-type)}.t-attr{color:var(--t-attr)}.t-punc{color:var(--t-punc)}
+
+/* ---------- real example ---------- */
+.example{margin-top:26px;padding-top:18px;border-top:1px solid var(--line2)}
+.exhead{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:7px}
+.extag{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);border:1px solid currentColor;border-radius:99px;padding:3px 9px;
+  background:color-mix(in srgb,var(--c) 12%,transparent);white-space:nowrap;
+}
+:root[dir="rtl"] .extag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+.exhead b{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--ink)}
+.exlead{margin:0 0 14px;color:var(--mut);font-size:14px;max-width:82ch;text-wrap:pretty}
+
+/* ---------- gotchas ---------- */
+.gotchas{margin-top:22px;border-top:1px solid var(--line2);padding-top:16px}
+.gotchas h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 10px;font-weight:500}
+:root[dir="rtl"] .gotchas h4{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.gotchas ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:9px 22px}
+.gotchas li{position:relative;padding-inline-start:20px;font-size:13.6px;color:var(--mut);text-wrap:pretty}
+.gotchas li::before{content:"!";position:absolute;inset-inline-start:0;top:0;font-family:var(--mono);font-size:11px;color:var(--c);font-weight:700}
+.gotchas li b{color:var(--ink);font-weight:600}
+
+/* ---------- pager ---------- */
+.pager{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin:34px 0 0;padding:22px 0 46px;border-top:1px solid var(--line2);
+}
+.pager a{
+  display:flex;flex-direction:column;gap:4px;text-decoration:none;padding:14px 16px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--card);transition:.22s;min-width:0;
+}
+.pager a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.pager a em{font-family:var(--mono);font-style:normal;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.pager a b{font-size:14.5px;color:var(--ink);font-weight:600;line-height:1.35;text-wrap:pretty}
+.pager a.nx{text-align:end;align-items:flex-end}
+.pager .void{border:1px dashed var(--line2);border-radius:12px;opacity:.35}
+@media (max-width:600px){.pager{grid-template-columns:1fr}.pager a.nx{text-align:start;align-items:flex-start}}
+
+@media (max-width:900px){
+  .row{gap:16px}
+  .node{min-width:0;flex:1 1 auto}
+  .stage{gap:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+
+/* ================= reference-document layout (TypeScript page) ============ */
+.doc{display:grid;grid-template-columns:212px minmax(0,1fr);gap:clamp(20px,3.4vw,54px);align-items:start}
+@media (max-width:940px){.doc{grid-template-columns:1fr}}
+.doc-rail{position:sticky;top:70px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;scrollbar-width:thin}
+@media (max-width:940px){.doc-rail{position:static;max-height:none;border-bottom:1px solid var(--line2);padding-bottom:14px}}
+.doc-rail b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;font-weight:500}
+:root[dir="rtl"] .doc-rail b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.doc-rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.doc-rail a{
+  display:grid;grid-template-columns:1.6rem 1fr;gap:8px;align-items:baseline;
+  text-decoration:none;color:var(--dim);font-size:13px;line-height:1.35;
+  padding:6px 9px;border-radius:7px;transition:.16s;
+}
+.doc-rail a em{font-family:var(--mono);font-style:normal;font-size:10.5px;opacity:.7}
+.doc-rail a:hover{color:var(--ink);background:var(--hover)}
+.doc-rail a.on{color:var(--onc);background:var(--c)}
+.doc-rail a.on em{opacity:.75}
+
+.sec{padding-block:clamp(26px,3.6vw,44px);border-top:1px solid var(--line2);scroll-margin-top:74px}
+.sec:first-child{border-top:0;padding-top:6px}
+.sec-kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--c);margin-bottom:8px}
+:root[dir="rtl"] .sec-kick{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.sec h2{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.028em;line-height:1.08;
+  font-size:clamp(23px,3vw,33px);margin:0 0 10px;text-wrap:balance;
+}
+:root[dir="rtl"] .sec h2{letter-spacing:0;line-height:1.4}
+.sec h2 code{font-family:var(--mono);font-size:.8em;font-weight:600;color:var(--c);letter-spacing:0}
+.sec > .sec-lead{color:var(--mut);max-width:74ch;margin:0 0 4px;font-size:15px;text-wrap:pretty}
+.sec > .sec-lead b{color:var(--ink);font-weight:600}
+.sec p{max-width:74ch;text-wrap:pretty;color:var(--mut)}
+.sec p b{color:var(--ink);font-weight:600}
+.sec > p{margin:18px 0 0}
+.sec .code{margin-top:18px}
+.sec ul{margin:16px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;max-width:74ch}
+.sec ul li{padding-inline-start:20px;position:relative;color:var(--mut);text-wrap:pretty}
+.sec ul li::before{content:"";position:absolute;inset-inline-start:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--c);opacity:.6}
+
+.code{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--card);min-width:0}
+.code .fc-h{background:var(--sunk)}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;margin-top:18px}
+.code.bad{border-color:color-mix(in srgb,var(--adv) 42%,transparent)}
+.code.bad .fc-h{background:color-mix(in srgb,var(--adv) 10%,transparent)}
+.code.bad .fc-h .d{background:var(--adv)}
+.code.good{border-color:color-mix(in srgb,var(--beg) 42%,transparent)}
+.code.good .fc-h{background:color-mix(in srgb,var(--beg) 10%,transparent)}
+.code.good .fc-h .d{background:var(--beg)}
+.code .flag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.code.bad .flag{color:var(--adv)}
+.code.good .flag{color:var(--beg)}
+:root[dir="rtl"] .code .flag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+
+.note{
+  margin-top:20px;max-width:76ch;background:color-mix(in srgb,var(--c) 8%,transparent);
+  border-inline-start:3px solid var(--c);border-radius:0 9px 9px 0;padding:13px 16px;
+}
+:root[dir="rtl"] .note{border-radius:9px 0 0 9px}
+.note b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .note b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.note p{margin:0;font-size:14.2px;color:var(--mut)}
+
+.dtbl-wrap{overflow-x:auto;border:1px solid var(--line2);border-radius:12px;margin-top:18px;background:var(--card)}
+.dtbl{width:100%;border-collapse:collapse;font-size:13.6px;min-width:640px}
+.dtbl th{
+  text-align:start;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);font-weight:500;padding:10px 14px;border-bottom:1px solid var(--line);
+  background:var(--sunk);white-space:nowrap;
+}
+:root[dir="rtl"] .dtbl th{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px;font-weight:600}
+.dtbl td{padding:11px 14px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--mut);line-height:1.55}
+.dtbl tr:last-child td{border-bottom:0}
+.dtbl td:first-child{color:var(--ink);font-family:var(--mono);font-size:12px}
+
+/* ========================= roadmap page ========================= */
+.verdict{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin:26px 0 8px}
+.verdict div{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.verdict b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:8px;font-weight:600}
+:root[dir="rtl"] .verdict b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.verdict p{margin:0;color:var(--mut);font-size:14.2px;line-height:1.6;text-wrap:pretty}
+
+.phase{position:relative;padding:0 0 0 clamp(22px,3vw,42px);margin-top:clamp(24px,3.4vw,38px)}
+:root[dir="rtl"] .phase{padding:0 clamp(22px,3vw,42px) 0 0}
+.phase::before{content:"";position:absolute;inset-inline-start:0;top:6px;bottom:0;width:2px;background:linear-gradient(180deg,var(--c),transparent)}
+.phase-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.phase-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 8px;font-weight:600;direction:ltr}
+.phase-h h3{margin:0;font-family:var(--disp);font-weight:800;font-size:clamp(20px,2.6vw,27px);letter-spacing:-.02em;color:var(--ink)}
+:root[dir="rtl"] .phase-h h3{letter-spacing:0;line-height:1.4}
+.phase-when{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em;direction:ltr;unicode-bidi:isolate}
+.phase-goal{margin:0 0 14px;color:var(--mut);max-width:72ch;font-size:14.6px;text-wrap:pretty}
+.phase-list{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:14px}
+.phase-list a{
+  display:grid;grid-template-columns:1.8rem 1fr;gap:9px;align-items:baseline;text-decoration:none;
+  padding:8px 11px;border-radius:8px;border:1px solid var(--line2);background:var(--card);transition:.18s;min-width:0;
+}
+.phase-list a em{font-family:var(--mono);font-style:normal;font-size:10.5px;color:var(--dim)}
+.phase-list a span{font-size:13.6px;color:var(--ink);line-height:1.35;text-wrap:pretty}
+.phase-list a span code{font-family:var(--mono);font-size:.86em;color:var(--c)}
+.phase-list a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.phase-build{
+  border-inline-start:3px solid var(--c);background:color-mix(in srgb,var(--c) 7%,transparent);
+  border-radius:0 9px 9px 0;padding:12px 15px;max-width:72ch;
+}
+:root[dir="rtl"] .phase-build{border-radius:9px 0 0 9px}
+.phase-build b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .phase-build b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.phase-build p{margin:0;color:var(--mut);font-size:14px;line-height:1.6;text-wrap:pretty}
+
+.gap{margin-top:16px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.gap section{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.gap h4{margin:0 0 10px;font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.3;text-wrap:pretty}
+.gap ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.gap li{padding-inline-start:19px;position:relative;font-size:13.4px;color:var(--mut);line-height:1.5;text-wrap:pretty}
+.gap li::before{content:"○";position:absolute;inset-inline-start:0;top:0;font-size:10px;color:var(--c);opacity:.7}
+.gap li code{font-family:var(--mono);font-size:.88em;background:var(--chip);padding:1px 4px;border-radius:3px;color:var(--chipink)}
+
+.advice{margin-top:16px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.advice div{border-top:2px solid var(--c);padding-top:12px;min-width:0}
+.advice b{display:block;font-family:var(--disp);font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px;letter-spacing:-.015em}
+:root[dir="rtl"] .advice b{letter-spacing:0}
+.advice p{margin:0;color:var(--mut);font-size:13.8px;line-height:1.6;text-wrap:pretty}
+
+/* ---------- theme switch (icon segment) ---------- */
+.seg.ico button{padding:5px 10px;display:grid;place-items:center}
+.seg.ico svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block}
+@media (max-width:820px){.seg.ico{order:2}}
+
+/* ================= beginner scaffolding on every topic ================= */
+/* three plain-language cards that sit above the technical diagram */
+.plain{display:grid;gap:12px;grid-template-columns:1.4fr 1fr 1fr;margin:2px 0 26px}
+@media (max-width:900px){.plain{grid-template-columns:1fr}}
+.pc{
+  border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);
+  min-width:0;display:flex;flex-direction:column;gap:9px;
+}
+.pc.say{background:color-mix(in srgb,var(--c) 7%,var(--card));border-color:color-mix(in srgb,var(--c) 26%,transparent)}
+.pc .ph{display:flex;align-items:center;gap:8px}
+.pc .ph svg{width:16px;height:16px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pc .ph b{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);font-weight:600}
+:root[dir="rtl"] .pc .ph b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.pc p{margin:0;font-size:14.2px;color:var(--mut);line-height:1.62;text-wrap:pretty}
+.pc p b{color:var(--ink);font-weight:600}
+.pc p code{font-family:var(--mono);font-size:.87em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+.pc.say p{font-size:16px;color:var(--ink)}
+
+/* the idea, as a strip of pictures */
+.strip{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(188px,1fr));margin:2px 0 4px}
+.sp{position:relative;border:1px solid var(--line2);border-radius:14px;padding:15px 16px 14px;background:var(--card);min-width:0}
+.sp .plate{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:11px;
+  background:color-mix(in srgb,var(--c) 13%,transparent);border:1px solid color-mix(in srgb,var(--c) 20%,transparent);
+}
+.sp .plate svg{width:21px;height:21px;stroke:var(--c);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sp b{display:block;font-size:14.5px;color:var(--ink);font-weight:600;margin-bottom:4px;line-height:1.32;text-wrap:pretty}
+.sp p{margin:0;font-size:13.3px;color:var(--mut);line-height:1.55;text-wrap:pretty}
+.sp p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+.sp::after{
+  content:"";position:absolute;top:30px;right:-15px;width:11px;height:11px;
+  border-top:1.6px solid var(--line);border-right:1.6px solid var(--line);
+  transform:rotate(45deg);z-index:2;
+}
+:root[dir="rtl"] .sp::after{right:auto;left:-15px;transform:rotate(-135deg)}
+.sp:last-child::after{display:none}
+@media (max-width:760px){.sp::after{display:none}}
+
+/* the single sentence worth memorising */
+.oneline{
+  margin-top:26px;display:flex;gap:14px;align-items:flex-start;border-radius:14px;padding:16px 19px;
+  border:1px solid color-mix(in srgb,var(--c) 30%,transparent);
+  background:color-mix(in srgb,var(--c) 8%,transparent);
+}
+.oneline > svg{width:22px;height:22px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin-top:3px}
+.oneline b.lbl{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .oneline b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.oneline p{margin:0;font-size:15px;color:var(--ink);line-height:1.62;text-wrap:pretty;max-width:78ch}
+.oneline p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+/* ============================================================
+   Check yourself — the quiz block, same shape on every topic page
+   ============================================================ */
+.edge text.plain{font-size:9.5px;fill:var(--mut);letter-spacing:.01em;opacity:.85}
+.edge.lit text.plain{opacity:1}
+/* Arabic is cursive: the mono face and any letter-spacing break the joins,
+   so the wire words switch to the Arabic text face in RTL */
+:root[dir="rtl"] .edge text.plain{font-family:var(--body);letter-spacing:0;font-size:10.5px}
+
+.quiz{display:grid;gap:13px;margin-top:4px}
+.qbar{
+  display:flex;align-items:center;gap:13px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--sunk);
+}
+.qbar .qtxt{font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap}
+.qbar .qtxt b{color:var(--ink);font-weight:600}
+.qbar .qtxt em{font-style:normal;color:var(--ok);font-weight:600}
+.qmeter{flex:1;min-width:50px;height:4px;border-radius:99px;background:var(--dotbg);overflow:hidden}
+.qmeter i{display:block;height:100%;width:0;background:var(--c);transition:width .35s cubic-bezier(.2,.7,.3,1)}
+
+.qcard{border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);transition:border-color .3s}
+.qcard.right{border-color:color-mix(in srgb,var(--ok) 48%,transparent)}
+.qcard.wrong{border-color:color-mix(in srgb,var(--no) 48%,transparent)}
+.qhead{display:flex;gap:12px;align-items:baseline;margin-bottom:12px}
+.qnum{font-family:var(--mono);font-size:11px;color:var(--c);flex:none}
+.qask{font-size:14.8px;line-height:1.5;color:var(--ink);font-weight:600;text-wrap:pretty}
+.qask code{font-family:var(--mono);font-size:.87em;color:var(--c);font-weight:500}
+.qcode{border:1px solid var(--line2);border-radius:11px;overflow:hidden;margin-bottom:12px;background:var(--code)}
+.qcode .qcf{padding:7px 13px;border-bottom:1px solid var(--line2);background:var(--sunk);
+            font-family:var(--mono);font-size:11px;color:var(--dim)}
+.qcode pre{font-size:12px;padding:10px 0;margin:0;overflow-x:auto}
+
+.opts{display:grid;gap:8px}
+.opt{
+  display:flex;gap:11px;align-items:flex-start;width:100%;text-align:start;cursor:pointer;
+  background:var(--sunk);border:1px solid var(--line2);border-radius:10px;padding:10px 13px;
+  color:var(--mut);font-family:var(--body);font-size:13.8px;line-height:1.5;transition:.18s;
+}
+.opt .k{font-family:var(--mono);font-size:11px;color:var(--dim);border:1px solid var(--line);
+        border-radius:6px;padding:0 6px;flex:none;line-height:1.6}
+.opt .ot{flex:1;min-width:0;text-wrap:pretty}
+.opt .ot code{font-family:var(--mono);font-size:.87em}
+.opt .mark{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;flex:none;line-height:2}
+.opt:hover{color:var(--ink);background:var(--hover);border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.qcard.done .opt,.qcard.done .opt:hover{cursor:default;background:var(--sunk);border-color:var(--line2);color:var(--mut)}
+.qcard.done .opt.ok{color:var(--ink);border-color:color-mix(in srgb,var(--ok) 55%,transparent);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.qcard.done .opt.ok .k{color:var(--ok);border-color:currentColor}
+.qcard.done .opt.ok .mark{color:var(--ok)}
+.qcard.done .opt.no{color:var(--ink);border-color:color-mix(in srgb,var(--no) 55%,transparent);background:color-mix(in srgb,var(--no) 9%,transparent)}
+.qcard.done .opt.no .k{color:var(--no);border-color:currentColor}
+.qcard.done .opt.no .mark{color:var(--no)}
+
+.why{
+  display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:12px 15px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk2);
+}
+.why[hidden]{display:none}
+.why .wt{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);flex:none;padding-top:3px}
+.why p{margin:0;flex:1;min-width:0;font-size:13.6px;line-height:1.68;color:var(--mut);text-wrap:pretty}
+.why p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+.qend{border:1px solid var(--line2);border-radius:14px;padding:19px;text-align:center;background:var(--card2)}
+.qend .sc{display:block;font-family:var(--disp);font-weight:800;font-size:29px;letter-spacing:-.03em;color:var(--ink)}
+.qend p{margin:6px 0 13px;color:var(--mut);font-size:13.6px}
+
+:root[dir="rtl"] .qnum,:root[dir="rtl"] .qbar .qtxt{font-family:var(--body);letter-spacing:0}
+:root[dir="rtl"] .opt .mark,:root[dir="rtl"] .why .wt{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .qask,:root[dir="rtl"] .opt,:root[dir="rtl"] .why p{line-height:1.8}
+@media (max-width:900px){
+  .qbar{flex-wrap:wrap;gap:10px}
+  .qmeter{order:3;flex-basis:100%}
+  .qcard{padding:14px 15px}
+}
+
+/* ================= build-project tutorials (step-by-step) ============ */
+.pstep{margin-top:26px;border-top:1px solid var(--line2);padding-top:18px}
+.sec .pstep:first-child{margin-top:12px}
+.pstep-h{display:flex;align-items:center;gap:11px;margin-bottom:2px}
+.pstep-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 9px;font-weight:600;direction:ltr;flex:none}
+.pstep-h b{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:-.015em;color:var(--ink);line-height:1.3;text-wrap:pretty}
+:root[dir="rtl"] .pstep-h b{letter-spacing:0}
+.pstep > p{margin:13px 0 0}
+
+.chk{
+  margin-top:16px;max-width:76ch;background:color-mix(in srgb,var(--beg) 9%,transparent);
+  border-inline-start:3px solid var(--beg);border-radius:0 9px 9px 0;padding:12px 16px;
+}
+:root[dir="rtl"] .chk{border-radius:9px 0 0 9px}
+.chk b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--beg);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .chk b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.chk p{margin:0;font-size:14.2px;color:var(--mut)}
+.chk p code{font-family:var(--mono);font-size:.87em}
+
+.build-link{
+  display:inline-flex;align-items:center;gap:7px;margin-top:12px;text-decoration:none;
+  font-size:13.6px;font-weight:600;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);
+  border-radius:9px;padding:7px 13px;background:var(--card);transition:.18s;
+}
+.build-link:hover{background:color-mix(in srgb,var(--c) 12%,transparent)}
+
+/* the roadmap's build-projects index */
+.blds{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:16px}
+.blds-track{border:1px solid var(--line2);border-top:2px solid var(--c);border-radius:12px;padding:15px 18px;background:var(--card);min-width:0;display:flex;flex-direction:column;gap:11px}
+.blds-track > b{font-family:var(--disp);font-weight:700;font-size:16.5px;letter-spacing:-.015em;color:var(--ink)}
+:root[dir="rtl"] .blds-track > b{letter-spacing:0}
+.blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
+.blds-item .build-link{margin-top:0}
+</style>
+<script>
+(function(){var r=document.documentElement;try{
+if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
+r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
+}catch(e){r.dataset.theme='light';}})();
+</script>
+</head>
+<body>
+<header class="top"><div class="top-in">
+    <a class="home" href="index.html"><b>The Angular Signal</b><span class="l-en">contents</span><span class="l-ar">المحتويات</span></a>
+    <nav class="tracknav"><a href="roadmap.html" style="--c:var(--beg)"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="beginner/index.html" style="--c:var(--beg)" aria-current="page"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="intermediate/index.html" style="--c:var(--int)"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="advanced/index.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="javascript-for-angular.html" style="--c:var(--js)"><i></i><span class="l-en">JavaScript</span><span class="l-ar">JavaScript</span></a><a href="typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
+    <div class="top-right">
+      <div class="seg" role="group" aria-label="Language">
+        <button id="b-en" aria-pressed="true">EN</button>
+        <button id="b-ar" aria-pressed="false" lang="ar">مصري</button>
+      </div>
+      <div class="seg ico" role="group" aria-label="Theme">
+        <button id="b-lt" aria-pressed="true" title="Light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.2v2.3M12 19.5v2.3M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.2 12h2.3M19.5 12h2.3M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button>
+        <button id="b-dk" aria-pressed="false" title="Dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.7 6.7 0 0 0 11.1 11.1z"/></svg></button>
+      </div>
+    </div>
+  </div></header>
+<main class="page" id="page">
+  <div class="eyebrow">
+    <span class="num seq">01</span>
+    <span class="badge"><span class="l-en">Build project</span><span class="l-ar" dir="auto">مشروع عملي</span></span>
+    <span class="num"><span class="l-en">The beginner track</span><span class="l-ar" dir="auto">مستوى مبتدئ</span></span>
+  </div>
+  <h1 class="title"><span class="l-en">Build a to-do app, then a shopping cart</span><span class="l-ar" dir="auto">ابني تطبيق to-do، وبعدين عربة شراء</span></h1>
+  <p class="lead"><span class="l-en">This is the "Build this" card from phase 01 of the learning path, turned into a real walkthrough: <b>complete code at every step</b>, and a checkpoint after each one so you always know whether you are on track. No server, no routing — components, signals and a service, which is exactly the right weight for a first app. Type every file by hand; pasting teaches nothing.</span><span class="l-ar" dir="auto">دي بطاقة «ابني ده» من المرحلة 01 من خطة التعلّم، بس متحولة لشرح فعلي: <b>الكود كامل في كل خطوة</b>، ونقطة فحص بعد كل خطوة عشان تعرف إنت فين طول الوقت. من غير سيرفر ولا routing — components وsignals وservice، وده بالظبط الوزن المناسب لأول تطبيق. اكتب كل ملف بإيدك؛ واللصق ما بيعلّمش.</span></p>
+
+  <div class="doc">
+    <nav class="doc-rail">
+      <b><span class="l-en">On this page</span><span class="l-ar">في الصفحة دي</span></b>
+      <ol><li><a href="#part-a" data-rail="part-a"><em>01</em><span><span class="l-en">Part A: the to-do app</span><span class="l-ar" dir="auto">الجزء الأول: تطبيق to-do</span></span></a></li><li><a href="#a1" data-rail="a1"><em>02</em><span><span class="l-en">Look at what the CLI made you</span><span class="l-ar" dir="auto">بُص على اللي الـ CLI عمله</span></span></a></li><li><a href="#a2" data-rail="a2"><em>03</em><span><span class="l-en">Model the data first</span><span class="l-ar" dir="auto">ابنِ الداتا الأول</span></span></a></li><li><a href="#a3" data-rail="a3"><em>04</em><span><span class="l-en">Render the list with @for — and track by id</span><span class="l-ar" dir="auto">اعرض الليستة بـ @for — وtrack بـ id</span></span></a></li><li><a href="#a4" data-rail="a4"><em>05</em><span><span class="l-en">Add, toggle, remove — by replacing, not mutating</span><span class="l-ar" dir="auto">ضيف، علّم، امسح — بالتبديل مش بالتعديل</span></span></a></li><li><a href="#a5" data-rail="a5"><em>06</em><span><span class="l-en">Extract a TodoStore service</span><span class="l-ar" dir="auto">استخرج خدمة TodoStore</span></span></a></li><li><a href="#a6" data-rail="a6"><em>07</em><span><span class="l-en">The empty state, and the little a11y that matters</span><span class="l-ar" dir="auto">الحالة الفاضية، والإتاحة البسيطة اللي مهمة</span></span></a></li><li><a href="#a7" data-rail="a7"><em>08</em><span><span class="l-en">Ship it, then break it on purpose</span><span class="l-ar" dir="auto">انشره، وبعدين كسّره بقصد</span></span></a></li><li><a href="#part-b" data-rail="part-b"><em>09</em><span><span class="l-en">Part B: the shopping cart</span><span class="l-ar" dir="auto">الجزء التاني: عربة الشراء</span></span></a></li><li><a href="#b1" data-rail="b1"><em>10</em><span><span class="l-en">Fake data, real shape</span><span class="l-ar" dir="auto">داتا مزوّرة، شكل حقيقي</span></span></a></li><li><a href="#b2" data-rail="b2"><em>11</em><span><span class="l-en">A ProductCard component with input() and output()</span><span class="l-ar" dir="auto">كومبوننت ProductCard بـ input() وoutput()</span></span></a></li><li><a href="#b3" data-rail="b3"><em>12</em><span><span class="l-en">CartService with computed totals</span><span class="l-ar" dir="auto">خدمة CartService بإجماليات computed</span></span></a></li><li><a href="#b4" data-rail="b4"><em>13</em><span><span class="l-en">The cart list, with a model() quantity</span><span class="l-ar" dir="auto">ليستة الكارت، وكمية بـ model()</span></span></a></li><li><a href="#b5" data-rail="b5"><em>14</em><span><span class="l-en">Pipes for money, because money is display logic</span><span class="l-ar" dir="auto">Pipes للفلوس، لأن الفلوس عرض مش منطق</span></span></a></li><li><a href="#b6" data-rail="b6"><em>15</em><span><span class="l-en">Finish Part B the way you finished Part A</span><span class="l-ar" dir="auto">خلّص الجزء التاني زي ما خلّصت الأول</span></span></a></li></ol>
+    </nav>
+    <div>
+      <section class="sec" id="part-a">
+        <div class="sec-kick"><span class="l-en">Part A — 7 steps</span><span class="l-ar" dir="auto">الجزء الأول — 7 خطوات</span></div>
+        <h2><span class="l-en">Part A: the to-do app</span><span class="l-ar" dir="auto">الجزء الأول: تطبيق to-do</span></h2>
+        <p class="sec-lead"><span class="l-en">A task list sounds trivial. It is not: it is <b>state</b> (the list), <b>derived state</b> (how many are left), <b>user input</b> (add, toggle, remove) and <b>the screen following all of it</b>. Finish this and you have used every beginner topic at least once.</span><span class="l-ar" dir="auto">قائمة مهام شكلها بسيط. هي مش كده: فيها <b>حالة</b> (الليستة)، و<b>حالة مشتقة</b> (فاضل كام)، و<b>إدخال من المستخدم</b> (ضيف، علّم، امسح)، و<b>الشاشة اللي بتحصلها كل ده</b>. لما تخلّصها تكون استخدمت كل موضوع في المستوى المبتدئ مرة على الأقل.</span></p>
+        
+      <div class="code" data-lang="bash">
+        <div class="fc-h"><span class="d"></span>terminal<span class="tag"><span class="l-en">start here</span><span class="l-ar" dir="auto">ابدأ من هنا</span></span></div>
+        <pre><span class="ln">npx @angular/cli@latest new todo --style=css --ssr=false</span><span class="ln">cd todo &amp;&amp; ng serve</span></pre>
+      </div>
+      </section>
+      <section class="sec" id="a1">
+        <div class="sec-kick"><span class="l-en">Step 01</span><span class="l-ar" dir="auto">الخطوة 01</span></div>
+        <h2><span class="l-en">Look at what the CLI made you</span><span class="l-ar" dir="auto">بُص على اللي الـ CLI عمله</span></h2>
+        <p class="sec-lead"><span class="l-en">Before writing anything, read the file that matters. This is the habit: <b>never edit a file you have not read</b>.</span><span class="l-ar" dir="auto">قبل ما تكتب أي حاجة، اقرا الملف المهم. دي العادة: <b>عمرك ما تعدّل في ملف إنت ماقرتوش</b>.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/app.ts<span class="tag"><span class="l-en">read it</span><span class="l-ar" dir="auto">اقراه</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Component</i>, signal } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-dec">@Component</i>({</span><span class="ln">  selector: <i class="t-str">'app-root'</i>,</span><span class="ln">  imports: [],                     <i class="t-com">// standalone: nothing is global,</i></span><span class="ln">  template: <i class="t-str">`</i></span><span class="ln">    <i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ title() }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span><span class="ln">  <i class="t-str">`</i></span><span class="ln">})</span><span class="ln"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">App</i> {</span><span class="ln">  title = <i class="t-fn">signal</i>(<i class="t-str">'todo'</i>);</span><span class="ln">}</span></pre>
+      </div><p><span class="l-en">Three things to notice. The component is <b>standalone</b> — there is no NgModule anywhere, and <code>imports</code> is where you list directives and pipes you want in the template. The title is a <b>signal</b>, and the template reads it like a function: <code>title()</code>. And there is no separate <code>.html</code> or <code>.css</code> file yet — for small components, inline is fine.</span><span class="l-ar" dir="auto">تلات حاجات تاخد بالك منهم. الـ component مستقل — مفيش NgModule في أي حتة، و<code>imports</code> هي المكان اللي بتكتب فيه أي directive أو pipe عايزها في التمبلت. الـ title بـ<b>signal</b>، والتمبلت بيقراها زي الدوال: <code>title()</code>. ومفيش ملف <code>.html</code> ولا <code>.css</code> منفصل لسه — في الـ components الصغيرة، السطر الواحد عادي.</span></p><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">The app runs at <code>localhost:4200</code> showing the word <em>todo</em>. Change the text inside <code>signal('todo')</code>, save, and watch the browser update without a reload — that loop is your whole day from now on.</span><span class="l-ar" dir="auto">التطبيق شغال على <code>localhost:4200</code> وعارض كلمة <em>todo</em>. غيّر النص اللي جوه <code>signal('todo')</code> واحفظ، وشوف البراوزر بيتحدث من غير reload — دي اللوب اللي هتعيش فيه من دلوقتي.</span></p></div>
+      </section>
+      <section class="sec" id="a2">
+        <div class="sec-kick"><span class="l-en">Step 02</span><span class="l-ar" dir="auto">الخطوة 02</span></div>
+        <h2><span class="l-en">Model the data first</span><span class="l-ar" dir="auto">ابنِ الداتا الأول</span></h2>
+        <p class="sec-lead"><span class="l-en">One task is a shape with an identity. The identity is not decoration: the template's <code>@for</code> will demand it in the next step.</span><span class="l-ar" dir="auto">المهمة الواحدة شكل ليها هوية. والهوية دي مش زينة: الـ <code>@for</code> في التمبلت هتطلبها في الخطوة الجاية.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/app.ts<span class="tag"><span class="l-en">add a type</span><span class="l-ar" dir="auto">ضيف نوع</span></span></div>
+        <pre><span class="ln"><i class="t-key">export</i> <i class="t-key">interface</i> <i class="t-type">Task</i> {</span><span class="ln">  id: <i class="t-key">number</i>;</span><span class="ln">  title: <i class="t-key">string</i>;</span><span class="ln">  done: <i class="t-key">boolean</i>;</span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">App</i> {</span><span class="ln">  title = <i class="t-fn">signal</i>(<i class="t-str">'todo'</i>);</span><span class="ln"> </span><span class="ln">  tasks = signal&lt;<i class="t-type">Task</i>[]&gt;([</span><span class="ln">    { id: <i class="t-num">1</i>, title: <i class="t-str">'Read topic 03: components'</i>, done: <i class="t-key">true</i> },</span><span class="ln">    { id: <i class="t-num">2</i>, title: <i class="t-str">'Build the to-do app'</i>, done: <i class="t-key">false</i> },</span><span class="ln">  ]);</span><span class="ln">}</span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">Best practice — export the shape</span><span class="l-ar" dir="auto">عادة صح — صدّر الشكل</span></b><p><span class="l-en"><code>export interface</code> even though nothing imports it yet. Types are documentation the compiler checks; exporting costs nothing and the file becomes importable the moment a second component needs the shape.</span><span class="l-ar" dir="auto"><code>export interface</code> مع إن مفيش حاجة بتستوردها لسه. الأنواع توثيق الـ compiler بيتأكد منه؛ والتصدير مش بيكلف حاجة، والملف يبقى جاهز للاستيراد أول ما component تانية تحتاج الشكل.</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">No visible change — and that is the checkpoint. <code>ng serve</code> still compiles clean. If the terminal shows red, fix it <b>now</b>; never build on a red build.</span><span class="l-ar" dir="auto">مفيش فرق باين — ودي بالظبط نقطة الفحص. <code>ng serve</code> لسه بيكومبايل من غير ما يزنّق. لو الترمنال أحمر، صلّح <b>دلوقتي</b>؛ ومتبنيش أبداً على بيلد أحمر.</span></p></div>
+      </section>
+      <section class="sec" id="a3">
+        <div class="sec-kick"><span class="l-en">Step 03</span><span class="l-ar" dir="auto">الخطوة 03</span></div>
+        <h2><span class="l-en">Render the list with @for — and track by id</span><span class="l-ar" dir="auto">اعرض الليستة بـ @for — وtrack بـ id</span></h2>
+        <p class="sec-lead"><span class="l-en">The new control flow needs no import and no module. Its one rule people miss: <b>every <code>@for</code> needs a <code>track</code></b>.</span><span class="l-ar" dir="auto">الـ control flow الجديد مش محتاج import ولا module. القاعدة الواحدة اللي الناس بتفوتها: <b>كل <code>@for</code> محتاجة <code>track</code></b>.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/app.ts (template)<span class="tag"><span class="l-en">template</span><span class="l-ar" dir="auto">التمبلت</span></span></div>
+        <pre><span class="ln">template: <i class="t-str">`</i></span><span class="ln">  <i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ title() }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span><span class="ln">  <i class="t-tag">&lt;ul</i><i class="t-tag">&gt;</i></span><span class="ln">    <i class="t-key">@for</i> (t of tasks(); track t.id) {</span><span class="ln">      <i class="t-tag">&lt;li</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t.title }}</i> <i class="t-key">@if</i> <i class="t-bind">(t.done)</i> { ✓ }<i class="t-tag">&lt;/li</i><i class="t-tag">&gt;</i></span><span class="ln">    } <i class="t-key">@empty</i> {</span><span class="ln">      <i class="t-tag">&lt;li</i><i class="t-tag">&gt;</i>Nothing yet.<i class="t-tag">&lt;/li</i><i class="t-tag">&gt;</i></span><span class="ln">    }</span><span class="ln">  <i class="t-tag">&lt;/ul</i><i class="t-tag">&gt;</i></span><span class="ln"><i class="t-str">`</i></span></pre>
+      </div><div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>the trap you will hit<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><i class="t-dec">@for</i> (t <i class="t-key">of</i> <i class="t-fn">tasks</i>(); track t) {</span><span class="ln">  …</span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-com">// track t tracks the object identity.</i></span><span class="ln"><i class="t-com">// Replacing the array with new objects re-creates</i></span><span class="ln"><i class="t-com">// every &lt;li&gt; and loses focus and animation state.</i></span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>track something stable<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><i class="t-dec">@for</i> (t <i class="t-key">of</i> <i class="t-fn">tasks</i>(); track t.id) {</span><span class="ln">  …</span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-com">// track t.id: the DOM node survives because</i></span><span class="ln"><i class="t-com">// the id survives. One line, and it is the</i></span><span class="ln"><i class="t-com">// difference between fast and janky lists.</i></span></pre>
+      </div>
+    </div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">Two tasks on screen, the finished one with a ✓. In DevTools, the list is real <code>&lt;li&gt;</code> elements, not text.</span><span class="l-ar" dir="auto">اتنين مهام على الشاشة، والتانية خلصانة عليها ✓. في الـ DevTools، الليستة عناصر <code>&lt;li&gt;</code> حقيقية، مش نص.</span></p></div>
+      </section>
+      <section class="sec" id="a4">
+        <div class="sec-kick"><span class="l-en">Step 04</span><span class="l-ar" dir="auto">الخطوة 04</span></div>
+        <h2><span class="l-en">Add, toggle, remove — by replacing, not mutating</span><span class="l-ar" dir="auto">ضيف، علّم، امسح — بالتبديل مش بالتعديل</span></h2>
+        <p class="sec-lead"><span class="l-en">This is the habit that separates people who struggle with Angular from people who do not: <b>signals want new references</b>. <code>push</code> and property assignment change the array's insides without telling anyone.</span><span class="l-ar" dir="auto">دي العادة اللي بتفرّق اللي بيتعاونوا مع أنجولار عن اللي بيتعذبوا فيه: <b>الـ signals عايزة references جديدة</b>. الـ <code>push</code> وتعديل الخصائص بيغيّروا جوا المصفوفة من غير ما حد يعرف.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/app.ts<span class="tag"><span class="l-en">the three verbs</span><span class="l-ar" dir="auto">الأفعال التلاتة</span></span></div>
+        <pre><span class="ln"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">App</i> {</span><span class="ln">  title = <i class="t-fn">signal</i>(<i class="t-str">'todo'</i>);</span><span class="ln">  tasks = signal&lt;<i class="t-type">Task</i>[]&gt;([ <i class="t-com">/* … */</i> ]);</span><span class="ln">  nextId = <i class="t-num">3</i>;</span><span class="ln"> </span><span class="ln">  <i class="t-fn">add</i>(input: <i class="t-type">HTMLInputElement</i>) {</span><span class="ln">    <i class="t-key">const</i> title = input.value.<i class="t-fn">trim</i>();</span><span class="ln">    <i class="t-key">if</i> (!title) <i class="t-key">return</i>;</span><span class="ln">    <i class="t-key">this</i>.tasks.<i class="t-fn">update</i>(list =&gt;</span><span class="ln">      [...list, { id: <i class="t-key">this</i>.nextId++, title, done: <i class="t-key">false</i> }]);</span><span class="ln">    input.value = <i class="t-str">''</i>;</span><span class="ln">  }</span><span class="ln"> </span><span class="ln">  <i class="t-fn">toggle</i>(id: <i class="t-key">number</i>) {</span><span class="ln">    <i class="t-key">this</i>.tasks.<i class="t-fn">update</i>(list =&gt;</span><span class="ln">      list.<i class="t-fn">map</i>(t =&gt; t.id === id ? { ...t, done: !t.done } : t));</span><span class="ln">  }</span><span class="ln"> </span><span class="ln">  <i class="t-fn">remove</i>(id: <i class="t-key">number</i>) {</span><span class="ln">    <i class="t-key">this</i>.tasks.<i class="t-fn">update</i>(list =&gt; list.<i class="t-fn">filter</i>(t =&gt; t.id !== id));</span><span class="ln">  }</span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/app.ts (template)<span class="tag"><span class="l-en">wire the events</span><span class="l-ar" dir="auto">وصّل الأحداث</span></span></div>
+        <pre><span class="ln">template: <i class="t-str">`</i></span><span class="ln">  <i class="t-tag">&lt;input</i> <i class="t-bind">#box</i> <i class="t-attr">placeholder</i>=<i class="t-str">"What needs doing?"</i></span><span class="ln">         <i class="t-bind">(keydown.enter)</i>=<i class="t-str">"add(box)"</i><i class="t-tag">&gt;</i></span><span class="ln">  <i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"add(box)"</i><i class="t-tag">&gt;</i>Add<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln"> </span><span class="ln">  <i class="t-tag">&lt;ul</i><i class="t-tag">&gt;</i></span><span class="ln">    <i class="t-key">@for</i> (t of tasks(); track t.id) {</span><span class="ln">      <i class="t-tag">&lt;li</i><i class="t-tag">&gt;</i></span><span class="ln">        <i class="t-tag">&lt;input</i> <i class="t-attr">type</i>=<i class="t-str">"checkbox"</i> <i class="t-bind">[checked]</i>=<i class="t-str">"t.done"</i></span><span class="ln">               <i class="t-bind">(change)</i>=<i class="t-str">"toggle(t.id)"</i><i class="t-tag">&gt;</i></span><span class="ln">        <i class="t-bind">{{ t.title }}</i></span><span class="ln">        <i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"remove(t.id)"</i><i class="t-tag">&gt;</i>×<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln">      <i class="t-tag">&lt;/li</i><i class="t-tag">&gt;</i></span><span class="ln">    }</span><span class="ln">  <i class="t-tag">&lt;/ul</i><i class="t-tag">&gt;</i></span><span class="ln"><i class="t-str">`</i></span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">Best practice — one way to each side</span><span class="l-ar" dir="auto">عادة صح — اتجاه واحد لكل ناحية</span></b><p><span class="l-en">The checkbox is <code>[checked]</code> + <code>(change)</code>, not <code>[(ngModel)]</code>. Data flows down, events flow up, and the signal stays the single source of truth. ngModel arrives much later, with forms.</span><span class="l-ar" dir="auto">الـ checkbox بـ<code>[checked]</code> مع <code>(change)</code>، مش <code>[(ngModel)]</code>. الداتا بتنزل والأحداث بتعلى، والـ signal بتفضل المصدر الوحيد للحقيقة. الـ ngModel هتيجي بعدين مع الفورمز.</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">You can add a task, tick it, and delete it, and the screen follows every action instantly. Also: <code>add</code> on an empty input does nothing — validation counts as part of the feature.</span><span class="l-ar" dir="auto">تقدر تضيف مهمة، وتعلّم عليها، وتمسحها، والشاشة بتتابع كل حاجة فوراً. وكمان: <code>add</code> بإدخال فاضي مش بيعمل حاجة — الـ validation جزء من الفيتشر.</span></p></div>
+      </section>
+      <section class="sec" id="a5">
+        <div class="sec-kick"><span class="l-en">Step 05</span><span class="l-ar" dir="auto">الخطوة 05</span></div>
+        <h2><span class="l-en">Extract a TodoStore service</span><span class="l-ar" dir="auto">استخرج خدمة TodoStore</span></h2>
+        <p class="sec-lead"><span class="l-en">Same behaviour, better shape. State that more than one component will ever need does not belong to a component — it belongs to an <b>injectable</b> in <code>providedIn: 'root'</code>.</span><span class="l-ar" dir="auto">نفس السلوك، بشكل أحسن. الحالة اللي أكتر من component هيحتاجوها عمرها ما مكانها الصح في component — مكانها في <b>injectable</b> بـ<code>providedIn: 'root'</code>.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/todo-store.ts<span class="tag"><span class="l-en">new file</span><span class="l-ar" dir="auto">ملف جديد</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Injectable</i>, signal, computed } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"><i class="t-key">import</i> { <i class="t-type">Task</i> } <i class="t-key">from</i> <i class="t-str">'./app'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-dec">@Injectable</i>({ providedIn: <i class="t-str">'root'</i> })</span><span class="ln"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">TodoStore</i> {</span><span class="ln">  <i class="t-key">private</i> tasks = signal&lt;<i class="t-type">Task</i>[]&gt;([ <i class="t-com">/* move the seed here */</i> ]);</span><span class="ln">  <i class="t-key">private</i> nextId = <i class="t-num">3</i>;</span><span class="ln"> </span><span class="ln">  <i class="t-key">readonly</i> left = <i class="t-fn">computed</i>(() =&gt;</span><span class="ln">    <i class="t-key">this</i>.<i class="t-fn">tasks</i>().<i class="t-fn">filter</i>(t =&gt; !t.done).length);</span><span class="ln"> </span><span class="ln">  <i class="t-key">readonly</i> all = <i class="t-key">this</i>.tasks.<i class="t-fn">asReadonly</i>();</span><span class="ln"> </span><span class="ln">  <i class="t-fn">add</i>(title: <i class="t-key">string</i>) {</span><span class="ln">    <i class="t-key">if</i> (!title.<i class="t-fn">trim</i>()) <i class="t-key">return</i>;</span><span class="ln">    <i class="t-key">this</i>.tasks.<i class="t-fn">update</i>(list =&gt;</span><span class="ln">      [...list, { id: <i class="t-key">this</i>.nextId++, title: title.<i class="t-fn">trim</i>(), done: <i class="t-key">false</i> }]);</span><span class="ln">  }</span><span class="ln">  <i class="t-fn">toggle</i>(id: <i class="t-key">number</i>) { <i class="t-com">/* same as before */</i> }</span><span class="ln">  <i class="t-fn">remove</i>(id: <i class="t-key">number</i>) { <i class="t-com">/* same as before */</i> }</span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/app.ts<span class="tag"><span class="l-en">the component gets thin</span><span class="l-ar" dir="auto">الـ component بيبقى رفيع</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Component</i>, inject } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"><i class="t-key">import</i> { <i class="t-type">TodoStore</i> } <i class="t-key">from</i> <i class="t-str">'./todo-store'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-dec">@Component</i>({ <i class="t-com">/* … */</i> })</span><span class="ln"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">App</i> {</span><span class="ln">  title = <i class="t-fn">signal</i>(<i class="t-str">'todo'</i>);</span><span class="ln">  store = <i class="t-fn">inject</i>(<i class="t-type">TodoStore</i>);</span><span class="ln"> </span><span class="ln">  <i class="t-fn">add</i>(input: <i class="t-type">HTMLInputElement</i>) { <i class="t-key">this</i>.store.<i class="t-fn">add</i>(input.value); input.value = <i class="t-str">''</i>; }</span><span class="ln">}</span></pre>
+      </div><div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>constructor injection — the old way<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><i class="t-fn">constructor</i>(</span><span class="ln">  <i class="t-key">private</i> store: <i class="t-type">TodoStore</i></span><span class="ln">) {}</span><span class="ln"> </span><span class="ln"><i class="t-com">// Works. But every field it feeds also needs</i></span><span class="ln"><i class="t-com">// a constructor line, and classes grow.</i></span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>inject() — the field you call<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln">store = <i class="t-fn">inject</i>(<i class="t-type">TodoStore</i>);</span><span class="ln"> </span><span class="ln"><i class="t-com">// One line, no constructor, works in any</i></span><span class="ln"><i class="t-com">// injection context, and reads left to right.</i></span></pre>
+      </div>
+    </div><div class="note"><b class="lbl"><span class="l-en">Best practice — readonly outside, writable inside</span><span class="l-ar" dir="auto">عادة صح — readonly من بره، وكلاءة من جوه</span></b><p><span class="l-en">The component reads <code>store.all()</code> and <code>store.left()</code> but can only <em>call methods</em> to change state. Exposing the raw writable signal would invite any component to <code>.set()</code> it — a bug factory. This in/out discipline is what code reviewers look for.</span><span class="l-ar" dir="auto">الـ component بيقرا <code>store.all()</code> و<code>store.left()</code> بس مش يقدر يغيّر غير عن طريق <em>مناداة methods</em>. لو كشفت الـ signal القابلة للكتابة، أي component هيبقى يقدر يعملها <code>.set()</code> — مصنع باجات. دي الديسسيبلين اللي مراجعي الكود بيدوروا عليها.</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">Everything still works — add, tick, delete — and the component class is now mostly template concerns. <code>left</code> proves <code>computed</code>: tick a task and the count changes with zero extra code.</span><span class="l-ar" dir="auto">كل حاجة شغالة زي ما هي — ضيف وعلّم وامسح — والـ component بقى خفيف ومش مسؤول عن المنطق. و<code>left</code> بتثبت فكرة الـ <code>computed</code>: علّم على مهمة والعدد بيتغير من غير سطر كود زيادة.</span></p></div>
+      </section>
+      <section class="sec" id="a6">
+        <div class="sec-kick"><span class="l-en">Step 06</span><span class="l-ar" dir="auto">الخطوة 06</span></div>
+        <h2><span class="l-en">The empty state, and the little a11y that matters</span><span class="l-ar" dir="auto">الحالة الفاضية، والإتاحة البسيطة اللي مهمة</span></h2>
+        <p class="sec-lead"><span class="l-en">Finishing is a skill. An empty list that says so, a label on the input, and focus returned after a delete — this is the last 20% where the real learning hides.</span><span class="l-ar" dir="auto">الإنهاء مهارة. ليستة فاضية بتقول إنها فاضية، ولابل للإدخال، والـ focus بيرجع بعد المسح — دي آخر 20% اللي التعلّم الحقيقي مخبي فيها.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/app.ts (template)<span class="tag"><span class="l-en">template</span><span class="l-ar" dir="auto">التمبلت</span></span></div>
+        <pre><span class="ln">template: <i class="t-str">`</i></span><span class="ln">  <i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ title() }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span><span class="ln"> </span><span class="ln">  <i class="t-tag">&lt;label</i> <i class="t-attr">for</i>=<i class="t-str">"new-task"</i><i class="t-tag">&gt;</i>New task<i class="t-tag">&lt;/label</i><i class="t-tag">&gt;</i></span><span class="ln">  <i class="t-tag">&lt;input</i> <i class="t-attr">id</i>=<i class="t-str">"new-task"</i> <i class="t-bind">#box</i> <i class="t-attr">placeholder</i>=<i class="t-str">"What needs doing?"</i></span><span class="ln">         <i class="t-bind">(keydown.enter)</i>=<i class="t-str">"add(box); box.focus()"</i><i class="t-tag">&gt;</i></span><span class="ln"> </span><span class="ln">  <i class="t-key">@if</i> (store.left() <i class="t-tag">&gt;</i> 0) {</span><span class="ln">    <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ store.left() }}</i> left<i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln">  } <i class="t-key">@else</i> {</span><span class="ln">    <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i>All done. Go outside.<i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln">  }</span><span class="ln"> </span><span class="ln">  <i class="t-tag">&lt;ul</i><i class="t-tag">&gt;</i></span><span class="ln">    <i class="t-key">@for</i> (t of store.all(); track t.id) {</span><span class="ln">      <i class="t-tag">&lt;li</i><i class="t-tag">&gt;</i></span><span class="ln">        <i class="t-tag">&lt;input</i> <i class="t-attr">type</i>=<i class="t-str">"checkbox"</i> <i class="t-bind">[checked]</i>=<i class="t-str">"t.done"</i></span><span class="ln">               <i class="t-bind">(change)</i>=<i class="t-str">"store.toggle(t.id)"</i></span><span class="ln">               <i class="t-bind">[attr.aria-label]</i>=<i class="t-str">"t.title"</i><i class="t-tag">&gt;</i></span><span class="ln">        <i class="t-bind">{{ t.title }}</i></span><span class="ln">        <i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"remove(t.id); box.focus()"</i><i class="t-tag">&gt;</i>×<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln">      <i class="t-tag">&lt;/li</i><i class="t-tag">&gt;</i></span><span class="ln">    } <i class="t-key">@empty</i> {</span><span class="ln">      <i class="t-tag">&lt;li</i><i class="t-tag">&gt;</i>No tasks yet — add the first one.<i class="t-tag">&lt;/li</i><i class="t-tag">&gt;</i></span><span class="ln">    }</span><span class="ln">  <i class="t-tag">&lt;/ul</i><i class="t-tag">&gt;</i></span><span class="ln"><i class="t-str">`</i></span></pre>
+      </div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">Delete the last task: the <code>@empty</code> message appears instead of a silent blank list. Tab into the app with the keyboard only: the input, every checkbox and every × is reachable, and a screen reader announces each checkbox by its task name.</span><span class="l-ar" dir="auto">امسح آخر مهمة: رسالة الـ <code>@empty</code> بتظهر بدل ليستة فاضية من غير كلام. جرّب الـ tab بالإدخال على الكيبورد بس: الإدخال وكل checkbox وكل × واصلين، وقارئ الشاشة بينطق كل checkbox باسم مهمته.</span></p></div>
+      </section>
+      <section class="sec" id="a7">
+        <div class="sec-kick"><span class="l-en">Step 07</span><span class="l-ar" dir="auto">الخطوة 07</span></div>
+        <h2><span class="l-en">Ship it, then break it on purpose</span><span class="l-ar" dir="auto">انشره، وبعدين كسّره بقصد</span></h2>
+        <p class="sec-lead"><span class="l-en">A project is not finished when it works; it is finished when it is <b>committed and running somewhere other than your laptop</b>.</span><span class="l-ar" dir="auto">المشروع مش بياخد لما يشتغل؛ بياخد لما يكون <b>متسجل في git وشغال في حتة غير اللاب توب بتاعك</b>.</span></p>
+        
+      <div class="code" data-lang="bash">
+        <div class="fc-h"><span class="d"></span>terminal<span class="tag"><span class="l-en">the finishing line</span><span class="l-ar" dir="auto">خط النهاية</span></span></div>
+        <pre><span class="ln">ng build                    # dist/todo/ appears — open it once</span><span class="ln">git init &amp;&amp; git add -A &amp;&amp; git commit -m "to-do app"</span><span class="ln"># push to GitHub, then deploy the dist folder</span><span class="ln"># to Netlify / Firebase / GitHub Pages</span></pre>
+      </div><ul><li><span class="l-en"><b>Break it:</b> delete the <code>track</code> clause and read the compile error. Pass <code>tasks</code> instead of <code>tasks()</code> in the template and see what renders. Mutate with <code>push</code> in <code>add()</code> and watch the screen ignore you. Each break teaches more than an hour of reading.</span><span class="l-ar" dir="auto"><b>كسّره:</b> امسح جملة الـ <code>track</code> واقرا رسالة الكومبايل. اكتب <code>tasks</code> بدل <code>tasks()</code> في التمبلت وشوف هيظهر إيه. استخدم <code>push</code> في <code>add()</code> وشوف الشاشة بتتجاهلك. كل كسرة بتعلمك أكتر من ساعة قراية.</span></li><li><span class="l-en"><b>Keep the repo:</b> this URL goes on your CV. Part B below becomes its own commit.</span><span class="l-ar" dir="auto"><b>سيب الـ repo:</b> اللينك ده يروح على الـ CV بتاعك. والجزء التاني تحت هيبقى commit لوحده.</span></li></ul><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">The deployed URL opens from your phone. That is it — first Angular app, finished, in public.</span><span class="l-ar" dir="auto">اللينك بعد النشر بيفتح من الموبايل. خلاص — أول تطبيق أنجولار، متخلص، ومنشور.</span></p></div>
+      </section>
+      <section class="sec" id="part-b">
+        <div class="sec-kick"><span class="l-en">Part B — 6 steps</span><span class="l-ar" dir="auto">الجزء التاني — 6 خطوات</span></div>
+        <h2><span class="l-en">Part B: the shopping cart</span><span class="l-ar" dir="auto">الجزء التاني: عربة الشراء</span></h2>
+        <p class="sec-lead"><span class="l-en">A second app, in the same repo, that exercises the topics the to-do app could not: <b>components talking to each other</b> through <code>input()</code>/<code>output()</code>, quantities through <code>model()</code>, and totals through <code>computed()</code>. Make a fresh project: <code>ng new cart --style=css --ssr=false</code>.</span><span class="l-ar" dir="auto">تطبيق تاني في نفس الـ repo، بيمر على المواضيع اللي تطبيق to-do معملهاش: <b>components بتتكلم مع بعضها</b> عن طريق <code>input()</code> و<code>output()</code>، وكميات بـ<code>model()</code>، وإجماليات بـ<code>computed()</code>. اعمل مشروع جديد: <code>ng new cart --style=css --ssr=false</code>.</span></p>
+        
+      </section>
+      <section class="sec" id="b1">
+        <div class="sec-kick"><span class="l-en">Step 08</span><span class="l-ar" dir="auto">الخطوة 08</span></div>
+        <h2><span class="l-en">Fake data, real shape</span><span class="l-ar" dir="auto">داتا مزوّرة، شكل حقيقي</span></h2>
+        <p class="sec-lead"><span class="l-en">Hard-code products in a <code>ProductService</code>. In phase 02 the same service grows a real HTTP call inside — and <b>no component changes</b>. That is what the service boundary buys you.</span><span class="l-ar" dir="auto">اكتب منتجات ثابتة جوه <code>ProductService</code>. في المرحلة 02 نفس الـ service هياخد نداء HTTP حقيقي جواه — و<b>ولا component هيتغير</b>. دي فايدة حد الـ service.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/product.ts<span class="tag"><span class="l-en">types + data</span><span class="l-ar" dir="auto">أنواع + داتا</span></span></div>
+        <pre><span class="ln"><i class="t-key">export</i> <i class="t-key">interface</i> <i class="t-type">Product</i> {</span><span class="ln">  id: <i class="t-key">number</i>;</span><span class="ln">  title: <i class="t-key">string</i>;</span><span class="ln">  price: <i class="t-key">number</i>;</span><span class="ln">  emoji: <i class="t-key">string</i>;</span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-key">export</i> <i class="t-key">const</i> <i class="t-type">PRODUCTS</i>: <i class="t-type">Product</i>[] = [</span><span class="ln">  { id: <i class="t-num">1</i>, title: <i class="t-str">'Coffee'</i>,     price: <i class="t-num">40</i>, emoji: <i class="t-str">'☕'</i> },</span><span class="ln">  { id: <i class="t-num">2</i>, title: <i class="t-str">'Laptop'</i>,     price: <i class="t-num">22000</i>, emoji: <i class="t-str">'💻'</i> },</span><span class="ln">  { id: <i class="t-num">3</i>, title: <i class="t-str">'Notebook'</i>,   price: <i class="t-num">25</i>, emoji: <i class="t-str">'📓'</i> },</span><span class="ln">  { id: <i class="t-num">4</i>, title: <i class="t-str">'Headphones'</i>, price: <i class="t-num">1500</i>, emoji: <i class="t-str">'🎧'</i> },</span><span class="ln">];</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/product.service.ts<span class="tag"><span class="l-en">service</span><span class="l-ar" dir="auto">الخدمة</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Injectable</i> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"><i class="t-key">import</i> { <i class="t-type">PRODUCTS</i>, <i class="t-type">Product</i> } <i class="t-key">from</i> <i class="t-str">'./product'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-dec">@Injectable</i>({ providedIn: <i class="t-str">'root'</i> })</span><span class="ln"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">ProductService</i> {</span><span class="ln">  <i class="t-key">readonly</i> all = <i class="t-type">PRODUCTS</i>;</span><span class="ln">  <i class="t-fn">byId</i>(id: <i class="t-key">number</i>) {</span><span class="ln">    <i class="t-key">return</i> <i class="t-type">PRODUCTS</i>.<i class="t-fn">find</i>(p =&gt; p.id === id);</span><span class="ln">  }</span><span class="ln">}</span></pre>
+      </div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">Compiles clean. Nothing renders yet — the next step is the first real component split.</span><span class="l-ar" dir="auto">بيكومبايل من غير ما يزنّق. مفيش حاجة بتظهر لسه — الخطوة الجاية أول تقسيم حقيقي للـ components.</span></p></div>
+      </section>
+      <section class="sec" id="b2">
+        <div class="sec-kick"><span class="l-en">Step 09</span><span class="l-ar" dir="auto">الخطوة 09</span></div>
+        <h2><span class="l-en">A ProductCard component with input() and output()</span><span class="l-ar" dir="auto">كومبوننت ProductCard بـ input() وoutput()</span></h2>
+        <p class="sec-lead"><span class="l-en">Your first real component split. The card owns nothing: data comes <b>down</b> as an input, decisions flow <b>up</b> as an output. Components that only talk like this are trivially reusable and trivially testable.</span><span class="l-ar" dir="auto">أول تقسيم حقيقي للـ components. الكارت مش بيملك حاجة: الداتا بتنزل <b>input</b>، والقرارات بتطلع <b>output</b>. الـ components اللي بتتكلم بالشكل ده بس، إعادة استخدامها واختبارها حاجة سهلة جداً.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/product-card.ts<span class="tag"><span class="l-en">new component</span><span class="l-ar" dir="auto">كومبوننت جديد</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Component</i>, input, output } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"><i class="t-key">import</i> { <i class="t-type">Product</i> } <i class="t-key">from</i> <i class="t-str">'./product'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-dec">@Component</i>({</span><span class="ln">  selector: <i class="t-str">'product-card'</i>,</span><span class="ln">  template: <i class="t-str">`</i></span><span class="ln">    <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"card"</i><i class="t-tag">&gt;</i></span><span class="ln">      <i class="t-tag">&lt;span</i> <i class="t-attr">class</i>=<i class="t-str">"emoji"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ product().emoji }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="ln">      <i class="t-tag">&lt;b</i><i class="t-tag">&gt;</i><i class="t-bind">{{ product().title }}</i><i class="t-tag">&lt;/b</i><i class="t-tag">&gt;</i></span><span class="ln">      <i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i><i class="t-bind">{{ product().price }}</i> EGP<i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="ln">      <i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"add.emit(product())"</i><i class="t-tag">&gt;</i>Add to cart<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln">    <i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln">  <i class="t-str">`</i>,</span><span class="ln">  styles: <i class="t-str">`.card{border:1px solid #ddd;border-radius:12px;padding:14px}`</i></span><span class="ln">})</span><span class="ln"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">ProductCard</i> {</span><span class="ln">  product = input.required&lt;<i class="t-type">Product</i>&gt;();</span><span class="ln">  add = output&lt;<i class="t-type">Product</i>&gt;();</span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/app.ts<span class="tag"><span class="l-en">the parent listens</span><span class="l-ar" dir="auto">الأب بيسمع</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Component</i>, inject, signal } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"><i class="t-key">import</i> { <i class="t-type">ProductCard</i> } <i class="t-key">from</i> <i class="t-str">'./product-card'</i>;</span><span class="ln"><i class="t-key">import</i> { <i class="t-type">ProductService</i> } <i class="t-key">from</i> <i class="t-str">'./product.service'</i>;</span><span class="ln"><i class="t-key">import</i> { <i class="t-type">Product</i> } <i class="t-key">from</i> <i class="t-str">'./product'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-dec">@Component</i>({</span><span class="ln">  selector: <i class="t-str">'app-root'</i>,</span><span class="ln">  imports: [<i class="t-type">ProductCard</i>],      <i class="t-com">// standalone: import what you use</i></span><span class="ln">  template: <i class="t-str">`</i></span><span class="ln">    <i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i>Cart<i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span><span class="ln">    <i class="t-key">@for</i> (p of products.all; track p.id) {</span><span class="ln">      <i class="t-tag">&lt;product-card</i> <i class="t-bind">[product]</i>=<i class="t-str">"p"</i> <i class="t-bind">(add)</i>=<i class="t-str">"addToCart($event)"</i> <i class="t-tag">/&gt;</i></span><span class="ln">    }</span><span class="ln">  <i class="t-str">`</i></span><span class="ln">})</span><span class="ln"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">App</i> {</span><span class="ln">  products = <i class="t-fn">inject</i>(<i class="t-type">ProductService</i>);</span><span class="ln">  cart = signal&lt;<i class="t-type">Product</i>[]&gt;([]);</span><span class="ln"> </span><span class="ln">  <i class="t-fn">addToCart</i>(p: <i class="t-type">Product</i>) {</span><span class="ln">    <i class="t-key">this</i>.cart.<i class="t-fn">update</i>(c =&gt; [...c, p]);</span><span class="ln">  }</span><span class="ln">}</span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">Best practice — required inputs</span><span class="l-ar" dir="auto">عادة صح — inputs إجبارية</span></b><p><span class="l-en"><code>input.required&lt;Product&gt;()</code> makes the compiler enforce that every usage passes <code>[product]</code>. Forget it and the build fails, not the user. This one habit kills a whole class of bugs.</span><span class="l-ar" dir="auto"><code>input.required&lt;Product&gt;()</code> بتخلي الـ compiler يلزمك إن أي استخدام يبعت <code>[product]</code>. لو نسيتها البيلد بيفشل، مش المستخدم. العادة دي بتقضي على نوع كامل من الباجات.</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">Four cards render from the parent's <code>@for</code>, and clicking "Add to cart" fires the output — visible for now with a temporary <code>console.log</code> in <code>addToCart</code>, removed before you commit.</span><span class="l-ar" dir="auto">أربعة كروت بيظهروا من <code>@for</code> في الأب، والدوس على "Add to cart" بيشغّل الـ output — شوفها دلوقتي بـ<code>console.log</code> مؤقت في <code>addToCart</code>، وامسحه قبل ما تعمل commit.</span></p></div>
+      </section>
+      <section class="sec" id="b3">
+        <div class="sec-kick"><span class="l-en">Step 10</span><span class="l-ar" dir="auto">الخطوة 10</span></div>
+        <h2><span class="l-en">CartService with computed totals</span><span class="l-ar" dir="auto">خدمة CartService بإجماليات computed</span></h2>
+        <p class="sec-lead"><span class="l-en">Move the cart into a service before it grows. Totals are <b>derived</b> state — they must be <code>computed</code>, never manually kept in sync.</span><span class="l-ar" dir="auto">انقل الكارت لـ service قبل ما يكبر. الإجماليات حالة <b>مشتقة</b> — مكانها <code>computed</code>، وعمرها ما هتتظبط بالإيد.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/cart.service.ts<span class="tag"><span class="l-en">new file</span><span class="l-ar" dir="auto">ملف جديد</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Injectable</i>, signal, computed } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"><i class="t-key">import</i> { <i class="t-type">Product</i> } <i class="t-key">from</i> <i class="t-str">'./product'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-key">export</i> <i class="t-key">interface</i> <i class="t-type">CartLine</i> {</span><span class="ln">  product: <i class="t-type">Product</i>;</span><span class="ln">  qty: <i class="t-key">number</i>;</span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-dec">@Injectable</i>({ providedIn: <i class="t-str">'root'</i> })</span><span class="ln"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">CartService</i> {</span><span class="ln">  <i class="t-key">private</i> lines = signal&lt;<i class="t-type">CartLine</i>[]&gt;([]);</span><span class="ln"> </span><span class="ln">  <i class="t-key">readonly</i> all = <i class="t-key">this</i>.lines.<i class="t-fn">asReadonly</i>();</span><span class="ln">  <i class="t-key">readonly</i> count = <i class="t-fn">computed</i>(() =&gt;</span><span class="ln">    <i class="t-key">this</i>.<i class="t-fn">lines</i>().<i class="t-fn">reduce</i>((n, l) =&gt; n + l.qty, <i class="t-num">0</i>));</span><span class="ln">  <i class="t-key">readonly</i> total = <i class="t-fn">computed</i>(() =&gt;</span><span class="ln">    <i class="t-key">this</i>.<i class="t-fn">lines</i>().<i class="t-fn">reduce</i>((sum, l) =&gt; sum + l.qty * l.product.price, <i class="t-num">0</i>));</span><span class="ln"> </span><span class="ln">  <i class="t-fn">add</i>(p: <i class="t-type">Product</i>) {</span><span class="ln">    <i class="t-key">this</i>.lines.<i class="t-fn">update</i>(list =&gt; {</span><span class="ln">      <i class="t-key">const</i> hit = list.<i class="t-fn">find</i>(l =&gt; l.product.id === p.id);</span><span class="ln">      <i class="t-key">if</i> (hit) {</span><span class="ln">        <i class="t-key">return</i> list.<i class="t-fn">map</i>(l =&gt;</span><span class="ln">          l.product.id === p.id ? { ...l, qty: l.qty + <i class="t-num">1</i> } : l);</span><span class="ln">      }</span><span class="ln">      <i class="t-key">return</i> [...list, { product: p, qty: <i class="t-num">1</i> }];</span><span class="ln">    });</span><span class="ln">  }</span><span class="ln"> </span><span class="ln">  <i class="t-fn">setQty</i>(productId: <i class="t-key">number</i>, qty: <i class="t-key">number</i>) {</span><span class="ln">    <i class="t-key">this</i>.lines.<i class="t-fn">update</i>(list =&gt;</span><span class="ln">      list.<i class="t-fn">map</i>(l =&gt; l.product.id === productId ? { ...l, qty } : l));</span><span class="ln">  }</span><span class="ln"> </span><span class="ln">  <i class="t-fn">remove</i>(productId: <i class="t-key">number</i>) {</span><span class="ln">    <i class="t-key">this</i>.lines.<i class="t-fn">update</i>(list =&gt;</span><span class="ln">      list.<i class="t-fn">filter</i>(l =&gt; l.product.id !== productId));</span><span class="ln">  }</span><span class="ln">}</span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">Why merge instead of push</span><span class="l-ar" dir="auto">ليه بندمج بدل الـ push</span></b><p><span class="l-en">Adding the same product twice must become <b>one line with qty 2</b>, not two rows. Look how the update returns a new array in every branch — the reference-replacement habit from the to-do app, now carrying real logic.</span><span class="l-ar" dir="auto">تضيف نفس المنتج مرتين لازم تبقى <b>سطر واحد بـ qty 2</b>، مش صفين. بص إزاي الـ update بترجع مصفوفة جديدة في كل حالة — عادة تبديل الـ reference من تطبيق to-do، بس بمنطق حقيقي المرة دي.</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">Wire the app to the service (inject it, call <code>cart.add(p)</code> from the card's output). Add coffee three times: the cart holds one line, <code>cart.count()</code> is 3.</span><span class="l-ar" dir="auto">وصّل التطبيق بالـ service (اعمل inject وندّي <code>cart.add(p)</code> من الـ output بتاع الكارت). ضيف القهوة تلات مرات: الكارت فيه سطر واحد، و<code>cart.count()</code> بـ 3.</span></p></div>
+      </section>
+      <section class="sec" id="b4">
+        <div class="sec-kick"><span class="l-en">Step 11</span><span class="l-ar" dir="auto">الخطوة 11</span></div>
+        <h2><span class="l-en">The cart list, with a model() quantity</span><span class="l-ar" dir="auto">ليستة الكارت، وكمية بـ model()</span></h2>
+        <p class="sec-lead"><span class="l-en">The quantity stepper is the textbook <code>model()</code> case: the child owns the control, the parent owns the value, and both stay honest.</span><span class="l-ar" dir="auto">عداد الكمية هو المثال الكتابي لـ<code>model()</code>: الابن بيملك التحكم، والأب بيملك القيمة، والاتنين مفيش واحد بيكدب على التاني.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/cart-line.ts<span class="tag"><span class="l-en">new component</span><span class="l-ar" dir="auto">كومبوننت جديد</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Component</i>, input, model } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"><i class="t-key">import</i> { <i class="t-type">Product</i> } <i class="t-key">from</i> <i class="t-str">'./product'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-dec">@Component</i>({</span><span class="ln">  selector: <i class="t-str">'cart-line'</i>,</span><span class="ln">  template: <i class="t-str">`</i></span><span class="ln">    <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"line"</i><i class="t-tag">&gt;</i></span><span class="ln">      <i class="t-bind">{{ product().emoji }}</i> <i class="t-bind">{{ product().title }}</i></span><span class="ln">      <i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"dec()"</i><i class="t-tag">&gt;</i>−<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln">      <i class="t-bind">{{ qty() }}</i></span><span class="ln">      <i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"inc()"</i><i class="t-tag">&gt;</i>+<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln">      <i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i><i class="t-bind">{{ qty() * product().price }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="ln">    <i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln">  <i class="t-str">`</i></span><span class="ln">})</span><span class="ln"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">CartLine</i> {</span><span class="ln">  product = input.required&lt;<i class="t-type">Product</i>&gt;();</span><span class="ln">  qty = model.required&lt;<i class="t-key">number</i>&gt;();</span><span class="ln"> </span><span class="ln">  <i class="t-fn">inc</i>() { <i class="t-key">this</i>.qty.<i class="t-fn">update</i>(q =&gt; q + <i class="t-num">1</i>); }</span><span class="ln">  <i class="t-fn">dec</i>() { <i class="t-key">this</i>.qty.<i class="t-fn">update</i>(q =&gt; <i class="t-type">Math</i>.<i class="t-fn">max</i>(<i class="t-num">1</i>, q - <i class="t-num">1</i>)); }</span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/app.ts (template)<span class="tag"><span class="l-en">two-way in the parent</span><span class="l-ar" dir="auto">اتجاهين في الأب</span></span></div>
+        <pre><span class="ln">template: <i class="t-str">`</i></span><span class="ln">  <i class="t-key">@for</i> (l of cart.all(); track l.product.id) {</span><span class="ln">    <i class="t-tag">&lt;cart-line</i> <i class="t-bind">[product]</i>=<i class="t-str">"l.product"</i> <i class="t-bind">[(qty)]</i>=<i class="t-str">"l.qty"</i> <i class="t-tag">/&gt;</i></span><span class="ln">  }</span><span class="ln">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i>Total: <i class="t-bind">{{ cart.total() }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln"><i class="t-str">`</i></span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">Where the write actually lands</span><span class="l-ar" dir="auto">الكتابة بتقع فين بالظبط</span></b><p><span class="l-en">The signal itself stays in <code>CartService</code>; <code>[(qty)]="l.qty"</code> writes into the line object and <code>setQty()</code> remains the service's official channel. Two-way here means "child and parent agree", not "anyone mutates the store freely" — the readonly habit from step 05 still holds.</span><span class="l-ar" dir="auto">الـ signal نفسها لسه في <code>CartService</code>؛ و<code>[(qty)]="l.qty"</code> بتكتب في جسم السطر، و<code>setQty()</code> تفضل القناة الرسمية للـ service. الاتجاهين هنا معناها "الابن والأب متفقين"، مش "أي حد يعدل في المخزن زي ما يحب" — عادة الـ readonly من الخطوة 05 لسه شغالة.</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">Steppers change the quantity, the line total and the grand total follow, and − never goes below 1. Two-way binding with no <code>ngModel</code> and no <code>EventEmitter</code> in sight.</span><span class="l-ar" dir="auto">العداد بيغير الكمية، وإجمالي السطر والإجمالي الكلي بيتابعلها، والسالب عمروا ما بيقل عن 1. ربط باتجاهين من غير <code>ngModel</code> ولا <code>EventEmitter</code>.</span></p></div>
+      </section>
+      <section class="sec" id="b5">
+        <div class="sec-kick"><span class="l-en">Step 12</span><span class="l-ar" dir="auto">الخطوة 12</span></div>
+        <h2><span class="l-en">Pipes for money, because money is display logic</span><span class="l-ar" dir="auto">Pipes للفلوس، لأن الفلوس عرض مش منطق</span></h2>
+        <p class="sec-lead"><span class="l-en">Format the price once, in a pipe, and no template ever concatenates a currency again. Reuse <code>CurrencyPipe</code> — then see how it composes.</span><span class="l-ar" dir="auto">نسّق السعر مرة واحدة في pipe، وعمرك ما هتلاقي تمبلت بيلزق عملة تاني. استخدم <code>CurrencyPipe</code> الجاهز — وشوف بيتركّب إزاي.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/app.ts<span class="tag"><span class="l-en">import and use</span><span class="l-ar" dir="auto">استورد واستخدم</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">CurrencyPipe</i> } <i class="t-key">from</i> <i class="t-str">'@angular/common'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-dec">@Component</i>({</span><span class="ln">  imports: [<i class="t-type">ProductCard</i>, <i class="t-type">CartLine</i>, <i class="t-type">CurrencyPipe</i>],</span><span class="ln">  template: <i class="t-str">`</i></span><span class="ln">    <i class="t-key">@for</i> (l of cart.all(); track l.product.id) {</span><span class="ln">      <i class="t-tag">&lt;cart-line</i> <i class="t-bind">[product]</i>=<i class="t-str">"l.product"</i> <i class="t-bind">[(qty)]</i>=<i class="t-str">"l.qty"</i> <i class="t-tag">/&gt;</i></span><span class="ln">    }</span><span class="ln">    <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i>Total: <i class="t-bind">{{ cart.total() | currency:"EGP":"symbol" }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln">  <i class="t-str">`</i></span><span class="ln">})</span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">The standalone discipline</span><span class="l-ar" dir="auto">الديسسيبلين بتاع الـ standalone</span></b><p><span class="l-en">Notice the loop you are in now: want a pipe → import it in <code>imports</code> → use it. Nothing is global, so every page declares exactly what it needs. That is <em>more</em> typing than ngModules, and exactly why reviewers can read your templates.</span><span class="l-ar" dir="auto">خد بالك من اللوب اللي إنت فيه دلوقتي: عايز pipe → استوردها في <code>imports</code> → استخدمها. مفيش حاجة جلوبال، فكل صفحة بتعلن بالظبط اللي محتاجاه. ده <em>كتابة أكتر</em> من الـ ngModules، وده بالظبط سبب إن مراجعين الكود يقدروا يقراو تمبلتاتك.</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">The total renders as <code>EGP 4,500.00</code>-style text and follows the steppers. Change your browser language and notice the formatter follows too — the pipe was doing locale work you would have hand-rolled badly.</span><span class="l-ar" dir="auto">الإجمالي بيظهر بنص زي <code>EGP 4,500.00</code> وبيتابع العدادات. غيّر لغة البراوزر ولاحظ إن التنسيق بيتابعها هي كمان — الـ pipe كانت بتعمل شغل الـ locale اللي كنت هتعمله بإيد وشويه.</span></p></div>
+      </section>
+      <section class="sec" id="b6">
+        <div class="sec-kick"><span class="l-en">Step 13</span><span class="l-ar" dir="auto">الخطوة 13</span></div>
+        <h2><span class="l-en">Finish Part B the way you finished Part A</span><span class="l-ar" dir="auto">خلّص الجزء التاني زي ما خلّصت الأول</span></h2>
+        <p class="sec-lead"><span class="l-en">Same checklist as the to-do app: build, commit, deploy, break on purpose.</span><span class="l-ar" dir="auto">نفس تشيك ليست تطبيق to-do: بيلد، وcommit، ونشر، وكسّره بقصد.</span></p>
+        <ul><li><span class="l-en"><b>Break:</b> remove <code>asReadonly()</code> from the cart and try <code>cart.all.set([])</code> from a component — then put it back. You just felt the encapsulation you wrote.</span><span class="l-ar" dir="auto"><b>كسّر:</b> شيل <code>asReadonly()</code> من الكارت وجرّب <code>cart.all.set([])</code> من جوه component — وبعدين رجّعها. لسه بتحس بالإنكابسوليشن اللي كتبته.</span></li><li><span class="l-en"><b>Break:</b> change <code>qty = model.required</code> to a plain <code>input</code> and watch the stepper stop writing. Now you know what <code>model()</code> is actually for.</span><span class="l-ar" dir="auto"><b>كسّر:</b> غيّر <code>qty = model.required</code> لـ<code>input</code> عادي وشوف العداد بيقف عن الكتابة. دلوقتي عرفت <code>model()</code> بتاع إيه فعلاً.</span></li><li><span class="l-en"><b>Ship:</b> <code>ng build</code>, commit as "shopping cart", deploy.</span><span class="l-ar" dir="auto"><b>انشر:</b> <code>ng build</code>، وcommit باسم "shopping cart"، ونشر.</span></li></ul><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">Two finished, deployed apps in one repo. That is phase 01 done — go read the roadmap again and see how different phase 02 looks from the other side.</span><span class="l-ar" dir="auto">اتنين تطبيقات متخلصين ومنشورين في نفس الـ repo. المرحلة 01 خلصت — ارجع اقرا خطة التعلّم تاني وشوف المرحلة 02 شكلها إزاي من الناحية التانية.</span></p></div>
+      </section></div>
+  </div>
+
+  <nav class="pager">
+    <a class="pv" href="typescript-for-angular.html"><em>&larr; <span class="l-en">Before this</span><span class="l-ar" dir="auto">قبل دي</span></em><b><span class="l-en">TypeScript, only the parts Angular uses</span><span class="l-ar" dir="auto">TypeScript، بس الأجزاء اللي أنجولار بيستخدمها</span></b></a>
+    <a class="nx" href="../intermediate/index.html"><em><span class="l-en">Next level</span><span class="l-ar" dir="auto">المستوى اللي بعده</span> &rarr;</em><b><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></b></a>
+  </nav>
+</main>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+/* ---------- language + theme, shared by every page ---------- */
+function _g(id){ return document.getElementById(id); }
+function syncUI(){
+  const r = document.documentElement;
+  const l = r.dataset.lang === 'ar' ? 'ar' : 'en';
+  const t = r.dataset.theme === 'dark' ? 'dark' : 'light';
+  const set = (id, on) => { const b = _g(id); if (b) b.setAttribute('aria-pressed', String(on)); };
+  set('b-en', l === 'en'); set('b-ar', l === 'ar');
+  set('b-lt', t === 'light'); set('b-dk', t === 'dark');
+}
+function setLang(l){
+  const r = document.documentElement;
+  r.dataset.lang = l;
+  r.dir  = l === 'ar' ? 'rtl' : 'ltr';
+  r.lang = l === 'ar' ? 'ar-EG' : 'en';
+  try { localStorage.setItem('tas-lang', l); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+function setTheme(t){
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('tas-theme', t); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+_g('b-en').onclick = () => setLang('en');
+_g('b-ar').onclick = () => setLang('ar');
+_g('b-lt').onclick = () => setTheme('light');
+_g('b-dk').onclick = () => setTheme('dark');
+syncUI();
+
+/* highlight the section you are reading.
+   Position-based, not IntersectionObserver: after clicking a link the previous
+   section still overlaps the observation band by a few pixels, and picking the
+   first intersecting one left the rail a step behind until you nudged the page. */
+const links = new Map([...document.querySelectorAll('[data-rail]')].map(a => [a.dataset.rail, a]));
+const secs = [...document.querySelectorAll('.sec')];
+const LINE = 92;                      /* the reading line, just under the sticky bar */
+
+function markActive(id){
+  links.forEach((a, key) => a.classList.toggle('on', key === id));
+}
+function spy(){
+  if (!secs.length) return;
+  let current = secs[0];
+  for (const sec of secs) {
+    if (sec.getBoundingClientRect().top - LINE <= 0) current = sec; else break;
+  }
+  /* the last section is often too short to ever cross the line */
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) current = secs[secs.length - 1];
+  markActive(current.id);
+}
+
+/* a click should light up immediately, not after the scroll settles */
+links.forEach((a, id) => a.addEventListener('click', () => markActive(id)));
+
+let spying = false;
+addEventListener('scroll', () => {
+  if (spying) return;
+  spying = true;
+  requestAnimationFrame(() => { spying = false; spy(); });
+}, { passive: true });
+addEventListener('resize', spy);
+addEventListener('hashchange', () => requestAnimationFrame(spy));
+addEventListener('load', spy);   /* the browser applies #hash after parsing */
+spy();
+</script>
+</body>
+</html>

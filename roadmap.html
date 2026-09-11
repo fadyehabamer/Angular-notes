@@ -28,6 +28,7 @@
   --glow1:9%; --glow2:5%;
   /* ink */
   --ink:#12142c; --mut:#4d5480; --dim:#767d9f; --onc:#ffffff;
+  --ok:#0a8f5b; --no:#c62348;   /* quiz: right / wrong */
   /* track accents — darkened so they carry on paper */
   --beg:#0c9280;    /* track 1 */
   --int:#5b3ad4;    /* track 2 */
@@ -52,6 +53,7 @@
   --nodesh:0 10px 26px -18px #000, inset 0 1px 0 rgba(255,255,255,.05);
   --glow1:16%; --glow2:8%;
   --ink:#eceefb; --mut:#98a0c8; --dim:#69719e; --onc:#0b0d1c;
+  --ok:#3ddc97; --no:#ff5470;
   --beg:#2ee6c5; --int:#8b6cff; --adv:#ff2e88;
   --ts:#4a9eff; --js:#ffc857; --html:#ff7a45; --svc:#ffb020; --cfg:#8b6cff;
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
@@ -150,7 +152,7 @@ h1.title code{font-family:var(--mono);font-size:.82em;font-weight:600;color:var(
 /* ---------- stage / diagram ---------- */
 .stage{position:relative;margin:6px 0 4px;padding:26px 8px;display:flex;flex-direction:column;gap:74px}
 .stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
-.row{display:flex;justify-content:center;gap:clamp(28px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
+.row{display:flex;justify-content:center;gap:clamp(92px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
 .node{
   background:linear-gradient(180deg,var(--card2),var(--card));
   border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:172px;
@@ -446,6 +448,117 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .oneline b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
 .oneline p{margin:0;font-size:15px;color:var(--ink);line-height:1.62;text-wrap:pretty;max-width:78ch}
 .oneline p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+/* ============================================================
+   Check yourself — the quiz block, same shape on every topic page
+   ============================================================ */
+.edge text.plain{font-size:9.5px;fill:var(--mut);letter-spacing:.01em;opacity:.85}
+.edge.lit text.plain{opacity:1}
+/* Arabic is cursive: the mono face and any letter-spacing break the joins,
+   so the wire words switch to the Arabic text face in RTL */
+:root[dir="rtl"] .edge text.plain{font-family:var(--body);letter-spacing:0;font-size:10.5px}
+
+.quiz{display:grid;gap:13px;margin-top:4px}
+.qbar{
+  display:flex;align-items:center;gap:13px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--sunk);
+}
+.qbar .qtxt{font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap}
+.qbar .qtxt b{color:var(--ink);font-weight:600}
+.qbar .qtxt em{font-style:normal;color:var(--ok);font-weight:600}
+.qmeter{flex:1;min-width:50px;height:4px;border-radius:99px;background:var(--dotbg);overflow:hidden}
+.qmeter i{display:block;height:100%;width:0;background:var(--c);transition:width .35s cubic-bezier(.2,.7,.3,1)}
+
+.qcard{border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);transition:border-color .3s}
+.qcard.right{border-color:color-mix(in srgb,var(--ok) 48%,transparent)}
+.qcard.wrong{border-color:color-mix(in srgb,var(--no) 48%,transparent)}
+.qhead{display:flex;gap:12px;align-items:baseline;margin-bottom:12px}
+.qnum{font-family:var(--mono);font-size:11px;color:var(--c);flex:none}
+.qask{font-size:14.8px;line-height:1.5;color:var(--ink);font-weight:600;text-wrap:pretty}
+.qask code{font-family:var(--mono);font-size:.87em;color:var(--c);font-weight:500}
+.qcode{border:1px solid var(--line2);border-radius:11px;overflow:hidden;margin-bottom:12px;background:var(--code)}
+.qcode .qcf{padding:7px 13px;border-bottom:1px solid var(--line2);background:var(--sunk);
+            font-family:var(--mono);font-size:11px;color:var(--dim)}
+.qcode pre{font-size:12px;padding:10px 0;margin:0;overflow-x:auto}
+
+.opts{display:grid;gap:8px}
+.opt{
+  display:flex;gap:11px;align-items:flex-start;width:100%;text-align:start;cursor:pointer;
+  background:var(--sunk);border:1px solid var(--line2);border-radius:10px;padding:10px 13px;
+  color:var(--mut);font-family:var(--body);font-size:13.8px;line-height:1.5;transition:.18s;
+}
+.opt .k{font-family:var(--mono);font-size:11px;color:var(--dim);border:1px solid var(--line);
+        border-radius:6px;padding:0 6px;flex:none;line-height:1.6}
+.opt .ot{flex:1;min-width:0;text-wrap:pretty}
+.opt .ot code{font-family:var(--mono);font-size:.87em}
+.opt .mark{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;flex:none;line-height:2}
+.opt:hover{color:var(--ink);background:var(--hover);border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.qcard.done .opt,.qcard.done .opt:hover{cursor:default;background:var(--sunk);border-color:var(--line2);color:var(--mut)}
+.qcard.done .opt.ok{color:var(--ink);border-color:color-mix(in srgb,var(--ok) 55%,transparent);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.qcard.done .opt.ok .k{color:var(--ok);border-color:currentColor}
+.qcard.done .opt.ok .mark{color:var(--ok)}
+.qcard.done .opt.no{color:var(--ink);border-color:color-mix(in srgb,var(--no) 55%,transparent);background:color-mix(in srgb,var(--no) 9%,transparent)}
+.qcard.done .opt.no .k{color:var(--no);border-color:currentColor}
+.qcard.done .opt.no .mark{color:var(--no)}
+
+.why{
+  display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:12px 15px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk2);
+}
+.why[hidden]{display:none}
+.why .wt{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);flex:none;padding-top:3px}
+.why p{margin:0;flex:1;min-width:0;font-size:13.6px;line-height:1.68;color:var(--mut);text-wrap:pretty}
+.why p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+.qend{border:1px solid var(--line2);border-radius:14px;padding:19px;text-align:center;background:var(--card2)}
+.qend .sc{display:block;font-family:var(--disp);font-weight:800;font-size:29px;letter-spacing:-.03em;color:var(--ink)}
+.qend p{margin:6px 0 13px;color:var(--mut);font-size:13.6px}
+
+:root[dir="rtl"] .qnum,:root[dir="rtl"] .qbar .qtxt{font-family:var(--body);letter-spacing:0}
+:root[dir="rtl"] .opt .mark,:root[dir="rtl"] .why .wt{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .qask,:root[dir="rtl"] .opt,:root[dir="rtl"] .why p{line-height:1.8}
+@media (max-width:900px){
+  .qbar{flex-wrap:wrap;gap:10px}
+  .qmeter{order:3;flex-basis:100%}
+  .qcard{padding:14px 15px}
+}
+
+/* ================= build-project tutorials (step-by-step) ============ */
+.pstep{margin-top:26px;border-top:1px solid var(--line2);padding-top:18px}
+.sec .pstep:first-child{margin-top:12px}
+.pstep-h{display:flex;align-items:center;gap:11px;margin-bottom:2px}
+.pstep-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 9px;font-weight:600;direction:ltr;flex:none}
+.pstep-h b{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:-.015em;color:var(--ink);line-height:1.3;text-wrap:pretty}
+:root[dir="rtl"] .pstep-h b{letter-spacing:0}
+.pstep > p{margin:13px 0 0}
+
+.chk{
+  margin-top:16px;max-width:76ch;background:color-mix(in srgb,var(--beg) 9%,transparent);
+  border-inline-start:3px solid var(--beg);border-radius:0 9px 9px 0;padding:12px 16px;
+}
+:root[dir="rtl"] .chk{border-radius:9px 0 0 9px}
+.chk b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--beg);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .chk b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.chk p{margin:0;font-size:14.2px;color:var(--mut)}
+.chk p code{font-family:var(--mono);font-size:.87em}
+
+.build-link{
+  display:inline-flex;align-items:center;gap:7px;margin-top:12px;text-decoration:none;
+  font-size:13.6px;font-weight:600;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);
+  border-radius:9px;padding:7px 13px;background:var(--card);transition:.18s;
+}
+.build-link:hover{background:color-mix(in srgb,var(--c) 12%,transparent)}
+
+/* the roadmap's build-projects index */
+.blds{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:16px}
+.blds-track{border:1px solid var(--line2);border-top:2px solid var(--c);border-radius:12px;padding:15px 18px;background:var(--card);min-width:0;display:flex;flex-direction:column;gap:11px}
+.blds-track > b{font-family:var(--disp);font-weight:700;font-size:16.5px;letter-spacing:-.015em;color:var(--ink)}
+:root[dir="rtl"] .blds-track > b{letter-spacing:0}
+.blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
+.blds-item .build-link{margin-top:0}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
@@ -457,7 +570,7 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
 <body>
 <header class="top"><div class="top-in">
     <a class="home" href="index.html"><b>The Angular Signal</b><span class="l-en">contents</span><span class="l-ar">المحتويات</span></a>
-    <nav class="tracknav"><a href="roadmap.html" style="--c:var(--beg)" aria-current="page"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="beginner/01-how-an-app-starts.html" style="--c:var(--beg)"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="intermediate/16-forms.html" style="--c:var(--int)"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="advanced/28-change-detection.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="javascript-for-angular.html" style="--c:var(--js)"><i></i><span class="l-en">JavaScript</span><span class="l-ar">JavaScript</span></a><a href="typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
+    <nav class="tracknav"><a href="roadmap.html" style="--c:var(--beg)" aria-current="page"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="beginner/index.html" style="--c:var(--beg)"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="intermediate/index.html" style="--c:var(--int)"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="advanced/index.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="javascript-for-angular.html" style="--c:var(--js)"><i></i><span class="l-en">JavaScript</span><span class="l-ar">JavaScript</span></a><a href="typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
     <div class="top-right">
       <div class="seg" role="group" aria-label="Language">
         <button id="b-en" aria-pressed="true">EN</button>
@@ -493,6 +606,7 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <div class="phase-build">
           <b><span class="l-en">Build this</span><span class="l-ar">ابني ده</span></b>
           <p><span class="l-en">Nothing to build yet. Read it once, then keep it open in a tab for the first month.</span><span class="l-ar" dir="auto">مفيش حاجة تبنيها لسه. اقراها مرة، وبعدين سيبها مفتوحة في تاب طول أول شهر.</span></p>
+          
         </div>
       </div>
       <div class="phase" style="--c:var(--beg)">
@@ -502,10 +616,11 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
           <span class="phase-when"><span class="l-en">3–4 weeks</span><span class="l-ar" dir="auto">3–4 أسابيع</span></span>
         </div>
         <p class="phase-goal"><span class="l-en">Understand how a page appears, how to make a component, how state and the screen stay in sync, and how two components share a fact.</span><span class="l-ar" dir="auto">تفهم إزاي الصفحة بتظهر، وإزاي تعمل component، وإزاي الحالة والشاشة بيفضلوا متزامنين، وإزاي اتنين components بيتشاركوا معلومة.</span></p>
-        <div class="phase-list"><a href="beginner/01-how-an-app-starts.html"><em>01</em><span><span class="l-en">How an Angular page actually appears</span><span class="l-ar" dir="auto">إزاي صفحة أنجولار بتظهر فعلاً</span></span></a><a href="beginner/02-cli-and-project-files.html"><em>02</em><span><span class="l-en">The CLI, and what every file is for</span><span class="l-ar" dir="auto">الـ CLI، وكل ملف بيعمل إيه</span></span></a><a href="beginner/03-components.html"><em>03</em><span><span class="l-en">A component is a class with a label on it</span><span class="l-ar" dir="auto">الـ component كلاس عليه لافتة</span></span></a><a href="beginner/04-template-syntax.html"><em>04</em><span><span class="l-en">Template syntax and interpolation</span><span class="l-ar" dir="auto">صياغة التمبلت والـ interpolation</span></span></a><a href="beginner/05-data-binding.html"><em>05</em><span><span class="l-en">Property, attribute, event and two-way binding</span><span class="l-ar" dir="auto">ربط الـ property والـ attribute والحدث والاتجاهين</span></span></a><a href="beginner/06-signals.html"><em>06</em><span><span class="l-en">Signals: state that announces itself</span><span class="l-ar" dir="auto">الـ Signals: حالة بتبلّغ عن نفسها</span></span></a><a href="beginner/07-control-flow.html"><em>07</em><span><span class="l-en">The template finally got a real <code>if</code></span><span class="l-ar" dir="auto">التمبلت أخيراً بقى فيه <code>if</code> حقيقي</span></span></a><a href="beginner/08-built-in-directives.html"><em>08</em><span><span class="l-en"><code>ngClass</code>, <code>ngStyle</code> and friends</span><span class="l-ar" dir="auto"><code>ngClass</code> و <code>ngStyle</code> وأخواتهم</span></span></a><a href="beginner/09-built-in-pipes.html"><em>09</em><span><span class="l-en">Built-in pipes: date, currency, async and the rest</span><span class="l-ar" dir="auto">الـ pipes الجاهزة: التاريخ والعملة والـ async والباقي</span></span></a><a href="beginner/10-inputs-outputs.html"><em>10</em><span><span class="l-en"><code>input()</code>, <code>output()</code>, <code>model()</code></span><span class="l-ar" dir="auto"><code>input()</code> و <code>output()</code> و <code>model()</code></span></span></a><a href="beginner/11-services-di.html"><em>11</em><span><span class="l-en">When two components need the same fact</span><span class="l-ar" dir="auto">لما اتنين components يحتاجوا نفس المعلومة</span></span></a><a href="beginner/12-lifecycle.html"><em>12</em><span><span class="l-en">Lifecycle: what runs, and when</span><span class="l-ar" dir="auto">دورة الحياة: إيه اللي بيشتغل، وإمتى</span></span></a><a href="beginner/13-basic-routing.html"><em>13</em><span><span class="l-en">Routing and navigation, the basics</span><span class="l-ar" dir="auto">الـ routing والتنقل، الأساسيات</span></span></a><a href="beginner/14-template-driven-forms.html"><em>14</em><span><span class="l-en">Template-driven forms with <code>ngModel</code></span><span class="l-ar" dir="auto">الفورمز من التمبلت بـ <code>ngModel</code></span></span></a><a href="beginner/15-http-basics.html"><em>15</em><span><span class="l-en"><code>HttpClient</code>: GET, POST and the rest</span><span class="l-ar" dir="auto"><code>HttpClient</code>: GET و POST والباقي</span></span></a></div>
+        <div class="phase-list"><a href="beginner/01-how-an-app-starts.html"><em>01</em><span><span class="l-en">How an Angular page actually appears</span><span class="l-ar" dir="auto">إزاي صفحة أنجولار بتظهر فعلاً</span></span></a><a href="beginner/02-cli-and-project-files.html"><em>02</em><span><span class="l-en">The CLI, and what every file is for</span><span class="l-ar" dir="auto">الـ CLI، وكل ملف بيعمل إيه</span></span></a><a href="beginner/03-components.html"><em>03</em><span><span class="l-en">A component is a class with a label on it</span><span class="l-ar" dir="auto">الـ component كلاس عليه لافتة</span></span></a><a href="beginner/04-template-syntax.html"><em>04</em><span><span class="l-en">Template syntax and interpolation</span><span class="l-ar" dir="auto">صياغة التمبلت والـ interpolation</span></span></a><a href="beginner/05-data-binding.html"><em>05</em><span><span class="l-en">Property, attribute, event and two-way binding</span><span class="l-ar" dir="auto">ربط الـ property والـ attribute والحدث والاتجاهين</span></span></a><a href="beginner/06-signals.html"><em>06</em><span><span class="l-en">Signals: state that announces itself</span><span class="l-ar" dir="auto">الـ Signals: حالة بتبلّغ عن نفسها</span></span></a><a href="beginner/07-control-flow.html"><em>07</em><span><span class="l-en">The template finally got a real <code>if</code></span><span class="l-ar" dir="auto">التمبلت أخيراً بقى فيه <code>if</code> حقيقي</span></span></a><a href="beginner/08-built-in-directives.html"><em>08</em><span><span class="l-en"><code>ngClass</code>, <code>ngStyle</code> and friends</span><span class="l-ar" dir="auto"><code>ngClass</code> و <code>ngStyle</code> وأخواتهم</span></span></a><a href="beginner/09-built-in-pipes.html"><em>09</em><span><span class="l-en">Built-in pipes: date, currency, async and the rest</span><span class="l-ar" dir="auto">الـ pipes الجاهزة: التاريخ والعملة والـ async والباقي</span></span></a><a href="beginner/10-inputs-outputs.html"><em>10</em><span><span class="l-en"><code>input()</code>, <code>output()</code>, <code>model()</code></span><span class="l-ar" dir="auto"><code>input()</code> و <code>output()</code> و <code>model()</code></span></span></a><a class="extra" href="beginner/angular-data-flow.html"><em>&#43;</em><span><span class="l-en">Angular data flow — how components talk to each other</span><span class="l-ar" dir="auto">انتقال البيانات في أنجولار — إزاي الـ components بتتكلم مع بعضها</span></span></a><a href="beginner/11-services-di.html"><em>11</em><span><span class="l-en">When two components need the same fact</span><span class="l-ar" dir="auto">لما اتنين components يحتاجوا نفس المعلومة</span></span></a><a href="beginner/12-lifecycle.html"><em>12</em><span><span class="l-en">Lifecycle: what runs, and when</span><span class="l-ar" dir="auto">دورة الحياة: إيه اللي بيشتغل، وإمتى</span></span></a><a href="beginner/13-basic-routing.html"><em>13</em><span><span class="l-en">Routing and navigation, the basics</span><span class="l-ar" dir="auto">الـ routing والتنقل، الأساسيات</span></span></a><a href="beginner/14-template-driven-forms.html"><em>14</em><span><span class="l-en">Template-driven forms with <code>ngModel</code></span><span class="l-ar" dir="auto">الفورمز من التمبلت بـ <code>ngModel</code></span></span></a><a href="beginner/15-http-basics.html"><em>15</em><span><span class="l-en"><code>HttpClient</code>: GET, POST and the rest</span><span class="l-ar" dir="auto"><code>HttpClient</code>: GET و POST والباقي</span></span></a><a class="extra" href="beginner/project.html"><em>&#43;</em><span><span class="l-en">Build a to-do app, then a shopping cart</span><span class="l-ar" dir="auto">ابني تطبيق to-do، وبعدين عربة شراء</span></span></a></div>
         <div class="phase-build">
           <b><span class="l-en">Build this</span><span class="l-ar">ابني ده</span></b>
           <p><span class="l-en">Build a to-do app, then a shopping cart. No server, no routing — just components, signals and a service. Finish them.</span><span class="l-ar" dir="auto">ابني تطبيق to-do، وبعدين عربة شراء. من غير سيرفر ولا routing — components وsignals وservice بس. وخلّصهم للآخر.</span></p>
+          <a class="build-link" href="beginner/project.html"><span class="l-en">Open the step-by-step project &rarr;</span><span class="l-ar">افتح المشروع خطوة بخطوة &lrm;&rarr;&lrm;</span></a>
         </div>
       </div>
       <div class="phase" style="--c:var(--int)">
@@ -515,10 +630,11 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
           <span class="phase-when"><span class="l-en">5–8 weeks</span><span class="l-ar" dir="auto">5–8 أسابيع</span></span>
         </div>
         <p class="phase-goal"><span class="l-en">Multiple pages, a real server, forms that validate, and the two chapters that decide whether your app is fast.</span><span class="l-ar" dir="auto">صفحات متعددة، وسيرفر حقيقي، وforms بتتحقق، والفصلين اللي بيحددوا هل تطبيقك سريع ولا لأ.</span></p>
-        <div class="phase-list"><a href="intermediate/16-forms.html"><em>16</em><span><span class="l-en">Typed forms, and the <code>null</code> that surprises everyone</span><span class="l-ar" dir="auto">فورمز بأنواع حقيقية، والـ <code>null</code> اللي بتفاجئ الكل</span></span></a><a href="intermediate/17-directives-and-pipes.html"><em>17</em><span><span class="l-en">Writing your own directives and pipes</span><span class="l-ar" dir="auto">تكتب directives وpipes بنفسك</span></span></a><a href="intermediate/18-component-styles.html"><em>18</em><span><span class="l-en">Why your CSS does not reach the child</span><span class="l-ar" dir="auto">ليه الـ CSS بتاعك مش واصل للابن</span></span></a><a href="intermediate/19-content-projection.html"><em>19</em><span><span class="l-en"><code>&lt;ng-content&gt;</code>: markup that comes from outside</span><span class="l-ar" dir="auto"><code>&lt;ng-content&gt;</code>: ماركب جاي من بره</span></span></a><a href="intermediate/20-queries.html"><em>20</em><span><span class="l-en"><code>viewChild</code> and <code>contentChild</code></span><span class="l-ar" dir="auto"><code>viewChild</code> و <code>contentChild</code></span></span></a><a href="intermediate/21-routing.html"><em>21</em><span><span class="l-en">Routes are data, guards are functions</span><span class="l-ar" dir="auto">الـ routes مجرد داتا، والـ guards مجرد functions</span></span></a><a href="intermediate/22-http.html"><em>22</em><span><span class="l-en">HTTP without the <code>subscribe</code></span><span class="l-ar" dir="auto">HTTP من غير <code>subscribe</code></span></span></a><a href="intermediate/23-error-handling.html"><em>23</em><span><span class="l-en">Failing well: retry, report, recover</span><span class="l-ar" dir="auto">تفشل بشكل كويس: إعادة، إبلاغ، تعافي</span></span></a><a href="intermediate/24-rxjs-fundamentals.html"><em>24</em><span><span class="l-en">Observable, Subject, BehaviorSubject</span><span class="l-ar" dir="auto">Observable و Subject و BehaviorSubject</span></span></a><a href="intermediate/25-effects-vs-computed.html"><em>25</em><span><span class="l-en"><code>effect()</code> is not a cheaper <code>computed()</code></span><span class="l-ar" dir="auto"><code>effect()</code> مش نسخة أرخص من <code>computed()</code></span></span></a><a href="intermediate/26-di-host-directives.html"><em>26</em><span><span class="l-en">Injection tokens and host directives</span><span class="l-ar" dir="auto">الـ Injection tokens والـ host directives</span></span></a><a href="intermediate/27-ui-libraries.html"><em>27</em><span><span class="l-en">Angular Material and the CDK</span><span class="l-ar" dir="auto">Angular Material والـ CDK</span></span></a></div>
+        <div class="phase-list"><a href="intermediate/16-forms.html"><em>16</em><span><span class="l-en">Typed forms, and the <code>null</code> that surprises everyone</span><span class="l-ar" dir="auto">فورمز بأنواع حقيقية، والـ <code>null</code> اللي بتفاجئ الكل</span></span></a><a href="intermediate/17-directives-and-pipes.html"><em>17</em><span><span class="l-en">Writing your own directives and pipes</span><span class="l-ar" dir="auto">تكتب directives وpipes بنفسك</span></span></a><a href="intermediate/18-component-styles.html"><em>18</em><span><span class="l-en">Why your CSS does not reach the child</span><span class="l-ar" dir="auto">ليه الـ CSS بتاعك مش واصل للابن</span></span></a><a href="intermediate/19-content-projection.html"><em>19</em><span><span class="l-en"><code>&lt;ng-content&gt;</code>: markup that comes from outside</span><span class="l-ar" dir="auto"><code>&lt;ng-content&gt;</code>: ماركب جاي من بره</span></span></a><a href="intermediate/20-queries.html"><em>20</em><span><span class="l-en"><code>viewChild</code> and <code>contentChild</code></span><span class="l-ar" dir="auto"><code>viewChild</code> و <code>contentChild</code></span></span></a><a href="intermediate/21-routing.html"><em>21</em><span><span class="l-en">Routes are data, guards are functions</span><span class="l-ar" dir="auto">الـ routes مجرد داتا، والـ guards مجرد functions</span></span></a><a href="intermediate/22-http.html"><em>22</em><span><span class="l-en">HTTP without the <code>subscribe</code></span><span class="l-ar" dir="auto">HTTP من غير <code>subscribe</code></span></span></a><a href="intermediate/23-error-handling.html"><em>23</em><span><span class="l-en">Failing well: retry, report, recover</span><span class="l-ar" dir="auto">تفشل بشكل كويس: إعادة، إبلاغ، تعافي</span></span></a><a href="intermediate/24-rxjs-fundamentals.html"><em>24</em><span><span class="l-en">Observable, Subject, BehaviorSubject</span><span class="l-ar" dir="auto">Observable و Subject و BehaviorSubject</span></span></a><a href="intermediate/25-effects-vs-computed.html"><em>25</em><span><span class="l-en"><code>effect()</code> is not a cheaper <code>computed()</code></span><span class="l-ar" dir="auto"><code>effect()</code> مش نسخة أرخص من <code>computed()</code></span></span></a><a href="intermediate/26-di-host-directives.html"><em>26</em><span><span class="l-en">Injection tokens and host directives</span><span class="l-ar" dir="auto">الـ Injection tokens والـ host directives</span></span></a><a href="intermediate/27-ui-libraries.html"><em>27</em><span><span class="l-en">Angular Material and the CDK</span><span class="l-ar" dir="auto">Angular Material والـ CDK</span></span></a><a class="extra" href="intermediate/project.html"><em>&#43;</em><span><span class="l-en">Rebuild the cart as a real store</span><span class="l-ar" dir="auto">أعد بناء الكارت كمتجر حقيقي</span></span></a></div>
         <div class="phase-build">
           <b><span class="l-en">Build this</span><span class="l-ar">ابني ده</span></b>
           <p><span class="l-en">Rebuild the cart as a real store: a product list, a detail page, a checkout form, data from a public API. This is the project you show people.</span><span class="l-ar" dir="auto">أعد بناء الكارت كمتجر حقيقي: لستة منتجات، وصفحة تفاصيل، وفورم دفع، وداتا من API عام. ده المشروع اللي هتوريه للناس.</span></p>
+          <a class="build-link" href="intermediate/project.html"><span class="l-en">Open the step-by-step project &rarr;</span><span class="l-ar">افتح المشروع خطوة بخطوة &lrm;&rarr;&lrm;</span></a>
         </div>
       </div>
       <div class="phase" style="--c:var(--adv)">
@@ -528,12 +644,43 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
           <span class="phase-when"><span class="l-en">4–6 weeks</span><span class="l-ar" dir="auto">4–6 أسابيع</span></span>
         </div>
         <p class="phase-goal"><span class="l-en">Making it fast, rendering it on the server, and composing behaviour instead of copying it. Do not start here — none of it makes sense without phase 02.</span><span class="l-ar" dir="auto">تخليه سريع، وترندره على السيرفر، وتركّب السلوك بدل ما تنسخه. ومتبدأش من هنا — ولا حاجة فيهم هتبقى مفهومة من غير المرحلة 02.</span></p>
-        <div class="phase-list"><a href="advanced/28-change-detection.html"><em>28</em><span><span class="l-en">What actually makes Angular re-render</span><span class="l-ar" dir="auto">إيه اللي بيخلي أنجولار يرندر تاني فعلاً</span></span></a><a href="advanced/29-zoneless.html"><em>29</em><span><span class="l-en">Zoneless: deleting the thing that guessed for you</span><span class="l-ar" dir="auto">Zoneless: تشيل الحاجة اللي كانت بتخمّن بدالك</span></span></a><a href="advanced/30-rxjs-operators.html"><em>30</em><span><span class="l-en"><code>switchMap</code>, <code>mergeMap</code>, <code>concatMap</code>, <code>exhaustMap</code></span><span class="l-ar" dir="auto"><code>switchMap</code> و <code>mergeMap</code> و <code>concatMap</code> و <code>exhaustMap</code></span></span></a><a href="advanced/31-rxjs-combination.html"><em>31</em><span><span class="l-en"><code>forkJoin</code>, <code>combineLatest</code>, <code>withLatestFrom</code></span><span class="l-ar" dir="auto"><code>forkJoin</code> و <code>combineLatest</code> و <code>withLatestFrom</code></span></span></a><a href="advanced/32-rxjs-interop.html"><em>32</em><span><span class="l-en">Signals and RxJS, meeting in the middle</span><span class="l-ar" dir="auto">الـ Signals و RxJS بيتقابلوا في النص</span></span></a><a href="advanced/33-signal-state.html"><em>33</em><span><span class="l-en">Signal-based state management</span><span class="l-ar" dir="auto">إدارة الحالة بالـ signals</span></span></a><a href="advanced/34-global-state.html"><em>34</em><span><span class="l-en">NgRx, SignalStore and friends</span><span class="l-ar" dir="auto">NgRx و SignalStore وأخواتهم</span></span></a><a href="advanced/35-dynamic-components.html"><em>35</em><span><span class="l-en">Creating components at runtime</span><span class="l-ar" dir="auto">إنشاء components وقت التشغيل</span></span></a><a href="advanced/36-control-value-accessor.html"><em>36</em><span><span class="l-en"><code>ControlValueAccessor</code></span><span class="l-ar" dir="auto"><code>ControlValueAccessor</code></span></span></a><a href="advanced/37-renderer2.html"><em>37</em><span><span class="l-en"><code>Renderer2</code> and safe DOM access</span><span class="l-ar" dir="auto"><code>Renderer2</code> والوصول الآمن للـ DOM</span></span></a><a href="advanced/38-lazy-loading.html"><em>38</em><span><span class="l-en">Lazy loading and preloading strategies</span><span class="l-ar" dir="auto">التحميل الكسلان واستراتيجيات التحميل المسبق</span></span></a><a href="advanced/39-defer.html"><em>39</em><span><span class="l-en"><code>@defer</code>: shipping less on first paint</span><span class="l-ar" dir="auto"><code>@defer</code>: تشحن أقل في أول رسمة</span></span></a><a href="advanced/40-performance.html"><em>40</em><span><span class="l-en">Performance: budgets, profiles and the big wins</span><span class="l-ar" dir="auto">الأداء: الميزانيات والقياس والمكاسب الكبيرة</span></span></a><a href="advanced/41-ssr-hydration.html"><em>41</em><span><span class="l-en">SSR and hydration: the same DOM, twice</span><span class="l-ar" dir="auto">SSR والـ hydration: نفس الـ DOM، مرتين</span></span></a><a href="advanced/42-security.html"><em>42</em><span><span class="l-en">XSS, sanitization and the bypass that is usually a bug</span><span class="l-ar" dir="auto">XSS والتعقيم والتجاوز اللي غالباً باج</span></span></a><a href="advanced/43-testing.html"><em>43</em><span><span class="l-en">Testing a component without a browser</span><span class="l-ar" dir="auto">تختبر component من غير براوزر</span></span></a><a href="advanced/44-e2e-testing.html"><em>44</em><span><span class="l-en">End-to-end testing with Playwright</span><span class="l-ar" dir="auto">اختبار شامل بـ Playwright</span></span></a><a href="advanced/45-aot-tree-shaking.html"><em>45</em><span><span class="l-en">AOT compilation and tree shaking</span><span class="l-ar" dir="auto">كمبايل AOT والـ tree shaking</span></span></a><a href="advanced/46-pwa.html"><em>46</em><span><span class="l-en">PWAs and the Angular service worker</span><span class="l-ar" dir="auto">الـ PWA وservice worker بتاع أنجولار</span></span></a><a href="advanced/47-schematics.html"><em>47</em><span><span class="l-en">Custom schematics and builders</span><span class="l-ar" dir="auto">schematics و builders مخصصة</span></span></a><a href="advanced/48-micro-frontends.html"><em>48</em><span><span class="l-en">Micro frontends and Module Federation</span><span class="l-ar" dir="auto">الـ Micro frontends و Module Federation</span></span></a></div>
+        <div class="phase-list"><a href="advanced/28-change-detection.html"><em>28</em><span><span class="l-en">What actually makes Angular re-render</span><span class="l-ar" dir="auto">إيه اللي بيخلي أنجولار يرندر تاني فعلاً</span></span></a><a href="advanced/29-zoneless.html"><em>29</em><span><span class="l-en">Zoneless: deleting the thing that guessed for you</span><span class="l-ar" dir="auto">Zoneless: تشيل الحاجة اللي كانت بتخمّن بدالك</span></span></a><a href="advanced/30-rxjs-operators.html"><em>30</em><span><span class="l-en"><code>switchMap</code>, <code>mergeMap</code>, <code>concatMap</code>, <code>exhaustMap</code></span><span class="l-ar" dir="auto"><code>switchMap</code> و <code>mergeMap</code> و <code>concatMap</code> و <code>exhaustMap</code></span></span></a><a href="advanced/31-rxjs-combination.html"><em>31</em><span><span class="l-en"><code>forkJoin</code>, <code>combineLatest</code>, <code>withLatestFrom</code></span><span class="l-ar" dir="auto"><code>forkJoin</code> و <code>combineLatest</code> و <code>withLatestFrom</code></span></span></a><a href="advanced/32-rxjs-interop.html"><em>32</em><span><span class="l-en">Signals and RxJS, meeting in the middle</span><span class="l-ar" dir="auto">الـ Signals و RxJS بيتقابلوا في النص</span></span></a><a href="advanced/33-signal-state.html"><em>33</em><span><span class="l-en">Signal-based state management</span><span class="l-ar" dir="auto">إدارة الحالة بالـ signals</span></span></a><a href="advanced/34-global-state.html"><em>34</em><span><span class="l-en">NgRx, SignalStore and friends</span><span class="l-ar" dir="auto">NgRx و SignalStore وأخواتهم</span></span></a><a href="advanced/35-dynamic-components.html"><em>35</em><span><span class="l-en">Creating components at runtime</span><span class="l-ar" dir="auto">إنشاء components وقت التشغيل</span></span></a><a href="advanced/36-control-value-accessor.html"><em>36</em><span><span class="l-en"><code>ControlValueAccessor</code></span><span class="l-ar" dir="auto"><code>ControlValueAccessor</code></span></span></a><a href="advanced/37-renderer2.html"><em>37</em><span><span class="l-en"><code>Renderer2</code> and safe DOM access</span><span class="l-ar" dir="auto"><code>Renderer2</code> والوصول الآمن للـ DOM</span></span></a><a href="advanced/38-lazy-loading.html"><em>38</em><span><span class="l-en">Lazy loading and preloading strategies</span><span class="l-ar" dir="auto">التحميل الكسلان واستراتيجيات التحميل المسبق</span></span></a><a href="advanced/39-defer.html"><em>39</em><span><span class="l-en"><code>@defer</code>: shipping less on first paint</span><span class="l-ar" dir="auto"><code>@defer</code>: تشحن أقل في أول رسمة</span></span></a><a href="advanced/40-performance.html"><em>40</em><span><span class="l-en">Performance: budgets, profiles and the big wins</span><span class="l-ar" dir="auto">الأداء: الميزانيات والقياس والمكاسب الكبيرة</span></span></a><a href="advanced/41-ssr-hydration.html"><em>41</em><span><span class="l-en">SSR and hydration: the same DOM, twice</span><span class="l-ar" dir="auto">SSR والـ hydration: نفس الـ DOM، مرتين</span></span></a><a href="advanced/42-security.html"><em>42</em><span><span class="l-en">XSS, sanitization and the bypass that is usually a bug</span><span class="l-ar" dir="auto">XSS والتعقيم والتجاوز اللي غالباً باج</span></span></a><a href="advanced/43-testing.html"><em>43</em><span><span class="l-en">Testing a component without a browser</span><span class="l-ar" dir="auto">تختبر component من غير براوزر</span></span></a><a href="advanced/44-e2e-testing.html"><em>44</em><span><span class="l-en">End-to-end testing with Playwright</span><span class="l-ar" dir="auto">اختبار شامل بـ Playwright</span></span></a><a href="advanced/45-aot-tree-shaking.html"><em>45</em><span><span class="l-en">AOT compilation and tree shaking</span><span class="l-ar" dir="auto">كمبايل AOT والـ tree shaking</span></span></a><a href="advanced/46-pwa.html"><em>46</em><span><span class="l-en">PWAs and the Angular service worker</span><span class="l-ar" dir="auto">الـ PWA وservice worker بتاع أنجولار</span></span></a><a href="advanced/47-schematics.html"><em>47</em><span><span class="l-en">Custom schematics and builders</span><span class="l-ar" dir="auto">schematics و builders مخصصة</span></span></a><a href="advanced/48-micro-frontends.html"><em>48</em><span><span class="l-en">Micro frontends and Module Federation</span><span class="l-ar" dir="auto">الـ Micro frontends و Module Federation</span></span></a><a class="extra" href="advanced/project.html"><em>&#43;</em><span><span class="l-en">Make the store measurably faster</span><span class="l-ar" dir="auto">خلي المتجر أسرع بشكل مقيس</span></span></a></div>
         <div class="phase-build">
           <b><span class="l-en">Build this</span><span class="l-ar">ابني ده</span></b>
           <p><span class="l-en">Take the store from phase 02 and make it measurably faster. Measure first, then defer, then go zoneless. Write down the numbers.</span><span class="l-ar" dir="auto">خد المتجر بتاع المرحلة 02 وخليه أسرع بشكل مقيس. قِس الأول، وبعدين defer، وبعدين zoneless. واكتب الأرقام.</span></p>
+          <a class="build-link" href="advanced/project.html"><span class="l-en">Open the step-by-step project &rarr;</span><span class="l-ar">افتح المشروع خطوة بخطوة &lrm;&rarr;&lrm;</span></a>
         </div>
       </div>
+
+  <p class="sechead" style="margin-top:44px"><span class="l-en">The build projects, step by step</span><span class="l-ar">مشاريع البناء، خطوة بخطوة</span></p>
+  <p style="color:var(--mut);max-width:74ch;margin:0 0 4px">
+    <span class="l-en">One project page per level, sitting at the end of its track: complete code for every step, a checkpoint after each one, and the best-practice habits baked in as you go — standalone components, signals-first state, typed forms, budgets, tests, CI.</span>
+    <span class="l-ar" dir="auto">صفحة مشروع لكل مستوى، في آخر مستواه: الكود كامل لكل خطوة، ونقطة فحص بعد كل خطوة، والعادات الصح متبنية وإنت ماشي — standalone components، وsignals الأول، وforms بأنواع، وbudgets، وتستات، وCI.</span>
+  </p>
+  <div class="blds">
+    <section class="blds-track" style="--c:var(--beg)">
+        <b><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></b>
+        <div class="blds-item">
+          <a class="build-link" href="beginner/project.html#part-a"><span class="l-en">Part A — the to-do app</span><span class="l-ar" dir="auto">الجزء الأول — تطبيق to-do</span> &rarr;</a>
+          <p><span class="l-en">Seven steps from an empty folder to a working to-do app: components, signals, the new control flow, and a store service. Full code at every step.</span><span class="l-ar" dir="auto">سبع خطوات من فولدر فاضي لتطبيق to-do شغال: components وsignals والـ control flow الجديد وservice. الكود كامل في كل خطوة.</span></p>
+        </div><div class="blds-item">
+          <a class="build-link" href="beginner/project.html#part-b"><span class="l-en">Part B — the shopping cart</span><span class="l-ar" dir="auto">الجزء التاني — عربة الشراء</span> &rarr;</a>
+          <p><span class="l-en">Six more steps: a product grid, inputs and outputs, a cart service, computed totals, and your first two-way quantity.</span><span class="l-ar" dir="auto">ست خطوات كمان: جدول منتجات، وinputs وoutputs، وservice للكارت، وإجماليات بالـ computed، وأول quantity باتجاهين.</span></p>
+        </div>
+      </section><section class="blds-track" style="--c:var(--int)">
+        <b><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></b>
+        <div class="blds-item">
+          <a class="build-link" href="intermediate/project.html#store"><span class="l-en">The store — the project you show people</span><span class="l-ar" dir="auto">المتجر — المشروع اللي هتوريه للناس</span> &rarr;</a>
+          <p><span class="l-en">Ten steps on a real public API: lazy routes, a typed API service, a detail page, a validated checkout form, a guard, an interceptor, and a deploy.</span><span class="l-ar" dir="auto">عشر خطوات على API حقيقي: routes محمّلة كسل، وAPI service بأنواع، وصفحة تفاصيل، وفورم دفع متحقق، وguard وinterceptor، ونشر.</span></p>
+        </div>
+      </section><section class="blds-track" style="--c:var(--adv)">
+        <b><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></b>
+        <div class="blds-item">
+          <a class="build-link" href="advanced/project.html#prod"><span class="l-en">The production pass</span><span class="l-ar" dir="auto">البَسّة الإنتاجية</span> &rarr;</a>
+          <p><span class="l-en">Eight steps on the store you built: measure it, OnPush and zoneless, defer the heavy parts, budgets, unit and e2e tests, deploy, CI — then the numbers.</span><span class="l-ar" dir="auto">تمنية خطوات على المتجر اللي بنيته: قِسه، وOnPush وzoneless، وdefer للحاجات التقيلة، وbudgets، وتستات، ونشر، وCI — وبعدين الأرقام.</span></p>
+        </div>
+      </section>
+  </div>
 
   <p class="sechead" style="margin-top:44px"><span class="l-en">The rest of the road</span><span class="l-ar">باقي الطريق</span></p>
   <p style="color:var(--mut);max-width:74ch;margin:0 0 4px">

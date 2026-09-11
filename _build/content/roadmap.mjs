@@ -90,4 +90,23 @@ advice:[
   {k:{en:'Read code that is better than yours',ar:'اقرا كود أحسن من بتاعك'},
    v:{en:'Angular is open source. When something surprises you, open the source of that function — you will be surprised how readable it is, and you will stop guessing.',
       ar:'أنجولار مفتوح المصدر. وأول ما حاجة تفاجئك، افتح كود الدالة دي — هتتفاجئ إنها مقروءة، وهتبطّل تخمين.'}}
-]};
+],
+builds:[
+  {track:'beginner', href:'beginner/project.html#part-a',
+   label:{en:'Part A — the to-do app', ar:'الجزء الأول — تطبيق to-do'},
+   blurb:{en:'Seven steps from an empty folder to a working to-do app: components, signals, the new control flow, and a store service. Full code at every step.',
+          ar:'سبع خطوات من فولدر فاضي لتطبيق to-do شغال: components وsignals والـ control flow الجديد وservice. الكود كامل في كل خطوة.'}},
+  {track:'beginner', href:'beginner/project.html#part-b',
+   label:{en:'Part B — the shopping cart', ar:'الجزء التاني — عربة الشراء'},
+   blurb:{en:'Six more steps: a product grid, inputs and outputs, a cart service, computed totals, and your first two-way quantity.',
+          ar:'ست خطوات كمان: جدول منتجات، وinputs وoutputs، وservice للكارت، وإجماليات بالـ computed، وأول quantity باتجاهين.'}},
+  {track:'intermediate', href:'intermediate/project.html#store',
+   label:{en:'The store — the project you show people', ar:'المتجر — المشروع اللي هتوريه للناس'},
+   blurb:{en:'Ten steps on a real public API: lazy routes, a typed API service, a detail page, a validated checkout form, a guard, an interceptor, and a deploy.',
+          ar:'عشر خطوات على API حقيقي: routes محمّلة كسل، وAPI service بأنواع، وصفحة تفاصيل، وفورم دفع متحقق، وguard وinterceptor، ونشر.'}},
+  {track:'advanced', href:'advanced/project.html#prod',
+   label:{en:'The production pass', ar:'البَسّة الإنتاجية'},
+   blurb:{en:'Eight steps on the store you built: measure it, OnPush and zoneless, defer the heavy parts, budgets, unit and e2e tests, deploy, CI — then the numbers.',
+          ar:'تمنية خطوات على المتجر اللي بنيته: قِسه، وOnPush وzoneless، وdefer للحاجات التقيلة، وbudgets، وتستات، ونشر، وCI — وبعدين الأرقام.'}}
+]
+};

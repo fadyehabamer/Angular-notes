@@ -28,6 +28,7 @@
   --glow1:9%; --glow2:5%;
   /* ink */
   --ink:#12142c; --mut:#4d5480; --dim:#767d9f; --onc:#ffffff;
+  --ok:#0a8f5b; --no:#c62348;   /* quiz: right / wrong */
   /* track accents — darkened so they carry on paper */
   --beg:#0c9280;    /* track 1 */
   --int:#5b3ad4;    /* track 2 */
@@ -52,6 +53,7 @@
   --nodesh:0 10px 26px -18px #000, inset 0 1px 0 rgba(255,255,255,.05);
   --glow1:16%; --glow2:8%;
   --ink:#eceefb; --mut:#98a0c8; --dim:#69719e; --onc:#0b0d1c;
+  --ok:#3ddc97; --no:#ff5470;
   --beg:#2ee6c5; --int:#8b6cff; --adv:#ff2e88;
   --ts:#4a9eff; --js:#ffc857; --html:#ff7a45; --svc:#ffb020; --cfg:#8b6cff;
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
@@ -150,7 +152,7 @@ h1.title code{font-family:var(--mono);font-size:.82em;font-weight:600;color:var(
 /* ---------- stage / diagram ---------- */
 .stage{position:relative;margin:6px 0 4px;padding:26px 8px;display:flex;flex-direction:column;gap:74px}
 .stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
-.row{display:flex;justify-content:center;gap:clamp(28px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
+.row{display:flex;justify-content:center;gap:clamp(92px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
 .node{
   background:linear-gradient(180deg,var(--card2),var(--card));
   border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:172px;
@@ -446,6 +448,117 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .oneline b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
 .oneline p{margin:0;font-size:15px;color:var(--ink);line-height:1.62;text-wrap:pretty;max-width:78ch}
 .oneline p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+/* ============================================================
+   Check yourself — the quiz block, same shape on every topic page
+   ============================================================ */
+.edge text.plain{font-size:9.5px;fill:var(--mut);letter-spacing:.01em;opacity:.85}
+.edge.lit text.plain{opacity:1}
+/* Arabic is cursive: the mono face and any letter-spacing break the joins,
+   so the wire words switch to the Arabic text face in RTL */
+:root[dir="rtl"] .edge text.plain{font-family:var(--body);letter-spacing:0;font-size:10.5px}
+
+.quiz{display:grid;gap:13px;margin-top:4px}
+.qbar{
+  display:flex;align-items:center;gap:13px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--sunk);
+}
+.qbar .qtxt{font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap}
+.qbar .qtxt b{color:var(--ink);font-weight:600}
+.qbar .qtxt em{font-style:normal;color:var(--ok);font-weight:600}
+.qmeter{flex:1;min-width:50px;height:4px;border-radius:99px;background:var(--dotbg);overflow:hidden}
+.qmeter i{display:block;height:100%;width:0;background:var(--c);transition:width .35s cubic-bezier(.2,.7,.3,1)}
+
+.qcard{border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);transition:border-color .3s}
+.qcard.right{border-color:color-mix(in srgb,var(--ok) 48%,transparent)}
+.qcard.wrong{border-color:color-mix(in srgb,var(--no) 48%,transparent)}
+.qhead{display:flex;gap:12px;align-items:baseline;margin-bottom:12px}
+.qnum{font-family:var(--mono);font-size:11px;color:var(--c);flex:none}
+.qask{font-size:14.8px;line-height:1.5;color:var(--ink);font-weight:600;text-wrap:pretty}
+.qask code{font-family:var(--mono);font-size:.87em;color:var(--c);font-weight:500}
+.qcode{border:1px solid var(--line2);border-radius:11px;overflow:hidden;margin-bottom:12px;background:var(--code)}
+.qcode .qcf{padding:7px 13px;border-bottom:1px solid var(--line2);background:var(--sunk);
+            font-family:var(--mono);font-size:11px;color:var(--dim)}
+.qcode pre{font-size:12px;padding:10px 0;margin:0;overflow-x:auto}
+
+.opts{display:grid;gap:8px}
+.opt{
+  display:flex;gap:11px;align-items:flex-start;width:100%;text-align:start;cursor:pointer;
+  background:var(--sunk);border:1px solid var(--line2);border-radius:10px;padding:10px 13px;
+  color:var(--mut);font-family:var(--body);font-size:13.8px;line-height:1.5;transition:.18s;
+}
+.opt .k{font-family:var(--mono);font-size:11px;color:var(--dim);border:1px solid var(--line);
+        border-radius:6px;padding:0 6px;flex:none;line-height:1.6}
+.opt .ot{flex:1;min-width:0;text-wrap:pretty}
+.opt .ot code{font-family:var(--mono);font-size:.87em}
+.opt .mark{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;flex:none;line-height:2}
+.opt:hover{color:var(--ink);background:var(--hover);border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.qcard.done .opt,.qcard.done .opt:hover{cursor:default;background:var(--sunk);border-color:var(--line2);color:var(--mut)}
+.qcard.done .opt.ok{color:var(--ink);border-color:color-mix(in srgb,var(--ok) 55%,transparent);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.qcard.done .opt.ok .k{color:var(--ok);border-color:currentColor}
+.qcard.done .opt.ok .mark{color:var(--ok)}
+.qcard.done .opt.no{color:var(--ink);border-color:color-mix(in srgb,var(--no) 55%,transparent);background:color-mix(in srgb,var(--no) 9%,transparent)}
+.qcard.done .opt.no .k{color:var(--no);border-color:currentColor}
+.qcard.done .opt.no .mark{color:var(--no)}
+
+.why{
+  display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:12px 15px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk2);
+}
+.why[hidden]{display:none}
+.why .wt{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);flex:none;padding-top:3px}
+.why p{margin:0;flex:1;min-width:0;font-size:13.6px;line-height:1.68;color:var(--mut);text-wrap:pretty}
+.why p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+.qend{border:1px solid var(--line2);border-radius:14px;padding:19px;text-align:center;background:var(--card2)}
+.qend .sc{display:block;font-family:var(--disp);font-weight:800;font-size:29px;letter-spacing:-.03em;color:var(--ink)}
+.qend p{margin:6px 0 13px;color:var(--mut);font-size:13.6px}
+
+:root[dir="rtl"] .qnum,:root[dir="rtl"] .qbar .qtxt{font-family:var(--body);letter-spacing:0}
+:root[dir="rtl"] .opt .mark,:root[dir="rtl"] .why .wt{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .qask,:root[dir="rtl"] .opt,:root[dir="rtl"] .why p{line-height:1.8}
+@media (max-width:900px){
+  .qbar{flex-wrap:wrap;gap:10px}
+  .qmeter{order:3;flex-basis:100%}
+  .qcard{padding:14px 15px}
+}
+
+/* ================= build-project tutorials (step-by-step) ============ */
+.pstep{margin-top:26px;border-top:1px solid var(--line2);padding-top:18px}
+.sec .pstep:first-child{margin-top:12px}
+.pstep-h{display:flex;align-items:center;gap:11px;margin-bottom:2px}
+.pstep-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 9px;font-weight:600;direction:ltr;flex:none}
+.pstep-h b{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:-.015em;color:var(--ink);line-height:1.3;text-wrap:pretty}
+:root[dir="rtl"] .pstep-h b{letter-spacing:0}
+.pstep > p{margin:13px 0 0}
+
+.chk{
+  margin-top:16px;max-width:76ch;background:color-mix(in srgb,var(--beg) 9%,transparent);
+  border-inline-start:3px solid var(--beg);border-radius:0 9px 9px 0;padding:12px 16px;
+}
+:root[dir="rtl"] .chk{border-radius:9px 0 0 9px}
+.chk b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--beg);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .chk b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.chk p{margin:0;font-size:14.2px;color:var(--mut)}
+.chk p code{font-family:var(--mono);font-size:.87em}
+
+.build-link{
+  display:inline-flex;align-items:center;gap:7px;margin-top:12px;text-decoration:none;
+  font-size:13.6px;font-weight:600;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);
+  border-radius:9px;padding:7px 13px;background:var(--card);transition:.18s;
+}
+.build-link:hover{background:color-mix(in srgb,var(--c) 12%,transparent)}
+
+/* the roadmap's build-projects index */
+.blds{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:16px}
+.blds-track{border:1px solid var(--line2);border-top:2px solid var(--c);border-radius:12px;padding:15px 18px;background:var(--card);min-width:0;display:flex;flex-direction:column;gap:11px}
+.blds-track > b{font-family:var(--disp);font-weight:700;font-size:16.5px;letter-spacing:-.015em;color:var(--ink)}
+:root[dir="rtl"] .blds-track > b{letter-spacing:0}
+.blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
+.blds-item .build-link{margin-top:0}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
@@ -457,7 +570,7 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
 <body>
 <header class="top"><div class="top-in">
     <a class="home" href="../index.html"><b>The Angular Signal</b><span class="l-en">contents</span><span class="l-ar">المحتويات</span></a>
-    <nav class="tracknav"><a href="../roadmap.html" style="--c:var(--beg)"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="../beginner/01-how-an-app-starts.html" style="--c:var(--beg)"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="../intermediate/16-forms.html" style="--c:var(--int)" aria-current="page"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="../advanced/28-change-detection.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="../javascript-for-angular.html" style="--c:var(--js)"><i></i><span class="l-en">JavaScript</span><span class="l-ar">JavaScript</span></a><a href="../typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
+    <nav class="tracknav"><a href="../roadmap.html" style="--c:var(--beg)"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="../beginner/index.html" style="--c:var(--beg)"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="../intermediate/index.html" style="--c:var(--int)" aria-current="page"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="../advanced/index.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="../javascript-for-angular.html" style="--c:var(--js)"><i></i><span class="l-en">JavaScript</span><span class="l-ar">JavaScript</span></a><a href="../typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
     <div class="top-right">
       <div class="seg" role="group" aria-label="Language">
         <button id="b-en" aria-pressed="true">EN</button>
@@ -521,7 +634,7 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
 
   <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
 
-  <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
+  <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text><text class="plain"></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text><text class="plain"></text></g><g class="edge" data-edge="e3"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text><text class="plain"></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="ts" data-kind="ts">
           <span class="role"><span class="l-en">asks for it</span><span class="l-ar" dir="auto">بيطلبه</span></span>
@@ -600,6 +713,90 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     </div>
   </div>
 
+  
+  <p class="sechead"><span class="l-en">Check yourself</span><span class="l-ar">اختبر نفسك</span></p>
+  <div class="quiz" data-n="4">
+    <div class="qbar">
+      <span class="qtxt"><b class="qdone">0</b> / 4 <span class="l-en">answered</span><span class="l-ar">مُجاوبة</span></span>
+      <div class="qmeter"><i></i></div>
+      <span class="qtxt"><em class="qright">0</em> <span class="l-en">right</span><span class="l-ar">صح</span></span>
+      <button class="iconbtn" data-reset>&#8635;<span class="l-en"> Reset</span><span class="l-ar"> من الأول</span></button>
+    </div>
+    
+    <div class="qcard" data-q="0" data-a="0">
+      <div class="qhead">
+        <span class="qnum">Q01</span>
+        <span class="qask"><span class="l-en"><code>viewChild</code> versus <code>contentChild</code>?</span><span class="l-ar" dir="auto"><code>viewChild</code> مقابل <code>contentChild</code>؟</span></span>
+      </div>
+      
+      <div class="opts">
+        <button class="opt" data-o="0"><span class="k">A</span><span class="ot"><span class="l-en">Your own template versus markup projected into you</span><span class="l-ar" dir="auto">الـ template بتاعك مقابل ماركب متمرَّر لجواك</span></span><span class="mark"></span></button>
+        <button class="opt" data-o="1"><span class="k">B</span><span class="ot"><span class="l-en">Direct child versus any descendant</span><span class="l-ar" dir="auto">ابن مباشر مقابل أي سليل</span></span><span class="mark"></span></button>
+        <button class="opt" data-o="2"><span class="k">C</span><span class="ot"><span class="l-en">Element versus component</span><span class="l-ar" dir="auto">عنصر مقابل component</span></span><span class="mark"></span></button>
+        <button class="opt" data-o="3"><span class="k">D</span><span class="ot"><span class="l-en">Signal versus decorator</span><span class="l-ar" dir="auto">signal مقابل decorator</span></span><span class="mark"></span></button>
+      </div>
+      <div class="why" hidden>
+        <span class="wt"><span class="l-en">why</span><span class="l-ar">ليه</span></span>
+        <p><span class="l-en"><code>viewChild</code> searches the template you wrote. <code>contentChild</code> searches what somebody else wrote between your tags and projected in. Using the wrong one returns <code>undefined</code> and reads like a timing bug.</span><span class="l-ar" dir="auto"><code>viewChild</code> بتدوّر في الـ template اللي إنت كتبته. و<code>contentChild</code> بتدوّر في اللي حد تاني كتبه بين تاجاتك وتمرّر لجواك. ولو استخدمت الغلط بترجّع <code>undefined</code> وتبان كأنها مشكلة توقيت.</span></p>
+      </div>
+    </div>
+    <div class="qcard" data-q="1" data-a="0">
+      <div class="qhead">
+        <span class="qnum">Q02</span>
+        <span class="qask"><span class="l-en">A <code>@ViewChild</code> is <code>undefined</code> in <code>ngOnInit</code>. Why?</span><span class="l-ar" dir="auto"><code>@ViewChild</code> قيمته <code>undefined</code> في <code>ngOnInit</code>. ليه؟</span></span>
+      </div>
+      
+      <div class="opts">
+        <button class="opt" data-o="0"><span class="k">A</span><span class="ot"><span class="l-en">The view has not been created yet — read it in <code>ngAfterViewInit</code></span><span class="l-ar" dir="auto">الـ view لسه ما اتعملش — اقراه في <code>ngAfterViewInit</code></span></span><span class="mark"></span></button>
+        <button class="opt" data-o="1"><span class="k">B</span><span class="ot"><span class="l-en">The selector is wrong</span><span class="l-ar" dir="auto">الـ selector غلط</span></span><span class="mark"></span></button>
+        <button class="opt" data-o="2"><span class="k">C</span><span class="ot"><span class="l-en">It needs <code>static: false</code></span><span class="l-ar" dir="auto">محتاج <code>static: false</code></span></span><span class="mark"></span></button>
+        <button class="opt" data-o="3"><span class="k">D</span><span class="ot"><span class="l-en">Queries only work on components</span><span class="l-ar" dir="auto">الاستعلامات بتشتغل على الـ components بس</span></span><span class="mark"></span></button>
+      </div>
+      <div class="why" hidden>
+        <span class="wt"><span class="l-en">why</span><span class="l-ar">ليه</span></span>
+        <p><span class="l-en">View queries are filled in after the template is built. The signal form — <code>box = viewChild('box')</code> — sidesteps the whole timing question: read it in an <code>effect()</code> and it runs once the element exists.</span><span class="l-ar" dir="auto">استعلامات الـ view بتتملى بعد بناء الـ template. والصيغة القايمة على signal — <code>box = viewChild('box')</code> — بتتخطى حكاية التوقيت كلها: اقراه في <code>effect()</code> وهو هيشتغل أول ما العنصر يبقى موجود.</span></p>
+      </div>
+    </div>
+    <div class="qcard" data-q="2" data-a="0">
+      <div class="qhead">
+        <span class="qnum">Q03</span>
+        <span class="qask"><span class="l-en">A queried child sits inside an <code>@if</code>. What should you expect?</span><span class="l-ar" dir="auto">ابن مُستعلَم عنه قاعد جوه <code>@if</code>. توقّع إيه؟</span></span>
+      </div>
+      
+      <div class="opts">
+        <button class="opt" data-o="0"><span class="k">A</span><span class="ot"><span class="l-en">It is undefined while the condition is false, and appears when it turns true</span><span class="l-ar" dir="auto">بيكون undefined طالما الشرط كاذب، وبيظهر لما يبقى صح</span></span><span class="mark"></span></button>
+        <button class="opt" data-o="1"><span class="k">B</span><span class="ot"><span class="l-en">It is always available</span><span class="l-ar" dir="auto">متاح دايماً</span></span><span class="mark"></span></button>
+        <button class="opt" data-o="2"><span class="k">C</span><span class="ot"><span class="l-en">The query throws</span><span class="l-ar" dir="auto">الاستعلام بيرمي خطأ</span></span><span class="mark"></span></button>
+        <button class="opt" data-o="3"><span class="k">D</span><span class="ot"><span class="l-en">It caches the first instance forever</span><span class="l-ar" dir="auto">بيخزّن أول نسخة للأبد</span></span><span class="mark"></span></button>
+      </div>
+      <div class="why" hidden>
+        <span class="wt"><span class="l-en">why</span><span class="l-ar">ليه</span></span>
+        <p><span class="l-en">A conditional child genuinely does not exist while the condition is false, and it is a <i>new</i> instance each time it comes back. This is exactly why signal queries are better here — they update, where a one-time read goes stale.</span><span class="l-ar" dir="auto">الابن الشرطي فعلاً مش موجود طالما الشرط كاذب، وكل مرة يرجع بيبقى نسخة <i>جديدة</i>. وعلشان كده بالظبط استعلامات الـ signal أحسن هنا — هي بتتحدّث، أما القراية لمرة واحدة فبتقدم.</span></p>
+      </div>
+    </div>
+    <div class="qcard" data-q="3" data-a="0">
+      <div class="qhead">
+        <span class="qnum">Q04</span>
+        <span class="qask"><span class="l-en">You need every projected tab, not just the first. Which?</span><span class="l-ar" dir="auto">محتاج كل التابات المتمرَّرة، مش أول واحدة بس. أنهي؟</span></span>
+      </div>
+      
+      <div class="opts">
+        <button class="opt" data-o="0"><span class="k">A</span><span class="ot"><span class="l-en"><code>contentChildren()</code></span><span class="l-ar" dir="auto"><code>contentChildren()</code></span></span><span class="mark"></span></button>
+        <button class="opt" data-o="1"><span class="k">B</span><span class="ot"><span class="l-en"><code>contentChild()</code> in a loop</span><span class="l-ar" dir="auto"><code>contentChild()</code> في لوب</span></span><span class="mark"></span></button>
+        <button class="opt" data-o="2"><span class="k">C</span><span class="ot"><span class="l-en"><code>viewChildren()</code></span><span class="l-ar" dir="auto"><code>viewChildren()</code></span></span><span class="mark"></span></button>
+        <button class="opt" data-o="3"><span class="k">D</span><span class="ot"><span class="l-en"><code>querySelectorAll</code></span><span class="l-ar" dir="auto"><code>querySelectorAll</code></span></span><span class="mark"></span></button>
+      </div>
+      <div class="why" hidden>
+        <span class="wt"><span class="l-en">why</span><span class="l-ar">ليه</span></span>
+        <p><span class="l-en">The plural query returns them all, and the signal version keeps the list current as tabs are added or removed. <code>viewChildren</code> would search your own template, where the tabs are not.</span><span class="l-ar" dir="auto">الاستعلام بصيغة الجمع بيرجّعهم كلهم، والنسخة القايمة على signal بتحافظ على القائمة محدّثة وإنت بتضيف أو بتشيل تابات. أما <code>viewChildren</code> فهيدوّر في الـ template بتاعك، واللي التابات مش فيه.</span></p>
+      </div>
+    </div>
+    <div class="qend" hidden>
+      <b class="sc"></b><p></p>
+      <button class="iconbtn" data-reset>&#8635;<span class="l-en"> Try again</span><span class="l-ar"> جرّب تاني</span></button>
+    </div>
+  </div>
+
   <nav class="pager">
     <a class="pv" href="../intermediate/19-content-projection.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en"><code>&lt;ng-content&gt;</code>: markup that comes from outside</span><span class="l-ar" dir="auto"><code>&lt;ng-content&gt;</code>: ماركب جاي من بره</span></b></a>
     <a class="nx" href="../intermediate/21-routing.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Routes are data, guards are functions</span><span class="l-ar" dir="auto">الـ routes مجرد داتا، والـ guards مجرد functions</span></b></a>
@@ -607,7 +804,7 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
 </main>
 
 <script>
-const D = {"edges":[{"id":"e1","from":"ts","to":"tpl","a":"bottom","b":"top","label":"viewChild('box')","packet":"#box"},{"id":"e2","from":"tpl","to":"child","a":"right","b":"left","label":"\u003capp-result-list\u003e","packet":"instance"},{"id":"e3","from":"child","to":"ts","a":"top","b":"right","label":".scrollToTop()","packet":"call"}],"steps":[{"t":{"en":"\u003ccode class=\"i\"\u003e#box\u003c/code\u003e in the template is a \u003cb\u003etemplate reference variable\u003c/b\u003e. The string you pass to \u003ccode class=\"i\"\u003eviewChild('box')\u003c/code\u003e is matching that name.","ar":"\u003ccode class=\"i\"\u003e#box\u003c/code\u003e اللي في التمبلت اسمه \u003cb\u003etemplate reference variable\u003c/b\u003e. والنص اللي بتمرره لـ \u003ccode class=\"i\"\u003eviewChild('box')\u003c/code\u003e بيطابق الاسم ده."},"edge":"e1","hl":{"tpl":[1,2,3],"ts":[6]}},{"t":{"en":"\u003ccode class=\"i\"\u003e.required\u003c/code\u003e removes the \u003ccode class=\"i\"\u003eundefined\u003c/code\u003e from the type and fails loudly at startup if the element is genuinely missing. Use it whenever the element is unconditionally in your template.","ar":"\u003ccode class=\"i\"\u003e.required\u003c/code\u003e بتشيل الـ \u003ccode class=\"i\"\u003eundefined\u003c/code\u003e من النوع وبتفشل بصوت عالي عند التشغيل لو العنصر ناقص فعلاً. استعملها كل ما العنصر يكون موجود في تمبلتك من غير شروط."},"edge":null,"hl":{"ts":[8,9]}},{"t":{"en":"Query for a class instead of a string and you get the \u003cb\u003ecomponent instance\u003c/b\u003e — so you can call its public methods. Add \u003ccode class=\"i\"\u003e{ read: ElementRef }\u003c/code\u003e if you wanted its DOM element instead.","ar":"دوّر بكلاس بدل نص وهتاخد \u003cb\u003eنسخة الـ component\u003c/b\u003e — فتقدر تنادي methods العامة بتاعته. وضيف \u003ccode class=\"i\"\u003e{ read: ElementRef }\u003c/code\u003e لو كنت عايز عنصر الـ DOM بتاعه بدل كده."},"edge":"e2","hl":{"ts":[11,12,17,18],"child":[7,8]}},{"t":{"en":"Because a query is a signal, an \u003ccode class=\"i\"\u003eeffect\u003c/code\u003e or \u003ccode class=\"i\"\u003ecomputed\u003c/code\u003e that reads it simply re-runs when the element appears or disappears. The whole “undefined at the wrong moment” category of bug is gone.","ar":"وعشان الـ query دي signal، أي \u003ccode class=\"i\"\u003eeffect\u003c/code\u003e أو \u003ccode class=\"i\"\u003ecomputed\u003c/code\u003e بيقراها بيعيد الشغل لما العنصر يظهر أو يختفي. ونوعية باج «undefined في الوقت الغلط» كلها راحت."},"edge":"e3","hl":{"when":[12,17,18]}},{"t":{"en":"\u003ccode class=\"i\"\u003eviewChild\u003c/code\u003e looks in \u003cb\u003eyour own\u003c/b\u003e template. \u003ccode class=\"i\"\u003econtentChild\u003c/code\u003e looks at what was \u003cb\u003eprojected into you\u003c/b\u003e. Mixing them up is the second most common mistake here.","ar":"\u003ccode class=\"i\"\u003eviewChild\u003c/code\u003e بيبص في \u003cb\u003eتمبلتك إنت\u003c/b\u003e. و\u003ccode class=\"i\"\u003econtentChild\u003c/code\u003e بيبص في اللي \u003cb\u003eاتسقط جواك\u003c/b\u003e. وخلطهم ببعض تاني أكتر غلطة هنا."},"edge":null,"hl":{"content":[1,2,12,13]}}]};
+const D = {"edges":[{"id":"e1","from":"ts","to":"tpl","a":"bottom","b":"top","label":"viewChild('box')","packet":"#box","plain":{"en":"an element of my own","ar":"عنصر من عندي"}},{"id":"e2","from":"tpl","to":"child","a":"right","b":"left","label":"\u003capp-result-list\u003e","packet":"instance","plain":{"en":"a child component","ar":"component ابن"}},{"id":"e3","from":"child","to":"ts","a":"top","b":"right","label":".scrollToTop()","packet":"call","plain":{"en":"call a method on it","ar":"نادي method عليه"}}],"steps":[{"t":{"en":"\u003ccode class=\"i\"\u003e#box\u003c/code\u003e in the template is a \u003cb\u003etemplate reference variable\u003c/b\u003e. The string you pass to \u003ccode class=\"i\"\u003eviewChild('box')\u003c/code\u003e is matching that name.","ar":"\u003ccode class=\"i\"\u003e#box\u003c/code\u003e اللي في التمبلت اسمه \u003cb\u003etemplate reference variable\u003c/b\u003e. والنص اللي بتمرره لـ \u003ccode class=\"i\"\u003eviewChild('box')\u003c/code\u003e بيطابق الاسم ده."},"edge":"e1","hl":{"tpl":[1,2,3],"ts":[6]}},{"t":{"en":"\u003ccode class=\"i\"\u003e.required\u003c/code\u003e removes the \u003ccode class=\"i\"\u003eundefined\u003c/code\u003e from the type and fails loudly at startup if the element is genuinely missing. Use it whenever the element is unconditionally in your template.","ar":"\u003ccode class=\"i\"\u003e.required\u003c/code\u003e بتشيل الـ \u003ccode class=\"i\"\u003eundefined\u003c/code\u003e من النوع وبتفشل بصوت عالي عند التشغيل لو العنصر ناقص فعلاً. استعملها كل ما العنصر يكون موجود في تمبلتك من غير شروط."},"edge":null,"hl":{"ts":[8,9]}},{"t":{"en":"Query for a class instead of a string and you get the \u003cb\u003ecomponent instance\u003c/b\u003e — so you can call its public methods. Add \u003ccode class=\"i\"\u003e{ read: ElementRef }\u003c/code\u003e if you wanted its DOM element instead.","ar":"دوّر بكلاس بدل نص وهتاخد \u003cb\u003eنسخة الـ component\u003c/b\u003e — فتقدر تنادي methods العامة بتاعته. وضيف \u003ccode class=\"i\"\u003e{ read: ElementRef }\u003c/code\u003e لو كنت عايز عنصر الـ DOM بتاعه بدل كده."},"edge":"e2","hl":{"ts":[11,12,17,18],"child":[7,8]}},{"t":{"en":"Because a query is a signal, an \u003ccode class=\"i\"\u003eeffect\u003c/code\u003e or \u003ccode class=\"i\"\u003ecomputed\u003c/code\u003e that reads it simply re-runs when the element appears or disappears. The whole “undefined at the wrong moment” category of bug is gone.","ar":"وعشان الـ query دي signal، أي \u003ccode class=\"i\"\u003eeffect\u003c/code\u003e أو \u003ccode class=\"i\"\u003ecomputed\u003c/code\u003e بيقراها بيعيد الشغل لما العنصر يظهر أو يختفي. ونوعية باج «undefined في الوقت الغلط» كلها راحت."},"edge":"e3","hl":{"when":[12,17,18]}},{"t":{"en":"\u003ccode class=\"i\"\u003eviewChild\u003c/code\u003e looks in \u003cb\u003eyour own\u003c/b\u003e template. \u003ccode class=\"i\"\u003econtentChild\u003c/code\u003e looks at what was \u003cb\u003eprojected into you\u003c/b\u003e. Mixing them up is the second most common mistake here.","ar":"\u003ccode class=\"i\"\u003eviewChild\u003c/code\u003e بيبص في \u003cb\u003eتمبلتك إنت\u003c/b\u003e. و\u003ccode class=\"i\"\u003econtentChild\u003c/code\u003e بيبص في اللي \u003cb\u003eاتسقط جواك\u003c/b\u003e. وخلطهم ببعض تاني أكتر غلطة هنا."},"edge":null,"hl":{"content":[1,2,12,13]}}]};
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -682,11 +879,51 @@ function layout(){
       ' L' + (end.x - r * Math.cos(ang - A)) + ',' + (end.y - r * Math.sin(ang - A)) +
       ' L' + (end.x - r * Math.cos(ang + A)) + ',' + (end.y - r * Math.sin(ang + A)) + ' Z');
     const mid = wire.getPointAtLength(L * 0.5);
-    txt.setAttribute('x', mid.x);
-    txt.setAttribute('y', mid.y - 9);
-    txt.setAttribute('text-anchor', 'middle');
-    txt.textContent = e.label;
+    const plain = $('text.plain', g);
+    /* a wire drawn straight across a row only has the gap between the two
+       boxes to write in; anywhere else there is open space */
+    const inRow = (e.a === 'right' && e.b === 'left') || (e.a === 'left' && e.b === 'right');
+    const room = inRow ? Math.abs(p2.x - p1.x) - 6 : Infinity;
+    [txt, plain].forEach(t => { t.setAttribute('x', mid.x); t.setAttribute('text-anchor', 'middle'); });
+    fitLabel(txt, e.label, 10.5, room, mid.y - 9, 'up');
+    fitLabel(plain, room < 80 ? '' : plainWords(e), 9.5, room, mid.y + 15, 'down');
   });
+}
+
+/* the plain-English (or plain-Arabic) words under a wire */
+function plainWords(e){
+  if (!e.plain) return '';
+  return document.documentElement.dataset.lang === 'ar' ? e.plain.ar : e.plain.en;
+}
+
+/* one line if it fits, otherwise two balanced lines, and only then shrink */
+function fitLabel(t, text, size, room, y, dir){
+  t.style.fontSize = '';
+  t.textContent = text;
+  t.setAttribute('y', y);
+  if (!text || room === Infinity || t.getComputedTextLength() <= room) return;
+
+  let widest = t.getComputedTextLength();
+  const words = text.split(' ');
+  if (words.length > 1) {
+    let cut = 1, best = Infinity;
+    for (let i = 1; i < words.length; i++) {
+      const d = Math.abs(words.slice(0, i).join(' ').length - words.slice(i).join(' ').length);
+      if (d < best) { best = d; cut = i; }
+    }
+    const lines = [words.slice(0, cut).join(' '), words.slice(cut).join(' ')];
+    const x = t.getAttribute('x');
+    t.textContent = '';
+    lines.forEach((ln, i) => {
+      const sp = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+      sp.setAttribute('x', x);
+      sp.setAttribute('y', dir === 'up' ? y - (1 - i) * size * 1.15 : y + i * size * 1.15);
+      sp.textContent = ln;
+      t.appendChild(sp);
+    });
+    widest = Math.max.apply(null, [].map.call(t.childNodes, sp => sp.getComputedTextLength()));
+  }
+  if (widest > room) t.style.fontSize = Math.max(8, size * room / widest).toFixed(2) + 'px';
 }
 
 /* ---------- steps ---------- */
@@ -763,12 +1000,76 @@ async function play(){
   }
 }
 
+/* ---------- check yourself ---------- */
+function qScore(quiz){
+  const cards = $$('.qcard', quiz);
+  const n = cards.length;
+  const done = cards.filter(c => c.classList.contains('done')).length;
+  const right = cards.filter(c => c.classList.contains('right')).length;
+  $('.qdone', quiz).textContent = done;
+  $('.qright', quiz).textContent = right;
+  $('.qmeter i', quiz).style.width = (done / n * 100) + '%';
+  const end = $('.qend', quiz);
+  if (done < n) { end.hidden = true; return; }
+  const pct = right / n;
+  $('.sc', end).textContent = right + ' / ' + n;
+  const msg = pct === 1
+    ? ['Every one right. You could teach this page now.', 'كلها صح. تقدر تشرح الصفحة دي لحد تاني دلوقتي.']
+    : pct >= 0.6
+      ? ['Good. Read the why under the ones you missed, then try again.', 'حلو. اقرا الـ "ليه" تحت اللي غلط، وبعدين جرّب تاني.']
+      : ['Worth another read of the pictures above, then try again.', 'يستحق قراية تانية للصور اللي فوق، وبعدين جرّب تاني.'];
+  $('p', end).innerHTML = '<span class="l-en">' + msg[0] + '</span><span class="l-ar" dir="auto">' + msg[1] + '</span>';
+  end.hidden = false;
+}
+
+function qAnswer(btn){
+  const card = btn.closest('.qcard');
+  if (card.classList.contains('done')) return;
+  const quiz = card.closest('.quiz');
+  const right = +card.dataset.a, pick = +btn.dataset.o;
+  card.classList.add('done');
+  card.classList.add(pick === right ? 'right' : 'wrong');
+  $$('.opt', card).forEach((o, k) => {
+    if (k === right) o.classList.add('ok');
+    else if (k === pick) o.classList.add('no');
+  });
+  $('.why', card).hidden = false;
+  qScore(quiz);
+}
+
+function qReset(quiz){
+  $$('.qcard', quiz).forEach(c => {
+    c.classList.remove('done', 'right', 'wrong');
+    $$('.opt', c).forEach(o => o.classList.remove('ok', 'no'));
+    $('.why', c).hidden = true;
+  });
+  qScore(quiz);
+  quiz.scrollIntoView({ block: 'start', behavior: REDUCED ? 'auto' : 'smooth' });
+}
+
 document.addEventListener('click', e => {
   const dot = e.target.closest('.dot');
   if (dot) { RUN++; return goStep(+dot.dataset.step); }
-  if (e.target.closest('[data-replay]')) play();
+  if (e.target.closest('[data-replay]')) return play();
+  const opt = e.target.closest('.opt');
+  if (opt) return qAnswer(opt);
+  const rst = e.target.closest('[data-reset]');
+  if (rst) return qReset(rst.closest('.quiz'));
 });
 document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  const quiz = $('.quiz');
+  if (quiz && e.key >= '1' && e.key <= '4') {
+    const card = $('.qcard:not(.done)', quiz);
+    if (!card) return;
+    const opt = $$('.opt', card)[+e.key - 1];
+    if (!opt) return;
+    e.preventDefault();
+    qAnswer(opt);
+    const nx = $('.qcard:not(.done)', quiz) || $('.qend', quiz);
+    if (nx) nx.scrollIntoView({ block: 'center', behavior: REDUCED ? 'auto' : 'smooth' });
+    return;
+  }
   if (e.key === 'ArrowRight') { RUN++; goStep(step + 1); }
   else if (e.key === 'ArrowLeft') { RUN++; goStep(step - 1, false); }
   else if (e.key.toLowerCase() === 'r') play();

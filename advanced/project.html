@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Build: the production pass</title>
+<meta name="description" content="The phase-03 project: the store you built in phase 02 goes through a production pass. Measure first, change one thing, measure again — and write every number down. That last part i">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Cairo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--c:var(--adv)}
+/* ============================================================
+   Two skins, one set of names. Light is the default; the top-bar
+   switch stamps data-theme="dark" on the root element, and only the
+   below change. Never hard-code a colour outside these blocks.
+   ============================================================ */
+:root{
+  color-scheme:light;
+  /* surfaces */
+  --bg:#f3f4fb; --bg2:#eaecf7; --card:#ffffff; --card2:#f7f8fd; --code:#fbfbff;
+  --line:rgba(23,27,64,.14); --line2:rgba(23,27,64,.08);
+  --sunk:rgba(23,27,64,.03); --sunk2:rgba(23,27,64,.05); --hover:rgba(23,27,64,.05);
+  --chip:rgba(23,27,64,.065); --chipink:#3a3f70;
+  --topbg:rgba(248,249,254,.84);
+  --wire:rgba(23,27,64,.24); --dotbg:rgba(23,27,64,.17);
+  --nodesh:0 12px 26px -20px rgba(23,27,64,.55), inset 0 1px 0 #fff;
+  --glow1:9%; --glow2:5%;
+  /* ink */
+  --ink:#12142c; --mut:#4d5480; --dim:#767d9f; --onc:#ffffff;
+  --ok:#0a8f5b; --no:#c62348;   /* quiz: right / wrong */
+  /* track accents — darkened so they carry on paper */
+  --beg:#0c9280;    /* track 1 */
+  --int:#5b3ad4;    /* track 2 */
+  --adv:#c60059;    /* track 3 */
+  --ts:#1566cc; --js:#9a6410; --html:#c04d1a; --svc:#8a5f00; --cfg:#5b3ad4;
+  /* syntax */
+  --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
+  --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
+  --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0b0d1c; --bg2:#101430; --card:#141935; --card2:#171d3d; --code:transparent;
+  --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.055);
+  --sunk:rgba(255,255,255,.03); --sunk2:rgba(255,255,255,.05); --hover:rgba(255,255,255,.04);
+  --chip:rgba(255,255,255,.07); --chipink:#cfd6ff;
+  --topbg:rgba(8,10,22,.72);
+  --wire:rgba(255,255,255,.13); --dotbg:rgba(255,255,255,.16);
+  --nodesh:0 10px 26px -18px #000, inset 0 1px 0 rgba(255,255,255,.05);
+  --glow1:16%; --glow2:8%;
+  --ink:#eceefb; --mut:#98a0c8; --dim:#69719e; --onc:#0b0d1c;
+  --ok:#3ddc97; --no:#ff5470;
+  --beg:#2ee6c5; --int:#8b6cff; --adv:#ff2e88;
+  --ts:#4a9eff; --js:#ffc857; --html:#ff7a45; --svc:#ffb020; --cfg:#8b6cff;
+  --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
+  --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
+  --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:
+    radial-gradient(1100px 700px at 78% -10%,color-mix(in srgb,var(--c) var(--glow1),transparent),transparent 62%),
+    radial-gradient(900px 600px at 4% 108%,color-mix(in srgb,var(--adv) var(--glow2),transparent),transparent 62%),
+    var(--bg);
+  color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--c);color:var(--onc)}
+:focus-visible{outline:2px solid var(--c);outline-offset:3px;border-radius:6px}
+a{color:var(--c)}
+code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+
+/* ---------- language ---------- */
+:root[data-lang="en"] .l-ar{display:none !important}
+:root[data-lang="ar"] .l-en{display:none !important}
+:root[dir="rtl"]{
+  --disp:'Cairo','IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+}
+:root[dir="rtl"] h1.title{line-height:1.32;letter-spacing:0}
+:root[dir="rtl"] .lead{font-size:15px;line-height:1.75}
+:root[dir="rtl"] .num,:root[dir="rtl"] .badge{letter-spacing:.04em}
+/* keep neighbouring runs from reordering each other in RTL */
+.kick span,.cover-top span{unicode-bidi:isolate}
+/* diagrams and code always read left-to-right */
+.stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
+
+/* ---------- top bar ---------- */
+.top{
+  position:sticky;top:0;z-index:40;background:var(--topbg);
+  backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);
+  border-bottom:1px solid var(--line2);
+}
+.top-in{
+  max-width:1220px;margin:0 auto;padding:9px clamp(16px,3.4vw,40px);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.home{
+  display:inline-flex;align-items:baseline;gap:9px;text-decoration:none;white-space:nowrap;
+}
+.home b{
+  font-family:var(--disp);font-weight:800;font-size:15.5px;letter-spacing:-.02em;
+  background:linear-gradient(92deg,#e40035,#f20089 45%,#9717e2);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.home span{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase}
+.tracknav{display:flex;gap:4px;flex-wrap:wrap;margin-inline-start:6px}
+.tracknav a{
+  font-size:12.5px;font-weight:600;text-decoration:none;color:var(--dim);
+  padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.tracknav a i{width:7px;height:7px;border-radius:99px;background:currentColor;display:block;flex:none}
+.tracknav a:hover{color:var(--mut);background:var(--hover)}
+.tracknav a[aria-current="page"]{color:var(--onc);background:var(--c)}
+.top-right{display:flex;align-items:center;gap:8px;margin-inline-start:auto}
+.seg{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:var(--hover)}
+.seg button{
+  appearance:none;border:0;background:none;cursor:pointer;padding:5px 12px;
+  font-family:var(--body);font-size:12.5px;font-weight:600;color:var(--dim);line-height:1.5;
+}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--c);color:var(--onc)}
+
+/* ---------- article shell ---------- */
+.page{max-width:1220px;margin:0 auto;padding:clamp(24px,3.6vw,44px) clamp(16px,3.4vw,40px) 0}
+.eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.num{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.16em}
+/* a numeric counter must not be reordered by the bidi algorithm */
+.num.seq{direction:ltr;unicode-bidi:isolate}
+:root[dir="rtl"] .num:not(.seq){font-family:var(--body);letter-spacing:0;font-size:12.5px}
+.badge{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;border:1px solid currentColor;color:var(--c);
+  background:color-mix(in srgb,var(--c) 12%,transparent);
+}
+:root[dir="rtl"] .badge{font-family:var(--body);font-weight:600;text-transform:none;font-size:11.5px}
+h1.title{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.03em;line-height:1.02;
+  font-size:clamp(28px,4vw,46px);margin:0 0 10px;text-wrap:balance;
+}
+h1.title code{font-family:var(--mono);font-size:.82em;font-weight:600;color:var(--c);letter-spacing:0}
+.lead{color:var(--mut);max-width:74ch;margin:0 0 22px;font-size:15.5px;text-wrap:pretty}
+.lead b{color:var(--ink);font-weight:600}
+
+/* ---------- stage / diagram ---------- */
+.stage{position:relative;margin:6px 0 4px;padding:26px 8px;display:flex;flex-direction:column;gap:74px}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.row{display:flex;justify-content:center;gap:clamp(92px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
+.node{
+  background:linear-gradient(180deg,var(--card2),var(--card));
+  border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:172px;
+  box-shadow:var(--nodesh);
+  transition:border-color .3s,box-shadow .3s,transform .3s;
+}
+.node .role{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:3px;font-family:var(--mono)}
+:root[dir="rtl"] .node .role{font-family:var(--body);font-size:11px;letter-spacing:0;text-transform:none}
+:root[dir="rtl"] .home span{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .fc-h .tag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .pager a em{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .stepbar .cap span.n{direction:ltr;unicode-bidi:isolate}
+.node .file{font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--ink);white-space:nowrap;display:block}
+.node[data-kind="ts"] .file b{color:var(--ts)}
+.node[data-kind="html"] .file b{color:var(--html)}
+.node[data-kind="svc"] .file b{color:var(--svc)}
+.node[data-kind="cfg"] .file b{color:var(--cfg)}
+.node.active{border-color:color-mix(in srgb,var(--c) 65%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent),0 0 34px -8px var(--c);transform:translateY(-2px)}
+.edge path.wire{fill:none;stroke:var(--wire);stroke-width:1.6}
+.edge path.head{fill:var(--wire);stroke:none}
+.edge.lit path.head{fill:var(--c)}
+.edge path.flow{fill:none;stroke:var(--c);stroke-width:2.2;stroke-dasharray:5 9;opacity:0;stroke-linecap:round}
+.edge.lit path.wire{stroke:color-mix(in srgb,var(--c) 40%,transparent)}
+.edge.lit path.flow{opacity:1;animation:march 1s linear infinite}
+@keyframes march{to{stroke-dashoffset:-28}}
+.edge text{font-family:var(--mono);font-size:10.5px;fill:var(--dim);paint-order:stroke;stroke:var(--bg);stroke-width:5px;stroke-linejoin:round}
+.edge.lit text{fill:var(--c)}
+.packet{opacity:0}
+.packet rect{fill:var(--c)}
+.packet text{font-family:var(--mono);font-size:11px;font-weight:600;fill:var(--onc);stroke:none}
+
+/* ---------- step bar ---------- */
+.stepbar{
+  display:flex;align-items:center;gap:14px;margin:8px 0 22px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk);
+}
+.stepbar .dots{display:flex;gap:6px;flex-shrink:0}
+.stepbar .dot{width:7px;height:7px;border-radius:99px;background:var(--dotbg);cursor:pointer;border:0;padding:0;transition:.2s}
+.stepbar .dot.on{background:var(--c);box-shadow:0 0 10px -1px var(--c);transform:scale(1.25)}
+.stepbar .cap{flex:1;min-width:0;font-size:14px;color:var(--ink);text-wrap:pretty}
+.stepbar .cap span.n{color:var(--dim);font-family:var(--mono);font-size:11px;margin-inline-end:8px}
+.iconbtn{
+  background:var(--sunk2);border:1px solid var(--line);color:var(--mut);
+  border-radius:8px;padding:5px 11px;font-family:var(--mono);font-size:11px;cursor:pointer;white-space:nowrap;
+}
+.iconbtn:hover{color:var(--ink);border-color:color-mix(in srgb,var(--c) 55%,transparent)}
+
+/* ---------- code cards ---------- */
+.sechead{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:28px 0 12px}
+:root[dir="rtl"] .sechead{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.files{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:14px}
+.fc{background:var(--card);border:1px solid var(--line2);border-radius:12px;overflow:hidden;transition:border-color .3s;min-width:0}
+.fc.active{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.fc-h{
+  display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid var(--line2);
+  background:var(--sunk);font-family:var(--mono);font-size:11.5px;color:var(--mut);
+}
+.fc-h .d{width:7px;height:7px;border-radius:99px;flex-shrink:0}
+.fc[data-lang="ts"] .d{background:var(--ts)}
+.fc[data-lang="html"] .d{background:var(--html)}
+.fc[data-lang="json"] .d{background:var(--svc)}
+.fc[data-lang="bash"] .d{background:var(--beg)}
+.fc-h .tag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:var(--mono);font-size:12.2px;line-height:1.72;scrollbar-width:thin}
+.ln{display:block;padding:0 15px;white-space:pre;border-left:2px solid transparent;transition:background .25s,border-color .25s}
+.ln.hl{background:color-mix(in srgb,var(--c) 13%,transparent);border-left-color:var(--c)}
+.t-key{color:var(--t-key)}.t-str{color:var(--t-str)}.t-com{color:var(--t-com);font-style:italic}
+.t-dec{color:var(--t-dec)}.t-tag{color:var(--t-tag)}.t-bind{color:var(--t-bind)}.t-num{color:var(--t-num)}
+.t-fn{color:var(--t-fn)}.t-type{color:var(--t-type)}.t-attr{color:var(--t-attr)}.t-punc{color:var(--t-punc)}
+
+/* ---------- real example ---------- */
+.example{margin-top:26px;padding-top:18px;border-top:1px solid var(--line2)}
+.exhead{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:7px}
+.extag{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);border:1px solid currentColor;border-radius:99px;padding:3px 9px;
+  background:color-mix(in srgb,var(--c) 12%,transparent);white-space:nowrap;
+}
+:root[dir="rtl"] .extag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+.exhead b{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--ink)}
+.exlead{margin:0 0 14px;color:var(--mut);font-size:14px;max-width:82ch;text-wrap:pretty}
+
+/* ---------- gotchas ---------- */
+.gotchas{margin-top:22px;border-top:1px solid var(--line2);padding-top:16px}
+.gotchas h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 10px;font-weight:500}
+:root[dir="rtl"] .gotchas h4{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.gotchas ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:9px 22px}
+.gotchas li{position:relative;padding-inline-start:20px;font-size:13.6px;color:var(--mut);text-wrap:pretty}
+.gotchas li::before{content:"!";position:absolute;inset-inline-start:0;top:0;font-family:var(--mono);font-size:11px;color:var(--c);font-weight:700}
+.gotchas li b{color:var(--ink);font-weight:600}
+
+/* ---------- pager ---------- */
+.pager{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin:34px 0 0;padding:22px 0 46px;border-top:1px solid var(--line2);
+}
+.pager a{
+  display:flex;flex-direction:column;gap:4px;text-decoration:none;padding:14px 16px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--card);transition:.22s;min-width:0;
+}
+.pager a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.pager a em{font-family:var(--mono);font-style:normal;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.pager a b{font-size:14.5px;color:var(--ink);font-weight:600;line-height:1.35;text-wrap:pretty}
+.pager a.nx{text-align:end;align-items:flex-end}
+.pager .void{border:1px dashed var(--line2);border-radius:12px;opacity:.35}
+@media (max-width:600px){.pager{grid-template-columns:1fr}.pager a.nx{text-align:start;align-items:flex-start}}
+
+@media (max-width:900px){
+  .row{gap:16px}
+  .node{min-width:0;flex:1 1 auto}
+  .stage{gap:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+
+/* ================= reference-document layout (TypeScript page) ============ */
+.doc{display:grid;grid-template-columns:212px minmax(0,1fr);gap:clamp(20px,3.4vw,54px);align-items:start}
+@media (max-width:940px){.doc{grid-template-columns:1fr}}
+.doc-rail{position:sticky;top:70px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;scrollbar-width:thin}
+@media (max-width:940px){.doc-rail{position:static;max-height:none;border-bottom:1px solid var(--line2);padding-bottom:14px}}
+.doc-rail b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;font-weight:500}
+:root[dir="rtl"] .doc-rail b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.doc-rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.doc-rail a{
+  display:grid;grid-template-columns:1.6rem 1fr;gap:8px;align-items:baseline;
+  text-decoration:none;color:var(--dim);font-size:13px;line-height:1.35;
+  padding:6px 9px;border-radius:7px;transition:.16s;
+}
+.doc-rail a em{font-family:var(--mono);font-style:normal;font-size:10.5px;opacity:.7}
+.doc-rail a:hover{color:var(--ink);background:var(--hover)}
+.doc-rail a.on{color:var(--onc);background:var(--c)}
+.doc-rail a.on em{opacity:.75}
+
+.sec{padding-block:clamp(26px,3.6vw,44px);border-top:1px solid var(--line2);scroll-margin-top:74px}
+.sec:first-child{border-top:0;padding-top:6px}
+.sec-kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--c);margin-bottom:8px}
+:root[dir="rtl"] .sec-kick{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.sec h2{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.028em;line-height:1.08;
+  font-size:clamp(23px,3vw,33px);margin:0 0 10px;text-wrap:balance;
+}
+:root[dir="rtl"] .sec h2{letter-spacing:0;line-height:1.4}
+.sec h2 code{font-family:var(--mono);font-size:.8em;font-weight:600;color:var(--c);letter-spacing:0}
+.sec > .sec-lead{color:var(--mut);max-width:74ch;margin:0 0 4px;font-size:15px;text-wrap:pretty}
+.sec > .sec-lead b{color:var(--ink);font-weight:600}
+.sec p{max-width:74ch;text-wrap:pretty;color:var(--mut)}
+.sec p b{color:var(--ink);font-weight:600}
+.sec > p{margin:18px 0 0}
+.sec .code{margin-top:18px}
+.sec ul{margin:16px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;max-width:74ch}
+.sec ul li{padding-inline-start:20px;position:relative;color:var(--mut);text-wrap:pretty}
+.sec ul li::before{content:"";position:absolute;inset-inline-start:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--c);opacity:.6}
+
+.code{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--card);min-width:0}
+.code .fc-h{background:var(--sunk)}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;margin-top:18px}
+.code.bad{border-color:color-mix(in srgb,var(--adv) 42%,transparent)}
+.code.bad .fc-h{background:color-mix(in srgb,var(--adv) 10%,transparent)}
+.code.bad .fc-h .d{background:var(--adv)}
+.code.good{border-color:color-mix(in srgb,var(--beg) 42%,transparent)}
+.code.good .fc-h{background:color-mix(in srgb,var(--beg) 10%,transparent)}
+.code.good .fc-h .d{background:var(--beg)}
+.code .flag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.code.bad .flag{color:var(--adv)}
+.code.good .flag{color:var(--beg)}
+:root[dir="rtl"] .code .flag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+
+.note{
+  margin-top:20px;max-width:76ch;background:color-mix(in srgb,var(--c) 8%,transparent);
+  border-inline-start:3px solid var(--c);border-radius:0 9px 9px 0;padding:13px 16px;
+}
+:root[dir="rtl"] .note{border-radius:9px 0 0 9px}
+.note b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .note b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.note p{margin:0;font-size:14.2px;color:var(--mut)}
+
+.dtbl-wrap{overflow-x:auto;border:1px solid var(--line2);border-radius:12px;margin-top:18px;background:var(--card)}
+.dtbl{width:100%;border-collapse:collapse;font-size:13.6px;min-width:640px}
+.dtbl th{
+  text-align:start;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);font-weight:500;padding:10px 14px;border-bottom:1px solid var(--line);
+  background:var(--sunk);white-space:nowrap;
+}
+:root[dir="rtl"] .dtbl th{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px;font-weight:600}
+.dtbl td{padding:11px 14px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--mut);line-height:1.55}
+.dtbl tr:last-child td{border-bottom:0}
+.dtbl td:first-child{color:var(--ink);font-family:var(--mono);font-size:12px}
+
+/* ========================= roadmap page ========================= */
+.verdict{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin:26px 0 8px}
+.verdict div{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.verdict b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:8px;font-weight:600}
+:root[dir="rtl"] .verdict b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.verdict p{margin:0;color:var(--mut);font-size:14.2px;line-height:1.6;text-wrap:pretty}
+
+.phase{position:relative;padding:0 0 0 clamp(22px,3vw,42px);margin-top:clamp(24px,3.4vw,38px)}
+:root[dir="rtl"] .phase{padding:0 clamp(22px,3vw,42px) 0 0}
+.phase::before{content:"";position:absolute;inset-inline-start:0;top:6px;bottom:0;width:2px;background:linear-gradient(180deg,var(--c),transparent)}
+.phase-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.phase-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 8px;font-weight:600;direction:ltr}
+.phase-h h3{margin:0;font-family:var(--disp);font-weight:800;font-size:clamp(20px,2.6vw,27px);letter-spacing:-.02em;color:var(--ink)}
+:root[dir="rtl"] .phase-h h3{letter-spacing:0;line-height:1.4}
+.phase-when{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em;direction:ltr;unicode-bidi:isolate}
+.phase-goal{margin:0 0 14px;color:var(--mut);max-width:72ch;font-size:14.6px;text-wrap:pretty}
+.phase-list{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:14px}
+.phase-list a{
+  display:grid;grid-template-columns:1.8rem 1fr;gap:9px;align-items:baseline;text-decoration:none;
+  padding:8px 11px;border-radius:8px;border:1px solid var(--line2);background:var(--card);transition:.18s;min-width:0;
+}
+.phase-list a em{font-family:var(--mono);font-style:normal;font-size:10.5px;color:var(--dim)}
+.phase-list a span{font-size:13.6px;color:var(--ink);line-height:1.35;text-wrap:pretty}
+.phase-list a span code{font-family:var(--mono);font-size:.86em;color:var(--c)}
+.phase-list a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.phase-build{
+  border-inline-start:3px solid var(--c);background:color-mix(in srgb,var(--c) 7%,transparent);
+  border-radius:0 9px 9px 0;padding:12px 15px;max-width:72ch;
+}
+:root[dir="rtl"] .phase-build{border-radius:9px 0 0 9px}
+.phase-build b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .phase-build b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.phase-build p{margin:0;color:var(--mut);font-size:14px;line-height:1.6;text-wrap:pretty}
+
+.gap{margin-top:16px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.gap section{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.gap h4{margin:0 0 10px;font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.3;text-wrap:pretty}
+.gap ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.gap li{padding-inline-start:19px;position:relative;font-size:13.4px;color:var(--mut);line-height:1.5;text-wrap:pretty}
+.gap li::before{content:"○";position:absolute;inset-inline-start:0;top:0;font-size:10px;color:var(--c);opacity:.7}
+.gap li code{font-family:var(--mono);font-size:.88em;background:var(--chip);padding:1px 4px;border-radius:3px;color:var(--chipink)}
+
+.advice{margin-top:16px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.advice div{border-top:2px solid var(--c);padding-top:12px;min-width:0}
+.advice b{display:block;font-family:var(--disp);font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px;letter-spacing:-.015em}
+:root[dir="rtl"] .advice b{letter-spacing:0}
+.advice p{margin:0;color:var(--mut);font-size:13.8px;line-height:1.6;text-wrap:pretty}
+
+/* ---------- theme switch (icon segment) ---------- */
+.seg.ico button{padding:5px 10px;display:grid;place-items:center}
+.seg.ico svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block}
+@media (max-width:820px){.seg.ico{order:2}}
+
+/* ================= beginner scaffolding on every topic ================= */
+/* three plain-language cards that sit above the technical diagram */
+.plain{display:grid;gap:12px;grid-template-columns:1.4fr 1fr 1fr;margin:2px 0 26px}
+@media (max-width:900px){.plain{grid-template-columns:1fr}}
+.pc{
+  border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);
+  min-width:0;display:flex;flex-direction:column;gap:9px;
+}
+.pc.say{background:color-mix(in srgb,var(--c) 7%,var(--card));border-color:color-mix(in srgb,var(--c) 26%,transparent)}
+.pc .ph{display:flex;align-items:center;gap:8px}
+.pc .ph svg{width:16px;height:16px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pc .ph b{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);font-weight:600}
+:root[dir="rtl"] .pc .ph b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.pc p{margin:0;font-size:14.2px;color:var(--mut);line-height:1.62;text-wrap:pretty}
+.pc p b{color:var(--ink);font-weight:600}
+.pc p code{font-family:var(--mono);font-size:.87em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+.pc.say p{font-size:16px;color:var(--ink)}
+
+/* the idea, as a strip of pictures */
+.strip{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(188px,1fr));margin:2px 0 4px}
+.sp{position:relative;border:1px solid var(--line2);border-radius:14px;padding:15px 16px 14px;background:var(--card);min-width:0}
+.sp .plate{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:11px;
+  background:color-mix(in srgb,var(--c) 13%,transparent);border:1px solid color-mix(in srgb,var(--c) 20%,transparent);
+}
+.sp .plate svg{width:21px;height:21px;stroke:var(--c);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sp b{display:block;font-size:14.5px;color:var(--ink);font-weight:600;margin-bottom:4px;line-height:1.32;text-wrap:pretty}
+.sp p{margin:0;font-size:13.3px;color:var(--mut);line-height:1.55;text-wrap:pretty}
+.sp p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+.sp::after{
+  content:"";position:absolute;top:30px;right:-15px;width:11px;height:11px;
+  border-top:1.6px solid var(--line);border-right:1.6px solid var(--line);
+  transform:rotate(45deg);z-index:2;
+}
+:root[dir="rtl"] .sp::after{right:auto;left:-15px;transform:rotate(-135deg)}
+.sp:last-child::after{display:none}
+@media (max-width:760px){.sp::after{display:none}}
+
+/* the single sentence worth memorising */
+.oneline{
+  margin-top:26px;display:flex;gap:14px;align-items:flex-start;border-radius:14px;padding:16px 19px;
+  border:1px solid color-mix(in srgb,var(--c) 30%,transparent);
+  background:color-mix(in srgb,var(--c) 8%,transparent);
+}
+.oneline > svg{width:22px;height:22px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin-top:3px}
+.oneline b.lbl{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .oneline b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.oneline p{margin:0;font-size:15px;color:var(--ink);line-height:1.62;text-wrap:pretty;max-width:78ch}
+.oneline p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+/* ============================================================
+   Check yourself — the quiz block, same shape on every topic page
+   ============================================================ */
+.edge text.plain{font-size:9.5px;fill:var(--mut);letter-spacing:.01em;opacity:.85}
+.edge.lit text.plain{opacity:1}
+/* Arabic is cursive: the mono face and any letter-spacing break the joins,
+   so the wire words switch to the Arabic text face in RTL */
+:root[dir="rtl"] .edge text.plain{font-family:var(--body);letter-spacing:0;font-size:10.5px}
+
+.quiz{display:grid;gap:13px;margin-top:4px}
+.qbar{
+  display:flex;align-items:center;gap:13px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--sunk);
+}
+.qbar .qtxt{font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap}
+.qbar .qtxt b{color:var(--ink);font-weight:600}
+.qbar .qtxt em{font-style:normal;color:var(--ok);font-weight:600}
+.qmeter{flex:1;min-width:50px;height:4px;border-radius:99px;background:var(--dotbg);overflow:hidden}
+.qmeter i{display:block;height:100%;width:0;background:var(--c);transition:width .35s cubic-bezier(.2,.7,.3,1)}
+
+.qcard{border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);transition:border-color .3s}
+.qcard.right{border-color:color-mix(in srgb,var(--ok) 48%,transparent)}
+.qcard.wrong{border-color:color-mix(in srgb,var(--no) 48%,transparent)}
+.qhead{display:flex;gap:12px;align-items:baseline;margin-bottom:12px}
+.qnum{font-family:var(--mono);font-size:11px;color:var(--c);flex:none}
+.qask{font-size:14.8px;line-height:1.5;color:var(--ink);font-weight:600;text-wrap:pretty}
+.qask code{font-family:var(--mono);font-size:.87em;color:var(--c);font-weight:500}
+.qcode{border:1px solid var(--line2);border-radius:11px;overflow:hidden;margin-bottom:12px;background:var(--code)}
+.qcode .qcf{padding:7px 13px;border-bottom:1px solid var(--line2);background:var(--sunk);
+            font-family:var(--mono);font-size:11px;color:var(--dim)}
+.qcode pre{font-size:12px;padding:10px 0;margin:0;overflow-x:auto}
+
+.opts{display:grid;gap:8px}
+.opt{
+  display:flex;gap:11px;align-items:flex-start;width:100%;text-align:start;cursor:pointer;
+  background:var(--sunk);border:1px solid var(--line2);border-radius:10px;padding:10px 13px;
+  color:var(--mut);font-family:var(--body);font-size:13.8px;line-height:1.5;transition:.18s;
+}
+.opt .k{font-family:var(--mono);font-size:11px;color:var(--dim);border:1px solid var(--line);
+        border-radius:6px;padding:0 6px;flex:none;line-height:1.6}
+.opt .ot{flex:1;min-width:0;text-wrap:pretty}
+.opt .ot code{font-family:var(--mono);font-size:.87em}
+.opt .mark{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;flex:none;line-height:2}
+.opt:hover{color:var(--ink);background:var(--hover);border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.qcard.done .opt,.qcard.done .opt:hover{cursor:default;background:var(--sunk);border-color:var(--line2);color:var(--mut)}
+.qcard.done .opt.ok{color:var(--ink);border-color:color-mix(in srgb,var(--ok) 55%,transparent);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.qcard.done .opt.ok .k{color:var(--ok);border-color:currentColor}
+.qcard.done .opt.ok .mark{color:var(--ok)}
+.qcard.done .opt.no{color:var(--ink);border-color:color-mix(in srgb,var(--no) 55%,transparent);background:color-mix(in srgb,var(--no) 9%,transparent)}
+.qcard.done .opt.no .k{color:var(--no);border-color:currentColor}
+.qcard.done .opt.no .mark{color:var(--no)}
+
+.why{
+  display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:12px 15px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk2);
+}
+.why[hidden]{display:none}
+.why .wt{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);flex:none;padding-top:3px}
+.why p{margin:0;flex:1;min-width:0;font-size:13.6px;line-height:1.68;color:var(--mut);text-wrap:pretty}
+.why p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+.qend{border:1px solid var(--line2);border-radius:14px;padding:19px;text-align:center;background:var(--card2)}
+.qend .sc{display:block;font-family:var(--disp);font-weight:800;font-size:29px;letter-spacing:-.03em;color:var(--ink)}
+.qend p{margin:6px 0 13px;color:var(--mut);font-size:13.6px}
+
+:root[dir="rtl"] .qnum,:root[dir="rtl"] .qbar .qtxt{font-family:var(--body);letter-spacing:0}
+:root[dir="rtl"] .opt .mark,:root[dir="rtl"] .why .wt{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .qask,:root[dir="rtl"] .opt,:root[dir="rtl"] .why p{line-height:1.8}
+@media (max-width:900px){
+  .qbar{flex-wrap:wrap;gap:10px}
+  .qmeter{order:3;flex-basis:100%}
+  .qcard{padding:14px 15px}
+}
+
+/* ================= build-project tutorials (step-by-step) ============ */
+.pstep{margin-top:26px;border-top:1px solid var(--line2);padding-top:18px}
+.sec .pstep:first-child{margin-top:12px}
+.pstep-h{display:flex;align-items:center;gap:11px;margin-bottom:2px}
+.pstep-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 9px;font-weight:600;direction:ltr;flex:none}
+.pstep-h b{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:-.015em;color:var(--ink);line-height:1.3;text-wrap:pretty}
+:root[dir="rtl"] .pstep-h b{letter-spacing:0}
+.pstep > p{margin:13px 0 0}
+
+.chk{
+  margin-top:16px;max-width:76ch;background:color-mix(in srgb,var(--beg) 9%,transparent);
+  border-inline-start:3px solid var(--beg);border-radius:0 9px 9px 0;padding:12px 16px;
+}
+:root[dir="rtl"] .chk{border-radius:9px 0 0 9px}
+.chk b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--beg);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .chk b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.chk p{margin:0;font-size:14.2px;color:var(--mut)}
+.chk p code{font-family:var(--mono);font-size:.87em}
+
+.build-link{
+  display:inline-flex;align-items:center;gap:7px;margin-top:12px;text-decoration:none;
+  font-size:13.6px;font-weight:600;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);
+  border-radius:9px;padding:7px 13px;background:var(--card);transition:.18s;
+}
+.build-link:hover{background:color-mix(in srgb,var(--c) 12%,transparent)}
+
+/* the roadmap's build-projects index */
+.blds{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:16px}
+.blds-track{border:1px solid var(--line2);border-top:2px solid var(--c);border-radius:12px;padding:15px 18px;background:var(--card);min-width:0;display:flex;flex-direction:column;gap:11px}
+.blds-track > b{font-family:var(--disp);font-weight:700;font-size:16.5px;letter-spacing:-.015em;color:var(--ink)}
+:root[dir="rtl"] .blds-track > b{letter-spacing:0}
+.blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
+.blds-item .build-link{margin-top:0}
+</style>
+<script>
+(function(){var r=document.documentElement;try{
+if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
+r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
+}catch(e){r.dataset.theme='light';}})();
+</script>
+</head>
+<body>
+<header class="top"><div class="top-in">
+    <a class="home" href="index.html"><b>The Angular Signal</b><span class="l-en">contents</span><span class="l-ar">المحتويات</span></a>
+    <nav class="tracknav"><a href="roadmap.html" style="--c:var(--beg)"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="beginner/index.html" style="--c:var(--beg)"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="intermediate/index.html" style="--c:var(--int)"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="advanced/index.html" style="--c:var(--adv)" aria-current="page"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="javascript-for-angular.html" style="--c:var(--js)"><i></i><span class="l-en">JavaScript</span><span class="l-ar">JavaScript</span></a><a href="typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
+    <div class="top-right">
+      <div class="seg" role="group" aria-label="Language">
+        <button id="b-en" aria-pressed="true">EN</button>
+        <button id="b-ar" aria-pressed="false" lang="ar">مصري</button>
+      </div>
+      <div class="seg ico" role="group" aria-label="Theme">
+        <button id="b-lt" aria-pressed="true" title="Light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.2v2.3M12 19.5v2.3M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.2 12h2.3M19.5 12h2.3M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button>
+        <button id="b-dk" aria-pressed="false" title="Dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.7 6.7 0 0 0 11.1 11.1z"/></svg></button>
+      </div>
+    </div>
+  </div></header>
+<main class="page" id="page">
+  <div class="eyebrow">
+    <span class="num seq">28</span>
+    <span class="badge"><span class="l-en">Build project</span><span class="l-ar" dir="auto">مشروع عملي</span></span>
+    <span class="num"><span class="l-en">The advanced track</span><span class="l-ar" dir="auto">مستوى متقدم</span></span>
+  </div>
+  <h1 class="title"><span class="l-en">Make the store measurably faster</span><span class="l-ar" dir="auto">خلي المتجر أسرع بشكل مقيس</span></h1>
+  <p class="lead"><span class="l-en">The phase-03 project: the store you built in phase 02 goes through a <b>production pass</b>. Measure first, change one thing, measure again — and write every number down. That last part is what makes this a senior exercise instead of a box-ticking one, and it is what you will talk about in interviews.</span><span class="l-ar" dir="auto">مشروع المرحلة 03: المتجر اللي بنيته في المرحلة 02 بيعدي على <b>بَسّة إنتاجية</b>. قِس الأول، وغيّر حاجة واحدة، وقِس تاني — واكتب كل رقم. الجزء الأخير ده هو اللي بيفرّق التمرين ده عن تعبئة استمارة، وهو اللي هتحكي عنه في الإنترفيوهات.</span></p>
+
+  <div class="doc">
+    <nav class="doc-rail">
+      <b><span class="l-en">On this page</span><span class="l-ar">في الصفحة دي</span></b>
+      <ol><li><a href="#prod" data-rail="prod"><em>01</em><span><span class="l-en">The rule: numbers or it did not happen</span><span class="l-ar" dir="auto">القاعدة: من غير أرقام، مفيش حاجة حصلت</span></span></a></li><li><a href="#p1" data-rail="p1"><em>02</em><span><span class="l-en">Record the baseline</span><span class="l-ar" dir="auto">سجّل الخط الأساسي</span></span></a></li><li><a href="#p2" data-rail="p2"><em>03</em><span><span class="l-en">OnPush everywhere</span><span class="l-ar" dir="auto">OnPush في كل حتة</span></span></a></li><li><a href="#p3" data-rail="p3"><em>04</em><span><span class="l-en">Go zoneless</span><span class="l-ar" dir="auto">دخل عالم zoneless</span></span></a></li><li><a href="#p4" data-rail="p4"><em>05</em><span><span class="l-en">@defer the heavy parts</span><span class="l-ar" dir="auto">@defer للحاجات التقيلة</span></span></a></li><li><a href="#p5" data-rail="p5"><em>06</em><span><span class="l-en">Budgets: make regressions impossible</span><span class="l-ar" dir="auto">Budgets: امنع الرجوع للور</span></span></a></li><li><a href="#p6" data-rail="p6"><em>07</em><span><span class="l-en">Unit tests for the cart service</span><span class="l-ar" dir="auto">تستات وحدية لخدمة الكارت</span></span></a></li><li><a href="#p7" data-rail="p7"><em>08</em><span><span class="l-en">A Playwright smoke test</span><span class="l-ar" dir="auto">تست دخان بـ Playwright</span></span></a></li><li><a href="#p8" data-rail="p8"><em>09</em><span><span class="l-en">Deploy, then let CI protect it</span><span class="l-ar" dir="auto">انشر، وبعدين خلي الـ CI يحميه</span></span></a></li></ol>
+    </nav>
+    <div>
+      <section class="sec" id="prod">
+        <div class="sec-kick"><span class="l-en">Start here</span><span class="l-ar" dir="auto">ابدأ من هنا</span></div>
+        <h2><span class="l-en">The rule: numbers or it did not happen</span><span class="l-ar" dir="auto">القاعدة: من غير أرقام، مفيش حاجة حصلت</span></h2>
+        <p class="sec-lead"><span class="l-en">Eight steps. You need the phase-02 store, its repo, and a text file called <code>PERF.md</code>. Every step ends with a number in that file. Fast is not a feeling.</span><span class="l-ar" dir="auto">تمنية خطوات. محتاج متجر المرحلة 02 والـ repo بتاعه وملف اسمه <code>PERF.md</code>. كل خطوة بتقفل برقم مكتوب في الملف ده. السرعة مش إحساس.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">Step</span><span class="l-ar" dir="auto">الخطوة</span></th><th><span class="l-en">Change</span><span class="l-ar" dir="auto">التغيير</span></th><th><span class="l-en">What you measure</span><span class="l-ar" dir="auto">اللي بتقيسه</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en">01</span><span class="l-ar" dir="auto">01</span></td><td><span class="l-en">nothing — the baseline</span><span class="l-ar" dir="auto">ولا حاجة — الخط الأساسي</span></td><td><span class="l-en">Lighthouse, bundle size, runtime profile</span><span class="l-ar" dir="auto">Lighthouse وحجم الباندل وprofile التشغيل</span></td></tr><tr><td><span class="l-en">02–03</span><span class="l-ar" dir="auto">02–03</span></td><td><span class="l-en">OnPush, then zoneless</span><span class="l-ar" dir="auto">OnPush وبعدين zoneless</span></td><td><span class="l-en">change-detection time, CPU on idle</span><span class="l-ar" dir="auto">وقت الـ change detection والـ CPU وهو واقف</span></td></tr><tr><td><span class="l-en">04–05</span><span class="l-ar" dir="auto">04–05</span></td><td><span class="l-en">@defer, then budgets</span><span class="l-ar" dir="auto">@defer وبعدين budgets</span></td><td><span class="l-en">initial bundle, first paint</span><span class="l-ar" dir="auto">الباندل الأولي وأول رسمة</span></td></tr><tr><td><span class="l-en">06–07</span><span class="l-ar" dir="auto">06–07</span></td><td><span class="l-en">tests, then deploy</span><span class="l-ar" dir="auto">تستات وبعدين نشر</span></td><td><span class="l-en">test pass, live URL</span><span class="l-ar" dir="auto">نجاح التستات ولينك شغال</span></td></tr><tr><td><span class="l-en">08</span><span class="l-ar" dir="auto">08</span></td><td><span class="l-en">CI</span><span class="l-ar" dir="auto">CI</span></td><td><span class="l-en">green check on every push</span><span class="l-ar" dir="auto">علامة خضرا على كل push</span></td></tr></tbody>
+    </table></div>
+      </section>
+      <section class="sec" id="p1">
+        <div class="sec-kick"><span class="l-en">Step 01</span><span class="l-ar" dir="auto">الخطوة 01</span></div>
+        <h2><span class="l-en">Record the baseline</span><span class="l-ar" dir="auto">سجّل الخط الأساسي</span></h2>
+        <p class="sec-lead"><span class="l-en">Before touching anything, capture three numbers. Optimising without a baseline is how people make apps <em>slower</em> while feeling productive.</span><span class="l-ar" dir="auto">قبل ما تلمس أي حاجة، ثبّت تلات أرقام. التحسين من غير خط أساسي هو الطريقة اللي الناس بتبطّل بيها التطبيقات <em>وكمان</em> حاسة إنها بتشتغل.</span></p>
+        
+      <div class="code" data-lang="bash">
+        <div class="fc-h"><span class="d"></span>terminal<span class="tag"><span class="l-en">the size number</span><span class="l-ar" dir="auto">رقم الحجم</span></span></div>
+        <pre><span class="ln">ng build</span><span class="ln"># read the summary: Initial total, Lazy chunks</span></pre>
+      </div>
+      <div class="code" data-lang="bash">
+        <div class="fc-h"><span class="d"></span>PERF.md<span class="tag"><span class="l-en">the log begins</span><span class="l-ar" dir="auto">بداية السجل</span></span></div>
+        <pre><span class="ln"># Store — production pass log</span><span class="ln"> </span><span class="ln">## Baseline (before any change)</span><span class="ln">- Lighthouse mobile (prod build, served):  __</span><span class="ln">  - FCP __  LCP __  TBT __</span><span class="ln">- ng build initial bundle: __ KB</span><span class="ln">- DevTools profile, idle after load: __ ms change-detection / 10 s</span><span class="ln">- Playwright smoke: none yet</span></pre>
+      </div><ul><li><span class="l-en">Lighthouse must run against the <b>production build served locally</b> (<code>ng build</code> then serve <code>dist/store/browser</code>), never against <code>ng serve</code> — dev builds are unoptimised and lie.</span><span class="l-ar" dir="auto">الـ Lighthouse لازم يشتغل على <b>بيلد الإنتاج والمُقدَّم محلياً</b> (<code>ng build</code> وبعدين قدّم <code>dist/store/browser</code>)، عمره ما على <code>ng serve</code> — بيلدات التطوير مش محسّنة وبتكدب.</span></li><li><span class="l-en">For the runtime number: Angular DevTools → Profiler → record 10 seconds of the app idling. Under zone.js the number is usually <em>not</em> zero — that is your step 03 payoff.</span><span class="l-ar" dir="auto">لرقم التشغيل: Angular DevTools ← Profiler ← سجّل 10 ثواني والتطبيق واقف مبيعملش حاجة. تحت zone.js الرقم غالباً <em>مش</em> صفر — ودي الفايدة اللي هتظهر في الخطوة 03.</span></li></ul><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><code>PERF.md</code> has five real numbers in it, and the repo is committed in this state — the diff at the end will be your evidence.</span><span class="l-ar" dir="auto"><code>PERF.md</code> فيه خمس أرقام حقيقية، والـ repo متسجل بالحالة دي — والـ diff في الآخر هيبقى دليلك.</span></p></div>
+      </section>
+      <section class="sec" id="p2">
+        <div class="sec-kick"><span class="l-en">Step 02</span><span class="l-ar" dir="auto">الخطوة 02</span></div>
+        <h2><span class="l-en">OnPush everywhere</span><span class="l-ar" dir="auto">OnPush في كل حتة</span></h2>
+        <p class="sec-lead"><span class="l-en">One line per component, and it is safe <b>because</b> you built on signals from the start — inputs are signals, state is signals, so every component already knows when its inputs change.</span><span class="l-ar" dir="auto">سطر واحد لكل component، وهو آمن <b>لأنك</b> بنيته على signals من الأول — الـ inputs هي signals والحالة هي signals، فكل component عارفة أصلاً إمتى inputs بتاعتها بتتغير.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>one line per component<span class="tag"><span class="l-en">repeat 5×</span><span class="l-ar" dir="auto">كررها 5 مرات</span></span></div>
+        <pre><span class="ln"><i class="t-dec">@Component</i>({</span><span class="ln">  selector: <i class="t-str">'product-list'</i>,</span><span class="ln">  changeDetection: <i class="t-type">ChangeDetectionStrategy</i>.<i class="t-type">OnPush</i>,</span><span class="ln">  <i class="t-com">// …</i></span><span class="ln">})</span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">Why this never breaks your app</span><span class="l-ar" dir="auto">ليه دي عمرك ما هتبوّظ تطبيقك</span></b><p><span class="l-en">The classic OnPush bugs come from mutating fields the template reads — <code>push()</code>, <code>splice()</code>, property writes. Your store replaced the reference on every update, exactly as the beginner project drilled. If something <em>does</em> stop updating after this step, that is not an OnPush bug to work around; it is a mutation bug you just discovered. Fix the mutation, not the symptom.</span><span class="l-ar" dir="auto">باجات الـ OnPush الكلاسيكية بتيجي من تعديل حقول التمبلت بيقراها — <code>push()</code> و<code>splice()</code> وتعديل خصائص. المخزن بتاعك كان ببدّل الـ reference مع كل تحديث، بالظبط زي ما مشروع المبتدئ درّبك. لو حاجة <em>بقت</em> مش بتتحدث بعد الخطوة دي، دي مش باج OnPush تعالجه — دي باج mutation لسه بتكتشفها. صلّح الـ mutation، مش العرَض.</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">Everything still works, and the DevTools Profiler now shows <b>far fewer</b> components checked per interaction. Number into <code>PERF.md</code>.</span><span class="l-ar" dir="auto">كل حاجة شغالة، والـ Profiler في DevTools دلوقتي بيعرض <b>أقل بكتير</b> من الـ components بتتفحص في كل تفاعل. الرقم في <code>PERF.md</code>.</span></p></div>
+      </section>
+      <section class="sec" id="p3">
+        <div class="sec-kick"><span class="l-en">Step 03</span><span class="l-ar" dir="auto">الخطوة 03</span></div>
+        <h2><span class="l-en">Go zoneless</span><span class="l-ar" dir="auto">دخل عالم zoneless</span></h2>
+        <p class="sec-lead"><span class="l-en">Delete the thing that guessed for you. Zoneless is stable in Angular v20+, and your signal-based app is already the shape it requires.</span><span class="l-ar" dir="auto">شيل الحاجة اللي كانت بتخمّن بدالك. الـ zoneless مستقر في أنجولار v20+، وتطبيقك المعتمد على signals أصلاً هو الشكل اللي بطلبه.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/app.config.ts<span class="tag"><span class="l-en">swap the provider</span><span class="l-ar" dir="auto">بدّل الـ provider</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { provideZonelessChangeDetection } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-key">export</i> <i class="t-key">const</i> appConfig: <i class="t-type">ApplicationConfig</i> = {</span><span class="ln">  providers: [</span><span class="ln">    <i class="t-fn">provideZonelessChangeDetection</i>(),</span><span class="ln">    <i class="t-fn">provideRouter</i>(routes, <i class="t-fn">withComponentInputBinding</i>()),</span><span class="ln">    <i class="t-fn">provideHttpClient</i>(<i class="t-fn">withInterceptors</i>([apiInterceptor])),</span><span class="ln">  ],</span><span class="ln">};</span></pre>
+      </div>
+      <div class="code" data-lang="json">
+        <div class="fc-h"><span class="d"></span>angular.json (polyfills)<span class="tag"><span class="l-en">remove zone.js</span><span class="l-ar" dir="auto">شيل zone.js</span></span></div>
+        <pre><span class="ln">"polyfills": [</span><span class="ln">  // "zone.js"   ← delete this line</span><span class="ln">]</span></pre>
+      </div><div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>the pattern that breaks zoneless<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><i class="t-com">// a callback from outside Angular:</i></span><span class="ln">chartLib.<i class="t-fn">onUpdate</i>(v =&gt; {</span><span class="ln">  <i class="t-key">this</i>.price = v;        <i class="t-com">// plain field — nobody notices</i></span><span class="ln">});</span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>the pattern that cannot break<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln">chartLib.<i class="t-fn">onUpdate</i>(v =&gt; {</span><span class="ln">  <i class="t-key">this</i>.price.<i class="t-key">set</i>(v);     <i class="t-com">// signal — update is scheduled</i></span><span class="ln">});</span></pre>
+      </div>
+    </div><div class="note"><b class="lbl"><span class="l-en">Measure, then compare</span><span class="l-ar" dir="auto">قِس، وبعدين قارن</span></b><p><span class="l-en">Re-run the idle profile. Under zone.js, every macrotask — timers, XHR, third-party callbacks — triggered a full tree walk. Zoneless with signals does targeted updates, and the idle number should drop to roughly zero. The app <em>works identically</em>; the machinery underneath got honest.</span><span class="l-ar" dir="auto">أعد قياس الـ profile وهو واقف. تحت zone.js، كل macrotask — تايمرات وXHR وcallbacks من مكتبات — كان بيخلي لفة كاملة على الشجرة. الـ zoneless مع الـ signals بيعمل تحديثات موجهة، والرقم الموقوف المفروض ينزل لحوالي الصفر. التطبيق <em>شغال بنفس الشكل</em>؛ والماكينة اللي تحته بقت بتقول الحقيقة.</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">Full manual pass — list, categories, detail, cart, checkout, the fake order — behaves exactly as before. Idle change-detection time into <code>PERF.md</code>, next to the baseline.</span><span class="l-ar" dir="auto">لفة يدوية كاملة — ليستة وفئات وتفاصيل وكارت ودفع والأوردر المزوّر — شغالة بنفس الشكل بالظبط. وقت الـ change detection وهو واقف في <code>PERF.md</code>، جانب الخط الأساسي.</span></p></div>
+      </section>
+      <section class="sec" id="p4">
+        <div class="sec-kick"><span class="l-en">Step 04</span><span class="l-ar" dir="auto">الخطوة 04</span></div>
+        <h2><span class="l-en">@defer the heavy parts</span><span class="l-ar" dir="auto">@defer للحاجات التقيلة</span></h2>
+        <p class="sec-lead"><span class="l-en">The product list does not need every card's weight in the first paint. <code>@defer</code> ships the below-the-fold parts when they approach the viewport — declaratively, no IntersectionObserver code.</span><span class="l-ar" dir="auto">ليستة المنتجات مش محتاجة وزن كل الكروت في أول رسمة. الـ <code>@defer</code> بيشحن الأجزاء اللي تحت لما تقرب من الشاشة — تعريفي، ومن غير كود IntersectionObserver.</span></p>
+        
+      <div class="code" data-lang="html">
+        <div class="fc-h"><span class="d"></span>product-list.html (extracted)<span class="tag"><span class="l-en">defer on scroll</span><span class="l-ar" dir="auto">defer مع السكرول</span></span></div>
+        <pre><span class="ln"><i class="t-key">@defer</i> (on viewport) {</span><span class="ln">  <i class="t-tag">&lt;ul</i> <i class="t-attr">class</i>=<i class="t-str">"grid"</i><i class="t-tag">&gt;</i></span><span class="ln">    <i class="t-key">@for</i> (p of load().data; track p.id) {</span><span class="ln">      <i class="t-tag">&lt;li</i><i class="t-tag">&gt;</i>…<i class="t-tag">&lt;/li</i><i class="t-tag">&gt;</i></span><span class="ln">    }</span><span class="ln">  <i class="t-tag">&lt;/ul</i><i class="t-tag">&gt;</i></span><span class="ln">} <i class="t-key">@placeholder</i> (minimum 200px) {</span><span class="ln">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i>Product list is loading…<i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln">}</span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">Best practice — a real placeholder, always</span><span class="l-ar" dir="auto">عادة صح — placeholder حقيقي، دايماً</span></b><p><span class="l-en"><code>@placeholder</code> is not decoration: it reserves layout space so the deferred chunk loading does not shift the page (CLS), and it is what users on slow networks actually see. Give it real height.</span><span class="l-ar" dir="auto"><code>@placeholder</code> مش زينة: بيحجز مساحة في التخطيط عشان تحميل الـ chunk ما يزحلقش الصفحة (CLS)، وهو اللي المستخدم على شبكات بطيئة بيشوفه فعلاً. اديله ارتفاع حقيقي.</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">Network tab, throttled to Slow 4G: the main chunk loads first, and a separate <code>chunk-*.js</code> arrives only as the list scrolls into view. Lighthouse FCP/TBT into <code>PERF.md</code>.</span><span class="l-ar" dir="auto">تاب Network، مضبوط على Slow 4G: الـ chunk الرئيسي بينزل الأول، و<code>chunk-*.js</code> منفصل بينزل بس لما الليستة تدخل الشاشة. أرقام FCP وTBT من Lighthouse في <code>PERF.md</code>.</span></p></div>
+      </section>
+      <section class="sec" id="p5">
+        <div class="sec-kick"><span class="l-en">Step 05</span><span class="l-ar" dir="auto">الخطوة 05</span></div>
+        <h2><span class="l-en">Budgets: make regressions impossible</span><span class="l-ar" dir="auto">Budgets: امنع الرجوع للور</span></h2>
+        <p class="sec-lead"><span class="l-en">You have good numbers now. Budgets are how you <b>keep</b> them: the build itself fails when a bundle grows past the line you set.</span><span class="l-ar" dir="auto">عندك أرقام كويسة دلوقتي. الـ budgets هي الطريقة اللي <b>هتحافظ</b> بيها عليهم: البيلد نفسه بيفشل لما الباندل يكبر عن الخط اللي حددته.</span></p>
+        
+      <div class="code" data-lang="json">
+        <div class="fc-h"><span class="d"></span>angular.json<span class="tag"><span class="l-en">your lines in the sand</span><span class="l-ar" dir="auto">خطوطك اللي محددها</span></span></div>
+        <pre><span class="ln">"budgets": [</span><span class="ln">  {</span><span class="ln">    "type": "initial",</span><span class="ln">    "maximumWarning": "450kB",</span><span class="ln">    "maximumError": "550kB"</span><span class="ln">  },</span><span class="ln">  {</span><span class="ln">    "type": "anyComponentStyle",</span><span class="ln">    "maximumWarning": "4kB",</span><span class="ln">    "maximumError": "8kB"</span><span class="ln">  }</span><span class="ln">]</span></pre>
+      </div><ul><li><span class="l-en">Set the warning about 10% above today's number, and the error another 10% up — tight enough to catch slop, loose enough not to nag every week.</span><span class="l-ar" dir="auto">حدد التحذير حوالي 10% فوق رقم النهاردة، والخطأ 10% كمان — قريب كفاية إنه يمسك أي تضخيم، ومتسع كفاية إنه مايزنّقش كل أسبوع.</span></li><li><span class="l-en">Prove it works: temporarily drop <code>maximumError</code> below your current size and watch <code>ng build</code> fail. Then restore. You now have a build that refuses to get fat.</span><span class="l-ar" dir="auto">اثبت إنه شغال: نزّل <code>maximumError</code> مؤقتاً تحت حجمك الحالي وشوف <code>ng build</code> بيفشل. وبعدين رجّعه. دلوقتي عندك بيلد بيرفض يتسمّن.</span></li><li><span class="l-en">This is the deployment gap in the roadmap's "not covered" list, met head-on — budget enforcement is a CI concern too, and step 08 wires it there.</span><span class="l-ar" dir="auto">دي المرة الأولى اللي بنقفل فيها من فجوة "النشر والـ CI" اللي خطة التعلّم سجلتها — فرض الـ budgets موضوع CI كمان، والخطوة 08 هتوصله هناك.</span></li></ul><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">A deliberately-over-budget build fails with a clear error, a normal build passes. Initial bundle number into <code>PERF.md</code> beside the baseline.</span><span class="l-ar" dir="auto">بيلد متضخم بقصد بيفشل بخطأ واضح، والبيلد العادي بيعدي. رقم الباندل الأولي في <code>PERF.md</code> جانب الخط الأساسي.</span></p></div>
+      </section>
+      <section class="sec" id="p6">
+        <div class="sec-kick"><span class="l-en">Step 06</span><span class="l-ar" dir="auto">الخطوة 06</span></div>
+        <h2><span class="l-en">Unit tests for the cart service</span><span class="l-ar" dir="auto">تستات وحدية لخدمة الكارت</span></h2>
+        <p class="sec-lead"><span class="l-en">The cart is pure logic — which means <b>every rule you wrote can be proven</b> in milliseconds. This is where the readonly/computed discipline pays interest.</span><span class="l-ar" dir="auto">الكارت منطق نقي — يعني <b>كل قاعدة كتبتها ممكن تتثبت</b> في أجزاء من الثانية. هنا عادة الـ readonly والـ computed بتدّي عوايدها.</span></p>
+        
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>src/app/cart.service.spec.ts<span class="tag"><span class="l-en">new file</span><span class="l-ar" dir="auto">ملف جديد</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">TestBed</i> } <i class="t-key">from</i> <i class="t-str">'@angular/core/testing'</i>;</span><span class="ln"><i class="t-key">import</i> { <i class="t-type">CartService</i> } <i class="t-key">from</i> <i class="t-str">'./cart.service'</i>;</span><span class="ln"><i class="t-key">import</i> { <i class="t-type">ApiProduct</i> } <i class="t-key">from</i> <i class="t-str">'./api/product'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-key">const</i> p = (id: <i class="t-key">number</i>, price: <i class="t-key">number</i>): <i class="t-type">ApiProduct</i> =&gt; ({</span><span class="ln">  id, price,</span><span class="ln">  title: <i class="t-str">'x'</i>, category: <i class="t-str">'c'</i>, description: <i class="t-str">'d'</i>, image: <i class="t-str">'i'</i>,</span><span class="ln">});</span><span class="ln"> </span><span class="ln"><i class="t-fn">describe</i>(<i class="t-str">'CartService'</i>, () =&gt; {</span><span class="ln">  <i class="t-key">let</i> cart: <i class="t-type">CartService</i>;</span><span class="ln"> </span><span class="ln">  <i class="t-fn">beforeEach</i>(() =&gt; {</span><span class="ln">    <i class="t-type">TestBed</i>.<i class="t-fn">configureTestingModule</i>({});</span><span class="ln">    cart = <i class="t-type">TestBed</i>.<i class="t-fn">inject</i>(<i class="t-type">CartService</i>);</span><span class="ln">  });</span><span class="ln"> </span><span class="ln">  <i class="t-fn">it</i>(<i class="t-str">'merges the same product into one line'</i>, () =&gt; {</span><span class="ln">    cart.<i class="t-fn">add</i>(<i class="t-fn">p</i>(<i class="t-num">1</i>, <i class="t-num">40</i>));</span><span class="ln">    cart.<i class="t-fn">add</i>(<i class="t-fn">p</i>(<i class="t-num">1</i>, <i class="t-num">40</i>));</span><span class="ln">    <i class="t-fn">expect</i>(cart.<i class="t-fn">all</i>().length).<i class="t-fn">toBe</i>(<i class="t-num">1</i>);</span><span class="ln">    <i class="t-fn">expect</i>(cart.<i class="t-fn">all</i>()[<i class="t-num">0</i>].qty).<i class="t-fn">toBe</i>(<i class="t-num">2</i>);</span><span class="ln">  });</span><span class="ln"> </span><span class="ln">  <i class="t-fn">it</i>(<i class="t-str">'totals from qty × price, reactively'</i>, () =&gt; {</span><span class="ln">    cart.<i class="t-fn">add</i>(<i class="t-fn">p</i>(<i class="t-num">1</i>, <i class="t-num">40</i>));</span><span class="ln">    cart.<i class="t-fn">add</i>(<i class="t-fn">p</i>(<i class="t-num">2</i>, <i class="t-num">25</i>));</span><span class="ln">    <i class="t-fn">expect</i>(cart.<i class="t-fn">total</i>()).<i class="t-fn">toBe</i>(<i class="t-num">65</i>);</span><span class="ln">    cart.<i class="t-fn">setQty</i>(<i class="t-num">2</i>, <i class="t-num">3</i>);</span><span class="ln">    <i class="t-fn">expect</i>(cart.<i class="t-fn">total</i>()).<i class="t-fn">toBe</i>(<i class="t-num">115</i>);   <i class="t-com">// computed re-ran, no hand sync</i></span><span class="ln">  });</span><span class="ln"> </span><span class="ln">  <i class="t-fn">it</i>(<i class="t-str">'removes cleanly'</i>, () =&gt; {</span><span class="ln">    cart.<i class="t-fn">add</i>(<i class="t-fn">p</i>(<i class="t-num">1</i>, <i class="t-num">40</i>));</span><span class="ln">    cart.<i class="t-fn">remove</i>(<i class="t-num">1</i>);</span><span class="ln">    <i class="t-fn">expect</i>(cart.<i class="t-fn">count</i>()).<i class="t-fn">toBe</i>(<i class="t-num">0</i>);</span><span class="ln">  });</span><span class="ln">});</span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">Test the contract, not the implementation</span><span class="l-ar" dir="auto">اختبر العقد، مش التنفيذ</span></b><p><span class="l-en">Notice what is asserted: merge behaviour, reactive totals, clean removal — the <em>contract</code> a store page depends on. No test peeks at private fields. When you refactor the service next month, these tests stay green and that is the whole point.</span><span class="l-ar" dir="auto">خد بالك من اللي بتتأكد منه: سلوك الدمج، والإجماليات المتفاعلة، والمسح النضيف — <em>العقد</em> اللي صفحات المتجر معتمدة عليه. ولا تست بيدخل في الحقول الخاصة. لما تعمل refactor للـ service الشهر الجاي، التستات دي هتفضل خضرا، وده كل المقصود.</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><code>ng test</code> passes, including the third test that would have failed before <code>computed()</code> existed. Test count into <code>PERF.md</code>.</span><span class="l-ar" dir="auto"><code>ng test</code> ناجح، بما فيه التست التالت اللي كان هيقع قبل ما <code>computed()</code> تظهر. عدد التستات في <code>PERF.md</code>.</span></p></div>
+      </section>
+      <section class="sec" id="p7">
+        <div class="sec-kick"><span class="l-en">Step 07</span><span class="l-ar" dir="auto">الخطوة 07</span></div>
+        <h2><span class="l-en">A Playwright smoke test</span><span class="l-ar" dir="auto">تست دخان بـ Playwright</span></h2>
+        <p class="sec-lead"><span class="l-en">One test, the user's whole journey: see a product, add it, guard-checkout it. Topic 44 in miniature — and the test that would have caught your worst bug.</span><span class="l-ar" dir="auto">تست واحد، لرحلة المستخدم كلها: شوف منتج، ضيفه، وجرّب الدفع والـ guard. الموضوع 44 مصغّر — والتست اللي كان هي مسك وحش باجاتك.</span></p>
+        
+      <div class="code" data-lang="bash">
+        <div class="fc-h"><span class="d"></span>terminal<span class="tag"><span class="l-en">install once</span><span class="l-ar" dir="auto">تثبيت مرة واحدة</span></span></div>
+        <pre><span class="ln">npm i -D @playwright/test</span><span class="ln">npx playwright install chromium</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>e2e/smoke.spec.ts<span class="tag"><span class="l-en">new file</span><span class="l-ar" dir="auto">ملف جديد</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { test, expect } <i class="t-key">from</i> <i class="t-str">'@playwright/test'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-fn">test</i>(<i class="t-str">'a shopper can add to cart and checkout'</i>, <i class="t-key">async</i> ({ page }) =&gt; {</span><span class="ln">  <i class="t-key">await</i> page.<i class="t-fn">goto</i>(<i class="t-str">'/'</i>);</span><span class="ln">  <i class="t-key">await</i> <i class="t-fn">expect</i>(page.<i class="t-fn">getByRole</i>(<i class="t-str">'heading'</i>, { name: /products/i })).<i class="t-fn">toBeVisible</i>();</span><span class="ln"> </span><span class="ln">  <i class="t-com">// first product: open it and add</i></span><span class="ln">  <i class="t-key">await</i> page.<i class="t-fn">getByRole</i>(<i class="t-str">'link'</i>).<i class="t-fn">nth</i>(<i class="t-num">1</i>).<i class="t-fn">click</i>();</span><span class="ln">  <i class="t-key">await</i> page.<i class="t-fn">getByRole</i>(<i class="t-str">'button'</i>, { name: /add to cart/i }).<i class="t-fn">click</i>();</span><span class="ln"> </span><span class="ln">  <i class="t-com">// cart shows one line</i></span><span class="ln">  <i class="t-key">await</i> page.<i class="t-fn">getByRole</i>(<i class="t-str">'link'</i>, { name: /cart/i }).<i class="t-fn">click</i>();</span><span class="ln">  <i class="t-key">await</i> <i class="t-fn">expect</i>(page.<i class="t-fn">getByText</i>(/total/i)).<i class="t-fn">toBeVisible</i>();</span><span class="ln"> </span><span class="ln">  <i class="t-com">// checkout is now allowed by the guard</i></span><span class="ln">  <i class="t-key">await</i> page.<i class="t-fn">goto</i>(<i class="t-str">'/checkout'</i>);</span><span class="ln">  <i class="t-key">await</i> <i class="t-fn">expect</i>(page.<i class="t-fn">getByRole</i>(<i class="t-str">'heading'</i>, { name: /checkout/i })).<i class="t-fn">toBeVisible</i>();</span><span class="ln">});</span><span class="ln"> </span><span class="ln"><i class="t-fn">test</i>(<i class="t-str">'an empty cart is turned away from checkout'</i>, <i class="t-key">async</i> ({ page }) =&gt; {</span><span class="ln">  <i class="t-key">await</i> page.<i class="t-fn">goto</i>(<i class="t-str">'/checkout'</i>);</span><span class="ln">  <i class="t-key">await</i> <i class="t-fn">expect</i>(page).<i class="t-fn">toHaveURL</i>(/\/cart/);</span><span class="ln">});</span></pre>
+      </div>
+      <div class="code" data-lang="bash">
+        <div class="fc-h"><span class="d"></span>terminal<span class="tag"><span class="l-en">run against the prod build</span><span class="l-ar" dir="auto">شغّله على بيلد الإنتاج</span></span></div>
+        <pre><span class="ln">ng build</span><span class="ln">npx playwright test   # config points webServer at dist via a static server</span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">Best practice — test roles, not CSS</span><span class="l-ar" dir="auto">عادة صح — اختبر الأدوار، مش الـ CSS</span></b><p><span class="l-en"><code>getByRole</code>, never <code>.css-1x2y</code>. Role queries survive restyling, they fail when <em>accessibility</em> breaks — which is exactly what you want a test to catch. A passing role-based smoke test is also an a11y statement.</span><span class="l-ar" dir="auto"><code>getByRole</code>، عمرك ما <code>.css-1x2y</code>. الاستعلامات بالأدوار بتنجو من تغيير الشكل، وبتفشل لما <em>الإتاحة</em> تتكسر — وده بالظبط اللي عايز التست يمسكه. تست دخان ناجح بالأدوار هو كمان إعلان إتاحة.</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">Both tests pass headless. The second one is your step-07 guard from phase 02, now permanently proven.</span><span class="l-ar" dir="auto">التستين ناجحين من غير واجهة. التست التاني هو الـ guard بتاعك من المرحلة 02، دلوقتي متثبت للأبد.</span></p></div>
+      </section>
+      <section class="sec" id="p8">
+        <div class="sec-kick"><span class="l-en">Step 08</span><span class="l-ar" dir="auto">الخطوة 08</span></div>
+        <h2><span class="l-en">Deploy, then let CI protect it</span><span class="l-ar" dir="auto">انشر، وبعدين خلي الـ CI يحميه</span></h2>
+        <p class="sec-lead"><span class="l-en">Two moves: a real host, and a pipeline that re-proves the build, the budgets and the tests on every push. This closes the roadmap's deployment/CI gap for your own projects.</span><span class="l-ar" dir="auto">حركتين: هوست حقيقي، وخط أنابيب بيعيد إثبات البيلد والـ budgets والتستات مع كل push. بدها بتقفل فجوة النشر والـ CI بتاعة خطة التعلّم في مشاريعك إنت.</span></p>
+        
+      <div class="code" data-lang="bash">
+        <div class="fc-h"><span class="d"></span>terminal (Firebase Hosting)<span class="tag"><span class="l-en">deploy</span><span class="l-ar" dir="auto">النشر</span></span></div>
+        <pre><span class="ln">npm i -g firebase-tools</span><span class="ln">firebase login</span><span class="ln">firebase init hosting   # public dir: dist/store/browser, SPA rewrite: yes</span><span class="ln">ng build &amp;&amp; firebase deploy</span></pre>
+      </div>
+      <div class="code" data-lang="bash">
+        <div class="fc-h"><span class="d"></span>.github/workflows/ci.yml<span class="tag"><span class="l-en">new file</span><span class="l-ar" dir="auto">ملف جديد</span></span></div>
+        <pre><span class="ln">name: ci</span><span class="ln">on: [push, pull_request]</span><span class="ln">jobs:</span><span class="ln">  build-test:</span><span class="ln">    runs-on: ubuntu-latest</span><span class="ln">    steps:</span><span class="ln">      - uses: actions/checkout@v4</span><span class="ln">      - uses: actions/setup-node@v4</span><span class="ln">        with:</span><span class="ln">          node-version: 22</span><span class="ln">          cache: npm</span><span class="ln">      - run: npm ci</span><span class="ln">      - run: npx playwright install --with-deps chromium</span><span class="ln">      - run: npm run build      # budgets run here — a fat bundle fails CI</span><span class="ln">      - run: npm test -- --watch=false --browsers=ChromeHeadless</span><span class="ln">      - run: npx playwright test</span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">Why this one yaml is a career move</span><span class="l-ar" dir="auto">ليه الملف ده تحفة كاريير</span></b><p><span class="l-en">This is exactly the loop a team runs: push → build with budgets → unit tests → e2e → green. You have now personally owned every stage of it, and "I set up the CI that enforced our bundle budgets" is an interview sentence most juniors cannot say. Serve the SPA rewrite (<code>index.html</code> fallback) or deep links like <code>/product/7</code> will 404.</span><span class="l-ar" dir="auto">دي بالظبط اللوب اللي الفرق بتشتغل بيه: push ← بيلد بالـ budgets ← تستات وحدية ← e2e ← علامة خضرا. إنت دلوقتي مسيطر على كل مرحلة فيه بإيدك، وجملة "أنا اللي عملت الـ CI اللي بيلزم الباندل بالـ budgets" جملة إنترفيو مش كلjuniorنيور يقدر يقولها. ومتسربش إعادة التوجيه للـ SPA (fallback لـ<code>index.html</code>) — من غيرها لينكات زي <code>/product/7</code> هتدي 404.</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en">The Actions tab shows a green check; the deployed URL serves a deep link directly. Fill in the final row of <code>PERF.md</code> — before and after, every number side by side.</span><span class="l-ar" dir="auto">تاب Actions فيه علامة خضرا؛ واللينك المنشور بيفتح deep link مباشرة. كمّل آخر سطر في <code>PERF.md</code> — قبل وبعد، كل رقم جنب بعضه.</span></p></div>
+      </section></div>
+  </div>
+
+  <nav class="pager">
+    <a class="pv" href="../intermediate/project.html"><em>&larr; <span class="l-en">Previous project</span><span class="l-ar" dir="auto">المشروع اللي فات</span></em><b><span class="l-en">Rebuild the cart as a real store</span><span class="l-ar" dir="auto">أعد بناء الكارت كمتجر حقيقي</span></b></a>
+    <a class="nx" href="roadmap.html"><em><span class="l-en">Back to</span><span class="l-ar" dir="auto">رجوع لـ</span> &rarr;</em><b><span class="l-en">The learning path</span><span class="l-ar" dir="auto">خطة التعلّم</span></b></a>
+  </nav>
+</main>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+/* ---------- language + theme, shared by every page ---------- */
+function _g(id){ return document.getElementById(id); }
+function syncUI(){
+  const r = document.documentElement;
+  const l = r.dataset.lang === 'ar' ? 'ar' : 'en';
+  const t = r.dataset.theme === 'dark' ? 'dark' : 'light';
+  const set = (id, on) => { const b = _g(id); if (b) b.setAttribute('aria-pressed', String(on)); };
+  set('b-en', l === 'en'); set('b-ar', l === 'ar');
+  set('b-lt', t === 'light'); set('b-dk', t === 'dark');
+}
+function setLang(l){
+  const r = document.documentElement;
+  r.dataset.lang = l;
+  r.dir  = l === 'ar' ? 'rtl' : 'ltr';
+  r.lang = l === 'ar' ? 'ar-EG' : 'en';
+  try { localStorage.setItem('tas-lang', l); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+function setTheme(t){
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('tas-theme', t); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+_g('b-en').onclick = () => setLang('en');
+_g('b-ar').onclick = () => setLang('ar');
+_g('b-lt').onclick = () => setTheme('light');
+_g('b-dk').onclick = () => setTheme('dark');
+syncUI();
+
+/* highlight the section you are reading.
+   Position-based, not IntersectionObserver: after clicking a link the previous
+   section still overlaps the observation band by a few pixels, and picking the
+   first intersecting one left the rail a step behind until you nudged the page. */
+const links = new Map([...document.querySelectorAll('[data-rail]')].map(a => [a.dataset.rail, a]));
+const secs = [...document.querySelectorAll('.sec')];
+const LINE = 92;                      /* the reading line, just under the sticky bar */
+
+function markActive(id){
+  links.forEach((a, key) => a.classList.toggle('on', key === id));
+}
+function spy(){
+  if (!secs.length) return;
+  let current = secs[0];
+  for (const sec of secs) {
+    if (sec.getBoundingClientRect().top - LINE <= 0) current = sec; else break;
+  }
+  /* the last section is often too short to ever cross the line */
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) current = secs[secs.length - 1];
+  markActive(current.id);
+}
+
+/* a click should light up immediately, not after the scroll settles */
+links.forEach((a, id) => a.addEventListener('click', () => markActive(id)));
+
+let spying = false;
+addEventListener('scroll', () => {
+  if (spying) return;
+  spying = true;
+  requestAnimationFrame(() => { spying = false; spy(); });
+}, { passive: true });
+addEventListener('resize', spy);
+addEventListener('hashchange', () => requestAnimationFrame(spy));
+addEventListener('load', spy);   /* the browser applies #hash after parsing */
+spy();
+</script>
+</body>
+</html>

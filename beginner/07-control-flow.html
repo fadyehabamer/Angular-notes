@@ -28,6 +28,7 @@
   --glow1:9%; --glow2:5%;
   /* ink */
   --ink:#12142c; --mut:#4d5480; --dim:#767d9f; --onc:#ffffff;
+  --ok:#0a8f5b; --no:#c62348;   /* quiz: right / wrong */
   /* track accents — darkened so they carry on paper */
   --beg:#0c9280;    /* track 1 */
   --int:#5b3ad4;    /* track 2 */
@@ -52,6 +53,7 @@
   --nodesh:0 10px 26px -18px #000, inset 0 1px 0 rgba(255,255,255,.05);
   --glow1:16%; --glow2:8%;
   --ink:#eceefb; --mut:#98a0c8; --dim:#69719e; --onc:#0b0d1c;
+  --ok:#3ddc97; --no:#ff5470;
   --beg:#2ee6c5; --int:#8b6cff; --adv:#ff2e88;
   --ts:#4a9eff; --js:#ffc857; --html:#ff7a45; --svc:#ffb020; --cfg:#8b6cff;
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
@@ -150,7 +152,7 @@ h1.title code{font-family:var(--mono);font-size:.82em;font-weight:600;color:var(
 /* ---------- stage / diagram ---------- */
 .stage{position:relative;margin:6px 0 4px;padding:26px 8px;display:flex;flex-direction:column;gap:74px}
 .stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
-.row{display:flex;justify-content:center;gap:clamp(28px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
+.row{display:flex;justify-content:center;gap:clamp(92px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
 .node{
   background:linear-gradient(180deg,var(--card2),var(--card));
   border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:172px;
@@ -446,6 +448,117 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .oneline b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
 .oneline p{margin:0;font-size:15px;color:var(--ink);line-height:1.62;text-wrap:pretty;max-width:78ch}
 .oneline p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+/* ============================================================
+   Check yourself — the quiz block, same shape on every topic page
+   ============================================================ */
+.edge text.plain{font-size:9.5px;fill:var(--mut);letter-spacing:.01em;opacity:.85}
+.edge.lit text.plain{opacity:1}
+/* Arabic is cursive: the mono face and any letter-spacing break the joins,
+   so the wire words switch to the Arabic text face in RTL */
+:root[dir="rtl"] .edge text.plain{font-family:var(--body);letter-spacing:0;font-size:10.5px}
+
+.quiz{display:grid;gap:13px;margin-top:4px}
+.qbar{
+  display:flex;align-items:center;gap:13px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--sunk);
+}
+.qbar .qtxt{font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap}
+.qbar .qtxt b{color:var(--ink);font-weight:600}
+.qbar .qtxt em{font-style:normal;color:var(--ok);font-weight:600}
+.qmeter{flex:1;min-width:50px;height:4px;border-radius:99px;background:var(--dotbg);overflow:hidden}
+.qmeter i{display:block;height:100%;width:0;background:var(--c);transition:width .35s cubic-bezier(.2,.7,.3,1)}
+
+.qcard{border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);transition:border-color .3s}
+.qcard.right{border-color:color-mix(in srgb,var(--ok) 48%,transparent)}
+.qcard.wrong{border-color:color-mix(in srgb,var(--no) 48%,transparent)}
+.qhead{display:flex;gap:12px;align-items:baseline;margin-bottom:12px}
+.qnum{font-family:var(--mono);font-size:11px;color:var(--c);flex:none}
+.qask{font-size:14.8px;line-height:1.5;color:var(--ink);font-weight:600;text-wrap:pretty}
+.qask code{font-family:var(--mono);font-size:.87em;color:var(--c);font-weight:500}
+.qcode{border:1px solid var(--line2);border-radius:11px;overflow:hidden;margin-bottom:12px;background:var(--code)}
+.qcode .qcf{padding:7px 13px;border-bottom:1px solid var(--line2);background:var(--sunk);
+            font-family:var(--mono);font-size:11px;color:var(--dim)}
+.qcode pre{font-size:12px;padding:10px 0;margin:0;overflow-x:auto}
+
+.opts{display:grid;gap:8px}
+.opt{
+  display:flex;gap:11px;align-items:flex-start;width:100%;text-align:start;cursor:pointer;
+  background:var(--sunk);border:1px solid var(--line2);border-radius:10px;padding:10px 13px;
+  color:var(--mut);font-family:var(--body);font-size:13.8px;line-height:1.5;transition:.18s;
+}
+.opt .k{font-family:var(--mono);font-size:11px;color:var(--dim);border:1px solid var(--line);
+        border-radius:6px;padding:0 6px;flex:none;line-height:1.6}
+.opt .ot{flex:1;min-width:0;text-wrap:pretty}
+.opt .ot code{font-family:var(--mono);font-size:.87em}
+.opt .mark{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;flex:none;line-height:2}
+.opt:hover{color:var(--ink);background:var(--hover);border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.qcard.done .opt,.qcard.done .opt:hover{cursor:default;background:var(--sunk);border-color:var(--line2);color:var(--mut)}
+.qcard.done .opt.ok{color:var(--ink);border-color:color-mix(in srgb,var(--ok) 55%,transparent);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.qcard.done .opt.ok .k{color:var(--ok);border-color:currentColor}
+.qcard.done .opt.ok .mark{color:var(--ok)}
+.qcard.done .opt.no{color:var(--ink);border-color:color-mix(in srgb,var(--no) 55%,transparent);background:color-mix(in srgb,var(--no) 9%,transparent)}
+.qcard.done .opt.no .k{color:var(--no);border-color:currentColor}
+.qcard.done .opt.no .mark{color:var(--no)}
+
+.why{
+  display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:12px 15px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk2);
+}
+.why[hidden]{display:none}
+.why .wt{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);flex:none;padding-top:3px}
+.why p{margin:0;flex:1;min-width:0;font-size:13.6px;line-height:1.68;color:var(--mut);text-wrap:pretty}
+.why p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+.qend{border:1px solid var(--line2);border-radius:14px;padding:19px;text-align:center;background:var(--card2)}
+.qend .sc{display:block;font-family:var(--disp);font-weight:800;font-size:29px;letter-spacing:-.03em;color:var(--ink)}
+.qend p{margin:6px 0 13px;color:var(--mut);font-size:13.6px}
+
+:root[dir="rtl"] .qnum,:root[dir="rtl"] .qbar .qtxt{font-family:var(--body);letter-spacing:0}
+:root[dir="rtl"] .opt .mark,:root[dir="rtl"] .why .wt{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .qask,:root[dir="rtl"] .opt,:root[dir="rtl"] .why p{line-height:1.8}
+@media (max-width:900px){
+  .qbar{flex-wrap:wrap;gap:10px}
+  .qmeter{order:3;flex-basis:100%}
+  .qcard{padding:14px 15px}
+}
+
+/* ================= build-project tutorials (step-by-step) ============ */
+.pstep{margin-top:26px;border-top:1px solid var(--line2);padding-top:18px}
+.sec .pstep:first-child{margin-top:12px}
+.pstep-h{display:flex;align-items:center;gap:11px;margin-bottom:2px}
+.pstep-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 9px;font-weight:600;direction:ltr;flex:none}
+.pstep-h b{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:-.015em;color:var(--ink);line-height:1.3;text-wrap:pretty}
+:root[dir="rtl"] .pstep-h b{letter-spacing:0}
+.pstep > p{margin:13px 0 0}
+
+.chk{
+  margin-top:16px;max-width:76ch;background:color-mix(in srgb,var(--beg) 9%,transparent);
+  border-inline-start:3px solid var(--beg);border-radius:0 9px 9px 0;padding:12px 16px;
+}
+:root[dir="rtl"] .chk{border-radius:9px 0 0 9px}
+.chk b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--beg);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .chk b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.chk p{margin:0;font-size:14.2px;color:var(--mut)}
+.chk p code{font-family:var(--mono);font-size:.87em}
+
+.build-link{
+  display:inline-flex;align-items:center;gap:7px;margin-top:12px;text-decoration:none;
+  font-size:13.6px;font-weight:600;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);
+  border-radius:9px;padding:7px 13px;background:var(--card);transition:.18s;
+}
+.build-link:hover{background:color-mix(in srgb,var(--c) 12%,transparent)}
+
+/* the roadmap's build-projects index */
+.blds{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:16px}
+.blds-track{border:1px solid var(--line2);border-top:2px solid var(--c);border-radius:12px;padding:15px 18px;background:var(--card);min-width:0;display:flex;flex-direction:column;gap:11px}
+.blds-track > b{font-family:var(--disp);font-weight:700;font-size:16.5px;letter-spacing:-.015em;color:var(--ink)}
+:root[dir="rtl"] .blds-track > b{letter-spacing:0}
+.blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
+.blds-item .build-link{margin-top:0}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
@@ -457,7 +570,7 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
 <body>
 <header class="top"><div class="top-in">
     <a class="home" href="../index.html"><b>The Angular Signal</b><span class="l-en">contents</span><span class="l-ar">المحتويات</span></a>
-    <nav class="tracknav"><a href="../roadmap.html" style="--c:var(--beg)"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="../beginner/01-how-an-app-starts.html" style="--c:var(--beg)" aria-current="page"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="../intermediate/16-forms.html" style="--c:var(--int)"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="../advanced/28-change-detection.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="../javascript-for-angular.html" style="--c:var(--js)"><i></i><span class="l-en">JavaScript</span><span class="l-ar">JavaScript</span></a><a href="../typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
+    <nav class="tracknav"><a href="../roadmap.html" style="--c:var(--beg)"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="../beginner/index.html" style="--c:var(--beg)" aria-current="page"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="../intermediate/index.html" style="--c:var(--int)"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="../advanced/index.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="../javascript-for-angular.html" style="--c:var(--js)"><i></i><span class="l-en">JavaScript</span><span class="l-ar">JavaScript</span></a><a href="../typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
     <div class="top-right">
       <div class="seg" role="group" aria-label="Language">
         <button id="b-en" aria-pressed="true">EN</button>
@@ -521,7 +634,7 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
 
   <p class="sechead"><span class="l-en">Now the same thing, wired up</span><span class="l-ar">ودلوقتي نفس الحكاية، متوصّلة</span></p>
 
-  <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text></g>
+  <div class="stage"><svg aria-hidden="true"><g class="edges"><g class="edge" data-edge="e1"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text><text class="plain"></text></g><g class="edge" data-edge="e2"><path class="wire"></path><path class="head"></path><path class="flow"></path><text></text><text class="plain"></text></g>
         <g class="packet"><rect rx="7"></rect><text></text></g></g></svg><div class="row">
         <div class="node" data-node="ts" data-kind="ts">
           <span class="role"><span class="l-en">holds the list</span><span class="l-ar" dir="auto">ماسك اللستة</span></span>
@@ -592,6 +705,93 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     </div>
   </div>
 
+  
+  <p class="sechead"><span class="l-en">Check yourself</span><span class="l-ar">اختبر نفسك</span></p>
+  <div class="quiz" data-n="4">
+    <div class="qbar">
+      <span class="qtxt"><b class="qdone">0</b> / 4 <span class="l-en">answered</span><span class="l-ar">مُجاوبة</span></span>
+      <div class="qmeter"><i></i></div>
+      <span class="qtxt"><em class="qright">0</em> <span class="l-en">right</span><span class="l-ar">صح</span></span>
+      <button class="iconbtn" data-reset>&#8635;<span class="l-en"> Reset</span><span class="l-ar"> من الأول</span></button>
+    </div>
+    
+    <div class="qcard" data-q="0" data-a="0">
+      <div class="qhead">
+        <span class="qnum">Q01</span>
+        <span class="qask"><span class="l-en">What does <code>track</code> do in an <code>@for</code> block?</span><span class="l-ar" dir="auto"><code>track</code> بتعمل إيه جوه <code>@for</code>؟</span></span>
+      </div>
+      
+        <div class="qcode"><div class="qcf">orders.html</div>
+          <pre><span class="ln"><i class="t-key">@for</i> (order of orders(); track order.id) {</span><span class="ln">  <i class="t-tag">&lt;app-order-row</i> <i class="t-bind">[order]</i>=<i class="t-str">"order"</i> <i class="t-tag">/&gt;</i></span><span class="ln">}</span></pre>
+        </div>
+      <div class="opts">
+        <button class="opt" data-o="0"><span class="k">A</span><span class="ot"><span class="l-en">Tells Angular which row is which, so it moves DOM instead of rebuilding it</span><span class="l-ar" dir="auto">بتقول لأنجولار مين هو أنهي صف، فبيحرّك الـ DOM بدل ما يبنيه من الأول</span></span><span class="mark"></span></button>
+        <button class="opt" data-o="1"><span class="k">B</span><span class="ot"><span class="l-en">Sorts the list</span><span class="l-ar" dir="auto">بترتّب القائمة</span></span><span class="mark"></span></button>
+        <button class="opt" data-o="2"><span class="k">C</span><span class="ot"><span class="l-en">Counts the iterations</span><span class="l-ar" dir="auto">بتعد اللفّات</span></span><span class="mark"></span></button>
+        <button class="opt" data-o="3"><span class="k">D</span><span class="ot"><span class="l-en">Filters out duplicates</span><span class="l-ar" dir="auto">بتشيل المكرر</span></span><span class="mark"></span></button>
+      </div>
+      <div class="why" hidden>
+        <span class="wt"><span class="l-en">why</span><span class="l-ar">ليه</span></span>
+        <p><span class="l-en"><code>track</code> is an identity, not an index. Given a stable id, Angular can tell that a row merely moved and keep its DOM — which preserves focus, scroll position and input values. It is required in <code>@for</code> for exactly this reason.</span><span class="l-ar" dir="auto"><code>track</code> دي هوية، مش ترتيب. لما يكون فيه id ثابت، أنجولار يعرف إن الصف بس اتحرك ويحتفظ بالـ DOM بتاعه — وده بيحافظ على الفوكس ومكان الـ scroll والقيم المكتوبة. وعلشان كده بالظبط هي مطلوبة في <code>@for</code>.</span></p>
+      </div>
+    </div>
+    <div class="qcard" data-q="1" data-a="0">
+      <div class="qhead">
+        <span class="qnum">Q02</span>
+        <span class="qask"><span class="l-en">Which block runs when a list is empty?</span><span class="l-ar" dir="auto">أنهي بلوك بيشتغل لما القائمة تكون فاضية؟</span></span>
+      </div>
+      
+      <div class="opts">
+        <button class="opt" data-o="0"><span class="k">A</span><span class="ot"><span class="l-en"><code>@empty</code></span><span class="l-ar" dir="auto"><code>@empty</code></span></span><span class="mark"></span></button>
+        <button class="opt" data-o="1"><span class="k">B</span><span class="ot"><span class="l-en"><code>@else</code></span><span class="l-ar" dir="auto"><code>@else</code></span></span><span class="mark"></span></button>
+        <button class="opt" data-o="2"><span class="k">C</span><span class="ot"><span class="l-en"><code>@default</code></span><span class="l-ar" dir="auto"><code>@default</code></span></span><span class="mark"></span></button>
+        <button class="opt" data-o="3"><span class="k">D</span><span class="ot"><span class="l-en"><code>@placeholder</code></span><span class="l-ar" dir="auto"><code>@placeholder</code></span></span><span class="mark"></span></button>
+      </div>
+      <div class="why" hidden>
+        <span class="wt"><span class="l-en">why</span><span class="l-ar">ليه</span></span>
+        <p><span class="l-en"><code>@empty</code> attaches to <code>@for</code> and renders when there is nothing to loop over. It is the tidy replacement for a second <code>@if (list.length === 0)</code> sitting next to your loop.</span><span class="l-ar" dir="auto"><code>@empty</code> بتلزق في <code>@for</code> وبتترسم لما ميكونش فيه حاجة نلف عليها. وهي البديل المرتب لـ <code>@if (list.length === 0)</code> تانية جنب اللوب.</span></p>
+      </div>
+    </div>
+    <div class="qcard" data-q="2" data-a="0">
+      <div class="qhead">
+        <span class="qnum">Q03</span>
+        <span class="qask"><span class="l-en">What is the modern replacement for <code>*ngIf</code>?</span><span class="l-ar" dir="auto">إيه البديل الحديث لـ <code>*ngIf</code>؟</span></span>
+      </div>
+      
+      <div class="opts">
+        <button class="opt" data-o="0"><span class="k">A</span><span class="ot"><span class="l-en"><code>@if</code>, built into the template — no import needed</span><span class="l-ar" dir="auto"><code>@if</code>، مدمجة في الـ template — مش محتاجة import</span></span><span class="mark"></span></button>
+        <button class="opt" data-o="1"><span class="k">B</span><span class="ot"><span class="l-en"><code>[ngIf]</code></span><span class="l-ar" dir="auto"><code>[ngIf]</code></span></span><span class="mark"></span></button>
+        <button class="opt" data-o="2"><span class="k">C</span><span class="ot"><span class="l-en"><code>@show</code></span><span class="l-ar" dir="auto"><code>@show</code></span></span><span class="mark"></span></button>
+        <button class="opt" data-o="3"><span class="k">D</span><span class="ot"><span class="l-en"><code>@when</code></span><span class="l-ar" dir="auto"><code>@when</code></span></span><span class="mark"></span></button>
+      </div>
+      <div class="why" hidden>
+        <span class="wt"><span class="l-en">why</span><span class="l-ar">ليه</span></span>
+        <p><span class="l-en">Since Angular 17 the control flow is part of the template language itself, so there is nothing to import and no <code>CommonModule</code>. <code>*ngIf</code> still works, but new code should use <code>@if</code> / <code>@for</code> / <code>@switch</code>.</span><span class="l-ar" dir="auto">من أنجولار 17 التحكم في المسار بقى جزء من لغة الـ template نفسها، فمفيش حاجة تعمل لها import ولا <code>CommonModule</code>. <code>*ngIf</code> لسه بتشتغل، بس الكود الجديد يستخدم <code>@if</code> و<code>@for</code> و<code>@switch</code>.</span></p>
+      </div>
+    </div>
+    <div class="qcard" data-q="3" data-a="0">
+      <div class="qhead">
+        <span class="qnum">Q04</span>
+        <span class="qask"><span class="l-en">You want a value from an <code>@if</code> condition inside the block. How?</span><span class="l-ar" dir="auto">عايز القيمة اللي في شرط <code>@if</code> تستخدمها جوه البلوك. إزاي؟</span></span>
+      </div>
+      
+      <div class="opts">
+        <button class="opt" data-o="0"><span class="k">A</span><span class="ot"><span class="l-en"><code>@if (user(); as u) { {{ u.name }} }</code></span><span class="l-ar" dir="auto"><code>@if (user(); as u) { {{ u.name }} }</code></span></span><span class="mark"></span></button>
+        <button class="opt" data-o="1"><span class="k">B</span><span class="ot"><span class="l-en"><code>@if (user()) { let u = user() }</code></span><span class="l-ar" dir="auto"><code>@if (user()) { let u = user() }</code></span></span><span class="mark"></span></button>
+        <button class="opt" data-o="2"><span class="k">C</span><span class="ot"><span class="l-en"><code>@if (user() as u)</code></span><span class="l-ar" dir="auto"><code>@if (user() as u)</code></span></span><span class="mark"></span></button>
+        <button class="opt" data-o="3"><span class="k">D</span><span class="ot"><span class="l-en">You cannot; call the signal again</span><span class="l-ar" dir="auto">مش ممكن؛ نادي الـ signal تاني</span></span><span class="mark"></span></button>
+      </div>
+      <div class="why" hidden>
+        <span class="wt"><span class="l-en">why</span><span class="l-ar">ليه</span></span>
+        <p><span class="l-en">The <code>; as</code> form stores the checked value under a name, so you read it once and TypeScript knows it is not null inside the block. Calling the signal again also works, but you lose that narrowing.</span><span class="l-ar" dir="auto">صيغة <code>; as</code> بتخزّن القيمة اللي اتشيّك عليها باسم، فبتقراها مرة واحدة وTypeScript يعرف إنها مش null جوه البلوك. إنك تنادي الـ signal تاني برضه ينفع، بس بتخسر التضييق ده.</span></p>
+      </div>
+    </div>
+    <div class="qend" hidden>
+      <b class="sc"></b><p></p>
+      <button class="iconbtn" data-reset>&#8635;<span class="l-en"> Try again</span><span class="l-ar"> جرّب تاني</span></button>
+    </div>
+  </div>
+
   <nav class="pager">
     <a class="pv" href="../beginner/06-signals.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">Signals: state that announces itself</span><span class="l-ar" dir="auto">الـ Signals: حالة بتبلّغ عن نفسها</span></b></a>
     <a class="nx" href="../beginner/08-built-in-directives.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en"><code>ngClass</code>, <code>ngStyle</code> and friends</span><span class="l-ar" dir="auto"><code>ngClass</code> و <code>ngStyle</code> وأخواتهم</span></b></a>
@@ -599,7 +799,7 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
 </main>
 
 <script>
-const D = {"edges":[{"id":"e1","from":"ts","to":"html","a":"bottom","b":"top","label":"orders()","packet":"3 orders"},{"id":"e2","from":"html","to":"row","a":"right","b":"left","label":"track order.id","packet":"#1042"}],"steps":[{"t":{"en":"The component holds the list in a signal. Note \u003ccode class=\"i\"\u003eupdate\u003c/code\u003e building a \u003cb\u003enew\u003c/b\u003e array — mutating in place notifies nobody.","ar":"الـ component ماسك اللستة في signal. خد بالك إن \u003ccode class=\"i\"\u003eupdate\u003c/code\u003e بيبني array \u003cb\u003eجديدة\u003c/b\u003e — التعديل في مكانه مبيبلّغش حد."},"edge":null,"hl":{"ts":[2,6,7]}},{"t":{"en":"\u003ccode class=\"i\"\u003e@if\u003c/code\u003e reads the signal. There is no \u003ccode class=\"i\"\u003eCommonModule\u003c/code\u003e import anywhere — the compiler understands these blocks natively.","ar":"\u003ccode class=\"i\"\u003e@if\u003c/code\u003e بيقرا الـ signal. مفيش \u003ccode class=\"i\"\u003eCommonModule\u003c/code\u003e معمول له import في أي حتة — الـ compiler فاهم البلوكات دي أصلاً."},"edge":"e1","hl":{"html":[1,9,11]}},{"t":{"en":"\u003ccode class=\"i\"\u003e@for\u003c/code\u003e walks the array. \u003ccode class=\"i\"\u003etrack order.id\u003c/code\u003e is how Angular recognises the same order again after the list changes.","ar":"\u003ccode class=\"i\"\u003e@for\u003c/code\u003e بيلف على الـ array. و\u003ccode class=\"i\"\u003etrack order.id\u003c/code\u003e هو اللي بيخلي أنجولار يعرف إن ده نفس الأوردر بعد ما اللستة تتغير."},"edge":"e2","hl":{"html":[3,4]}},{"t":{"en":"With a stable key the existing row is \u003cb\u003emoved\u003c/b\u003e, so \u003ccode class=\"i\"\u003eexpanded\u003c/code\u003e survives. Track by \u003ccode class=\"i\"\u003e$index\u003c/code\u003e and every row after an insert is rebuilt — losing focus, scroll and state.","ar":"بمفتاح ثابت الصف الموجود بيتنقل مكانه، فـ \u003ccode class=\"i\"\u003eexpanded\u003c/code\u003e بتفضل زي ما هي. لو عملت track بـ \u003ccode class=\"i\"\u003e$index\u003c/code\u003e كل صف بعد أي إضافة بيتبني من الأول — وبتضيّع الـ focus والـ scroll والحالة."},"edge":null,"hl":{"row":[4,5,6]}},{"t":{"en":"\u003ccode class=\"i\"\u003e@switch\u003c/code\u003e replaces a chain of \u003ccode class=\"i\"\u003e@if\u003c/code\u003e. It compares with \u003ccode class=\"i\"\u003e===\u003c/code\u003e, so cases must match exactly.","ar":"\u003ccode class=\"i\"\u003e@switch\u003c/code\u003e بيستبدل سلسلة \u003ccode class=\"i\"\u003e@if\u003c/code\u003e. بيقارن بـ \u003ccode class=\"i\"\u003e===\u003c/code\u003e، فلازم الـ cases تطابق بالظبط."},"edge":null,"hl":{"sw":[2,3,4,5]}}]};
+const D = {"edges":[{"id":"e1","from":"ts","to":"html","a":"bottom","b":"top","label":"orders()","packet":"3 orders","plain":{"en":"the list of data","ar":"قائمة البيانات"}},{"id":"e2","from":"html","to":"row","a":"right","b":"left","label":"track order.id","packet":"#1042","plain":{"en":"one row per item","ar":"صف لكل عنصر"}}],"steps":[{"t":{"en":"The component holds the list in a signal. Note \u003ccode class=\"i\"\u003eupdate\u003c/code\u003e building a \u003cb\u003enew\u003c/b\u003e array — mutating in place notifies nobody.","ar":"الـ component ماسك اللستة في signal. خد بالك إن \u003ccode class=\"i\"\u003eupdate\u003c/code\u003e بيبني array \u003cb\u003eجديدة\u003c/b\u003e — التعديل في مكانه مبيبلّغش حد."},"edge":null,"hl":{"ts":[2,6,7]}},{"t":{"en":"\u003ccode class=\"i\"\u003e@if\u003c/code\u003e reads the signal. There is no \u003ccode class=\"i\"\u003eCommonModule\u003c/code\u003e import anywhere — the compiler understands these blocks natively.","ar":"\u003ccode class=\"i\"\u003e@if\u003c/code\u003e بيقرا الـ signal. مفيش \u003ccode class=\"i\"\u003eCommonModule\u003c/code\u003e معمول له import في أي حتة — الـ compiler فاهم البلوكات دي أصلاً."},"edge":"e1","hl":{"html":[1,9,11]}},{"t":{"en":"\u003ccode class=\"i\"\u003e@for\u003c/code\u003e walks the array. \u003ccode class=\"i\"\u003etrack order.id\u003c/code\u003e is how Angular recognises the same order again after the list changes.","ar":"\u003ccode class=\"i\"\u003e@for\u003c/code\u003e بيلف على الـ array. و\u003ccode class=\"i\"\u003etrack order.id\u003c/code\u003e هو اللي بيخلي أنجولار يعرف إن ده نفس الأوردر بعد ما اللستة تتغير."},"edge":"e2","hl":{"html":[3,4]}},{"t":{"en":"With a stable key the existing row is \u003cb\u003emoved\u003c/b\u003e, so \u003ccode class=\"i\"\u003eexpanded\u003c/code\u003e survives. Track by \u003ccode class=\"i\"\u003e$index\u003c/code\u003e and every row after an insert is rebuilt — losing focus, scroll and state.","ar":"بمفتاح ثابت الصف الموجود بيتنقل مكانه، فـ \u003ccode class=\"i\"\u003eexpanded\u003c/code\u003e بتفضل زي ما هي. لو عملت track بـ \u003ccode class=\"i\"\u003e$index\u003c/code\u003e كل صف بعد أي إضافة بيتبني من الأول — وبتضيّع الـ focus والـ scroll والحالة."},"edge":null,"hl":{"row":[4,5,6]}},{"t":{"en":"\u003ccode class=\"i\"\u003e@switch\u003c/code\u003e replaces a chain of \u003ccode class=\"i\"\u003e@if\u003c/code\u003e. It compares with \u003ccode class=\"i\"\u003e===\u003c/code\u003e, so cases must match exactly.","ar":"\u003ccode class=\"i\"\u003e@switch\u003c/code\u003e بيستبدل سلسلة \u003ccode class=\"i\"\u003e@if\u003c/code\u003e. بيقارن بـ \u003ccode class=\"i\"\u003e===\u003c/code\u003e، فلازم الـ cases تطابق بالظبط."},"edge":null,"hl":{"sw":[2,3,4,5]}}]};
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -674,11 +874,51 @@ function layout(){
       ' L' + (end.x - r * Math.cos(ang - A)) + ',' + (end.y - r * Math.sin(ang - A)) +
       ' L' + (end.x - r * Math.cos(ang + A)) + ',' + (end.y - r * Math.sin(ang + A)) + ' Z');
     const mid = wire.getPointAtLength(L * 0.5);
-    txt.setAttribute('x', mid.x);
-    txt.setAttribute('y', mid.y - 9);
-    txt.setAttribute('text-anchor', 'middle');
-    txt.textContent = e.label;
+    const plain = $('text.plain', g);
+    /* a wire drawn straight across a row only has the gap between the two
+       boxes to write in; anywhere else there is open space */
+    const inRow = (e.a === 'right' && e.b === 'left') || (e.a === 'left' && e.b === 'right');
+    const room = inRow ? Math.abs(p2.x - p1.x) - 6 : Infinity;
+    [txt, plain].forEach(t => { t.setAttribute('x', mid.x); t.setAttribute('text-anchor', 'middle'); });
+    fitLabel(txt, e.label, 10.5, room, mid.y - 9, 'up');
+    fitLabel(plain, room < 80 ? '' : plainWords(e), 9.5, room, mid.y + 15, 'down');
   });
+}
+
+/* the plain-English (or plain-Arabic) words under a wire */
+function plainWords(e){
+  if (!e.plain) return '';
+  return document.documentElement.dataset.lang === 'ar' ? e.plain.ar : e.plain.en;
+}
+
+/* one line if it fits, otherwise two balanced lines, and only then shrink */
+function fitLabel(t, text, size, room, y, dir){
+  t.style.fontSize = '';
+  t.textContent = text;
+  t.setAttribute('y', y);
+  if (!text || room === Infinity || t.getComputedTextLength() <= room) return;
+
+  let widest = t.getComputedTextLength();
+  const words = text.split(' ');
+  if (words.length > 1) {
+    let cut = 1, best = Infinity;
+    for (let i = 1; i < words.length; i++) {
+      const d = Math.abs(words.slice(0, i).join(' ').length - words.slice(i).join(' ').length);
+      if (d < best) { best = d; cut = i; }
+    }
+    const lines = [words.slice(0, cut).join(' '), words.slice(cut).join(' ')];
+    const x = t.getAttribute('x');
+    t.textContent = '';
+    lines.forEach((ln, i) => {
+      const sp = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+      sp.setAttribute('x', x);
+      sp.setAttribute('y', dir === 'up' ? y - (1 - i) * size * 1.15 : y + i * size * 1.15);
+      sp.textContent = ln;
+      t.appendChild(sp);
+    });
+    widest = Math.max.apply(null, [].map.call(t.childNodes, sp => sp.getComputedTextLength()));
+  }
+  if (widest > room) t.style.fontSize = Math.max(8, size * room / widest).toFixed(2) + 'px';
 }
 
 /* ---------- steps ---------- */
@@ -755,12 +995,76 @@ async function play(){
   }
 }
 
+/* ---------- check yourself ---------- */
+function qScore(quiz){
+  const cards = $$('.qcard', quiz);
+  const n = cards.length;
+  const done = cards.filter(c => c.classList.contains('done')).length;
+  const right = cards.filter(c => c.classList.contains('right')).length;
+  $('.qdone', quiz).textContent = done;
+  $('.qright', quiz).textContent = right;
+  $('.qmeter i', quiz).style.width = (done / n * 100) + '%';
+  const end = $('.qend', quiz);
+  if (done < n) { end.hidden = true; return; }
+  const pct = right / n;
+  $('.sc', end).textContent = right + ' / ' + n;
+  const msg = pct === 1
+    ? ['Every one right. You could teach this page now.', 'كلها صح. تقدر تشرح الصفحة دي لحد تاني دلوقتي.']
+    : pct >= 0.6
+      ? ['Good. Read the why under the ones you missed, then try again.', 'حلو. اقرا الـ "ليه" تحت اللي غلط، وبعدين جرّب تاني.']
+      : ['Worth another read of the pictures above, then try again.', 'يستحق قراية تانية للصور اللي فوق، وبعدين جرّب تاني.'];
+  $('p', end).innerHTML = '<span class="l-en">' + msg[0] + '</span><span class="l-ar" dir="auto">' + msg[1] + '</span>';
+  end.hidden = false;
+}
+
+function qAnswer(btn){
+  const card = btn.closest('.qcard');
+  if (card.classList.contains('done')) return;
+  const quiz = card.closest('.quiz');
+  const right = +card.dataset.a, pick = +btn.dataset.o;
+  card.classList.add('done');
+  card.classList.add(pick === right ? 'right' : 'wrong');
+  $$('.opt', card).forEach((o, k) => {
+    if (k === right) o.classList.add('ok');
+    else if (k === pick) o.classList.add('no');
+  });
+  $('.why', card).hidden = false;
+  qScore(quiz);
+}
+
+function qReset(quiz){
+  $$('.qcard', quiz).forEach(c => {
+    c.classList.remove('done', 'right', 'wrong');
+    $$('.opt', c).forEach(o => o.classList.remove('ok', 'no'));
+    $('.why', c).hidden = true;
+  });
+  qScore(quiz);
+  quiz.scrollIntoView({ block: 'start', behavior: REDUCED ? 'auto' : 'smooth' });
+}
+
 document.addEventListener('click', e => {
   const dot = e.target.closest('.dot');
   if (dot) { RUN++; return goStep(+dot.dataset.step); }
-  if (e.target.closest('[data-replay]')) play();
+  if (e.target.closest('[data-replay]')) return play();
+  const opt = e.target.closest('.opt');
+  if (opt) return qAnswer(opt);
+  const rst = e.target.closest('[data-reset]');
+  if (rst) return qReset(rst.closest('.quiz'));
 });
 document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  const quiz = $('.quiz');
+  if (quiz && e.key >= '1' && e.key <= '4') {
+    const card = $('.qcard:not(.done)', quiz);
+    if (!card) return;
+    const opt = $$('.opt', card)[+e.key - 1];
+    if (!opt) return;
+    e.preventDefault();
+    qAnswer(opt);
+    const nx = $('.qcard:not(.done)', quiz) || $('.qend', quiz);
+    if (nx) nx.scrollIntoView({ block: 'center', behavior: REDUCED ? 'auto' : 'smooth' });
+    return;
+  }
   if (e.key === 'ArrowRight') { RUN++; goStep(step + 1); }
   else if (e.key === 'ArrowLeft') { RUN++; goStep(step - 1, false); }
   else if (e.key.toLowerCase() === 'r') play();
