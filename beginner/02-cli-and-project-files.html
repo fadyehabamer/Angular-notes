@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -660,26 +731,44 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="term" data-lang="bash">
         <div class="fc-h"><span class="d"></span>the six commands you need<span class="tag"><span class="l-en">memorise these</span><span class="l-ar" dir="auto">احفظ دول</span></span></div>
-        <pre><span class="ln" data-l="1">npm install -g @angular/cli      # once, on your machine</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3">ng new my-shop                   # create a project</span><span class="ln" data-l="4">ng serve                         # run it at localhost:4200</span><span class="ln" data-l="5">ng generate component cart       # ng g c cart</span><span class="ln" data-l="6">ng generate service cart-store   # ng g s cart-store</span><span class="ln" data-l="7">ng build                         # production build into dist/</span><span class="ln" data-l="8">ng test                          # run the unit tests</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10"># tip: `ng g c features/cart` creates it in a subfolder,</span><span class="ln" data-l="11">#      and creates the folder if it does not exist.</span></pre>
+        <pre><span class="ln" data-l="1">npm install -g <b class="nm nm-ng" data-nm="@angular/cli">@angular/cli</b>      # once, on your machine</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><span class="v0"><b class="nm nm-ng" data-nm="ng">ng</b> <b class="nm nm-ng" data-nm="new">new</b> <b class="nm nm-pub" data-nm="my-shop">my-shop</b>                   # create a project</span><span class="v1"><b class="nm nm-ng" data-nm="ng">ng</b> <b class="nm nm-ng" data-nm="new">new</b> <b class="nm nm-pub" data-nm="my-shop">my-banana</b>                   # create a project</span></span><span class="ln" data-l="4"><b class="nm nm-ng" data-nm="ng">ng</b> <b class="nm nm-ng" data-nm="serve">serve</b>                         # run it at localhost:4200</span><span class="ln" data-l="5"><span class="v0"><b class="nm nm-ng" data-nm="ng">ng</b> <b class="nm nm-ng" data-nm="generate">generate</b> <b class="nm nm-ng" data-nm="component">component</b> <b class="nm nm-pub" data-nm="cart">cart</b>       # ng g c cart</span><span class="v1"><b class="nm nm-ng" data-nm="ng">ng</b> <b class="nm nm-ng" data-nm="generate">generate</b> <b class="nm nm-ng" data-nm="component">component</b> <b class="nm nm-pub" data-nm="cart">avocado</b>       # ng g c cart</span></span><span class="ln" data-l="6"><span class="v0"><b class="nm nm-ng" data-nm="ng">ng</b> <b class="nm nm-ng" data-nm="generate">generate</b> <b class="nm nm-ng" data-nm="service">service</b> <b class="nm nm-pub" data-nm="cart-store">cart-store</b>   # ng g s cart-store</span><span class="v1"><b class="nm nm-ng" data-nm="ng">ng</b> <b class="nm nm-ng" data-nm="generate">generate</b> <b class="nm nm-ng" data-nm="service">service</b> <b class="nm nm-pub" data-nm="cart-store">cart-potato</b>   # ng g s cart-store</span></span><span class="ln" data-l="7"><b class="nm nm-ng" data-nm="ng">ng</b> <b class="nm nm-ng" data-nm="build">build</b>                         # production build into dist/</span><span class="ln" data-l="8"><b class="nm nm-ng" data-nm="ng">ng</b> <b class="nm nm-ng" data-nm="test">test</b>                          # run the unit tests</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10"># tip: `ng g c features/cart` creates it in a subfolder,</span><span class="ln" data-l="11">#      and creates the folder if it does not exist.</span></pre>
       </div>
       <div class="fc" data-file="ts" data-lang="ts">
         <div class="fc-h"><span class="d"></span>src/app/cart/cart.ts<span class="tag"><span class="l-en">generated for you</span><span class="l-ar" dir="auto">اتعمل لك</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Component</i> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="4">  selector: <i class="t-str">'app-cart'</i>,</span><span class="ln" data-l="5">  imports: [],</span><span class="ln" data-l="6">  templateUrl: <i class="t-str">'./cart.html'</i>,</span><span class="ln" data-l="7">  styleUrl: <i class="t-str">'./cart.css'</i>,</span><span class="ln" data-l="8">})</span><span class="ln" data-l="9"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Cart</i> {</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">}</span><span class="ln" data-l="12"> </span><span class="ln" data-l="13"><i class="t-com">// the CLI matched the class name, the selector, and the</i></span><span class="ln" data-l="14"><i class="t-com">// file names for you. that is the whole value of `ng g c`.</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Component</i> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-dec"><b class="nm nm-ng" data-nm="@Component">@Component</b></i>({</span><span class="ln" data-l="4"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-cart">app-cart</b>'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-cart">app-avocado</b>'</i>,</span></span><span class="ln" data-l="5">  <b class="nm nm-ng" data-nm="imports">imports</b>: [],</span><span class="ln" data-l="6"><span class="v0">  <b class="nm nm-ng" data-nm="templateUrl">templateUrl</b>: <i class="t-str">'./<b class="nm nm-pub" data-nm="cart">cart</b>.html'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="templateUrl">templateUrl</b>: <i class="t-str">'./<b class="nm nm-pub" data-nm="cart">avocado</b>.html'</i>,</span></span><span class="ln" data-l="7"><span class="v0">  <b class="nm nm-ng" data-nm="styleUrl">styleUrl</b>: <i class="t-str">'./<b class="nm nm-pub" data-nm="cart">cart</b>.css'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="styleUrl">styleUrl</b>: <i class="t-str">'./<b class="nm nm-pub" data-nm="cart">avocado</b>.css'</i>,</span></span><span class="ln" data-l="8">})</span><span class="ln" data-l="9"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Cart">Cart</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Cart">Avocado</b></i> {</span></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">}</span><span class="ln" data-l="12"> </span><span class="ln" data-l="13"><i class="t-com">// the CLI matched the class name, the selector, and the</i></span><span class="ln" data-l="14"><i class="t-com">// file names for you. that is the whole value of `ng g c`.</i></span></pre>
       </div>
       <div class="fc" data-file="html" data-lang="html">
         <div class="fc-h"><span class="d"></span>src/app/cart/cart.html<span class="tag"><span class="l-en">yours to fill</span><span class="l-ar" dir="auto">دي بتاعتك</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i>cart works!<i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-com">&lt;!-- delete that line and start building --&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><b class="nm nm-pub" data-nm="cart">cart</b> works!<i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><b class="nm nm-pub" data-nm="cart">avocado</b> works!<i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-com">&lt;!-- delete that line and start building --&gt;</i></span></pre>
       </div>
       <div class="fc" data-file="spec" data-lang="ts">
         <div class="fc-h"><span class="d"></span>src/app/cart/cart.spec.ts<span class="tag"><span class="l-en">safe to ignore at first</span><span class="l-ar" dir="auto">عادي تتجاهلها في الأول</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">// a starter unit test. it checks the component can be created.</i></span><span class="ln" data-l="2"><i class="t-com">// you can ignore this file until you are ready to learn testing —</i></span><span class="ln" data-l="3"><i class="t-com">// but do not delete it, `ng test` expects it.</i></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><i class="t-fn">describe</i>(<i class="t-str">'Cart'</i>, () =&gt; {</span><span class="ln" data-l="6">  <i class="t-fn">it</i>(<i class="t-str">'should create'</i>, <i class="t-key">async</i> () =&gt; {</span><span class="ln" data-l="7">    <i class="t-com">/* … */</i></span><span class="ln" data-l="8">  });</span><span class="ln" data-l="9">});</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">// a starter unit test. it checks the component can be created.</i></span><span class="ln" data-l="2"><i class="t-com">// you can ignore this file until you are ready to learn testing —</i></span><span class="ln" data-l="3"><i class="t-com">// but do not delete it, `ng test` expects it.</i></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><span class="v0"><i class="t-fn"><b class="nm nm-ng" data-nm="describe">describe</b></i>(<i class="t-str">'<b class="nm nm-pub" data-nm="Cart">Cart</b>'</i>, () =&gt; {</span><span class="v1"><i class="t-fn"><b class="nm nm-ng" data-nm="describe">describe</b></i>(<i class="t-str">'<b class="nm nm-pub" data-nm="Cart">Avocado</b>'</i>, () =&gt; {</span></span><span class="ln" data-l="6">  <i class="t-fn"><b class="nm nm-ng" data-nm="it">it</b></i>(<i class="t-str">'should create'</i>, <i class="t-key">async</i> () =&gt; {</span><span class="ln" data-l="7">    <i class="t-com">/* … */</i></span><span class="ln" data-l="8">  });</span><span class="ln" data-l="9">});</span></pre>
       </div>
       <div class="fc" data-file="map" data-lang="bash">
         <div class="fc-h"><span class="d"></span>what everything in the project is<span class="tag"><span class="l-en">the map</span><span class="l-ar" dir="auto">الخريطة</span></span></div>
-        <pre><span class="ln" data-l="1">my-shop/</span><span class="ln" data-l="2">├─ src/</span><span class="ln" data-l="3">│  ├─ index.html          the one real page</span><span class="ln" data-l="4">│  ├─ main.ts             starts the app</span><span class="ln" data-l="5">│  ├─ styles.css          global styles (fonts, resets, CSS variables)</span><span class="ln" data-l="6">│  └─ app/</span><span class="ln" data-l="7">│     ├─ app.ts           the root component</span><span class="ln" data-l="8">│     ├─ app.html         its template</span><span class="ln" data-l="9">│     ├─ app.config.ts    app-wide providers</span><span class="ln" data-l="10">│     ├─ app.routes.ts    the URL → component map</span><span class="ln" data-l="11">│     └─ cart/            a feature folder — you make these</span><span class="ln" data-l="12">├─ public/                images and files copied as-is</span><span class="ln" data-l="13">├─ angular.json           build settings (rarely edited)</span><span class="ln" data-l="14">├─ package.json           dependencies and npm scripts</span><span class="ln" data-l="15">├─ tsconfig.json          TypeScript settings</span><span class="ln" data-l="16">└─ node_modules/          installed packages — never edit, never commit</span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><b class="nm nm-pub" data-nm="my-shop">my-shop</b>/</span><span class="v1"><b class="nm nm-pub" data-nm="my-shop">my-banana</b>/</span></span><span class="ln" data-l="2">├─ src/</span><span class="ln" data-l="3">│  ├─ index.html          the one real page</span><span class="ln" data-l="4">│  ├─ main.ts             starts the app</span><span class="ln" data-l="5">│  ├─ styles.css          global styles (fonts, resets, CSS variables)</span><span class="ln" data-l="6">│  └─ app/</span><span class="ln" data-l="7">│     ├─ app.ts           the root component</span><span class="ln" data-l="8">│     ├─ app.html         its template</span><span class="ln" data-l="9">│     ├─ app.config.ts    app-wide providers</span><span class="ln" data-l="10">│     ├─ app.routes.ts    the URL → component map</span><span class="ln" data-l="11"><span class="v0">│     └─ <b class="nm nm-pub" data-nm="cart">cart</b>/            a feature folder — you make these</span><span class="v1">│     └─ <b class="nm nm-pub" data-nm="cart">avocado</b>/            a feature folder — you make these</span></span><span class="ln" data-l="12">├─ public/                images and files copied as-is</span><span class="ln" data-l="13">├─ <b class="nm nm-ng" data-nm="angular.json">angular.json</b>           build settings (rarely edited)</span><span class="ln" data-l="14">├─ <b class="nm nm-ng" data-nm="package.json">package.json</b>           dependencies and npm scripts</span><span class="ln" data-l="15">├─ tsconfig.json          TypeScript settings</span><span class="ln" data-l="16">└─ node_modules/          installed packages — never edit, never commit</span></pre>
       </div></div>
 
   
@@ -692,17 +781,229 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="f1" data-lang="bash">
         <div class="fc-h"><span class="d"></span>1. generate it<span class="tag"><span class="l-en">terminal</span><span class="l-ar" dir="auto">الترمينال</span></span></div>
-        <pre><span class="ln" data-l="1">ng g c pages/about</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"># CREATE src/app/pages/about/about.ts</span><span class="ln" data-l="4"># CREATE src/app/pages/about/about.html</span><span class="ln" data-l="5"># CREATE src/app/pages/about/about.css</span><span class="ln" data-l="6"># CREATE src/app/pages/about/about.spec.ts</span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><b class="nm nm-ng" data-nm="ng">ng</b> <b class="nm nm-ng" data-nm="generate">g</b> <b class="nm nm-ng" data-nm="component">c</b> pages/<b class="nm nm-pub" data-nm="about">about</b></span><span class="v1"><b class="nm nm-ng" data-nm="ng">ng</b> <b class="nm nm-ng" data-nm="generate">g</b> <b class="nm nm-ng" data-nm="component">c</b> pages/<b class="nm nm-pub" data-nm="about">sesame</b></span></span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"># CREATE src/app/pages/about/about.ts</span><span class="ln" data-l="4"># CREATE src/app/pages/about/about.html</span><span class="ln" data-l="5"># CREATE src/app/pages/about/about.css</span><span class="ln" data-l="6"># CREATE src/app/pages/about/about.spec.ts</span></pre>
       </div>
       <div class="fc" data-file="f2" data-lang="ts">
         <div class="fc-h"><span class="d"></span>2. give it a URL<span class="tag"><span class="l-en">app.routes.ts</span><span class="l-ar" dir="auto">app.routes.ts</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Routes</i> } <i class="t-key">from</i> <i class="t-str">'@angular/router'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-key">export</i> <i class="t-key">const</i> routes: <i class="t-type">Routes</i> = [</span><span class="ln" data-l="4">  {</span><span class="ln" data-l="5">    path: <i class="t-str">'about'</i>,</span><span class="ln" data-l="6">    loadComponent: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./pages/about/about'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type">About</i>),</span><span class="ln" data-l="7">  },</span><span class="ln" data-l="8">];</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-ng" data-nm="Routes">Routes</b></i> } <i class="t-key">from</i> <i class="t-str">'@angular/router'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><span class="v0"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="routes">routes</b>: <i class="t-type"><b class="nm nm-ng" data-nm="Routes">Routes</b></i> = [</span><span class="v1"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="routes">mango</b>: <i class="t-type"><b class="nm nm-ng" data-nm="Routes">Routes</b></i> = [</span></span><span class="ln" data-l="4">  {</span><span class="ln" data-l="5"><span class="v0">    <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="about">about</b>'</i>,</span><span class="v1">    <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="about">sesame</b>'</i>,</span></span><span class="ln" data-l="6"><span class="v0">    <b class="nm nm-ng" data-nm="loadComponent">loadComponent</b>: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./pages/<b class="nm nm-pub" data-nm="about">about</b>/<b class="nm nm-pub" data-nm="about">about</b>'</i>).<i class="t-fn">then</i>(<b class="nm nm-mine" data-nm="m">m</b> =&gt; <b class="nm nm-mine" data-nm="m">m</b>.<i class="t-type"><b class="nm nm-pub" data-nm="About">About</b></i>),</span><span class="v1">    <b class="nm nm-ng" data-nm="loadComponent">loadComponent</b>: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./pages/<b class="nm nm-pub" data-nm="about">sesame</b>/<b class="nm nm-pub" data-nm="about">sesame</b>'</i>).<i class="t-fn">then</i>(<b class="nm nm-mine" data-nm="m">pickle</b> =&gt; <b class="nm nm-mine" data-nm="m">pickle</b>.<i class="t-type"><b class="nm nm-pub" data-nm="About">Sesame</b></i>),</span></span><span class="ln" data-l="7">  },</span><span class="ln" data-l="8">];</span></pre>
       </div>
       <div class="fc" data-file="f3" data-lang="html">
         <div class="fc-h"><span class="d"></span>3. link to it<span class="tag"><span class="l-en">app.html</span><span class="l-ar" dir="auto">app.html</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;nav</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="2">  <i class="t-tag">&lt;a</i> <i class="t-attr">routerLink</i>=<i class="t-str">"/"</i><i class="t-tag">&gt;</i>Home<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="3">  <i class="t-tag">&lt;a</i> <i class="t-attr">routerLink</i>=<i class="t-str">"/about"</i><i class="t-tag">&gt;</i>About<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="4"><i class="t-tag">&lt;/nav</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5"> </span><span class="ln" data-l="6"><i class="t-tag">&lt;router-outlet</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8"><i class="t-com">&lt;!-- add RouterLink and RouterOutlet to imports: [] in app.ts --&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;nav</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="2">  <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/"</i><i class="t-tag">&gt;</i>Home<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="3"><span class="v0">  <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/<b class="nm nm-pub" data-nm="about">about</b>"</i><i class="t-tag">&gt;</i>About<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/<b class="nm nm-pub" data-nm="about">sesame</b>"</i><i class="t-tag">&gt;</i>About<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="4"><i class="t-tag">&lt;/nav</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5"> </span><span class="ln" data-l="6"><i class="t-tag">&lt;<b class="nm nm-ng" data-nm="router-outlet">router-outlet</b></i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8"><i class="t-com">&lt;!-- add RouterLink and RouterOutlet to imports: [] in app.ts --&gt;</i></span></pre>
       </div></div>
   </div>
+
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">In <code>ng generate component cart</code>, only the last word is yours. The CLI turns it into the folder, the file names, the class <code>Cart</code> and the selector <code>app-cart</code>, and other files will type all of those, so a later rename touches every one.</span><span class="l-ar" dir="auto">في <code>ng generate component cart</code>، الكلمة الأخيرة بس هي بتاعتك. الـ CLI بيحوّلها للفولدر وأسماء الملفات والكلاس <code>Cart</code> والـ selector <code>app-cart</code>، والملفات التانية هتكتب كل دول، فلو غيّرت الاسم بعدين هتلف عليهم كلهم.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="ng">
+        <td><b class="nm nm-ng" data-nm="ng">ng</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The Angular CLI’s command name. Every CLI command starts with it.</span><span class="l-ar" dir="auto">اسم أمر الـ Angular CLI. كل أوامر الـ CLI بتبدأ بيه.</span></td>
+        <td class="nmfiles"><code>the six commands you need</code> <code>1. generate it</code></td>
+      </tr>
+      <tr data-nmrow="new">
+        <td><b class="nm nm-ng" data-nm="new">new</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A CLI command: create a whole new project.</span><span class="l-ar" dir="auto">أمر من الـ CLI: اعمل مشروع جديد خالص.</span></td>
+        <td class="nmfiles"><code>the six commands you need</code></td>
+      </tr>
+      <tr data-nmrow="serve">
+        <td><b class="nm nm-ng" data-nm="serve">serve</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A CLI command: build and run the app while you work.</span><span class="l-ar" dir="auto">أمر من الـ CLI: ابني التطبيق وشغّله وانت شغال.</span></td>
+        <td class="nmfiles"><code>the six commands you need</code></td>
+      </tr>
+      <tr data-nmrow="generate">
+        <td><b class="nm nm-ng" data-nm="generate">generate</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A CLI command, short form <code>g</code>: create files for you.</span><span class="l-ar" dir="auto">أمر من الـ CLI، واختصاره <code>g</code>: بيعملك الملفات.</span></td>
+        <td class="nmfiles"><code>the six commands you need</code> <code>1. generate it</code></td>
+      </tr>
+      <tr data-nmrow="component">
+        <td><b class="nm nm-ng" data-nm="component">component</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">What to generate, short form <code>c</code>. The CLI knows this word; the name after it is yours.</span><span class="l-ar" dir="auto">نوع الحاجة اللي هتتعمل، واختصارها <code>c</code>. الـ CLI عارف الكلمة دي؛ الاسم اللي بعدها بتاعك.</span></td>
+        <td class="nmfiles"><code>the six commands you need</code> <code>1. generate it</code></td>
+      </tr>
+      <tr data-nmrow="service">
+        <td><b class="nm nm-ng" data-nm="service">service</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">What to generate, short form <code>s</code>.</span><span class="l-ar" dir="auto">نوع الحاجة اللي هتتعمل، واختصارها <code>s</code>.</span></td>
+        <td class="nmfiles"><code>the six commands you need</code></td>
+      </tr>
+      <tr data-nmrow="build">
+        <td><b class="nm nm-ng" data-nm="build">build</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A CLI command: the production build.</span><span class="l-ar" dir="auto">أمر من الـ CLI: الـ build بتاع الـ production.</span></td>
+        <td class="nmfiles"><code>the six commands you need</code></td>
+      </tr>
+      <tr data-nmrow="test">
+        <td><b class="nm nm-ng" data-nm="test">test</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A CLI command: run the unit tests.</span><span class="l-ar" dir="auto">أمر من الـ CLI: شغّل الـ unit tests.</span></td>
+        <td class="nmfiles"><code>the six commands you need</code></td>
+      </tr>
+      <tr data-nmrow="@angular/cli">
+        <td><b class="nm nm-ng" data-nm="@angular/cli">@angular/cli</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The npm package name of the Angular CLI.</span><span class="l-ar" dir="auto">اسم الـ package بتاع الـ Angular CLI على npm.</span></td>
+        <td class="nmfiles"><code>the six commands you need</code></td>
+      </tr>
+      <tr data-nmrow="@Component">
+        <td><b class="nm nm-ng" data-nm="@Component">@Component</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s decorator: the label that turns a class into a component.</span><span class="l-ar" dir="auto">الـ decorator بتاع أنجولار: اللافتة اللي بتحوّل الكلاس لـ component.</span></td>
+        <td class="nmfiles"><code>src/app/cart/cart.ts</code></td>
+      </tr>
+      <tr data-nmrow="selector">
+        <td><b class="nm nm-ng" data-nm="selector">selector</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads. The tag name you give it is yours.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه. اسم التاج اللي بتحطه فيه بتاعك.</span></td>
+        <td class="nmfiles"><code>src/app/cart/cart.ts</code></td>
+      </tr>
+      <tr data-nmrow="imports">
+        <td><b class="nm nm-ng" data-nm="imports">imports</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads: what this component’s template may use.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه: الحاجات اللي التمبلت بتاع الـ component ده مسموح له يستخدمها.</span></td>
+        <td class="nmfiles"><code>src/app/cart/cart.ts</code></td>
+      </tr>
+      <tr data-nmrow="templateUrl">
+        <td><b class="nm nm-ng" data-nm="templateUrl">templateUrl</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads. The path you give it must match the real file name.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه. المسار اللي بتحطه لازم يبقى زي اسم الملف الحقيقي.</span></td>
+        <td class="nmfiles"><code>src/app/cart/cart.ts</code></td>
+      </tr>
+      <tr data-nmrow="styleUrl">
+        <td><b class="nm nm-ng" data-nm="styleUrl">styleUrl</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads, for the component’s CSS file.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه، لملف الـ CSS بتاع الـ component.</span></td>
+        <td class="nmfiles"><code>src/app/cart/cart.ts</code></td>
+      </tr>
+      <tr data-nmrow="describe">
+        <td><b class="nm nm-ng" data-nm="describe">describe</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The test runner’s function that groups tests. The text inside the quotes is yours.</span><span class="l-ar" dir="auto">الـ function بتاعة الـ test runner اللي بتجمّع الـ tests. الكلام اللي بين العلامات بتاعك.</span></td>
+        <td class="nmfiles"><code>src/app/cart/cart.spec.ts</code></td>
+      </tr>
+      <tr data-nmrow="it">
+        <td><b class="nm nm-ng" data-nm="it">it</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The test runner’s function for one test.</span><span class="l-ar" dir="auto">الـ function بتاعة الـ test runner لـ test واحد.</span></td>
+        <td class="nmfiles"><code>src/app/cart/cart.spec.ts</code></td>
+      </tr>
+      <tr data-nmrow="angular.json">
+        <td><b class="nm nm-ng" data-nm="angular.json">angular.json</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The CLI looks for this exact file name.</span><span class="l-ar" dir="auto">الـ CLI بيدوّر على اسم الملف ده بالظبط.</span></td>
+        <td class="nmfiles"><code>what everything in the project is</code></td>
+      </tr>
+      <tr data-nmrow="package.json">
+        <td><b class="nm nm-ng" data-nm="package.json">package.json</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">npm looks for this exact file name.</span><span class="l-ar" dir="auto">npm بيدوّر على اسم الملف ده بالظبط.</span></td>
+        <td class="nmfiles"><code>what everything in the project is</code></td>
+      </tr>
+      <tr data-nmrow="Routes">
+        <td><b class="nm nm-ng" data-nm="Routes">Routes</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s type for a routes array.</span><span class="l-ar" dir="auto">الـ type بتاع أنجولار لـ array الـ routes.</span></td>
+        <td class="nmfiles"><code>2. give it a URL</code></td>
+      </tr>
+      <tr data-nmrow="path">
+        <td><b class="nm nm-ng" data-nm="path">path</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route key Angular reads. The URL text you give it is yours.</span><span class="l-ar" dir="auto">مفتاح في الـ route أنجولار بيقراه. نص الـ URL اللي بتحطه فيه بتاعك.</span></td>
+        <td class="nmfiles"><code>2. give it a URL</code></td>
+      </tr>
+      <tr data-nmrow="loadComponent">
+        <td><b class="nm nm-ng" data-nm="loadComponent">loadComponent</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route key Angular reads: load this page’s code only when someone visits it.</span><span class="l-ar" dir="auto">مفتاح في الـ route أنجولار بيقراه: حمّل كود الصفحة دي بس لما حد يزورها.</span></td>
+        <td class="nmfiles"><code>2. give it a URL</code></td>
+      </tr>
+      <tr data-nmrow="routerLink">
+        <td><b class="nm nm-ng" data-nm="routerLink">routerLink</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s link directive. Needs <code>RouterLink</code> in <code>imports</code>.</span><span class="l-ar" dir="auto">الـ directive بتاع أنجولار للينكات. محتاج <code>RouterLink</code> في <code>imports</code>.</span></td>
+        <td class="nmfiles"><code>3. link to it</code></td>
+      </tr>
+      <tr data-nmrow="router-outlet">
+        <td><b class="nm nm-ng" data-nm="router-outlet">router-outlet</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s tag: the spot where the router shows the current page.</span><span class="l-ar" dir="auto">تاج أنجولار: المكان اللي الـ router بيعرض فيه الصفحة الحالية.</span></td>
+        <td class="nmfiles"><code>3. link to it</code></td>
+      </tr>
+      <tr data-nmrow="my-shop">
+        <td><b class="nm nm-pub" data-nm="my-shop">my-shop</b><span class="nmas">&rarr; <code>my-banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your project’s name. The CLI writes it into the folder, <code>package.json</code> and <code>angular.json</code>, so a later rename means editing those too.</span><span class="l-ar" dir="auto">اسم المشروع بتاعك. الـ CLI بيكتبه في الفولدر و<code>package.json</code> و<code>angular.json</code>، فلو غيّرته بعدين لازم تعدّل دول كمان.</span></td>
+        <td class="nmfiles"><code>the six commands you need</code> <code>what everything in the project is</code></td>
+      </tr>
+      <tr data-nmrow="cart">
+        <td><b class="nm nm-pub" data-nm="cart">cart</b><span class="nmas">&rarr; <code>avocado</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The name you gave the CLI. It became the folder, the file names that <code>templateUrl</code> and <code>styleUrl</code> point at, even the placeholder text. Renaming later means renaming the files and every path that points at them.</span><span class="l-ar" dir="auto">الاسم اللي ادّيته للـ CLI. بقى اسم الفولدر، وأسماء الملفات اللي <code>templateUrl</code> و<code>styleUrl</code> بيشاوروا عليها، وحتى الكلام اللي في التمبلت. لو غيّرته بعدين لازم تغيّر أسماء الملفات وكل مسار بيشاور عليها.</span></td>
+        <td class="nmfiles"><code>the six commands you need</code> <code>src/app/cart/cart.ts</code> <code>src/app/cart/cart.html</code> <code>what everything in the project is</code></td>
+      </tr>
+      <tr data-nmrow="Cart">
+        <td><b class="nm nm-pub" data-nm="Cart">Cart</b><span class="nmas">&rarr; <code>Avocado</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The class name the CLI made from <code>cart</code>. Whoever imports it follows a rename.</span><span class="l-ar" dir="auto">اسم الكلاس اللي الـ CLI عمله من <code>cart</code>. أي حد بيعمله import بيتغير معاه.</span></td>
+        <td class="nmfiles"><code>src/app/cart/cart.ts</code> <code>src/app/cart/cart.spec.ts</code></td>
+      </tr>
+      <tr data-nmrow="app-cart">
+        <td><b class="nm nm-pub" data-nm="app-cart">app-cart</b><span class="nmas">&rarr; <code>app-avocado</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The selector the CLI made from <code>cart</code>. The tag in any parent template must match it.</span><span class="l-ar" dir="auto">الـ selector اللي الـ CLI عمله من <code>cart</code>. التاج في أي تمبلت أب لازم يبقى زيه.</span></td>
+        <td class="nmfiles"><code>src/app/cart/cart.ts</code></td>
+      </tr>
+      <tr data-nmrow="cart-store">
+        <td><b class="nm nm-pub" data-nm="cart-store">cart-store</b><span class="nmas">&rarr; <code>cart-potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The service name you gave the CLI. It becomes <code>cart-store.ts</code> and a class <code>CartStore</code> that components inject.</span><span class="l-ar" dir="auto">اسم الـ service اللي ادّيته للـ CLI. بيبقى <code>cart-store.ts</code> وكلاس <code>CartStore</code> الـ components بتعمله inject.</span></td>
+        <td class="nmfiles"><code>the six commands you need</code></td>
+      </tr>
+      <tr data-nmrow="routes">
+        <td><b class="nm nm-pub" data-nm="routes">routes</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your routes array. <code>app.config.ts</code> imports it by this name.</span><span class="l-ar" dir="auto">الـ array بتاع الـ routes بتاعتك. <code>app.config.ts</code> بيعمله import بالاسم ده.</span></td>
+        <td class="nmfiles"><code>2. give it a URL</code></td>
+      </tr>
+      <tr data-nmrow="about">
+        <td><b class="nm nm-pub" data-nm="about">about</b><span class="nmas">&rarr; <code>sesame</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Two promises that share a spelling. It is the folder and file names, so the lazy <code>import()</code> path must match them. It is also the URL: <code>path: 'about'</code> and <code>routerLink="/about"</code> must match.</span><span class="l-ar" dir="auto">وعدين ليهم نفس الاسم. هو اسم الفولدر والملفات، فمسار الـ <code>import()</code> لازم يبقى زيهم. وهو كمان الـ URL: <code>path: 'about'</code> و<code>routerLink="/about"</code> لازم يبقوا زي بعض.</span></td>
+        <td class="nmfiles"><code>1. generate it</code> <code>2. give it a URL</code> <code>3. link to it</code></td>
+      </tr>
+      <tr data-nmrow="About">
+        <td><b class="nm nm-pub" data-nm="About">About</b><span class="nmas">&rarr; <code>Sesame</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The class the CLI made from <code>about</code>. The route picks it by name with <code>m.About</code>.</span><span class="l-ar" dir="auto">الكلاس اللي الـ CLI عمله من <code>about</code>. الـ route بيختاره بالاسم بـ <code>m.About</code>.</span></td>
+        <td class="nmfiles"><code>2. give it a URL</code></td>
+      </tr>
+      <tr data-nmrow="m">
+        <td><b class="nm nm-mine" data-nm="m">m</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The name you give the loaded file inside the arrow function. Any name works.</span><span class="l-ar" dir="auto">الاسم اللي بتدّيه للملف اللي اتحمّل جوه الـ arrow function. أي اسم ينفع.</span></td>
+        <td class="nmfiles"><code>2. give it a URL</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="cli-and-project-files-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en"><code>ng generate</code>, name by name</span><span class="l-ar" dir="auto"><code>ng generate</code>، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">The page for when you are not sure which part of a CLI command is yours. One word typed in the terminal followed into folders, file names, a class and a selector, every name coloured: <b>Angular’s</b>, <b>yours</b>, or <b>yours but shared</b>. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">الصفحة دي للي مش متأكد أنهي حتة في أمر الـ CLI بتاعته. كلمة واحدة بتكتبها في الترمينال ماشيين وراها لحد الفولدرات وأسماء الملفات والكلاس والـ selector، وكل اسم ملوّن: <b>بتاع أنجولار</b>، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b>. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+  </a>
 
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
@@ -802,8 +1103,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../beginner/01-how-an-app-starts.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">How an Angular page actually appears</span><span class="l-ar" dir="auto">إزاي صفحة أنجولار بتظهر فعلاً</span></b></a>
-    <a class="nx" href="../beginner/03-components.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">A component is a class with a label on it</span><span class="l-ar" dir="auto">الـ component كلاس عليه لافتة</span></b></a>
+    <a class="pv" href="../beginner/how-an-app-starts-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">The startup files, name by name</span><span class="l-ar" dir="auto">ملفات التشغيل، اسم اسم</span></b></a>
+    <a class="nx" href="../beginner/cli-and-project-files-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en"><code>ng generate</code>, name by name</span><span class="l-ar" dir="auto"><code>ng generate</code>، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -845,6 +1146,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){

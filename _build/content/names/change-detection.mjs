@@ -1,0 +1,72 @@
+/* names for the change detection / OnPush topic.
+   n: the name exactly as typed in the code.   k: ng | mine | pub.
+   w: what it is, and what has to change with it.   { en, ar }
+   re / only / as: see _build/names.mjs.                                  */
+export default {
+'change-detection': {
+  note: {
+    en: '<code>changeDetection</code>, <code>ChangeDetectionStrategy</code> and <code>OnPush</code> are one fixed line you copy as is. Around it, the names that matter are the <b>orange</b> ones: inputs and store members that another component reads.',
+    ar: '<code>changeDetection</code> و<code>ChangeDetectionStrategy</code> و<code>OnPush</code> سطر واحد ثابت بتنسخه زي ما هو. حواليه، الأسامي المهمة هي اللي <b>برتقاني</b>: الـ inputs وحاجات الـ store اللي component تاني بيقراها.'
+  },
+  names: [
+    { n:'@Component', k:'ng', w:{ en:'Angular’s decorator for a component.', ar:'الـ decorator بتاع أنجولار للـ component.' } },
+    { n:'changeDetection', k:'ng',
+      w:{ en:'An option key Angular reads on <code>@Component</code>.', ar:'مفتاح إعداد أنجولار بيقراه في <code>@Component</code>.' } },
+    { n:'ChangeDetectionStrategy', k:'ng',
+      w:{ en:'Angular’s enum of the two strategies.', ar:'الـ enum بتاع أنجولار اللي فيه الاستراتيجيتين.' } },
+    { n:'OnPush', k:'ng',
+      w:{ en:'Angular’s strategy: only check this component when an input reference, an event or a signal it reads says so.',
+          ar:'استراتيجية أنجولار: متشيّكش على الـ component ده غير لما reference الـ input يتغير، أو event، أو signal هو بيقراها.' } },
+    { n:'@for', k:'ng', w:{ en:'Angular’s loop.', ar:'الـ loop بتاع أنجولار.' } },
+    { n:'track', k:'ng', w:{ en:'Part of <code>@for</code>: how Angular tells rows apart.', ar:'جزء من <code>@for</code>: أنجولار بيفرّق بين الصفوف إزاي.' } },
+    { n:'input', k:'ng',
+      w:{ en:'Angular’s function that creates a signal input. Only the property name on its left is yours.',
+          ar:'الـ function بتاعة أنجولار اللي بتعمل signal input. اسم الـ property اللي على شمالها بس هو اللي بتاعك.' } },
+    { n:'required', k:'ng', w:{ en:'Part of Angular’s API: <code>input.required</code>.', ar:'جزء من API أنجولار: <code>input.required</code>.' } },
+    { n:'@Input', k:'ng',
+      w:{ en:'Angular’s older decorator for an input: a plain field, not a signal.', ar:'الـ decorator القديم بتاع أنجولار للـ input: field عادي، مش signal.' } },
+    { n:'push', k:'ng', only:['bad'],
+      w:{ en:'JavaScript’s array method. It changes the array in place and keeps the same reference, which is why <code>OnPush</code> never notices.',
+          ar:'ميثود الـ array بتاعة JavaScript. بتغيّر الـ array مكانها وبتسيب نفس الـ reference، وعشان كده <code>OnPush</code> مش بياخد باله.' } },
+    { n:'update', k:'ng', w:{ en:'A signal method.', ar:'ميثود بتاعة الـ signal.' } },
+    { n:'inject', k:'ng', w:{ en:'Angular’s function that hands you a service.', ar:'الـ function بتاعة أنجولار اللي بتديك سيرفس.' } },
+    { n:'@Injectable', k:'ng', w:{ en:'Angular’s decorator for a service.', ar:'الـ decorator بتاع أنجولار للسيرفس.' } },
+    { n:'providedIn', k:'ng', w:{ en:'An option key Angular reads.', ar:'مفتاح إعداد أنجولار بيقراه.' } },
+    { n:'root', k:'ng', w:{ en:'Angular’s fixed value: one shared instance for the whole app.', ar:'قيمة ثابتة من أنجولار: نسخة واحدة متشاركة للتطبيق كله.' } },
+    { n:'Map', k:'ng', w:{ en:'JavaScript’s built-in key → value collection.', ar:'الـ collection الجاهزة في JavaScript بتاعة مفتاح → قيمة.' } },
+    { n:'WritableSignal', k:'ng', w:{ en:'Angular’s type for a signal you can <code>set</code>.', ar:'النوع بتاع أنجولار لـ signal تقدر تعملها <code>set</code>.' } },
+    { n:'has', k:'ng', w:{ en:'A <code>Map</code> method from JavaScript.', ar:'ميثود في <code>Map</code> من JavaScript.' } },
+    { n:'get', k:'ng', w:{ en:'A <code>Map</code> method from JavaScript.', ar:'ميثود في <code>Map</code> من JavaScript.' } },
+    { n:'set', k:'ng',
+      w:{ en:'Two built-in methods with one spelling: <code>Map.set</code> on the map, and a signal’s <code>set</code> on the price.',
+          ar:'ميثودين جاهزين ليهم نفس الاسم: <code>Map.set</code> على الـ map، و<code>set</code> بتاعة الـ signal على السعر.' } },
+    { n:'signal', k:'ng', w:{ en:'Angular’s writable signal.', ar:'الـ signal بتاعة أنجولار اللي بتتكتب.' } },
+
+    { n:'app-list', k:'pub', w:{ en:'The list’s selector. The tag in a parent template must match.', ar:'الـ selector بتاع الليستة. التاج في تمبلت الأب لازم يطابقه.' } },
+    { n:'List', k:'pub', w:{ en:'The list component’s class name, imported by whoever shows it.', ar:'اسم كلاس الـ component بتاع الليستة، بيتعمله import في أي حتة بتعرضه.' } },
+    { n:'rows', k:'pub',
+      w:{ en:'The list’s input. A parent sets it with <code>[rows]</code>, so both sides change together. In the fix it is also a signal on the store.',
+          ar:'الـ input بتاع الليستة. الأب بيحطه بـ <code>[rows]</code>، فالناحيتين بيتغيروا مع بعض. وفي الحل هو كمان signal في الـ store.' } },
+    { n:'Row', k:'pub', w:{ en:'Your data type, imported by every file that uses it.', ar:'نوع الداتا بتاعك، أي ملف بيستخدمه بيعمله import.' } },
+    { n:'addRow', k:'mine', w:{ en:'Your method. Only this component calls it.', ar:'الميثود بتاعتك. الـ component ده بس اللي بيناديها.' } },
+    { n:'app-row', k:'pub', w:{ en:'The row’s selector: its <code>selector</code> string and the tag in the list template must match.', ar:'الـ selector بتاع الصف: النص في <code>selector</code> والتاج في تمبلت الليستة لازم يبقوا زي بعض.' } },
+    { n:'row', k:'pub',
+      w:{ en:'The row’s input. The list binds it with <code>[row]</code>, so both files change together.',
+          ar:'الـ input بتاع الصف. الليستة بتربطه بـ <code>[row]</code>، فالملفين بيتغيروا مع بعض.' } },
+    { n:'RowCmp', k:'pub', w:{ en:'The row component’s class name, listed in the list’s <code>imports</code>.', ar:'اسم كلاس الـ component بتاع الصف، مكتوب في <code>imports</code> بتاع الليستة.' } },
+    { n:'store', k:'mine',
+      w:{ en:'Each component’s own field holding the store. Its template reads <code>store.…</code>, but that is still inside the same component.',
+          ar:'الـ field بتاع كل component اللي شايل الـ store. التمبلت بتاعه بيقرا <code>store.…</code>، بس ده برضه جوه نفس الـ component.' } },
+    { n:'PriceStore', k:'pub', w:{ en:'Your service class. Every component that injects it types this name.', ar:'كلاس السيرفس بتاعك. أي component بيعمله inject بيكتب الاسم ده.' } },
+    { n:'priceOf', k:'pub',
+      w:{ en:'A store method that other components call from their templates. Rename it in the store and in every template.',
+          ar:'ميثود في الـ store components تانية بتناديها من التمبلت بتاعها. غيّرها في الـ store وفي كل تمبلت.' } },
+    { n:'map', k:'mine', w:{ en:'The store’s private field. Only the store uses it.', ar:'الـ field الخاص بالـ store. الـ store بس اللي بيستخدمه.' } },
+    { n:'app-ticker-row', k:'pub', w:{ en:'The ticker row’s selector.', ar:'الـ selector بتاع صف الأسعار.' } },
+    { n:'TickerRow', k:'pub', w:{ en:'The ticker row’s class name.', ar:'اسم كلاس صف الأسعار.' } },
+    { n:'symbol', k:'pub', only:['p2'],
+      w:{ en:'The ticker row’s input. A parent sets it with <code>[symbol]</code>. The <code>symbol</code> parameters in the store are separate local names.',
+          ar:'الـ input بتاع صف الأسعار. الأب بيحطه بـ <code>[symbol]</code>. والـ <code>symbol</code> اللي في باراميترز الـ store أسامي محلية تانية خالص.' } },
+  ]
+}
+};

@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -660,22 +731,40 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="op" data-lang="ts">
         <div class="fc-h"><span class="d"></span>the three, and when each is right<span class="tag"><span class="l-en">the decision</span><span class="l-ar" dir="auto">القرار</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">// forkJoin — wait for ALL to COMPLETE, then emit once. Promise.all.</i></span><span class="ln" data-l="2"><i class="t-com">//   ✓ several independent HTTP calls for one page load</i></span><span class="ln" data-l="3"><i class="t-com">//   ✗ NEVER with a stream that does not complete — it hangs forever</i></span><span class="ln" data-l="4"><i class="t-fn">forkJoin</i>({</span><span class="ln" data-l="5">  user:    <i class="t-key">this</i>.http.<i class="t-key">get</i>&lt;<i class="t-type">User</i>&gt;(<i class="t-str">'/api/me'</i>),</span><span class="ln" data-l="6">  orders:  <i class="t-key">this</i>.http.<i class="t-key">get</i>&lt;<i class="t-type">Order</i>[]&gt;(<i class="t-str">'/api/orders'</i>),</span><span class="ln" data-l="7">  settings: <i class="t-key">this</i>.http.<i class="t-key">get</i>&lt;<i class="t-type">Settings</i>&gt;(<i class="t-str">'/api/settings'</i>),</span><span class="ln" data-l="8">}).<i class="t-fn">subscribe</i>(({ user, orders, settings }) =&gt; { … });</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10"><i class="t-com">// combineLatest — emit the latest of EACH, whenever ANY of them fires.</i></span><span class="ln" data-l="11"><i class="t-com">//   ✓ filters + sort + page → one query object</i></span><span class="ln" data-l="12"><i class="t-com">//   ✗ emits nothing until EVERY source has fired at least once</i></span><span class="ln" data-l="13"><i class="t-fn">combineLatest</i>([<i class="t-key">this</i>.search$, <i class="t-key">this</i>.sort$, <i class="t-key">this</i>.page$]).<i class="t-fn">pipe</i>(</span><span class="ln" data-l="14">  <i class="t-fn">map</i>(([q, sort, page]) =&gt; ({ q, sort, page })),</span><span class="ln" data-l="15">  <i class="t-fn">switchMap</i>(params =&gt; <i class="t-key">this</i>.api.<i class="t-fn">search</i>(params)),</span><span class="ln" data-l="16">);</span><span class="ln" data-l="17"> </span><span class="ln" data-l="18"><i class="t-com">// withLatestFrom — ONE source drives; the others are just read.</i></span><span class="ln" data-l="19"><i class="t-com">//   ✓ on submit, grab the current form value and the current user</i></span><span class="ln" data-l="20"><i class="t-key">this</i>.submit$.<i class="t-fn">pipe</i>(</span><span class="ln" data-l="21">  <i class="t-fn">withLatestFrom</i>(<i class="t-key">this</i>.form$, <i class="t-key">this</i>.user$),</span><span class="ln" data-l="22">  <i class="t-fn">switchMap</i>(([, form, user]) =&gt; <i class="t-key">this</i>.api.<i class="t-fn">save</i>(form, user.id)),</span><span class="ln" data-l="23">);</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">// forkJoin — wait for ALL to COMPLETE, then emit once. Promise.all.</i></span><span class="ln" data-l="2"><i class="t-com">//   ✓ several independent HTTP calls for one page load</i></span><span class="ln" data-l="3"><i class="t-com">//   ✗ NEVER with a stream that does not complete — it hangs forever</i></span><span class="ln" data-l="4"><i class="t-fn"><b class="nm nm-ng" data-nm="forkJoin">forkJoin</b></i>({</span><span class="ln" data-l="5"><span class="v0">  <b class="nm nm-mine" data-nm="user">user</b>:    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">http</b>.<i class="t-key"><b class="nm nm-ng" data-nm="get">get</b></i>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="User">User</b></i>&gt;(<i class="t-str">'/api/me'</i>),</span><span class="v1">  <b class="nm nm-mine" data-nm="user">mango</b>:    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">banana</b>.<i class="t-key"><b class="nm nm-ng" data-nm="get">get</b></i>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="User">Carrot</b></i>&gt;(<i class="t-str">'/api/me'</i>),</span></span><span class="ln" data-l="6"><span class="v0">  <b class="nm nm-mine" data-nm="orders">orders</b>:  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">http</b>.<i class="t-key"><b class="nm nm-ng" data-nm="get">get</b></i>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Order">Order</b></i>[]&gt;(<i class="t-str">'/api/orders'</i>),</span><span class="v1">  <b class="nm nm-mine" data-nm="orders">pickle</b>:  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">banana</b>.<i class="t-key"><b class="nm nm-ng" data-nm="get">get</b></i>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Order">Biscuit</b></i>[]&gt;(<i class="t-str">'/api/orders'</i>),</span></span><span class="ln" data-l="7"><span class="v0">  <b class="nm nm-mine" data-nm="settings">settings</b>: <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">http</b>.<i class="t-key"><b class="nm nm-ng" data-nm="get">get</b></i>&lt;<i class="t-type">Settings</i>&gt;(<i class="t-str">'/api/settings'</i>),</span><span class="v1">  <b class="nm nm-mine" data-nm="settings">waffle</b>: <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">banana</b>.<i class="t-key"><b class="nm nm-ng" data-nm="get">get</b></i>&lt;<i class="t-type">Settings</i>&gt;(<i class="t-str">'/api/settings'</i>),</span></span><span class="ln" data-l="8"><span class="v0">}).<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>(({ <b class="nm nm-mine" data-nm="user">user</b>, <b class="nm nm-mine" data-nm="orders">orders</b>, <b class="nm nm-mine" data-nm="settings">settings</b> }) =&gt; { … });</span><span class="v1">}).<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>(({ <b class="nm nm-mine" data-nm="user">mango</b>, <b class="nm nm-mine" data-nm="orders">pickle</b>, <b class="nm nm-mine" data-nm="settings">waffle</b> }) =&gt; { … });</span></span><span class="ln" data-l="9"> </span><span class="ln" data-l="10"><i class="t-com">// combineLatest — emit the latest of EACH, whenever ANY of them fires.</i></span><span class="ln" data-l="11"><i class="t-com">//   ✓ filters + sort + page → one query object</i></span><span class="ln" data-l="12"><i class="t-com">//   ✗ emits nothing until EVERY source has fired at least once</i></span><span class="ln" data-l="13"><span class="v0"><i class="t-fn"><b class="nm nm-ng" data-nm="combineLatest">combineLatest</b></i>([<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="search$">search$</b>, <i class="t-key">this</i>.sort$, <i class="t-key">this</i>.page$]).<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(</span><span class="v1"><i class="t-fn"><b class="nm nm-ng" data-nm="combineLatest">combineLatest</b></i>([<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="search$">okra$</b>, <i class="t-key">this</i>.sort$, <i class="t-key">this</i>.page$]).<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(</span></span><span class="ln" data-l="14">  <i class="t-fn"><b class="nm nm-ng" data-nm="map">map</b></i>(([q, sort, page]) =&gt; ({ q, sort, page })),</span><span class="ln" data-l="15"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="switchMap">switchMap</b></i>(params =&gt; <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="api">api</b>.<i class="t-fn">search</i>(params)),</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="switchMap">switchMap</b></i>(params =&gt; <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="api">potato</b>.<i class="t-fn">search</i>(params)),</span></span><span class="ln" data-l="16">);</span><span class="ln" data-l="17"> </span><span class="ln" data-l="18"><i class="t-com">// withLatestFrom — ONE source drives; the others are just read.</i></span><span class="ln" data-l="19"><i class="t-com">//   ✓ on submit, grab the current form value and the current user</i></span><span class="ln" data-l="20"><span class="v0"><i class="t-key">this</i>.<b class="nm nm-mine" data-nm="submit$">submit$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(</span><span class="v1"><i class="t-key">this</i>.<b class="nm nm-mine" data-nm="submit$">fig$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(</span></span><span class="ln" data-l="21">  <i class="t-fn"><b class="nm nm-ng" data-nm="withLatestFrom">withLatestFrom</b></i>(<i class="t-key">this</i>.form$, <i class="t-key">this</i>.user$),</span><span class="ln" data-l="22"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="switchMap">switchMap</b></i>(([, form, <b class="nm nm-mine" data-nm="user">user</b>]) =&gt; <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="api">api</b>.<i class="t-fn">save</i>(form, <b class="nm nm-mine" data-nm="user">user</b>.id)),</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="switchMap">switchMap</b></i>(([, form, <b class="nm nm-mine" data-nm="user">mango</b>]) =&gt; <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="api">potato</b>.<i class="t-fn">save</i>(form, <b class="nm nm-mine" data-nm="user">mango</b>.id)),</span></span><span class="ln" data-l="23">);</span></pre>
       </div>
       <div class="fc" data-file="diff" data-lang="ts">
         <div class="fc-h"><span class="d"></span>the difference that causes bugs<span class="tag"><span class="l-en">read carefully</span><span class="l-ar" dir="auto">اقرا بتركيز</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">// combineLatest fires on EVERY source. three filters changing</i></span><span class="ln" data-l="2"><i class="t-com">// in the same tick = THREE emissions = three HTTP requests.</i></span><span class="ln" data-l="3"><i class="t-fn">combineLatest</i>([a$, b$, c$])         <i class="t-com">// a fires → emit. b fires → emit. c → emit.</i></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><i class="t-com">// fix 1: debounce the combined result</i></span><span class="ln" data-l="6"><i class="t-fn">combineLatest</i>([a$, b$, c$]).<i class="t-fn">pipe</i>(<i class="t-fn">debounceTime</i>(<i class="t-num">0</i>));   <i class="t-com">// one emission per tick</i></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8"><i class="t-com">// fix 2: use withLatestFrom so only ONE source triggers</i></span><span class="ln" data-l="9">a$.<i class="t-fn">pipe</i>(<i class="t-fn">withLatestFrom</i>(b$, c$));    <i class="t-com">// only a fires the output</i></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-com">// ---------------------------------------------------------------</i></span><span class="ln" data-l="12"> </span><span class="ln" data-l="13"><i class="t-com">// combineLatest emits NOTHING until every source has emitted once.</i></span><span class="ln" data-l="14"><i class="t-com">// a BehaviorSubject or startWith() has a value immediately;</i></span><span class="ln" data-l="15"><i class="t-com">// a plain Subject does not — and your page renders blank forever.</i></span><span class="ln" data-l="16"><i class="t-fn">combineLatest</i>([</span><span class="ln" data-l="17">  <i class="t-key">this</i>.search$.<i class="t-fn">pipe</i>(<i class="t-fn">startWith</i>(<i class="t-str">''</i>)),      <i class="t-com">// ← now it has a value</i></span><span class="ln" data-l="18">  <i class="t-key">this</i>.sort$.<i class="t-fn">pipe</i>(<i class="t-fn">startWith</i>(<i class="t-str">'name'</i>)),</span><span class="ln" data-l="19">]);</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">// combineLatest fires on EVERY source. three filters changing</i></span><span class="ln" data-l="2"><i class="t-com">// in the same tick = THREE emissions = three HTTP requests.</i></span><span class="ln" data-l="3"><i class="t-fn"><b class="nm nm-ng" data-nm="combineLatest">combineLatest</b></i>([a$, b$, c$])         <i class="t-com">// a fires → emit. b fires → emit. c → emit.</i></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><i class="t-com">// fix 1: debounce the combined result</i></span><span class="ln" data-l="6"><i class="t-fn"><b class="nm nm-ng" data-nm="combineLatest">combineLatest</b></i>([a$, b$, c$]).<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(<i class="t-fn"><b class="nm nm-ng" data-nm="debounceTime">debounceTime</b></i>(<i class="t-num">0</i>));   <i class="t-com">// one emission per tick</i></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8"><i class="t-com">// fix 2: use withLatestFrom so only ONE source triggers</i></span><span class="ln" data-l="9">a$.<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(<i class="t-fn"><b class="nm nm-ng" data-nm="withLatestFrom">withLatestFrom</b></i>(b$, c$));    <i class="t-com">// only a fires the output</i></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-com">// ---------------------------------------------------------------</i></span><span class="ln" data-l="12"> </span><span class="ln" data-l="13"><i class="t-com">// combineLatest emits NOTHING until every source has emitted once.</i></span><span class="ln" data-l="14"><i class="t-com">// a BehaviorSubject or startWith() has a value immediately;</i></span><span class="ln" data-l="15"><i class="t-com">// a plain Subject does not — and your page renders blank forever.</i></span><span class="ln" data-l="16"><i class="t-fn"><b class="nm nm-ng" data-nm="combineLatest">combineLatest</b></i>([</span><span class="ln" data-l="17"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="search$">search$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(<i class="t-fn"><b class="nm nm-ng" data-nm="startWith">startWith</b></i>(<i class="t-str">''</i>)),      <i class="t-com">// ← now it has a value</i></span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="search$">okra$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(<i class="t-fn"><b class="nm nm-ng" data-nm="startWith">startWith</b></i>(<i class="t-str">''</i>)),      <i class="t-com">// ← now it has a value</i></span></span><span class="ln" data-l="18">  <i class="t-key">this</i>.sort$.<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(<i class="t-fn"><b class="nm nm-ng" data-nm="startWith">startWith</b></i>(<i class="t-str">'name'</i>)),</span><span class="ln" data-l="19">]);</span></pre>
       </div>
       <div class="fc" data-file="sig" data-lang="ts">
         <div class="fc-h"><span class="d"></span>in signal code you rarely need them<span class="tag"><span class="l-en">the modern answer</span><span class="l-ar" dir="auto">الإجابة الحديثة</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">// combineLatest exists because observables have no current value.</i></span><span class="ln" data-l="2"><i class="t-com">// signals DO — so 'combining' is just reading them in a computed.</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-key">readonly</i> search = <i class="t-fn">signal</i>(<i class="t-str">''</i>);</span><span class="ln" data-l="5"><i class="t-key">readonly</i> sort   = signal&lt;<i class="t-str">'name'</i> | <i class="t-str">'price'</i>&gt;(<i class="t-str">'name'</i>);</span><span class="ln" data-l="6"><i class="t-key">readonly</i> page   = <i class="t-fn">signal</i>(<i class="t-num">1</i>);</span><span class="ln" data-l="7"> </span><span class="ln" data-l="8"><i class="t-com">// this IS combineLatest, with none of the ceremony:</i></span><span class="ln" data-l="9"><i class="t-key">readonly</i> query = <i class="t-fn">computed</i>(() =&gt; ({</span><span class="ln" data-l="10">  q: <i class="t-key">this</i>.<i class="t-fn">search</i>(), sort: <i class="t-key">this</i>.<i class="t-fn">sort</i>(), page: <i class="t-key">this</i>.<i class="t-fn">page</i>(),</span><span class="ln" data-l="11">}));</span><span class="ln" data-l="12"> </span><span class="ln" data-l="13"><i class="t-key">readonly</i> results = httpResource&lt;<i class="t-type">Product</i>[]&gt;(() =&gt; {</span><span class="ln" data-l="14">  <i class="t-key">const</i> { q, sort, page } = <i class="t-key">this</i>.<i class="t-fn">query</i>();</span><span class="ln" data-l="15">  <i class="t-key">return</i> <i class="t-str">`/api/products?q=${q}&amp;sort=${sort}&amp;page=${page}`</i>;</span><span class="ln" data-l="16">});</span><span class="ln" data-l="17"> </span><span class="ln" data-l="18"><i class="t-com">// forkJoin still has no signal equivalent — for 'fire three</i></span><span class="ln" data-l="19"><i class="t-com">// requests and wait for all of them', it is still the right tool.</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">// combineLatest exists because observables have no current value.</i></span><span class="ln" data-l="2"><i class="t-com">// signals DO — so 'combining' is just reading them in a computed.</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="search">search</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-str">''</i>);</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="search">noodle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-str">''</i>);</span></span><span class="ln" data-l="5"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="sort">sort</b>   = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-str">'name'</i> | <i class="t-str">'price'</i>&gt;(<i class="t-str">'name'</i>);</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="sort">pumpkin</b>   = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-str">'name'</i> | <i class="t-str">'price'</i>&gt;(<i class="t-str">'name'</i>);</span></span><span class="ln" data-l="6"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="page">page</b>   = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-num">1</i>);</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="page">turnip</b>   = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-num">1</i>);</span></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8"><i class="t-com">// this IS combineLatest, with none of the ceremony:</i></span><span class="ln" data-l="9"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="query">query</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; ({</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="query">muffin</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; ({</span></span><span class="ln" data-l="10"><span class="v0">  q: <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="search">search</b></i>(), <b class="nm nm-mine" data-nm="sort">sort</b>: <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="sort">sort</b></i>(), <b class="nm nm-mine" data-nm="page">page</b>: <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="page">page</b></i>(),</span><span class="v1">  q: <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="search">noodle</b></i>(), <b class="nm nm-mine" data-nm="sort">pumpkin</b>: <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="sort">pumpkin</b></i>(), <b class="nm nm-mine" data-nm="page">turnip</b>: <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="page">turnip</b></i>(),</span></span><span class="ln" data-l="11">}));</span><span class="ln" data-l="12"> </span><span class="ln" data-l="13"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="results">results</b> = <b class="nm nm-ng" data-nm="httpResource">httpResource</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Product">Product</b></i>[]&gt;(() =&gt; {</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="results">taco</b> = <b class="nm nm-ng" data-nm="httpResource">httpResource</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Product">Olive</b></i>[]&gt;(() =&gt; {</span></span><span class="ln" data-l="14"><span class="v0">  <i class="t-key">const</i> { q, <b class="nm nm-mine" data-nm="sort">sort</b>, <b class="nm nm-mine" data-nm="page">page</b> } = <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="query">query</b></i>();</span><span class="v1">  <i class="t-key">const</i> { q, <b class="nm nm-mine" data-nm="sort">pumpkin</b>, <b class="nm nm-mine" data-nm="page">turnip</b> } = <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="query">muffin</b></i>();</span></span><span class="ln" data-l="15"><span class="v0">  <i class="t-key">return</i> <i class="t-str">`/api/products?q=${q}&amp;sort=${<b class="nm nm-mine" data-nm="sort">sort</b>}&amp;page=${<b class="nm nm-mine" data-nm="page">page</b>}`</i>;</span><span class="v1">  <i class="t-key">return</i> <i class="t-str">`/api/products?q=${q}&amp;sort=${<b class="nm nm-mine" data-nm="sort">pumpkin</b>}&amp;page=${<b class="nm nm-mine" data-nm="page">turnip</b>}`</i>;</span></span><span class="ln" data-l="16">});</span><span class="ln" data-l="17"> </span><span class="ln" data-l="18"><i class="t-com">// forkJoin still has no signal equivalent — for 'fire three</i></span><span class="ln" data-l="19"><i class="t-com">// requests and wait for all of them', it is still the right tool.</i></span></pre>
       </div>
       <div class="fc" data-file="more" data-lang="ts">
         <div class="fc-h"><span class="d"></span>the other joins<span class="tag"><span class="l-en">less common</span><span class="l-ar" dir="auto">أقل شيوعاً</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-fn">merge</i>(a$, b$)        <i class="t-com">// pass everything through from either. no pairing.</i></span><span class="ln" data-l="2">                     <i class="t-com">// → a websocket feed plus a manual refresh button</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-fn">zip</i>(a$, b$)          <i class="t-com">// pair them 1-with-1, 2-with-2. waits for both.</i></span><span class="ln" data-l="5">                     <i class="t-com">// rarely what you want — usually you meant combineLatest</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-fn">concat</i>(a$, b$)       <i class="t-com">// all of a, then all of b. strictly in order.</i></span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><i class="t-fn">race</i>(a$, b$)         <i class="t-com">// whichever emits first wins; the other is dropped</i></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-fn">startWith</i>(x)         <i class="t-com">// emit x immediately, then carry on.</i></span><span class="ln" data-l="12">                     <i class="t-com">// the fix for 'combineLatest never fires'</i></span><span class="ln" data-l="13"> </span><span class="ln" data-l="14"><i class="t-fn">pairwise</i>()           <i class="t-com">// emit [previous, current] — for diffing</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-fn"><b class="nm nm-ng" data-nm="merge">merge</b></i>(a$, b$)        <i class="t-com">// pass everything through from either. no pairing.</i></span><span class="ln" data-l="2">                     <i class="t-com">// → a websocket feed plus a manual refresh button</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-fn"><b class="nm nm-ng" data-nm="zip">zip</b></i>(a$, b$)          <i class="t-com">// pair them 1-with-1, 2-with-2. waits for both.</i></span><span class="ln" data-l="5">                     <i class="t-com">// rarely what you want — usually you meant combineLatest</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-fn"><b class="nm nm-ng" data-nm="concat">concat</b></i>(a$, b$)       <i class="t-com">// all of a, then all of b. strictly in order.</i></span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><i class="t-fn"><b class="nm nm-ng" data-nm="race">race</b></i>(a$, b$)         <i class="t-com">// whichever emits first wins; the other is dropped</i></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-fn"><b class="nm nm-ng" data-nm="startWith">startWith</b></i>(x)         <i class="t-com">// emit x immediately, then carry on.</i></span><span class="ln" data-l="12">                     <i class="t-com">// the fix for 'combineLatest never fires'</i></span><span class="ln" data-l="13"> </span><span class="ln" data-l="14"><i class="t-fn"><b class="nm nm-ng" data-nm="pairwise">pairwise</b></i>()           <i class="t-com">// emit [previous, current] — for diffing</i></span></pre>
       </div></div>
 
   
@@ -688,9 +777,281 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="fj1" data-lang="ts">
         <div class="fc-h"><span class="d"></span>dashboard.component.ts<span class="tag"><span class="l-en">one round trip</span><span class="l-ar" dir="auto">رحلة واحدة</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Dashboard</i> {</span><span class="ln" data-l="2">  <i class="t-key">readonly</i> data = <i class="t-fn">toSignal</i>(</span><span class="ln" data-l="3">    <i class="t-fn">forkJoin</i>({</span><span class="ln" data-l="4">      me:      <i class="t-key">this</i>.http.<i class="t-key">get</i>&lt;<i class="t-type">User</i>&gt;(<i class="t-str">'/api/me'</i>),</span><span class="ln" data-l="5">      orders:  <i class="t-key">this</i>.http.<i class="t-key">get</i>&lt;<i class="t-type">Order</i>[]&gt;(<i class="t-str">'/api/orders?limit=5'</i>),</span><span class="ln" data-l="6">      revenue: <i class="t-key">this</i>.http.<i class="t-key">get</i>&lt;<i class="t-type">Revenue</i>&gt;(<i class="t-str">'/api/stats/revenue'</i>),</span><span class="ln" data-l="7">      alerts:  <i class="t-key">this</i>.http.<i class="t-key">get</i>&lt;<i class="t-type">Alert</i>[]&gt;(<i class="t-str">'/api/alerts'</i>).<i class="t-fn">pipe</i>(</span><span class="ln" data-l="8">                 <i class="t-fn">catchError</i>(() =&gt; <i class="t-key">of</i>([])),   <i class="t-com">// this one may fail safely</i></span><span class="ln" data-l="9">               ),</span><span class="ln" data-l="10">    }).<i class="t-fn">pipe</i>(</span><span class="ln" data-l="11">      <i class="t-fn">catchError</i>(err =&gt; { <i class="t-key">this</i>.error.<i class="t-key">set</i>(<i class="t-key">true</i>); <i class="t-key">return</i> <i class="t-type">EMPTY</i>; }),</span><span class="ln" data-l="12">    ),</span><span class="ln" data-l="13">  );</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15">  <i class="t-key">readonly</i> error = <i class="t-fn">signal</i>(<i class="t-key">false</i>);</span><span class="ln" data-l="16">  <i class="t-key">readonly</i> loading = <i class="t-fn">computed</i>(() =&gt; !<i class="t-key">this</i>.<i class="t-fn">data</i>() &amp;&amp; !<i class="t-key">this</i>.<i class="t-fn">error</i>());</span><span class="ln" data-l="17"> </span><span class="ln" data-l="18">  <i class="t-com">// NOTE the inner catchError on alerts: without it, one failing</i></span><span class="ln" data-l="19">  <i class="t-com">// endpoint takes the ENTIRE forkJoin down and the whole</i></span><span class="ln" data-l="20">  <i class="t-com">// dashboard shows an error because a badge could not load.</i></span><span class="ln" data-l="21">}</span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Dashboard">Dashboard</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Dashboard">Kiwi</b></i> {</span></span><span class="ln" data-l="2"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="data">data</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="toSignal">toSignal</b></i>(</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="data">donut</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="toSignal">toSignal</b></i>(</span></span><span class="ln" data-l="3">    <i class="t-fn"><b class="nm nm-ng" data-nm="forkJoin">forkJoin</b></i>({</span><span class="ln" data-l="4"><span class="v0">      me:      <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">http</b>.<i class="t-key"><b class="nm nm-ng" data-nm="get">get</b></i>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="User">User</b></i>&gt;(<i class="t-str">'/api/me'</i>),</span><span class="v1">      me:      <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">banana</b>.<i class="t-key"><b class="nm nm-ng" data-nm="get">get</b></i>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="User">Carrot</b></i>&gt;(<i class="t-str">'/api/me'</i>),</span></span><span class="ln" data-l="5"><span class="v0">      <b class="nm nm-mine" data-nm="orders">orders</b>:  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">http</b>.<i class="t-key"><b class="nm nm-ng" data-nm="get">get</b></i>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Order">Order</b></i>[]&gt;(<i class="t-str">'/api/orders?limit=5'</i>),</span><span class="v1">      <b class="nm nm-mine" data-nm="orders">pickle</b>:  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">banana</b>.<i class="t-key"><b class="nm nm-ng" data-nm="get">get</b></i>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Order">Biscuit</b></i>[]&gt;(<i class="t-str">'/api/orders?limit=5'</i>),</span></span><span class="ln" data-l="6"><span class="v0">      revenue: <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">http</b>.<i class="t-key"><b class="nm nm-ng" data-nm="get">get</b></i>&lt;<i class="t-type">Revenue</i>&gt;(<i class="t-str">'/api/stats/revenue'</i>),</span><span class="v1">      revenue: <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">banana</b>.<i class="t-key"><b class="nm nm-ng" data-nm="get">get</b></i>&lt;<i class="t-type">Revenue</i>&gt;(<i class="t-str">'/api/stats/revenue'</i>),</span></span><span class="ln" data-l="7"><span class="v0">      alerts:  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">http</b>.<i class="t-key"><b class="nm nm-ng" data-nm="get">get</b></i>&lt;<i class="t-type">Alert</i>[]&gt;(<i class="t-str">'/api/alerts'</i>).<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(</span><span class="v1">      alerts:  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">banana</b>.<i class="t-key"><b class="nm nm-ng" data-nm="get">get</b></i>&lt;<i class="t-type">Alert</i>[]&gt;(<i class="t-str">'/api/alerts'</i>).<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(</span></span><span class="ln" data-l="8">                 <i class="t-fn"><b class="nm nm-ng" data-nm="catchError">catchError</b></i>(() =&gt; <i class="t-key"><b class="nm nm-ng" data-nm="of">of</b></i>([])),   <i class="t-com">// this one may fail safely</i></span><span class="ln" data-l="9">               ),</span><span class="ln" data-l="10">    }).<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(</span><span class="ln" data-l="11"><span class="v0">      <i class="t-fn"><b class="nm nm-ng" data-nm="catchError">catchError</b></i>(err =&gt; { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="error">error</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">true</i>); <i class="t-key">return</i> <i class="t-type"><b class="nm nm-ng" data-nm="EMPTY">EMPTY</b></i>; }),</span><span class="v1">      <i class="t-fn"><b class="nm nm-ng" data-nm="catchError">catchError</b></i>(err =&gt; { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="error">pepper</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">true</i>); <i class="t-key">return</i> <i class="t-type"><b class="nm nm-ng" data-nm="EMPTY">EMPTY</b></i>; }),</span></span><span class="ln" data-l="12">    ),</span><span class="ln" data-l="13">  );</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="error">error</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="error">pepper</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span></span><span class="ln" data-l="16"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="loading">loading</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; !<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="data">data</b></i>() &amp;&amp; !<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="error">error</b></i>());</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="loading">lemon</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; !<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="data">donut</b></i>() &amp;&amp; !<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="error">pepper</b></i>());</span></span><span class="ln" data-l="17"> </span><span class="ln" data-l="18">  <i class="t-com">// NOTE the inner catchError on alerts: without it, one failing</i></span><span class="ln" data-l="19">  <i class="t-com">// endpoint takes the ENTIRE forkJoin down and the whole</i></span><span class="ln" data-l="20">  <i class="t-com">// dashboard shows an error because a badge could not load.</i></span><span class="ln" data-l="21">}</span></pre>
       </div></div>
   </div>
+
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">The joiners (<code>forkJoin</code>, <code>combineLatest</code>, <code>withLatestFrom</code>…) are RxJS’s. The keys you put in a <code>forkJoin({ … })</code> object are yours, and the result comes back with the same keys. The words inside a URL (<code>/api/orders</code>, <code>&amp;sort=</code>) belong to the server.</span><span class="l-ar" dir="auto">الحاجات اللي بتجمع (<code>forkJoin</code> و<code>combineLatest</code> و<code>withLatestFrom</code>…) بتاعة RxJS. المفاتيح اللي بتحطها في أوبجكت <code>forkJoin({ … })</code> بتاعتك، والنتيجة بترجع بنفس المفاتيح. والكلام اللي جوه الـ URL (<code>/api/orders</code> و<code>&amp;sort=</code>) بتاع السيرفر.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="forkJoin">
+        <td><b class="nm nm-ng" data-nm="forkJoin">forkJoin</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS function: wait for every stream to complete, then emit once.</span><span class="l-ar" dir="auto">function من RxJS: استنى كل الـ streams تخلص، وبعدين ابعت مرة واحدة.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code> <code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="combineLatest">
+        <td><b class="nm nm-ng" data-nm="combineLatest">combineLatest</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS function: emit the latest of each, whenever any of them fires.</span><span class="l-ar" dir="auto">function من RxJS: ابعت آخر قيمة من كل واحد، كل ما أي واحد فيهم يبعت.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code> <code>the difference that causes bugs</code></td>
+      </tr>
+      <tr data-nmrow="withLatestFrom">
+        <td><b class="nm nm-ng" data-nm="withLatestFrom">withLatestFrom</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS operator: one source drives, the others are only read.</span><span class="l-ar" dir="auto">operator من RxJS: مصدر واحد هو اللي بيحرّك، والباقي بيتقروا بس.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code> <code>the difference that causes bugs</code></td>
+      </tr>
+      <tr data-nmrow="merge">
+        <td><b class="nm nm-ng" data-nm="merge">merge</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS function: pass everything through from all streams.</span><span class="l-ar" dir="auto">function من RxJS: عدّي كل حاجة من كل الـ streams.</span></td>
+        <td class="nmfiles"><code>the other joins</code></td>
+      </tr>
+      <tr data-nmrow="zip">
+        <td><b class="nm nm-ng" data-nm="zip">zip</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS function: pair values one-with-one.</span><span class="l-ar" dir="auto">function من RxJS: جوّز القيم واحدة قصاد واحدة.</span></td>
+        <td class="nmfiles"><code>the other joins</code></td>
+      </tr>
+      <tr data-nmrow="concat">
+        <td><b class="nm nm-ng" data-nm="concat">concat</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS function: all of the first, then all of the next.</span><span class="l-ar" dir="auto">function من RxJS: كل الأول، وبعدين كل اللي بعده.</span></td>
+        <td class="nmfiles"><code>the other joins</code></td>
+      </tr>
+      <tr data-nmrow="race">
+        <td><b class="nm nm-ng" data-nm="race">race</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS function: the first to emit wins.</span><span class="l-ar" dir="auto">function من RxJS: أول واحد يبعت هو اللي يكسب.</span></td>
+        <td class="nmfiles"><code>the other joins</code></td>
+      </tr>
+      <tr data-nmrow="startWith">
+        <td><b class="nm nm-ng" data-nm="startWith">startWith</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS operator: emit this value first.</span><span class="l-ar" dir="auto">operator من RxJS: ابعت القيمة دي الأول.</span></td>
+        <td class="nmfiles"><code>the difference that causes bugs</code> <code>the other joins</code></td>
+      </tr>
+      <tr data-nmrow="pairwise">
+        <td><b class="nm nm-ng" data-nm="pairwise">pairwise</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS operator: emit <code>[previous, current]</code>.</span><span class="l-ar" dir="auto">operator من RxJS: ابعت <code>[previous, current]</code>.</span></td>
+        <td class="nmfiles"><code>the other joins</code></td>
+      </tr>
+      <tr data-nmrow="debounceTime">
+        <td><b class="nm nm-ng" data-nm="debounceTime">debounceTime</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS operator: wait for a pause.</span><span class="l-ar" dir="auto">operator من RxJS: استنى وقفة.</span></td>
+        <td class="nmfiles"><code>the difference that causes bugs</code></td>
+      </tr>
+      <tr data-nmrow="map">
+        <td><b class="nm nm-ng" data-nm="map">map</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The RxJS operator: transform each value.</span><span class="l-ar" dir="auto">الـ operator بتاع RxJS: حوّل كل قيمة.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code></td>
+      </tr>
+      <tr data-nmrow="switchMap">
+        <td><b class="nm nm-ng" data-nm="switchMap">switchMap</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS operator: cancel the previous request, keep the newest.</span><span class="l-ar" dir="auto">operator من RxJS: الغي الـ request اللي قبله، وخلّي الأحدث.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code></td>
+      </tr>
+      <tr data-nmrow="catchError">
+        <td><b class="nm nm-ng" data-nm="catchError">catchError</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS operator that handles an error.</span><span class="l-ar" dir="auto">operator من RxJS بيتعامل مع الـ error.</span></td>
+        <td class="nmfiles"><code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="of">
+        <td><b class="nm nm-ng" data-nm="of">of</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS function that makes a stream from a plain value.</span><span class="l-ar" dir="auto">function من RxJS بتعمل stream من قيمة عادية.</span></td>
+        <td class="nmfiles"><code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="EMPTY">
+        <td><b class="nm nm-ng" data-nm="EMPTY">EMPTY</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS constant: a stream that completes with no value.</span><span class="l-ar" dir="auto">ثابت من RxJS: stream بيخلص من غير ما يبعت أي قيمة.</span></td>
+        <td class="nmfiles"><code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="pipe">
+        <td><b class="nm nm-ng" data-nm="pipe">pipe</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The observable method that chains operators.</span><span class="l-ar" dir="auto">ميثود الـ observable اللي بتركّب الـ operators ورا بعض.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code> <code>the difference that causes bugs</code> <code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="subscribe">
+        <td><b class="nm nm-ng" data-nm="subscribe">subscribe</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The observable method that starts it running.</span><span class="l-ar" dir="auto">ميثود الـ observable اللي بتشغّله.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code></td>
+      </tr>
+      <tr data-nmrow="get">
+        <td><b class="nm nm-ng" data-nm="get">get</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An <code>HttpClient</code> method.</span><span class="l-ar" dir="auto">ميثود في <code>HttpClient</code>.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code> <code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="toSignal">
+        <td><b class="nm nm-ng" data-nm="toSignal">toSignal</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s bridge from an observable to a signal.</span><span class="l-ar" dir="auto">الكوبري بتاع أنجولار من observable لـ signal.</span></td>
+        <td class="nmfiles"><code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="httpResource">
+        <td><b class="nm nm-ng" data-nm="httpResource">httpResource</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s signal-based HTTP request.</span><span class="l-ar" dir="auto">الـ HTTP request بتاع أنجولار المبني على signals.</span></td>
+        <td class="nmfiles"><code>in signal code you rarely need them</code></td>
+      </tr>
+      <tr data-nmrow="signal">
+        <td><b class="nm nm-ng" data-nm="signal">signal</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s writable signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة أنجولار اللي بتتكتب.</span></td>
+        <td class="nmfiles"><code>in signal code you rarely need them</code> <code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="computed">
+        <td><b class="nm nm-ng" data-nm="computed">computed</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s derived signal.</span><span class="l-ar" dir="auto">الـ signal المشتقة بتاعة أنجولار.</span></td>
+        <td class="nmfiles"><code>in signal code you rarely need them</code> <code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="set">
+        <td><b class="nm nm-ng" data-nm="set">set</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal method.</span><span class="l-ar" dir="auto">ميثود بتاعة الـ signal.</span></td>
+        <td class="nmfiles"><code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="http">
+        <td><b class="nm nm-mine" data-nm="http">http</b><span class="nmas">&rarr; <code>banana</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your field name for the injected <code>HttpClient</code>.</span><span class="l-ar" dir="auto">اسم الـ field بتاعك للـ <code>HttpClient</code> اللي اتعمله inject.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code> <code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="api">
+        <td><b class="nm nm-mine" data-nm="api">api</b><span class="nmas">&rarr; <code>potato</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your field name for your API service. The <code>/api/</code> in the URLs is the server’s path, not this.</span><span class="l-ar" dir="auto">اسم الـ field بتاعك لسيرفس الـ API. والـ <code>/api/</code> اللي في الـ URLs ده مسار السيرفر، مش هو.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code></td>
+      </tr>
+      <tr data-nmrow="user">
+        <td><b class="nm nm-mine" data-nm="user">user</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Yours twice: a key in the <code>forkJoin</code> object (read back in <code>subscribe</code>), and separately a parameter name in the <code>withLatestFrom</code> callback. <code>user$</code> is a different name.</span><span class="l-ar" dir="auto">بتاعك مرتين: مفتاح في أوبجكت الـ <code>forkJoin</code> (بيتقري تاني في <code>subscribe</code>)، وكمان اسم باراميتر في الـ callback بتاع <code>withLatestFrom</code>. و<code>user$</code> اسم تاني خالص.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code></td>
+      </tr>
+      <tr data-nmrow="orders">
+        <td><b class="nm nm-mine" data-nm="orders">orders</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A key you chose in the <code>forkJoin</code> object. The result has the same key, so rename both. <code>/api/orders</code> is the server’s.</span><span class="l-ar" dir="auto">مفتاح انت اخترته في أوبجكت الـ <code>forkJoin</code>. النتيجة بترجع بنفس المفتاح، فغيّر الاتنين. و<code>/api/orders</code> بتاع السيرفر.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code> <code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="settings">
+        <td><b class="nm nm-mine" data-nm="settings">settings</b><span class="nmas">&rarr; <code>waffle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Another <code>forkJoin</code> key of yours, read back by the same name in <code>subscribe</code>.</span><span class="l-ar" dir="auto">مفتاح <code>forkJoin</code> تاني بتاعك، بيتقري بنفس الاسم في <code>subscribe</code>.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code></td>
+      </tr>
+      <tr data-nmrow="search$">
+        <td><b class="nm nm-mine" data-nm="search$">search$</b><span class="nmas">&rarr; <code>okra$</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your stream. The <code>$</code> is only a habit; it is part of your name.</span><span class="l-ar" dir="auto">الـ stream بتاعك. الـ <code>$</code> مجرد عادة؛ هي جزء من اسمك.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code> <code>the difference that causes bugs</code></td>
+      </tr>
+      <tr data-nmrow="submit$">
+        <td><b class="nm nm-mine" data-nm="submit$">submit$</b><span class="nmas">&rarr; <code>fig$</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your stream of submits: the one that drives <code>withLatestFrom</code>.</span><span class="l-ar" dir="auto">الـ stream بتاعك بتاع الـ submit: هو اللي بيحرّك <code>withLatestFrom</code>.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code></td>
+      </tr>
+      <tr data-nmrow="search">
+        <td><b class="nm nm-mine" data-nm="search">search</b><span class="nmas">&rarr; <code>noodle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your signal, read inside <code>query</code>.</span><span class="l-ar" dir="auto">الـ signal بتاعتك، بتتقري جوه <code>query</code>.</span></td>
+        <td class="nmfiles"><code>in signal code you rarely need them</code></td>
+      </tr>
+      <tr data-nmrow="sort">
+        <td><b class="nm nm-mine" data-nm="sort">sort</b><span class="nmas">&rarr; <code>pumpkin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your signal, and the key of the same name in <code>query</code>. The <code>sort=</code> in the URL is the server’s parameter and does not change.</span><span class="l-ar" dir="auto">الـ signal بتاعتك، والمفتاح اللي بنفس الاسم في <code>query</code>. و<code>sort=</code> اللي في الـ URL ده باراميتر السيرفر ومش بيتغير.</span></td>
+        <td class="nmfiles"><code>in signal code you rarely need them</code></td>
+      </tr>
+      <tr data-nmrow="page">
+        <td><b class="nm nm-mine" data-nm="page">page</b><span class="nmas">&rarr; <code>turnip</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your signal and <code>query</code> key. The <code>page=</code> in the URL is the server’s.</span><span class="l-ar" dir="auto">الـ signal بتاعتك ومفتاح في <code>query</code>. و<code>page=</code> اللي في الـ URL بتاع السيرفر.</span></td>
+        <td class="nmfiles"><code>in signal code you rarely need them</code></td>
+      </tr>
+      <tr data-nmrow="query">
+        <td><b class="nm nm-mine" data-nm="query">query</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your computed, read by <code>httpResource</code>.</span><span class="l-ar" dir="auto">الـ computed بتاعتك، و<code>httpResource</code> بيقراها.</span></td>
+        <td class="nmfiles"><code>in signal code you rarely need them</code></td>
+      </tr>
+      <tr data-nmrow="results">
+        <td><b class="nm nm-mine" data-nm="results">results</b><span class="nmas">&rarr; <code>taco</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your resource, read by this component’s template.</span><span class="l-ar" dir="auto">الـ resource بتاعك، والتمبلت بتاع الـ component ده بيقراه.</span></td>
+        <td class="nmfiles"><code>in signal code you rarely need them</code></td>
+      </tr>
+      <tr data-nmrow="Dashboard">
+        <td><b class="nm nm-pub" data-nm="Dashboard">Dashboard</b><span class="nmas">&rarr; <code>Kiwi</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your component’s class name.</span><span class="l-ar" dir="auto">اسم كلاس الـ component بتاعك.</span></td>
+        <td class="nmfiles"><code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="data">
+        <td><b class="nm nm-mine" data-nm="data">data</b><span class="nmas">&rarr; <code>donut</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your signal, read by this component.</span><span class="l-ar" dir="auto">الـ signal بتاعتك، والـ component ده بيقراها.</span></td>
+        <td class="nmfiles"><code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="error">
+        <td><b class="nm nm-mine" data-nm="error">error</b><span class="nmas">&rarr; <code>pepper</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your signal for “something failed”.</span><span class="l-ar" dir="auto">الـ signal بتاعتك لـ “حاجة فشلت”.</span></td>
+        <td class="nmfiles"><code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="loading">
+        <td><b class="nm nm-mine" data-nm="loading">loading</b><span class="nmas">&rarr; <code>lemon</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your computed, read by this component’s template.</span><span class="l-ar" dir="auto">الـ computed بتاعتك، والتمبلت بتاع الـ component ده بيقراها.</span></td>
+        <td class="nmfiles"><code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="User">
+        <td><b class="nm nm-pub" data-nm="User">User</b><span class="nmas">&rarr; <code>Carrot</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your data type, imported from another file.</span><span class="l-ar" dir="auto">نوع الداتا بتاعك، جاي import من ملف تاني.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code> <code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="Order">
+        <td><b class="nm nm-pub" data-nm="Order">Order</b><span class="nmas">&rarr; <code>Biscuit</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your data type, imported from another file.</span><span class="l-ar" dir="auto">نوع الداتا بتاعك، جاي import من ملف تاني.</span></td>
+        <td class="nmfiles"><code>the three, and when each is right</code> <code>dashboard.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="Product">
+        <td><b class="nm nm-pub" data-nm="Product">Product</b><span class="nmas">&rarr; <code>Olive</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your data type, imported from another file.</span><span class="l-ar" dir="auto">نوع الداتا بتاعك، جاي import من ملف تاني.</span></td>
+        <td class="nmfiles"><code>in signal code you rarely need them</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="rxjs-combination-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en"><code>forkJoin</code> and <code>combineLatest</code>, name by name</span><span class="l-ar" dir="auto"><code>forkJoin</code> و<code>combineLatest</code>، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">The page for when <code>([, f])</code> and <code>{ me, categories }</code> look like a puzzle. One product page followed from the keyboard to the server and back, every name coloured, and the rule that decides every one of them: <b>keys come back by name, arrays come back by position</b>.</span><span class="l-ar" dir="auto">الصفحة دي للي شايف <code>([, f])</code> و<code>{ me, categories }</code> فزورة. صفحة منتجات واحدة ماشيين وراها من الكيبورد للسيرفر ورجوع، وكل اسم ملوّن، والقاعدة اللي بتحدد كل واحد فيهم: <b>المفاتيح بترجع بالاسم، والـ arrays بترجع بالترتيب</b>.</span></span>
+  </a>
 
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
@@ -790,8 +1151,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../advanced/30-rxjs-operators.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en"><code>switchMap</code>, <code>mergeMap</code>, <code>concatMap</code>, <code>exhaustMap</code></span><span class="l-ar" dir="auto"><code>switchMap</code> و <code>mergeMap</code> و <code>concatMap</code> و <code>exhaustMap</code></span></b></a>
-    <a class="nx" href="../advanced/32-rxjs-interop.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Signals and RxJS, meeting in the middle</span><span class="l-ar" dir="auto">الـ Signals و RxJS بيتقابلوا في النص</span></b></a>
+    <a class="pv" href="../advanced/rxjs-operators-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en"><code>switchMap</code> and friends, name by name</span><span class="l-ar" dir="auto"><code>switchMap</code> وصحابها، اسم اسم</span></b></a>
+    <a class="nx" href="../advanced/rxjs-combination-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en"><code>forkJoin</code> and <code>combineLatest</code>, name by name</span><span class="l-ar" dir="auto"><code>forkJoin</code> و<code>combineLatest</code>، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -833,6 +1194,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){

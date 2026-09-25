@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -560,6 +563,73 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
 
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
+
 .thero{border-top:3px solid var(--c);padding-top:18px;margin-bottom:6px}
 .thero .tkick{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
 :root[dir="rtl"] .thero .tkick{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
@@ -606,7 +676,8 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -650,12 +721,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">First principles</span><span class="l-ar" dir="auto">من أول وجديد</span></i>
       </span>
     </a>
+    <a class="extra" href="how-an-app-starts-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">The startup files, name by name</span><span class="l-ar" dir="auto">ملفات التشغيل، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when <code>main.ts</code>, <code>app.config.ts</code> and <code>&lt;app-root&gt;</code> feel like magic words. One page load followed through six files, every name coloured: <b>Angular’s</b>, <b>yours</b>, or <b>yours but shared</b>. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">الصفحة دي للي حاسس إن <code>main.ts</code> و<code>app.config.ts</code> و<code>&lt;app-root&gt;</code> كلمات سحرية. تحميل صفحة واحد ماشيين وراه في ست ملفات، وكل اسم ملوّن: <b>بتاع أنجولار</b>، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b>. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="02-cli-and-project-files.html">
       <em>02</em>
       <span class="tt">
         <b><span class="l-en">The CLI, and what every file is for</span><span class="l-ar" dir="auto">الـ CLI، وكل ملف بيعمل إيه</span></b>
         <span class="tsay"><span class="l-en"><code>ng</code> is a command that <b>writes the boring files for you</b> and runs your app while you work on it.</span><span class="l-ar" dir="auto"><code>ng</code> ده أمر بيكتبلك <b>الملفات المملة</b> وبيشغّل التطبيق وإنت شغال عليه.</span></span>
         <i class="tb"><span class="l-en">The toolbox</span><span class="l-ar" dir="auto">شنطة العدة</span></i>
+      </span>
+    </a>
+    <a class="extra" href="cli-and-project-files-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>ng generate</code>, name by name</span><span class="l-ar" dir="auto"><code>ng generate</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when you are not sure which part of a CLI command is yours. One word typed in the terminal followed into folders, file names, a class and a selector, every name coloured: <b>Angular’s</b>, <b>yours</b>, or <b>yours but shared</b>. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">الصفحة دي للي مش متأكد أنهي حتة في أمر الـ CLI بتاعته. كلمة واحدة بتكتبها في الترمينال ماشيين وراها لحد الفولدرات وأسماء الملفات والكلاس والـ selector، وكل اسم ملوّن: <b>بتاع أنجولار</b>، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b>. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a href="03-components.html">
@@ -666,12 +753,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">The unit</span><span class="l-ar" dir="auto">الوحدة</span></i>
       </span>
     </a>
+    <a class="extra" href="components-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>@Component</code>, name by name</span><span class="l-ar" dir="auto"><code>@Component</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when a component’s class name, selector, file names and inputs blur together. One user card followed from its own files into the page that shows it, every name coloured: <b>Angular’s</b>, <b>yours</b>, or <b>yours but shared</b>. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">الصفحة دي للي اسم الكلاس والـ selector وأسماء الملفات والـ inputs بتاعة الـ component بيدخلوا في بعض عنده. كارت يوزر واحد ماشيين وراه من ملفاته لحد الصفحة اللي بتعرضه، وكل اسم ملوّن: <b>بتاع أنجولار</b>، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b>. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="04-template-syntax.html">
       <em>04</em>
       <span class="tt">
         <b><span class="l-en">Template syntax and interpolation</span><span class="l-ar" dir="auto">صياغة التمبلت والـ interpolation</span></b>
         <span class="tsay"><span class="l-en">Template syntax is the <b>small set of extra symbols</b> you write inside HTML so Angular knows which bits to fill in.</span><span class="l-ar" dir="auto">الـ template syntax هي <b>شوية رموز زيادة</b> بتكتبها جوه الـ HTML عشان أنجولار يعرف الحتت اللي هيملاها.</span></span>
         <i class="tb"><span class="l-en">The template</span><span class="l-ar" dir="auto">التمبلت</span></i>
+      </span>
+    </a>
+    <a class="extra" href="template-syntax-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">Template syntax, name by name</span><span class="l-ar" dir="auto">صياغة التمبلت، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when you cannot tell, inside a template, which words come from your class, which the template made up, and which belong to the browser. One profile component followed from class to screen and back, every name coloured. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">الصفحة دي للي مش عارف يفرّق، جوه التمبلت، أنهي كلمات جاية من الكلاس بتاعه، وأنهي التمبلت هو اللي عملها، وأنهي بتاعة المتصفح. component بروفايل واحد ماشيين وراه من الكلاس للشاشة وبالعكس، وكل اسم ملوّن. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a href="05-data-binding.html">
@@ -682,12 +785,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">The four bindings</span><span class="l-ar" dir="auto">الأربع روابط</span></i>
       </span>
     </a>
+    <a class="extra" href="data-binding-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>[ ]</code> and <code>( )</code>, name by name</span><span class="l-ar" dir="auto"><code>[ ]</code> و<code>( )</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when you cannot tell whose name goes inside the brackets and whose goes inside the quotes. One search box followed through every kind of binding, every name coloured: <b>Angular’s</b>, <b>the browser’s</b>, <b>yours</b>, or <b>yours but shared</b>. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">الصفحة دي للي مش عارف اسم مين بيتكتب جوه الأقواس واسم مين جوه علامات التنصيص. خانة بحث واحدة ماشيين وراها في كل أنواع الـ binding، وكل اسم ملوّن: <b>بتاع أنجولار</b>، ولا <b>بتاع المتصفح</b>، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b>. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="06-signals.html">
       <em>06</em>
       <span class="tt">
         <b><span class="l-en">Signals: state that announces itself</span><span class="l-ar" dir="auto">الـ Signals: حالة بتبلّغ عن نفسها</span></b>
         <span class="tsay"><span class="l-en">A signal is <b>a box with a value in it</b> that tells Angular the moment the value changes.</span><span class="l-ar" dir="auto">الـ signal هو <b>صندوق جواه قيمة</b>، وبيقول لأنجولار في نفس اللحظة اللي القيمة بتتغيّر فيها.</span></span>
         <i class="tb"><span class="l-en">State</span><span class="l-ar" dir="auto">الحالة</span></i>
+      </span>
+    </a>
+    <a class="extra" href="signals-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>signal()</code>, name by name</span><span class="l-ar" dir="auto"><code>signal()</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when signals make you lose track of who owns what. One cart followed through six files, every name coloured: <b>Angular’s</b>, <b>yours</b>, or <b>yours but shared</b>. Then what breaks when you rename each one, and the mistakes that fail without a word.</span><span class="l-ar" dir="auto">الصفحة دي للي بيتوه في الـ signals ومش عارف مين بتاع مين. كارت واحد ماشيين وراه في ست ملفات، وكل اسم ملوّن: <b>بتاع أنجولار</b>، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b>. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد، والغلطات اللي بتفشل من غير ولا كلمة.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a href="07-control-flow.html">
@@ -698,12 +817,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">Templates</span><span class="l-ar" dir="auto">التمبلتس</span></i>
       </span>
     </a>
+    <a class="extra" href="control-flow-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>@if</code> and <code>@for</code>, name by name</span><span class="l-ar" dir="auto"><code>@if</code> و<code>@for</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when <code>@for (order of orders(); track order.id)</code> looks like one word repeated four times. One orders list followed through five files, every name coloured: <b>Angular’s</b>, <b>yours</b>, or <b>yours but shared</b>.</span><span class="l-ar" dir="auto">الصفحة دي للي شايف <code>@for (order of orders(); track order.id)</code> كأنها كلمة واحدة متكررة أربع مرات. ليستة أوردرات واحدة ماشيين وراها في خمس ملفات، وكل اسم ملوّن: <b>بتاع أنجولار</b>، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b>.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="08-built-in-directives.html">
       <em>08</em>
       <span class="tt">
         <b><span class="l-en"><code>ngClass</code>, <code>ngStyle</code> and friends</span><span class="l-ar" dir="auto"><code>ngClass</code> و <code>ngStyle</code> وأخواتهم</span></b>
         <span class="tsay"><span class="l-en"><code>ngClass</code> and <code>ngStyle</code> let you <b>turn CSS classes and styles on and off</b> from your data.</span><span class="l-ar" dir="auto"><code>ngClass</code> و<code>ngStyle</code> بيخلوك <b>تفتح وتقفل classes وستايلات</b> من الداتا بتاعتك.</span></span>
         <i class="tb"><span class="l-en">Batteries included</span><span class="l-ar" dir="auto">جاهزة معاك</span></i>
+      </span>
+    </a>
+    <a class="extra" href="built-in-directives-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>[class]</code> and <code>[style]</code>, name by name</span><span class="l-ar" dir="auto"><code>[class]</code> و<code>[style]</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when <code>[class.sold-out]="soldOut()"</code> looks like three names glued together. It is: one is the browser’s, one is shared with your stylesheet, one is your component’s. One badge followed through four files, then what breaks when you rename each part.</span><span class="l-ar" dir="auto">الصفحة دي للي شايف <code>[class.sold-out]="soldOut()"</code> كأنها تلات أسماء لازقين في بعض. وهي فعلًا كده: واحد بتاع المتصفح، وواحد متشارك مع الـ stylesheet بتاعك، وواحد بتاع الـ component بتاعك. بادج واحد ماشيين وراه في أربع ملفات، وبعدين إيه اللي بيبوظ لما تغيّر كل حتة.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a href="09-built-in-pipes.html">
@@ -714,12 +849,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">Formatting</span><span class="l-ar" dir="auto">التنسيق</span></i>
       </span>
     </a>
+    <a class="extra" href="built-in-pipes-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">Pipes, name by name</span><span class="l-ar" dir="auto">الـ pipes، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when <code>{{ order.placedAt | date:'dd/MM/yyyy' }}</code> looks like one long word. It is three owners: yours on the left, Angular’s after the <code>|</code>, and a tiny format language after the <code>:</code>. One order page followed through four files.</span><span class="l-ar" dir="auto">الصفحة دي للي شايف <code>{{ order.placedAt | date:'dd/MM/yyyy' }}</code> كأنها كلمة واحدة طويلة. هي تلات أصحاب: بتاعك على الشمال، وبتاع أنجولار بعد الـ <code>|</code>، ولغة تنسيق صغيرة بعد الـ <code>:</code>. صفحة أوردر واحدة ماشيين وراها في أربع ملفات.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="10-inputs-outputs.html">
       <em>10</em>
       <span class="tt">
         <b><span class="l-en"><code>input()</code>, <code>output()</code>, <code>model()</code></span><span class="l-ar" dir="auto"><code>input()</code> و <code>output()</code> و <code>model()</code></span></b>
         <span class="tsay"><span class="l-en"><code>input()</code> takes data <b>from the parent</b>, <code>output()</code> sends events <b>back up</b>, and <code>model()</code> does both.</span><span class="l-ar" dir="auto"><code>input()</code> بتاخد داتا <b>من الأب</b>، و<code>output()</code> بتبعت أحداث <b>لفوق</b>، و<code>model()</code> بتعمل الاتنين.</span></span>
         <i class="tb"><span class="l-en">Component API</span><span class="l-ar" dir="auto">واجهة الـ component</span></i>
+      </span>
+    </a>
+    <a class="extra" href="output-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>output()</code>, name by name</span><span class="l-ar" dir="auto"><code>output()</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when outputs make you feel lost. One to-do list followed through all four files, every name coloured by who owns it: <b>Angular’s</b>, <b>yours</b>, or <b>yours but shared</b>. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">الصفحة دي للي بيتوه في الـ outputs. ليستة to-do واحدة ماشيين وراها في الأربع ملفات، وكل اسم ملوّن حسب صاحبه: <b>بتاع أنجولار</b>، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b>. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a class="extra" href="angular-data-flow.html">
@@ -738,12 +889,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">Sharing state</span><span class="l-ar" dir="auto">مشاركة الحالة</span></i>
       </span>
     </a>
+    <a class="extra" href="services-di-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>inject()</code>, name by name</span><span class="l-ar" dir="auto"><code>inject()</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when services make you wonder whose name <code>session</code> is. One Session service followed through eight files: who names the class, who names the field, and why the header, the login page and the guard can each call the same service something different.</span><span class="l-ar" dir="auto">الصفحة دي للي الـ services مخلياه يسأل <code>session</code> دي اسم مين. service واحدة اسمها Session ماشيين وراها في تمن ملفات: مين بيسمّي الكلاس، ومين بيسمّي الـ field، وليه الهيدر وصفحة اللوجين والـ guard كل واحد ممكن يسمّي نفس الـ service باسم مختلف.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="12-lifecycle.html">
       <em>12</em>
       <span class="tt">
         <b><span class="l-en">Lifecycle: what runs, and when</span><span class="l-ar" dir="auto">دورة الحياة: إيه اللي بيشتغل، وإمتى</span></b>
         <span class="tsay"><span class="l-en">Lifecycle hooks are <b>methods Angular calls for you</b> at fixed moments: created, drawn, updated, destroyed.</span><span class="l-ar" dir="auto">الـ lifecycle hooks هي <b>ميثودز أنجولار بيناديها بدالك</b> في لحظات ثابتة: اتعمل، اترسم، اتحدّث، اتمسح.</span></span>
         <i class="tb"><span class="l-en">Timing</span><span class="l-ar" dir="auto">التوقيت</span></i>
+      </span>
+    </a>
+    <a class="extra" href="lifecycle-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">Lifecycle, name by name</span><span class="l-ar" dir="auto">دورة الحياة، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when hooks make you feel lost. One chart component followed from the moment it is created to the moment it is destroyed, every name coloured: which ones Angular calls, which ones you invented, and which ones a library picked.</span><span class="l-ar" dir="auto">الصفحة دي للي بيتوه في الـ hooks. component فيه chart واحد ماشيين وراه من لحظة ما بيتعمل للحظة ما بيتشال، وكل اسم ملوّن: مين فيهم أنجولار اللي بيناديه، ومين انت اللي مألفه، ومين مكتبة هي اللي اختارته.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a href="13-basic-routing.html">
@@ -754,6 +921,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">More than one page</span><span class="l-ar" dir="auto">أكتر من صفحة</span></i>
       </span>
     </a>
+    <a class="extra" href="basic-routing-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">Routing, name by name</span><span class="l-ar" dir="auto">الـ routing، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when routes, links and params feel like a guessing game. One product list and one product page, followed from the click to the page that appears, every name coloured: the router’s words, your URL words, and the names that must match across files with nothing to check them.</span><span class="l-ar" dir="auto">الصفحة دي للي حاسس إن الـ routes واللينكات والـ params لعبة تخمين. ليستة منتجات وصفحة منتج، ماشيين وراهم من الكليك لحد الصفحة اللي بتظهر، وكل اسم ملوّن: كلمات الراوتر، وكلمات الـ URL بتاعتك، والأسماء اللي لازم تطابق بين الملفات ومحدش بيتأكد منها.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="14-template-driven-forms.html">
       <em>14</em>
       <span class="tt">
@@ -762,12 +937,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">The quick way</span><span class="l-ar" dir="auto">الطريقة السريعة</span></i>
       </span>
     </a>
+    <a class="extra" href="template-driven-forms-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>ngModel</code> forms, name by name</span><span class="l-ar" dir="auto">فورمز <code>ngModel</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when a form line like <code>name="email" [(ngModel)]="model.email" #email="ngModel"</code> makes your head spin. One contact form, every name coloured, and the proof that the five <code>email</code>s on one line are five different things.</span><span class="l-ar" dir="auto">الصفحة دي للي بيدوخ من سطر فورم زي <code>name="email" [(ngModel)]="model.email" #email="ngModel"</code>. فورم تواصل واحد، وكل اسم ملوّن، والدليل إن الخمس <code>email</code> اللي في سطر واحد خمس حاجات مختلفة.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="15-http-basics.html">
       <em>15</em>
       <span class="tt">
         <b><span class="l-en"><code>HttpClient</code>: GET, POST and the rest</span><span class="l-ar" dir="auto"><code>HttpClient</code>: GET و POST والباقي</span></b>
         <span class="tsay"><span class="l-en"><code>HttpClient</code> is <b>how your app asks a server for data</b>, or sends data to it.</span><span class="l-ar" dir="auto"><code>HttpClient</code> هو <b>إزاي تطبيقك يطلب داتا من السيرفر</b>، أو يبعتله داتا.</span></span>
         <i class="tb"><span class="l-en">Talking to a server</span><span class="l-ar" dir="auto">الكلام مع سيرفر</span></i>
+      </span>
+    </a>
+    <a class="extra" href="http-basics-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>HttpClient</code>, name by name</span><span class="l-ar" dir="auto"><code>HttpClient</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when a request “does nothing” and you cannot tell whose name is whose. One product list followed from the config line to the screen, every name coloured: Angular’s, yours, and a third owner that surprises people, the server.</span><span class="l-ar" dir="auto">الصفحة دي لما الريكويست «مش بيعمل حاجة» ومش عارف كل اسم بتاع مين. ليستة منتجات واحدة ماشيين وراها من سطر الإعدادات لحد الشاشة، وكل اسم ملوّن: بتاع أنجولار، وبتاعك، وصاحب تالت بيفاجئ الناس، السيرفر.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a class="extra" href="project.html">

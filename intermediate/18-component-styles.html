@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -660,26 +731,44 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="css" data-lang="html">
         <div class="fc-h"><span class="d"></span>card.component.css<span class="tag"><span class="l-en">scoped</span><span class="l-ar" dir="auto">محصور</span></span></div>
-        <pre><span class="ln" data-l="1">/* this .title only ever matches inside THIS component */</span><span class="ln" data-l="2">.title { font-size: 18px; font-weight: 700; }</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">/* :host = the <i class="t-tag">&lt;app-card</i><i class="t-tag">&gt;</i> element itself */</span><span class="ln" data-l="5">:host { display: block; border: 1px solid <i class="t-bind">#ddd</i>; border-radius: 8px; }</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">/* react to a class on the host element */</span><span class="ln" data-l="8">:host<i class="t-bind">(.featured)</i> { border-color: gold; }</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10">/* react to something ABOVE you in the page */</span><span class="ln" data-l="11">:host-context<i class="t-bind">(.dark-theme)</i> .title { color: white; }</span><span class="ln" data-l="12"> </span><span class="ln" data-l="13">/* ::ng-deep pierces into a child component. it is deprecated,</span><span class="ln" data-l="14">   it leaks globally, and it is almost always the wrong answer. */</span><span class="ln" data-l="15">::ng-deep .third-party-widget { padding: 0; }</span></pre>
+        <pre><span class="ln" data-l="1">/* this .title only ever matches inside THIS component */</span><span class="ln" data-l="2"><span class="v0">.<b class="nm nm-pub" data-nm="title">title</b> { font-size: 18px; font-weight: 700; }</span><span class="v1">.<b class="nm nm-pub" data-nm="title">pumpkin</b> { font-size: 18px; font-weight: 700; }</span></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">/* :host = the <i class="t-tag">&lt;app-card</i><i class="t-tag">&gt;</i> element itself */</span><span class="ln" data-l="5"><b class="nm nm-ng" data-nm=":host">:host</b> { display: block; border: 1px solid <i class="t-bind">#ddd</i>; border-radius: 8px; }</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">/* react to a class on the host element */</span><span class="ln" data-l="8"><span class="v0"><b class="nm nm-ng" data-nm=":host">:host</b><i class="t-bind">(.<b class="nm nm-pub" data-nm="featured">featured</b>)</i> { border-color: gold; }</span><span class="v1"><b class="nm nm-ng" data-nm=":host">:host</b><i class="t-bind">(.<b class="nm nm-pub" data-nm="featured">muffin</b>)</i> { border-color: gold; }</span></span><span class="ln" data-l="9"> </span><span class="ln" data-l="10">/* react to something ABOVE you in the page */</span><span class="ln" data-l="11"><span class="v0"><b class="nm nm-ng" data-nm=":host-context">:host-context</b><i class="t-bind">(.<b class="nm nm-pub" data-nm="dark-theme">dark-theme</b>)</i> .<b class="nm nm-pub" data-nm="title">title</b> { color: white; }</span><span class="v1"><b class="nm nm-ng" data-nm=":host-context">:host-context</b><i class="t-bind">(.<b class="nm nm-pub" data-nm="dark-theme">dark-taco</b>)</i> .<b class="nm nm-pub" data-nm="title">pumpkin</b> { color: white; }</span></span><span class="ln" data-l="12"> </span><span class="ln" data-l="13">/* ::ng-deep pierces into a child component. it is deprecated,</span><span class="ln" data-l="14">   it leaks globally, and it is almost always the wrong answer. */</span><span class="ln" data-l="15"><b class="nm nm-ng" data-nm="::ng-deep">::ng-deep</b> .<b class="nm nm-ng" data-nm="third-party-widget">third-party-widget</b> { padding: 0; }</span></pre>
       </div>
       <div class="fc" data-file="out" data-lang="html">
         <div class="fc-h"><span class="d"></span>what the browser actually receives<span class="tag"><span class="l-en">the mechanism</span><span class="l-ar" dir="auto">الميكانيزم</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">&lt;!-- Angular rewrites your CSS and stamps an attribute on the HTML --&gt;</i></span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-tag">&lt;app-card</i> _nghost-abc123<i class="t-tag">&gt;</i></span><span class="ln" data-l="4">  <i class="t-tag">&lt;h3</i> <i class="t-attr">class</i>=<i class="t-str">"title"</i> _ngcontent-abc123<i class="t-tag">&gt;</i>Wireless mouse<i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5"><i class="t-tag">&lt;/app-card</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-tag">&lt;style</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="8">  .title<i class="t-bind">[_ngcontent-abc123]</i> { font-size: 18px; }</span><span class="ln" data-l="9">  <i class="t-bind">[_nghost-abc123]</i>        { display: block; }</span><span class="ln" data-l="10"><i class="t-tag">&lt;/style</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="11"> </span><span class="ln" data-l="12">&lt;!-- that attribute is the whole trick. no Shadow DOM,</span><span class="ln" data-l="13">     no build magic — just a very specific selector. --<i class="t-tag">&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">&lt;!-- Angular rewrites your CSS and stamps an attribute on the HTML --&gt;</i></span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-card">app-card</b></i> <b class="nm nm-ng" data-nm="_nghost-abc123">_nghost-abc123</b><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-card">app-potato</b></i> <b class="nm nm-ng" data-nm="_nghost-abc123">_nghost-abc123</b><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="4"><span class="v0">  <i class="t-tag">&lt;h3</i> <i class="t-attr">class</i>=<i class="t-str">"<b class="nm nm-pub" data-nm="title">title</b>"</i> <b class="nm nm-ng" data-nm="_ngcontent-abc123">_ngcontent-abc123</b><i class="t-tag">&gt;</i>Wireless mouse<i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;h3</i> <i class="t-attr">class</i>=<i class="t-str">"<b class="nm nm-pub" data-nm="title">pumpkin</b>"</i> <b class="nm nm-ng" data-nm="_ngcontent-abc123">_ngcontent-abc123</b><i class="t-tag">&gt;</i>Wireless mouse<i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="5"><span class="v0"><i class="t-tag">&lt;/<b class="nm nm-pub" data-nm="app-card">app-card</b></i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;/<b class="nm nm-pub" data-nm="app-card">app-potato</b></i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-tag">&lt;style</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="8"><span class="v0">  .<b class="nm nm-pub" data-nm="title">title</b><i class="t-bind">[<b class="nm nm-ng" data-nm="_ngcontent-abc123">_ngcontent-abc123</b>]</i> { font-size: 18px; }</span><span class="v1">  .<b class="nm nm-pub" data-nm="title">pumpkin</b><i class="t-bind">[<b class="nm nm-ng" data-nm="_ngcontent-abc123">_ngcontent-abc123</b>]</i> { font-size: 18px; }</span></span><span class="ln" data-l="9">  <i class="t-bind">[<b class="nm nm-ng" data-nm="_nghost-abc123">_nghost-abc123</b>]</i>        { display: block; }</span><span class="ln" data-l="10"><i class="t-tag">&lt;/style</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="11"> </span><span class="ln" data-l="12">&lt;!-- that attribute is the whole trick. no Shadow DOM,</span><span class="ln" data-l="13">     no build magic — just a very specific selector. --<i class="t-tag">&gt;</i></span></pre>
       </div>
       <div class="fc" data-file="ts" data-lang="ts">
         <div class="fc-h"><span class="d"></span>card.component.ts<span class="tag"><span class="l-en">dynamic classes</span><span class="l-ar" dir="auto">classes متغيرة</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="2">  selector: <i class="t-str">'app-card'</i>,</span><span class="ln" data-l="3">  templateUrl: <i class="t-str">'./card.component.html'</i>,</span><span class="ln" data-l="4">  styleUrl: <i class="t-str">'./card.component.css'</i>,</span><span class="ln" data-l="5">  <i class="t-com">// ViewEncapsulation.Emulated is the default and what you want.</i></span><span class="ln" data-l="6">  <i class="t-com">// .None removes scoping entirely — the styles become global.</i></span><span class="ln" data-l="7">  <i class="t-com">// .ShadowDom uses real Shadow DOM (real isolation, real limits).</i></span><span class="ln" data-l="8">})</span><span class="ln" data-l="9"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Card</i> {</span><span class="ln" data-l="10">  <i class="t-key">readonly</i> product = input.required&lt;<i class="t-type">Product</i>&gt;();</span><span class="ln" data-l="11">  <i class="t-key">readonly</i> soldOut = <i class="t-fn">computed</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">product</i>().stock === <i class="t-num">0</i>);</span><span class="ln" data-l="12">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-dec"><b class="nm nm-ng" data-nm="@Component">@Component</b></i>({</span><span class="ln" data-l="2"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-card">app-card</b>'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-card">app-potato</b>'</i>,</span></span><span class="ln" data-l="3">  <b class="nm nm-ng" data-nm="templateUrl">templateUrl</b>: <i class="t-str">'./card.component.html'</i>,</span><span class="ln" data-l="4">  <b class="nm nm-ng" data-nm="styleUrl">styleUrl</b>: <i class="t-str">'./card.component.css'</i>,</span><span class="ln" data-l="5">  <i class="t-com">// ViewEncapsulation.Emulated is the default and what you want.</i></span><span class="ln" data-l="6">  <i class="t-com">// .None removes scoping entirely — the styles become global.</i></span><span class="ln" data-l="7">  <i class="t-com">// .ShadowDom uses real Shadow DOM (real isolation, real limits).</i></span><span class="ln" data-l="8">})</span><span class="ln" data-l="9"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Card">Card</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Card">Banana</b></i> {</span></span><span class="ln" data-l="10"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="product">product</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Product">Product</b></i>&gt;();</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="product">mango</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Product">Pickle</b></i>&gt;();</span></span><span class="ln" data-l="11"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="soldOut">soldOut</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="product">product</b></i>().<b class="nm nm-pub" data-nm="stock">stock</b> === <i class="t-num">0</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="soldOut">noodle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="product">mango</b></i>().<b class="nm nm-pub" data-nm="stock">waffle</b> === <i class="t-num">0</i>);</span></span><span class="ln" data-l="12">}</span></pre>
       </div>
       <div class="fc" data-file="tpl" data-lang="html">
         <div class="fc-h"><span class="d"></span>card.component.html<span class="tag"><span class="l-en">binding styles</span><span class="l-ar" dir="auto">ربط الاستايلات</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">&lt;!-- one class, toggled by a boolean --&gt;</i></span><span class="ln" data-l="2"><i class="t-tag">&lt;h3</i> <i class="t-attr">class</i>=<i class="t-str">"title"</i> <i class="t-bind">[class.sold-out]</i>=<i class="t-str">"soldOut()"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ product().title }}</i><i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-com">&lt;!-- several at once, from an object --&gt;</i></span><span class="ln" data-l="5"><i class="t-tag">&lt;div</i> <i class="t-bind">[class]</i>=<i class="t-str">"{ featured: product().featured, cheap: product().price &lt; 100 }"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">&lt;!-- a single style property, with the unit built into the binding --&gt;</i></span><span class="ln" data-l="8"><i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"bar"</i> [style.width.%]=<i class="t-str">"product().stock"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="9"><i class="t-tag">&lt;div</i> <i class="t-bind">[style.color]</i>=<i class="t-str">"product().featured ? 'gold' : null"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-com">&lt;!-- static and bound classes merge — you do not lose "title" --&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">&lt;!-- one class, toggled by a boolean --&gt;</i></span><span class="ln" data-l="2"><span class="v0"><i class="t-tag">&lt;h3</i> <i class="t-attr">class</i>=<i class="t-str">"<b class="nm nm-pub" data-nm="title">title</b>"</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="sold-out">sold-out</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="soldOut">soldOut</b>()"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="product">product</b>().title }}</i><i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;h3</i> <i class="t-attr">class</i>=<i class="t-str">"<b class="nm nm-pub" data-nm="title">pumpkin</b>"</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="sold-out">sold-turnip</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="soldOut">noodle</b>()"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="product">mango</b>().title }}</i><i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-com">&lt;!-- several at once, from an object --&gt;</i></span><span class="ln" data-l="5"><span class="v0"><i class="t-tag">&lt;div</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>]</i>=<i class="t-str">"{ featured: <b class="nm nm-pub" data-nm="product">product</b>().featured, cheap: <b class="nm nm-pub" data-nm="product">product</b>().price &lt; 100 }"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;div</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>]</i>=<i class="t-str">"{ featured: <b class="nm nm-pub" data-nm="product">mango</b>().featured, cheap: <b class="nm nm-pub" data-nm="product">mango</b>().price &lt; 100 }"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">&lt;!-- a single style property, with the unit built into the binding --&gt;</i></span><span class="ln" data-l="8"><span class="v0"><i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"bar"</i> [<b class="nm nm-ng" data-nm="style">style</b>.width.%]=<i class="t-str">"<b class="nm nm-pub" data-nm="product">product</b>().<b class="nm nm-pub" data-nm="stock">stock</b>"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"bar"</i> [<b class="nm nm-ng" data-nm="style">style</b>.width.%]=<i class="t-str">"<b class="nm nm-pub" data-nm="product">mango</b>().<b class="nm nm-pub" data-nm="stock">waffle</b>"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="9"><span class="v0"><i class="t-tag">&lt;div</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="style">style</b>.color]</i>=<i class="t-str">"<b class="nm nm-pub" data-nm="product">product</b>().featured ? 'gold' : null"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;div</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="style">style</b>.color]</i>=<i class="t-str">"<b class="nm nm-pub" data-nm="product">mango</b>().featured ? 'gold' : null"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-com">&lt;!-- static and bound classes merge — you do not lose "title" --&gt;</i></span></pre>
       </div>
       <div class="fc" data-file="global" data-lang="html">
         <div class="fc-h"><span class="d"></span>src/styles.css<span class="tag"><span class="l-en">the global file</span><span class="l-ar" dir="auto">الملف العام</span></span></div>
-        <pre><span class="ln" data-l="1">/* fonts, resets, CSS variables and utility classes go HERE, */</span><span class="ln" data-l="2">/* because they genuinely need to apply everywhere.          */</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">:root {</span><span class="ln" data-l="5">  --brand: <i class="t-bind">#e40035</i>;</span><span class="ln" data-l="6">  --radius: 8px;</span><span class="ln" data-l="7">}</span><span class="ln" data-l="8"> </span><span class="ln" data-l="9">*, *::before, *::after { box-sizing: border-box; }</span><span class="ln" data-l="10">body { margin: 0; font-family: system-ui, sans-serif; }</span><span class="ln" data-l="11"> </span><span class="ln" data-l="12">/* component CSS can then use the variables — custom properties</span><span class="ln" data-l="13">   inherit through the DOM and ignore encapsulation entirely. */</span></pre>
+        <pre><span class="ln" data-l="1">/* fonts, resets, CSS variables and utility classes go HERE, */</span><span class="ln" data-l="2">/* because they genuinely need to apply everywhere.          */</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><b class="nm nm-ng" data-nm=":root">:root</b> {</span><span class="ln" data-l="5"><span class="v0">  <b class="nm nm-pub" data-nm="--brand">--brand</b>: <i class="t-bind">#e40035</i>;</span><span class="v1">  <b class="nm nm-pub" data-nm="--brand">--koshary</b>: <i class="t-bind">#e40035</i>;</span></span><span class="ln" data-l="6"><span class="v0">  <b class="nm nm-pub" data-nm="--radius">--radius</b>: 8px;</span><span class="v1">  <b class="nm nm-pub" data-nm="--radius">--feteer</b>: 8px;</span></span><span class="ln" data-l="7">}</span><span class="ln" data-l="8"> </span><span class="ln" data-l="9">*, *::before, *::after { box-sizing: border-box; }</span><span class="ln" data-l="10">body { margin: 0; font-family: system-ui, sans-serif; }</span><span class="ln" data-l="11"> </span><span class="ln" data-l="12">/* component CSS can then use the variables — custom properties</span><span class="ln" data-l="13">   inherit through the DOM and ignore encapsulation entirely. */</span></pre>
       </div></div>
 
   
@@ -692,13 +781,225 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="th1" data-lang="html">
         <div class="fc-h"><span class="d"></span>button.component.css<span class="tag"><span class="l-en">the child declares</span><span class="l-ar" dir="auto">الابن بيعلن</span></span></div>
-        <pre><span class="ln" data-l="1">:host {</span><span class="ln" data-l="2">  /* a default that any ancestor may override */</span><span class="ln" data-l="3">  --btn-bg: var(--brand, <i class="t-bind">#333</i>);</span><span class="ln" data-l="4">  --btn-radius: var(--radius, 6px);</span><span class="ln" data-l="5"> </span><span class="ln" data-l="6">  background: var<i class="t-bind">(--btn-bg)</i>;</span><span class="ln" data-l="7">  border-radius: var<i class="t-bind">(--btn-radius)</i>;</span><span class="ln" data-l="8">}</span></pre>
+        <pre><span class="ln" data-l="1"><b class="nm nm-ng" data-nm=":host">:host</b> {</span><span class="ln" data-l="2">  /* a default that any ancestor may override */</span><span class="ln" data-l="3"><span class="v0">  <b class="nm nm-pub" data-nm="--btn-bg">--btn-bg</b>: <b class="nm nm-ng" data-nm="var">var</b>(<b class="nm nm-pub" data-nm="--brand">--brand</b>, <i class="t-bind">#333</i>);</span><span class="v1">  <b class="nm nm-pub" data-nm="--btn-bg">--basbousa</b>: <b class="nm nm-ng" data-nm="var">var</b>(<b class="nm nm-pub" data-nm="--brand">--koshary</b>, <i class="t-bind">#333</i>);</span></span><span class="ln" data-l="4"><span class="v0">  <b class="nm nm-pub" data-nm="--btn-radius">--btn-radius</b>: <b class="nm nm-ng" data-nm="var">var</b>(<b class="nm nm-pub" data-nm="--radius">--radius</b>, 6px);</span><span class="v1">  <b class="nm nm-pub" data-nm="--btn-radius">--falafel</b>: <b class="nm nm-ng" data-nm="var">var</b>(<b class="nm nm-pub" data-nm="--radius">--feteer</b>, 6px);</span></span><span class="ln" data-l="5"> </span><span class="ln" data-l="6"><span class="v0">  background: <b class="nm nm-ng" data-nm="var">var</b><i class="t-bind">(<b class="nm nm-pub" data-nm="--btn-bg">--btn-bg</b>)</i>;</span><span class="v1">  background: <b class="nm nm-ng" data-nm="var">var</b><i class="t-bind">(<b class="nm nm-pub" data-nm="--btn-bg">--basbousa</b>)</i>;</span></span><span class="ln" data-l="7"><span class="v0">  border-radius: <b class="nm nm-ng" data-nm="var">var</b><i class="t-bind">(<b class="nm nm-pub" data-nm="--btn-radius">--btn-radius</b>)</i>;</span><span class="v1">  border-radius: <b class="nm nm-ng" data-nm="var">var</b><i class="t-bind">(<b class="nm nm-pub" data-nm="--btn-radius">--falafel</b>)</i>;</span></span><span class="ln" data-l="8">}</span></pre>
       </div>
       <div class="fc" data-file="th2" data-lang="html">
         <div class="fc-h"><span class="d"></span>checkout.component.css<span class="tag"><span class="l-en">the parent sets</span><span class="l-ar" dir="auto">الأب بيحدد</span></span></div>
-        <pre><span class="ln" data-l="1">/* no ::ng-deep, no !important, no fighting specificity */</span><span class="ln" data-l="2">.danger-zone {</span><span class="ln" data-l="3">  --btn-bg: <i class="t-bind">#c00</i>;</span><span class="ln" data-l="4">  --btn-radius: 2px;</span><span class="ln" data-l="5">}</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">/* every app-button inside .danger-zone picks this up,</span><span class="ln" data-l="8">   and nothing outside it is affected. */</span></pre>
+        <pre><span class="ln" data-l="1">/* no ::ng-deep, no !important, no fighting specificity */</span><span class="ln" data-l="2"><span class="v0">.<b class="nm nm-pub" data-nm="danger-zone">danger-zone</b> {</span><span class="v1">.<b class="nm nm-pub" data-nm="danger-zone">danger-kiwi</b> {</span></span><span class="ln" data-l="3"><span class="v0">  <b class="nm nm-pub" data-nm="--btn-bg">--btn-bg</b>: <i class="t-bind">#c00</i>;</span><span class="v1">  <b class="nm nm-pub" data-nm="--btn-bg">--basbousa</b>: <i class="t-bind">#c00</i>;</span></span><span class="ln" data-l="4"><span class="v0">  <b class="nm nm-pub" data-nm="--btn-radius">--btn-radius</b>: 2px;</span><span class="v1">  <b class="nm nm-pub" data-nm="--btn-radius">--falafel</b>: 2px;</span></span><span class="ln" data-l="5">}</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">/* every app-button inside .danger-zone picks this up,</span><span class="ln" data-l="8">   and nothing outside it is affected. */</span></pre>
       </div></div>
   </div>
+
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">In a stylesheet, anything that starts with <code>:</code> or <code>::</code> is CSS’s or Angular’s. Class names and <code>--variables</code> are yours, but a stylesheet is always read by another file: the template that puts the class on, or the component that sets the variable. Rename both sides.</span><span class="l-ar" dir="auto">في الـ stylesheet، أي حاجة بتبدأ بـ <code>:</code> أو <code>::</code> دي بتاعة CSS أو أنجولار. أسماء الـ class والـ <code>--variables</code> بتاعتك، بس الـ stylesheet دايماً فيه ملف تاني بيقراه: التمبلت اللي بيحط الـ class، أو الـ component اللي بيحط قيمة الـ variable. غيّر الناحيتين.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="@Component">
+        <td><b class="nm nm-ng" data-nm="@Component">@Component</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s decorator that turns the class into a component.</span><span class="l-ar" dir="auto">الـ decorator بتاع أنجولار اللي بيحوّل الكلاس لـ component.</span></td>
+        <td class="nmfiles"><code>card.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="selector">
+        <td><b class="nm nm-ng" data-nm="selector">selector</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads. The tag name you put in it is yours.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه. اسم التاج اللي بتحطه فيه بتاعك.</span></td>
+        <td class="nmfiles"><code>card.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="templateUrl">
+        <td><b class="nm nm-ng" data-nm="templateUrl">templateUrl</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads: the path to the HTML file.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه: مسار ملف الـ HTML.</span></td>
+        <td class="nmfiles"><code>card.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="styleUrl">
+        <td><b class="nm nm-ng" data-nm="styleUrl">styleUrl</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads: the path to this component’s own CSS file. Only styles in here get scoped.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه: مسار ملف الـ CSS الخاص بالـ component ده. الستايلات اللي هنا بس هي اللي بتتقفل عليه.</span></td>
+        <td class="nmfiles"><code>card.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="input">
+        <td><b class="nm nm-ng" data-nm="input">input</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that creates an input.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتعمل input.</span></td>
+        <td class="nmfiles"><code>card.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="required">
+        <td><b class="nm nm-ng" data-nm="required">required</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Part of Angular’s API: <code>input.required</code>.</span><span class="l-ar" dir="auto">جزء من API أنجولار: <code>input.required</code>.</span></td>
+        <td class="nmfiles"><code>card.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="computed">
+        <td><b class="nm nm-ng" data-nm="computed">computed</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s derived signal.</span><span class="l-ar" dir="auto">الـ signal المشتقة بتاعة أنجولار.</span></td>
+        <td class="nmfiles"><code>card.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="class">
+        <td><b class="nm nm-ng" data-nm="class">class</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s class binding: <code>[class.x]</code> for one class, <code>[class]</code> for many. The class names after the dot or inside the object are yours.</span><span class="l-ar" dir="auto">الـ binding بتاع أنجولار للـ class: <code>[class.x]</code> لـ class واحدة، و<code>[class]</code> لكذا واحدة. أسماء الـ class اللي بعد النقطة أو جوه الـ object بتاعتك.</span></td>
+        <td class="nmfiles"><code>card.component.html</code></td>
+      </tr>
+      <tr data-nmrow="style">
+        <td><b class="nm nm-ng" data-nm="style">style</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s style binding. The CSS property after it (<code>width</code>, <code>color</code>) is CSS’s, and <code>.%</code> is the unit.</span><span class="l-ar" dir="auto">الـ binding بتاع أنجولار للـ style. الـ property اللي بعده (<code>width</code>، <code>color</code>) بتاعة CSS، و<code>.%</code> هي الوحدة.</span></td>
+        <td class="nmfiles"><code>card.component.html</code></td>
+      </tr>
+      <tr data-nmrow=":host">
+        <td><b class="nm nm-ng" data-nm=":host">:host</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s selector for the component’s own tag (<code>&lt;app-card&gt;</code>). Type it exactly.</span><span class="l-ar" dir="auto">الـ selector بتاع أنجولار للتاج بتاع الـ component نفسه (<code>&lt;app-card&gt;</code>). اكتبه زي ما هو.</span></td>
+        <td class="nmfiles"><code>card.component.css</code> <code>button.component.css</code></td>
+      </tr>
+      <tr data-nmrow=":host-context">
+        <td><b class="nm nm-ng" data-nm=":host-context">:host-context</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s selector for “when something above me has this class”.</span><span class="l-ar" dir="auto">الـ selector بتاع أنجولار لـ “لما حاجة فوقي في الصفحة يبقى عليها الـ class ده”.</span></td>
+        <td class="nmfiles"><code>card.component.css</code></td>
+      </tr>
+      <tr data-nmrow="::ng-deep">
+        <td><b class="nm nm-ng" data-nm="::ng-deep">::ng-deep</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s (deprecated) escape hatch that switches scoping off for the rest of the rule.</span><span class="l-ar" dir="auto">مخرج الطوارئ بتاع أنجولار (وهو deprecated) اللي بيقفل الـ scoping لباقي الـ rule.</span></td>
+        <td class="nmfiles"><code>card.component.css</code></td>
+      </tr>
+      <tr data-nmrow=":root">
+        <td><b class="nm nm-ng" data-nm=":root">:root</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">CSS’s own selector for the <code>&lt;html&gt;</code> element: the usual home for global variables.</span><span class="l-ar" dir="auto">selector بتاع CSS نفسها لعنصر <code>&lt;html&gt;</code>: المكان المعتاد للـ variables العامة.</span></td>
+        <td class="nmfiles"><code>src/styles.css</code></td>
+      </tr>
+      <tr data-nmrow="var">
+        <td><b class="nm nm-ng" data-nm="var">var</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">CSS’s function that reads a custom property. The second value is the fallback.</span><span class="l-ar" dir="auto">الـ function بتاعة CSS اللي بتقرا custom property. القيمة التانية هي الـ fallback.</span></td>
+        <td class="nmfiles"><code>button.component.css</code></td>
+      </tr>
+      <tr data-nmrow="_nghost-abc123">
+        <td><b class="nm nm-ng" data-nm="_nghost-abc123">_nghost-abc123</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An attribute Angular generates and stamps on the host tag. You never type it.</span><span class="l-ar" dir="auto">attribute أنجولار بيعمله لوحده وبيختمه على تاج الـ host. انت عمرك ما بتكتبه.</span></td>
+        <td class="nmfiles"><code>what the browser actually receives</code></td>
+      </tr>
+      <tr data-nmrow="_ngcontent-abc123">
+        <td><b class="nm nm-ng" data-nm="_ngcontent-abc123">_ngcontent-abc123</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An attribute Angular stamps on every element in the template, and adds to every selector in your CSS. That is the whole scoping trick.</span><span class="l-ar" dir="auto">attribute أنجولار بيختمه على كل عنصر في التمبلت، وبيضيفه لكل selector في الـ CSS بتاعك. ده السر كله بتاع الـ scoping.</span></td>
+        <td class="nmfiles"><code>what the browser actually receives</code></td>
+      </tr>
+      <tr data-nmrow="third-party-widget">
+        <td><b class="nm nm-ng" data-nm="third-party-widget">third-party-widget</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A class from someone else’s library. Their HTML uses it, so you cannot rename it.</span><span class="l-ar" dir="auto">class من library حد تاني. الـ HTML بتاعهم هو اللي بيستخدمها، فمينفعش تغيّرها.</span></td>
+        <td class="nmfiles"><code>card.component.css</code></td>
+      </tr>
+      <tr data-nmrow="Card">
+        <td><b class="nm nm-pub" data-nm="Card">Card</b><span class="nmas">&rarr; <code>Banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The component’s class name. Whoever lists it in <code>imports</code> follows a rename.</span><span class="l-ar" dir="auto">اسم كلاس الـ component. أي حد كاتبه في <code>imports</code> بيتغير معاه.</span></td>
+        <td class="nmfiles"><code>card.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="app-card">
+        <td><b class="nm nm-pub" data-nm="app-card">app-card</b><span class="nmas">&rarr; <code>app-potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The selector: the tag every parent template types. <code>:host</code> styles this tag without naming it.</span><span class="l-ar" dir="auto">الـ selector: التاج اللي أي تمبلت أب بيكتبه. و<code>:host</code> بيستايل التاج ده من غير ما يكتب اسمه.</span></td>
+        <td class="nmfiles"><code>what the browser actually receives</code> <code>card.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="product">
+        <td><b class="nm nm-pub" data-nm="product">product</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">An input. The parent sets it with <code>[product]</code>, so both files change together.</span><span class="l-ar" dir="auto">input. الأب بيحطه بـ <code>[product]</code>، فالملفين بيتغيروا مع بعض.</span></td>
+        <td class="nmfiles"><code>card.component.ts</code> <code>card.component.html</code></td>
+      </tr>
+      <tr data-nmrow="Product">
+        <td><b class="nm nm-pub" data-nm="Product">Product</b><span class="nmas">&rarr; <code>Pickle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your data type. Every file that imports it follows a rename.</span><span class="l-ar" dir="auto">نوع الداتا بتاعك. أي ملف بيعمله import بيتغير معاه.</span></td>
+        <td class="nmfiles"><code>card.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="stock">
+        <td><b class="nm nm-pub" data-nm="stock">stock</b><span class="nmas">&rarr; <code>waffle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field on your <code>Product</code> type, so it changes with the type.</span><span class="l-ar" dir="auto">field في نوع الـ <code>Product</code> بتاعك، فبيتغير مع النوع.</span></td>
+        <td class="nmfiles"><code>card.component.ts</code> <code>card.component.html</code></td>
+      </tr>
+      <tr data-nmrow="soldOut">
+        <td><b class="nm nm-mine" data-nm="soldOut">soldOut</b><span class="nmas">&rarr; <code>noodle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A computed the component uses in its own template. Nobody outside reads it.</span><span class="l-ar" dir="auto">computed الـ component بيستخدمه في التمبلت بتاعه. محدش برّه بيقراه.</span></td>
+        <td class="nmfiles"><code>card.component.ts</code> <code>card.component.html</code></td>
+      </tr>
+      <tr data-nmrow="title">
+        <td><b class="nm nm-pub" data-nm="title">title</b><span class="nmas">&rarr; <code>pumpkin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A CSS class: <code>class="title"</code> in the template and <code>.title</code> in the stylesheet must match. (<code>product().title</code> is a data field, a different thing.)</span><span class="l-ar" dir="auto">CSS class: <code>class="title"</code> في التمبلت و<code>.title</code> في الـ stylesheet لازم يبقوا زي بعض. (و<code>product().title</code> field في الداتا، حاجة تانية.)</span></td>
+        <td class="nmfiles"><code>card.component.css</code> <code>what the browser actually receives</code> <code>card.component.html</code></td>
+      </tr>
+      <tr data-nmrow="sold-out">
+        <td><b class="nm nm-pub" data-nm="sold-out">sold-out</b><span class="nmas">&rarr; <code>sold-turnip</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A CSS class the template toggles. The <code>.sold-out</code> rule in the stylesheet must use the same spelling.</span><span class="l-ar" dir="auto">CSS class التمبلت بيشغّلها ويطفيها. الـ rule بتاعة <code>.sold-out</code> في الـ stylesheet لازم تتكتب بنفس الطريقة.</span></td>
+        <td class="nmfiles"><code>card.component.html</code></td>
+      </tr>
+      <tr data-nmrow="featured">
+        <td><b class="nm nm-pub" data-nm="featured">featured</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A class the <em>parent</em> puts on <code>&lt;app-card class="featured"&gt;</code>. Rename it here and in every parent.</span><span class="l-ar" dir="auto">class الـ <em>أب</em> بيحطها على <code>&lt;app-card class="featured"&gt;</code>. غيّرها هنا وفي كل أب.</span></td>
+        <td class="nmfiles"><code>card.component.css</code></td>
+      </tr>
+      <tr data-nmrow="dark-theme">
+        <td><b class="nm nm-pub" data-nm="dark-theme">dark-theme</b><span class="nmas">&rarr; <code>dark-taco</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A class some ancestor (usually the app shell) puts on the page. Both files must spell it the same.</span><span class="l-ar" dir="auto">class حاجة فوق في الصفحة (غالباً الـ app shell) بتحطها. الملفين لازم يكتبوها بنفس الطريقة.</span></td>
+        <td class="nmfiles"><code>card.component.css</code></td>
+      </tr>
+      <tr data-nmrow="--brand">
+        <td><b class="nm nm-pub" data-nm="--brand">--brand</b><span class="nmas">&rarr; <code>--koshary</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your CSS variable, defined in <code>styles.css</code> and read by the button. Rename it in both.</span><span class="l-ar" dir="auto">الـ CSS variable بتاعتك، متعرّفة في <code>styles.css</code> والزرار بيقراها. غيّرها في الاتنين.</span></td>
+        <td class="nmfiles"><code>src/styles.css</code> <code>button.component.css</code></td>
+      </tr>
+      <tr data-nmrow="--radius">
+        <td><b class="nm nm-pub" data-nm="--radius">--radius</b><span class="nmas">&rarr; <code>--feteer</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your CSS variable, defined globally and read by the button.</span><span class="l-ar" dir="auto">الـ CSS variable بتاعتك، متعرّفة global والزرار بيقراها.</span></td>
+        <td class="nmfiles"><code>src/styles.css</code> <code>button.component.css</code></td>
+      </tr>
+      <tr data-nmrow="--btn-bg">
+        <td><b class="nm nm-pub" data-nm="--btn-bg">--btn-bg</b><span class="nmas">&rarr; <code>--basbousa</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The button’s theming knob. The checkout overrides it by name, so both files change together.</span><span class="l-ar" dir="auto">زرار التحكم في شكل الزرار. الـ checkout بيغيّر قيمته بالاسم، فالملفين بيتغيروا مع بعض.</span></td>
+        <td class="nmfiles"><code>button.component.css</code> <code>checkout.component.css</code></td>
+      </tr>
+      <tr data-nmrow="--btn-radius">
+        <td><b class="nm nm-pub" data-nm="--btn-radius">--btn-radius</b><span class="nmas">&rarr; <code>--falafel</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Another theming knob the checkout overrides by name.</span><span class="l-ar" dir="auto">زرار تحكم تاني الـ checkout بيغيّر قيمته بالاسم.</span></td>
+        <td class="nmfiles"><code>button.component.css</code> <code>checkout.component.css</code></td>
+      </tr>
+      <tr data-nmrow="danger-zone">
+        <td><b class="nm nm-pub" data-nm="danger-zone">danger-zone</b><span class="nmas">&rarr; <code>danger-kiwi</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A CSS class the checkout template puts on a wrapper. The template and the stylesheet must match.</span><span class="l-ar" dir="auto">CSS class تمبلت الـ checkout بيحطها على wrapper. التمبلت والـ stylesheet لازم يبقوا زي بعض.</span></td>
+        <td class="nmfiles"><code>checkout.component.css</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="component-styles-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en">Component styles, name by name</span><span class="l-ar" dir="auto">ستايلات الـ component، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">The page for when a class name works in one file and does nothing in another. One shop with product cards, followed through the template, the stylesheet and the parent, every name coloured by who owns it. Then what breaks, silently, when you rename each one.</span><span class="l-ar" dir="auto">الصفحة دي لما اسم class يشتغل في ملف ومايعملش حاجة في ملف تاني. محل واحد فيه كروت منتجات، ماشيين وراه في التمبلت والـ stylesheet والأب، وكل اسم ملوّن حسب صاحبه. وبعدين إيه اللي بيبوظ، في صمت، لما تغيّر كل واحد.</span></span>
+  </a>
 
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
@@ -798,8 +1099,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../intermediate/17-directives-and-pipes.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">Writing your own directives and pipes</span><span class="l-ar" dir="auto">تكتب directives وpipes بنفسك</span></b></a>
-    <a class="nx" href="../intermediate/19-content-projection.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en"><code>&lt;ng-content&gt;</code>: markup that comes from outside</span><span class="l-ar" dir="auto"><code>&lt;ng-content&gt;</code>: ماركب جاي من بره</span></b></a>
+    <a class="pv" href="../intermediate/directives-and-pipes-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">Directives and pipes, name by name</span><span class="l-ar" dir="auto">الـ directives والـ pipes، اسم اسم</span></b></a>
+    <a class="nx" href="../intermediate/component-styles-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Component styles, name by name</span><span class="l-ar" dir="auto">ستايلات الـ component، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -841,6 +1142,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){

@@ -1,0 +1,71 @@
+/* names for the Renderer2 topic.
+   n: the name exactly as typed in the code.   k: ng | mine | pub.
+   w: what it is, and what has to change with it.   { en, ar }
+   re / only / as: see _build/names.mjs.                                  */
+export default {
+'renderer2': {
+  note: {
+    en: 'Every method you call on the renderer (<code>createElement</code>, <code>addClass</code>, <code>listen</code>…) is Angular’s, and every quoted event, tag or attribute name you pass it is the browser’s. What is yours: the field names you store things in, and the directive’s selector.',
+    ar: 'كل ميثود بتناديها على الـ renderer (<code>createElement</code> و<code>addClass</code> و<code>listen</code>…) بتاعة أنجولار، وكل اسم event أو تاج أو attribute بين علامات تنصيص بتديهوله ده بتاع المتصفح. اللي بتاعك: أسماء الـ fields اللي بتحفظ فيها الحاجات، والـ selector بتاع الـ directive.'
+  },
+  names: [
+    { n:'@Directive', k:'ng', w:{ en:'Angular’s decorator that turns a class into a directive: behaviour you attach to an existing element.', ar:'الـ decorator بتاع أنجولار اللي بيحوّل الكلاس لـ directive: سلوك بتركّبه على element موجود.' } },
+    { n:'host:', k:'ng', re:'(?<![\\w$.-])host(?=:)',
+      w:{ en:'Angular’s metadata key for bindings and listeners on the element the directive sits on.', ar:'مفتاح الـ metadata بتاع أنجولار للـ bindings والـ listeners على الـ element اللي الـ directive قاعد عليه.' } },
+    { n:'Renderer2', k:'ng', w:{ en:'Angular’s class for changing the DOM in a way that also works on the server.', ar:'الكلاس بتاع أنجولار اللي بتعدّل بيه الـ DOM بطريقة بتشتغل على السيرفر كمان.' } },
+    { n:'ElementRef', k:'ng', w:{ en:'Angular’s wrapper around the element this directive is on.', ar:'الـ wrapper بتاع أنجولار حوالين الـ element اللي الـ directive ده عليه.' } },
+    { n:'nativeElement', k:'ng', only:['ts'], w:{ en:'<code>ElementRef</code>’s property: the real DOM element inside.', ar:'property في الـ <code>ElementRef</code>: الـ DOM element الحقيقي اللي جواه.' } },
+    { n:'inject', k:'ng', w:{ en:'Angular’s function that hands you a service.', ar:'الـ function بتاعة أنجولار اللي بتجيبلك service.' } },
+    { n:'afterNextRender', k:'ng', only:['ts'], w:{ en:'Angular’s hook that runs once in the browser after rendering, and never on the server.', ar:'الـ hook بتاع أنجولار اللي بيشتغل مرة في المتصفح بعد الرسم، وعمره ما بيشتغل على السيرفر.' } },
+    { n:'createElement', k:'ng', w:{ en:'A <code>Renderer2</code> method. The tag name you pass is HTML’s.', ar:'ميثود في <code>Renderer2</code>. اسم التاج اللي بتديهوله بتاع HTML.' } },
+    { n:'createText', k:'ng', w:{ en:'A <code>Renderer2</code> method.', ar:'ميثود في <code>Renderer2</code>.' } },
+    { n:'addClass', k:'ng', w:{ en:'A <code>Renderer2</code> method. The class name you pass is yours, from your stylesheet.', ar:'ميثود في <code>Renderer2</code>. اسم الكلاس اللي بتديهوله بتاعك، من ملف الـ CSS بتاعك.' } },
+    { n:'setStyle', k:'ng', w:{ en:'A <code>Renderer2</code> method. <code>\'left\'</code> and <code>\'top\'</code> are CSS’s own property names.', ar:'ميثود في <code>Renderer2</code>. <code>\'left\'</code> و<code>\'top\'</code> أسماء properties الـ CSS نفسها.' } },
+    { n:'setAttribute', k:'ng', w:{ en:'A <code>Renderer2</code> method. The attribute name you pass is HTML’s.', ar:'ميثود في <code>Renderer2</code>. اسم الـ attribute اللي بتديهوله بتاع HTML.' } },
+    { n:'appendChild', k:'ng', w:{ en:'A <code>Renderer2</code> method.', ar:'ميثود في <code>Renderer2</code>.' } },
+    { n:'removeChild', k:'ng', w:{ en:'A <code>Renderer2</code> method.', ar:'ميثود في <code>Renderer2</code>.' } },
+    { n:'listen', k:'ng', w:{ en:'A <code>Renderer2</code> method. It returns the function that stops listening.', ar:'ميثود في <code>Renderer2</code>. بترجّع الـ function اللي بتوقّف الاستماع.' } },
+    { n:'animationend', k:'ng', w:{ en:'The browser’s own event name for “a CSS animation finished”.', ar:'اسم الـ event بتاع المتصفح لما “animation في الـ CSS تخلص”.' } },
+    { n:'click', k:'ng', w:{ en:'The browser’s own event name.', ar:'اسم الـ event بتاع المتصفح نفسه.' } },
+    { n:'mouseenter', k:'ng', w:{ en:'The browser’s own event name.', ar:'اسم الـ event بتاع المتصفح نفسه.' } },
+    { n:'mouseleave', k:'ng', w:{ en:'The browser’s own event name.', ar:'اسم الـ event بتاع المتصفح نفسه.' } },
+    { n:'focus', k:'ng', w:{ en:'The browser’s own event name.', ar:'اسم الـ event بتاع المتصفح نفسه.' } },
+    { n:'blur', k:'ng', w:{ en:'The browser’s own event name.', ar:'اسم الـ event بتاع المتصفح نفسه.' } },
+    { n:'$event', k:'ng', w:{ en:'Angular’s fixed name, inside a listener, for the browser’s event object.', ar:'اسم ثابت من أنجولار، جوه الـ listener، لأوبجكت الـ event بتاع المتصفح.' } },
+    { n:'MouseEvent', k:'ng', w:{ en:'The browser’s type for a mouse event.', ar:'النوع بتاع المتصفح لـ event الماوس.' } },
+    { n:'HTMLElement', k:'ng', w:{ en:'The browser’s type for any HTML element.', ar:'النوع بتاع المتصفح لأي element في HTML.' } },
+    { n:'document', k:'ng', w:{ en:'The browser’s global page object. It does not exist on the server.', ar:'أوبجكت الصفحة العام بتاع المتصفح. مش موجود على السيرفر.' } },
+    { n:'innerHTML', k:'ng', w:{ en:'A DOM property. Writing to it by hand skips Angular’s sanitizer.', ar:'property في الـ DOM. لو كتبت فيه بإيدك بتعدّي من غير الـ sanitizer بتاع أنجولار.' } },
+    { n:'getBoundingClientRect', k:'ng', w:{ en:'A DOM method that measures an element. <code>width</code> is one of the fixed names it returns.', ar:'ميثود في الـ DOM بتقيس الـ element. و<code>width</code> من الأسماء الثابتة اللي بترجّعها.' } },
+    { n:'IntersectionObserver', k:'ng', w:{ en:'The browser’s class that tells you when an element enters or leaves view.', ar:'الكلاس بتاع المتصفح اللي بيقولك إمتى الـ element دخل أو خرج من الشاشة.' } },
+    { n:'isIntersecting', k:'ng', w:{ en:'A property on each entry the observer reports.', ar:'property في كل entry الـ observer بيبلّغ عنه.' } },
+    { n:'DestroyRef', k:'ng', w:{ en:'Angular’s handle for “run this when I am destroyed”.', ar:'الـ handle بتاع أنجولار لـ “شغّل ده لما أتشال”.' } },
+    { n:'onDestroy', k:'ng', w:{ en:'<code>DestroyRef</code>’s method that registers the cleanup.', ar:'ميثود في <code>DestroyRef</code> بتسجّل التنضيف.' } },
+    { n:'signal', k:'ng', w:{ en:'Angular’s writable signal.', ar:'الـ signal بتاعة أنجولار اللي بتتكتب.' } },
+    { n:'input', k:'ng', re:'(?<![\\w$<(-])input(?=[.(<,])', w:{ en:'Angular’s function that creates an input.', ar:'الـ function بتاعة أنجولار اللي بتعمل input.' } },
+
+    { n:'appRipple', k:'pub', w:{ en:'The directive’s selector. Every element that wants a ripple types <code>appRipple</code>, so a rename reaches every template.', ar:'الـ selector بتاع الـ directive. أي element عايز ripple بيكتب <code>appRipple</code>، فأي تغيير بيوصل لكل التمبلتس.' } },
+    { n:'Ripple', k:'pub', w:{ en:'The directive’s class name, listed in <code>imports</code> by whoever uses it.', ar:'اسم كلاس الـ directive، بيتكتب في <code>imports</code> عند أي حد بيستخدمه.' } },
+    { n:'ripple', k:'mine', re:'(?<![\\w$.-])ripple(?=\\()',
+      w:{ en:'Your method, named in the <code>host</code> string. The <code>\'ripple\'</code> CSS class next to it is a separate name from your stylesheet.',
+          ar:'الميثود بتاعتك، مكتوبة في نص الـ <code>host</code>. وكلاس الـ CSS <code>\'ripple\'</code> اللي جنبها اسم تاني من ملف الـ CSS بتاعك.' } },
+    { n:'r', k:'mine', only:['ts'], w:{ en:'Your short field name for the renderer.', ar:'اسم الـ field القصير بتاعك للـ renderer.' } },
+    { n:'host', k:'mine', re:'(?<![\\w$\'-])host(?![\\w$:\'-])',
+      w:{ en:'Your field name for the <code>ElementRef</code>. The <code>host:</code> key in the decorator is Angular’s and stays.', ar:'اسم الـ field بتاعك للـ <code>ElementRef</code>. والمفتاح <code>host:</code> اللي في الـ decorator بتاع أنجولار وبيفضل زي ما هو.' } },
+    { n:'span', k:'mine', re:'(?<![\\w$\'-])span(?![\\w$\'-])',
+      w:{ en:'Your local variable. The quoted <code>\'span\'</code> is the HTML tag name.', ar:'المتغير المحلي بتاعك. و<code>\'span\'</code> اللي بين علامات التنصيص ده اسم التاج في HTML.' } },
+    { n:'off', k:'mine', w:{ en:'Your name for the stop-listening function <code>listen()</code> returned.', ar:'الاسم بتاعك للـ function اللي <code>listen()</code> رجّعها عشان توقّف الاستماع.' } },
+    { n:'appHighlight', k:'pub', w:{ en:'A directive selector: every template that uses it types it.', ar:'selector بتاع directive: أي تمبلت بيستخدمه بيكتبه.' } },
+    { n:'colour', k:'mine', w:{ en:'The directive’s own signal, named in its <code>host</code> bindings.', ar:'الـ signal بتاعة الـ directive نفسه، مكتوبة في الـ <code>host</code> bindings بتاعته.' } },
+    { n:'isOpen', k:'mine', w:{ en:'The component’s own signal.', ar:'الـ signal بتاعة الـ component نفسه.' } },
+    { n:'StickyHeader', k:'pub', w:{ en:'The class name, imported by whoever uses it.', ar:'اسم الكلاس، بيتعمله import عند أي حد بيستخدمه.' } },
+    { n:'stuck', k:'mine', w:{ en:'The class’s own signal.', ar:'الـ signal بتاعة الكلاس نفسه.' } },
+    { n:'io', k:'mine', w:{ en:'Your local name for the observer.', ar:'الاسم المحلي بتاعك للـ observer.' } },
+    { n:'appTooltip', k:'pub', w:{ en:'Both the selector and the input, on purpose: <code>appTooltip="Save"</code> sets the text. Rename the selector, the input and every template together.', ar:'هو الـ selector والـ input في نفس الوقت، بالقصد: <code>appTooltip="Save"</code> بيحط النص. غيّر الـ selector والـ input وكل التمبلتس مع بعض.' } },
+    { n:'Tooltip', k:'pub', re:'(?<![\\w$\'-])Tooltip(?![\\w$\'-])', w:{ en:'The directive’s class name.', ar:'اسم كلاس الـ directive.' } },
+    { n:'node', k:'mine', w:{ en:'Your field holding the tooltip element.', ar:'الـ field بتاعك اللي شايل الـ element بتاع الـ tooltip.' } },
+    { n:'show', k:'mine', w:{ en:'Your method, named in the <code>host</code> listeners.', ar:'الميثود بتاعتك، مكتوبة في الـ <code>host</code> listeners.' } },
+    { n:'hide', k:'mine', w:{ en:'Your method, named in the <code>host</code> listeners.', ar:'الميثود بتاعتك، مكتوبة في الـ <code>host</code> listeners.' } },
+  ]
+}
+};

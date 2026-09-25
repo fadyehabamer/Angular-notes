@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -656,22 +727,40 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="cva" data-lang="ts">
         <div class="fc-h"><span class="d"></span>star-rating.component.ts<span class="tag"><span class="l-en">the four methods</span><span class="l-ar" dir="auto">الأربع methods</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">ControlValueAccessor</i>, <i class="t-type">NG_VALUE_ACCESSOR</i> } <i class="t-key">from</i> <i class="t-str">'@angular/forms'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="4">  selector: <i class="t-str">'app-star-rating'</i>,</span><span class="ln" data-l="5">  templateUrl: <i class="t-str">'./star-rating.component.html'</i>,</span><span class="ln" data-l="6">  providers: [{</span><span class="ln" data-l="7">    provide: <i class="t-type">NG_VALUE_ACCESSOR</i>,</span><span class="ln" data-l="8">    useExisting: <i class="t-fn">forwardRef</i>(() =&gt; <i class="t-type">StarRating</i>),   <i class="t-com">// forwardRef: the class</i></span><span class="ln" data-l="9">    multi: <i class="t-key">true</i>,                                  <i class="t-com">// is not defined yet</i></span><span class="ln" data-l="10">  }],</span><span class="ln" data-l="11">})</span><span class="ln" data-l="12"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">StarRating</i> <i class="t-key">implements</i> <i class="t-type">ControlValueAccessor</i> {</span><span class="ln" data-l="13">  <i class="t-key">readonly</i> max = <i class="t-fn">input</i>(<i class="t-num">5</i>);</span><span class="ln" data-l="14">  <i class="t-key">protected</i> <i class="t-key">readonly</i> value = <i class="t-fn">signal</i>(<i class="t-num">0</i>);</span><span class="ln" data-l="15">  <i class="t-key">protected</i> <i class="t-key">readonly</i> disabled = <i class="t-fn">signal</i>(<i class="t-key">false</i>);</span><span class="ln" data-l="16"> </span><span class="ln" data-l="17">  <i class="t-com">// Angular hands us these two. we call them; we never define them.</i></span><span class="ln" data-l="18">  <i class="t-key">private</i> onChange: (v: <i class="t-key">number</i>) =&gt; <i class="t-key">void</i> = () =&gt; {};</span><span class="ln" data-l="19">  <i class="t-key">private</i> onTouched: () =&gt; <i class="t-key">void</i> = () =&gt; {};</span><span class="ln" data-l="20"> </span><span class="ln" data-l="21">  <i class="t-com">// 1. the FORM writes INTO us (initial value, patchValue, reset)</i></span><span class="ln" data-l="22">  <i class="t-fn">writeValue</i>(v: <i class="t-key">number</i> | <i class="t-key">null</i>) { <i class="t-key">this</i>.value.<i class="t-key">set</i>(v ?? <i class="t-num">0</i>); }</span><span class="ln" data-l="23"> </span><span class="ln" data-l="24">  <i class="t-com">// 2. Angular gives us the callback to report changes</i></span><span class="ln" data-l="25">  <i class="t-fn">registerOnChange</i>(fn: (v: <i class="t-key">number</i>) =&gt; <i class="t-key">void</i>) { <i class="t-key">this</i>.onChange = fn; }</span><span class="ln" data-l="26"> </span><span class="ln" data-l="27">  <i class="t-com">// 3. and the one to report 'the user has been here and left'</i></span><span class="ln" data-l="28">  <i class="t-fn">registerOnTouched</i>(fn: () =&gt; <i class="t-key">void</i>) { <i class="t-key">this</i>.onTouched = fn; }</span><span class="ln" data-l="29"> </span><span class="ln" data-l="30">  <i class="t-com">// 4. the form tells us it was disabled</i></span><span class="ln" data-l="31">  <i class="t-fn">setDisabledState</i>(isDisabled: <i class="t-key">boolean</i>) { <i class="t-key">this</i>.disabled.<i class="t-key">set</i>(isDisabled); }</span><span class="ln" data-l="32"> </span><span class="ln" data-l="33">  <i class="t-com">// and this is us, reporting OUT</i></span><span class="ln" data-l="34">  <i class="t-fn">pick</i>(n: <i class="t-key">number</i>) {</span><span class="ln" data-l="35">    <i class="t-key">if</i> (<i class="t-key">this</i>.<i class="t-fn">disabled</i>()) <i class="t-key">return</i>;</span><span class="ln" data-l="36">    <i class="t-key">this</i>.value.<i class="t-key">set</i>(n);</span><span class="ln" data-l="37">    <i class="t-key">this</i>.<i class="t-fn">onChange</i>(n);      <i class="t-com">// ← the form control now holds n</i></span><span class="ln" data-l="38">    <i class="t-key">this</i>.<i class="t-fn">onTouched</i>();      <i class="t-com">// ← and is marked touched</i></span><span class="ln" data-l="39">  }</span><span class="ln" data-l="40">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-ng" data-nm="ControlValueAccessor">ControlValueAccessor</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="NG_VALUE_ACCESSOR">NG_VALUE_ACCESSOR</b></i> } <i class="t-key">from</i> <i class="t-str">'@angular/forms'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-dec"><b class="nm nm-ng" data-nm="@Component">@Component</b></i>({</span><span class="ln" data-l="4"><span class="v0">  selector: <i class="t-str">'<b class="nm nm-pub" data-nm="app-star-rating">app-star-rating</b>'</i>,</span><span class="v1">  selector: <i class="t-str">'<b class="nm nm-pub" data-nm="app-star-rating">app-potato</b>'</i>,</span></span><span class="ln" data-l="5">  templateUrl: <i class="t-str">'./star-rating.component.html'</i>,</span><span class="ln" data-l="6">  <b class="nm nm-ng" data-nm="providers">providers</b>: [{</span><span class="ln" data-l="7">    <b class="nm nm-ng" data-nm="provide">provide</b>: <i class="t-type"><b class="nm nm-ng" data-nm="NG_VALUE_ACCESSOR">NG_VALUE_ACCESSOR</b></i>,</span><span class="ln" data-l="8"><span class="v0">    <b class="nm nm-ng" data-nm="useExisting">useExisting</b>: <i class="t-fn"><b class="nm nm-ng" data-nm="forwardRef">forwardRef</b></i>(() =&gt; <i class="t-type"><b class="nm nm-pub" data-nm="StarRating">StarRating</b></i>),   <i class="t-com">// forwardRef: the class</i></span><span class="v1">    <b class="nm nm-ng" data-nm="useExisting">useExisting</b>: <i class="t-fn"><b class="nm nm-ng" data-nm="forwardRef">forwardRef</b></i>(() =&gt; <i class="t-type"><b class="nm nm-pub" data-nm="StarRating">Banana</b></i>),   <i class="t-com">// forwardRef: the class</i></span></span><span class="ln" data-l="9">    <b class="nm nm-ng" data-nm="multi">multi</b>: <i class="t-key">true</i>,                                  <i class="t-com">// is not defined yet</i></span><span class="ln" data-l="10">  }],</span><span class="ln" data-l="11">})</span><span class="ln" data-l="12"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="StarRating">StarRating</b></i> <i class="t-key">implements</i> <i class="t-type"><b class="nm nm-ng" data-nm="ControlValueAccessor">ControlValueAccessor</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="StarRating">Banana</b></i> <i class="t-key">implements</i> <i class="t-type"><b class="nm nm-ng" data-nm="ControlValueAccessor">ControlValueAccessor</b></i> {</span></span><span class="ln" data-l="13"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="max">max</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-num">5</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="max">mango</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-num">5</i>);</span></span><span class="ln" data-l="14"><span class="v0">  <i class="t-key">protected</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="value">value</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-num">0</i>);</span><span class="v1">  <i class="t-key">protected</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="value">pickle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-num">0</i>);</span></span><span class="ln" data-l="15"><span class="v0">  <i class="t-key">protected</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="disabled">disabled</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span><span class="v1">  <i class="t-key">protected</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="disabled">waffle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span></span><span class="ln" data-l="16"> </span><span class="ln" data-l="17">  <i class="t-com">// Angular hands us these two. we call them; we never define them.</i></span><span class="ln" data-l="18"><span class="v0">  <i class="t-key">private</i> <b class="nm nm-mine" data-nm="onChange">onChange</b>: (v: <i class="t-key">number</i>) =&gt; <i class="t-key">void</i> = () =&gt; {};</span><span class="v1">  <i class="t-key">private</i> <b class="nm nm-mine" data-nm="onChange">noodle</b>: (v: <i class="t-key">number</i>) =&gt; <i class="t-key">void</i> = () =&gt; {};</span></span><span class="ln" data-l="19"><span class="v0">  <i class="t-key">protected</i> <b class="nm nm-mine" data-nm="onTouched">onTouched</b>: () =&gt; <i class="t-key">void</i> = () =&gt; {};   <i class="t-com">// the template calls it</i></span><span class="v1">  <i class="t-key">protected</i> <b class="nm nm-mine" data-nm="onTouched">pumpkin</b>: () =&gt; <i class="t-key">void</i> = () =&gt; {};   <i class="t-com">// the template calls it</i></span></span><span class="ln" data-l="20"> </span><span class="ln" data-l="21">  <i class="t-com">// 1. the FORM writes INTO us (initial value, patchValue, reset)</i></span><span class="ln" data-l="22"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="writeValue">writeValue</b></i>(v: <i class="t-key">number</i> | <i class="t-key">null</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="value">value</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(v ?? <i class="t-num">0</i>); }</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="writeValue">writeValue</b></i>(v: <i class="t-key">number</i> | <i class="t-key">null</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="value">pickle</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(v ?? <i class="t-num">0</i>); }</span></span><span class="ln" data-l="23"> </span><span class="ln" data-l="24">  <i class="t-com">// 2. Angular gives us the callback to report changes</i></span><span class="ln" data-l="25"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="registerOnChange">registerOnChange</b></i>(<b class="nm nm-mine" data-nm="fn">fn</b>: (v: <i class="t-key">number</i>) =&gt; <i class="t-key">void</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="onChange">onChange</b> = <b class="nm nm-mine" data-nm="fn">fn</b>; }</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="registerOnChange">registerOnChange</b></i>(<b class="nm nm-mine" data-nm="fn">turnip</b>: (v: <i class="t-key">number</i>) =&gt; <i class="t-key">void</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="onChange">noodle</b> = <b class="nm nm-mine" data-nm="fn">turnip</b>; }</span></span><span class="ln" data-l="26"> </span><span class="ln" data-l="27">  <i class="t-com">// 3. and the one to report 'the user has been here and left'</i></span><span class="ln" data-l="28"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="registerOnTouched">registerOnTouched</b></i>(<b class="nm nm-mine" data-nm="fn">fn</b>: () =&gt; <i class="t-key">void</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="onTouched">onTouched</b> = <b class="nm nm-mine" data-nm="fn">fn</b>; }</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="registerOnTouched">registerOnTouched</b></i>(<b class="nm nm-mine" data-nm="fn">turnip</b>: () =&gt; <i class="t-key">void</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="onTouched">pumpkin</b> = <b class="nm nm-mine" data-nm="fn">turnip</b>; }</span></span><span class="ln" data-l="29"> </span><span class="ln" data-l="30">  <i class="t-com">// 4. the form tells us it was disabled</i></span><span class="ln" data-l="31"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="setDisabledState">setDisabledState</b></i>(<b class="nm nm-mine" data-nm="isDisabled">isDisabled</b>: <i class="t-key">boolean</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="disabled">disabled</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<b class="nm nm-mine" data-nm="isDisabled">isDisabled</b>); }</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="setDisabledState">setDisabledState</b></i>(<b class="nm nm-mine" data-nm="isDisabled">muffin</b>: <i class="t-key">boolean</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="disabled">waffle</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<b class="nm nm-mine" data-nm="isDisabled">muffin</b>); }</span></span><span class="ln" data-l="32"> </span><span class="ln" data-l="33">  <i class="t-com">// and this is us, reporting OUT</i></span><span class="ln" data-l="34"><span class="v0">  <i class="t-fn"><b class="nm nm-mine" data-nm="pick">pick</b></i>(n: <i class="t-key">number</i>) {</span><span class="v1">  <i class="t-fn"><b class="nm nm-mine" data-nm="pick">taco</b></i>(n: <i class="t-key">number</i>) {</span></span><span class="ln" data-l="35"><span class="v0">    <i class="t-key">if</i> (<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="disabled">disabled</b></i>()) <i class="t-key">return</i>;</span><span class="v1">    <i class="t-key">if</i> (<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="disabled">waffle</b></i>()) <i class="t-key">return</i>;</span></span><span class="ln" data-l="36"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="value">value</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(n);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="value">pickle</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(n);</span></span><span class="ln" data-l="37"><span class="v0">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="onChange">onChange</b></i>(n);      <i class="t-com">// ← the form control now holds n</i></span><span class="v1">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="onChange">noodle</b></i>(n);      <i class="t-com">// ← the form control now holds n</i></span></span><span class="ln" data-l="38"><span class="v0">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="onTouched">onTouched</b></i>();      <i class="t-com">// ← and is marked touched</i></span><span class="v1">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="onTouched">pumpkin</b></i>();      <i class="t-com">// ← and is marked touched</i></span></span><span class="ln" data-l="39">  }</span><span class="ln" data-l="40">}</span></pre>
       </div>
       <div class="fc" data-file="ui" data-lang="html">
         <div class="fc-h"><span class="d"></span>star-rating.component.html<span class="tag"><span class="l-en">ordinary markup</span><span class="l-ar" dir="auto">ماركب عادي</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;div</i> <i class="t-attr">role</i>=<i class="t-str">"radiogroup"</i> <i class="t-bind">[attr.aria-disabled]</i>=<i class="t-str">"disabled()"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="2">  <i class="t-key">@for</i> (n of [1,2,3,4,5].slice(0, max()); track n) {</span><span class="ln" data-l="3">    <i class="t-tag">&lt;button</i> <i class="t-attr">type</i>=<i class="t-str">"button"</i></span><span class="ln" data-l="4">            <i class="t-attr">role</i>=<i class="t-str">"radio"</i></span><span class="ln" data-l="5">            <i class="t-bind">[attr.aria-checked]</i>=<i class="t-str">"value() === n"</i></span><span class="ln" data-l="6">            <i class="t-bind">[attr.aria-label]</i>=<i class="t-str">"n + ' stars'"</i></span><span class="ln" data-l="7">            <i class="t-bind">[disabled]</i>=<i class="t-str">"disabled()"</i></span><span class="ln" data-l="8">            <i class="t-bind">[class.on]</i>=<i class="t-str">"n &lt;= value()"</i></span><span class="ln" data-l="9">            <i class="t-bind">(click)</i>=<i class="t-str">"pick(n)"</i></span><span class="ln" data-l="10">            <i class="t-bind">(blur)</i>=<i class="t-str">"onTouched()"</i><i class="t-tag">&gt;</i>★<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="11">  }</span><span class="ln" data-l="12"><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-tag">&lt;div</i> <i class="t-attr">role</i>=<i class="t-str">"radiogroup"</i> <i class="t-bind">[attr.aria-disabled]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="disabled">disabled</b>()"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;div</i> <i class="t-attr">role</i>=<i class="t-str">"radiogroup"</i> <i class="t-bind">[attr.aria-disabled]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="disabled">waffle</b>()"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="2"><span class="v0">  <i class="t-key">@for</i> (n of [1,2,3,4,5].slice(0, <b class="nm nm-pub" data-nm="max">max</b>()); track n) {</span><span class="v1">  <i class="t-key">@for</i> (n of [1,2,3,4,5].slice(0, <b class="nm nm-pub" data-nm="max">mango</b>()); track n) {</span></span><span class="ln" data-l="3">    <i class="t-tag">&lt;button</i> <i class="t-attr">type</i>=<i class="t-str">"button"</i></span><span class="ln" data-l="4">            <i class="t-attr">role</i>=<i class="t-str">"radio"</i></span><span class="ln" data-l="5"><span class="v0">            <i class="t-bind">[attr.aria-checked]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="value">value</b>() === n"</i></span><span class="v1">            <i class="t-bind">[attr.aria-checked]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="value">pickle</b>() === n"</i></span></span><span class="ln" data-l="6">            <i class="t-bind">[attr.aria-label]</i>=<i class="t-str">"n + ' stars'"</i></span><span class="ln" data-l="7"><span class="v0">            <i class="t-bind">[disabled]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="disabled">disabled</b>()"</i></span><span class="v1">            <i class="t-bind">[disabled]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="disabled">waffle</b>()"</i></span></span><span class="ln" data-l="8"><span class="v0">            <i class="t-bind">[class.on]</i>=<i class="t-str">"n &lt;= <b class="nm nm-mine" data-nm="value">value</b>()"</i></span><span class="v1">            <i class="t-bind">[class.on]</i>=<i class="t-str">"n &lt;= <b class="nm nm-mine" data-nm="value">pickle</b>()"</i></span></span><span class="ln" data-l="9"><span class="v0">            <i class="t-bind">(<b class="nm nm-ng" data-nm="click">click</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="pick">pick</b>(n)"</i></span><span class="v1">            <i class="t-bind">(<b class="nm nm-ng" data-nm="click">click</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="pick">taco</b>(n)"</i></span></span><span class="ln" data-l="10"><span class="v0">            <i class="t-bind">(<b class="nm nm-ng" data-nm="blur">blur</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="onTouched">onTouched</b>()"</i><i class="t-tag">&gt;</i>★<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="v1">            <i class="t-bind">(<b class="nm nm-ng" data-nm="blur">blur</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="onTouched">pumpkin</b>()"</i><i class="t-tag">&gt;</i>★<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="11">  }</span><span class="ln" data-l="12"><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span></pre>
       </div>
       <div class="fc" data-file="form" data-lang="ts">
         <div class="fc-h"><span class="d"></span>profile.component.ts<span class="tag"><span class="l-en">now it just works</span><span class="l-ar" dir="auto">دلوقتي شغالة</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Profile</i> {</span><span class="ln" data-l="2">  <i class="t-key">readonly</i> form = <i class="t-key">this</i>.fb.nonNullable.<i class="t-fn">group</i>({</span><span class="ln" data-l="3">    name:   [<i class="t-str">''</i>, <i class="t-type">Validators</i>.required],</span><span class="ln" data-l="4">    rating: [<i class="t-num">0</i>, [<i class="t-type">Validators</i>.required, <i class="t-type">Validators</i>.<i class="t-fn">min</i>(<i class="t-num">1</i>)]],</span><span class="ln" data-l="5">  });</span><span class="ln" data-l="6">}</span><span class="ln" data-l="7"> </span><span class="ln" data-l="8"><i class="t-com">// template — indistinguishable from a native &lt;input&gt;:</i></span><span class="ln" data-l="9"><i class="t-com">//</i></span><span class="ln" data-l="10"><i class="t-com">//   &lt;form [formGroup]="form"&gt;</i></span><span class="ln" data-l="11"><i class="t-com">//     &lt;input formControlName="name"&gt;</i></span><span class="ln" data-l="12"><i class="t-com">//     &lt;app-star-rating formControlName="rating" [max]="5" /&gt;</i></span><span class="ln" data-l="13"><i class="t-com">//   &lt;/form&gt;</i></span><span class="ln" data-l="14"><i class="t-com">//</i></span><span class="ln" data-l="15"><i class="t-com">// patchValue, reset, disable, validators, touched, dirty —</i></span><span class="ln" data-l="16"><i class="t-com">// all of it now works on your component for free.</i></span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Profile">Profile</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Profile">Kiwi</b></i> {</span></span><span class="ln" data-l="2"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="form">form</b> = <i class="t-key">this</i>.fb.nonNullable.<i class="t-fn">group</i>({</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="form">donut</b> = <i class="t-key">this</i>.fb.nonNullable.<i class="t-fn">group</i>({</span></span><span class="ln" data-l="3">    name:   [<i class="t-str">''</i>, <i class="t-type"><b class="nm nm-ng" data-nm="Validators">Validators</b></i>.required],</span><span class="ln" data-l="4"><span class="v0">    <b class="nm nm-mine" data-nm="rating">rating</b>: [<i class="t-num">0</i>, [<i class="t-type"><b class="nm nm-ng" data-nm="Validators">Validators</b></i>.required, <i class="t-type"><b class="nm nm-ng" data-nm="Validators">Validators</b></i>.<i class="t-fn">min</i>(<i class="t-num">1</i>)]],</span><span class="v1">    <b class="nm nm-mine" data-nm="rating">pepper</b>: [<i class="t-num">0</i>, [<i class="t-type"><b class="nm nm-ng" data-nm="Validators">Validators</b></i>.required, <i class="t-type"><b class="nm nm-ng" data-nm="Validators">Validators</b></i>.<i class="t-fn">min</i>(<i class="t-num">1</i>)]],</span></span><span class="ln" data-l="5">  });</span><span class="ln" data-l="6">}</span><span class="ln" data-l="7"> </span><span class="ln" data-l="8"><i class="t-com">// template — indistinguishable from a native &lt;input&gt;:</i></span><span class="ln" data-l="9"><i class="t-com">//</i></span><span class="ln" data-l="10"><i class="t-com">//   &lt;form [formGroup]="form"&gt;</i></span><span class="ln" data-l="11"><i class="t-com">//     &lt;input formControlName="name"&gt;</i></span><span class="ln" data-l="12"><i class="t-com">//     &lt;app-star-rating formControlName="rating" [max]="5" /&gt;</i></span><span class="ln" data-l="13"><i class="t-com">//   &lt;/form&gt;</i></span><span class="ln" data-l="14"><i class="t-com">//</i></span><span class="ln" data-l="15"><i class="t-com">// patchValue, reset, disable, validators, touched, dirty —</i></span><span class="ln" data-l="16"><i class="t-com">// all of it now works on your component for free.</i></span></pre>
       </div>
       <div class="fc" data-file="valid" data-lang="ts">
         <div class="fc-h"><span class="d"></span>bonus: validate yourself<span class="tag"><span class="l-en">NG_VALIDATORS</span><span class="l-ar" dir="auto">NG_VALIDATORS</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">// a control can also carry its own validation rules,</i></span><span class="ln" data-l="2"><i class="t-com">// so the consumer does not have to know them.</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">providers: [</span><span class="ln" data-l="5">  { provide: <i class="t-type">NG_VALUE_ACCESSOR</i>, useExisting: <i class="t-fn">forwardRef</i>(() =&gt; <i class="t-type">Iban</i>), multi: <i class="t-key">true</i> },</span><span class="ln" data-l="6">  { provide: <i class="t-type">NG_VALIDATORS</i>,     useExisting: <i class="t-fn">forwardRef</i>(() =&gt; <i class="t-type">Iban</i>), multi: <i class="t-key">true</i> },</span><span class="ln" data-l="7">]</span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Iban</i> <i class="t-key">implements</i> <i class="t-type">ControlValueAccessor</i>, <i class="t-type">Validator</i> {</span><span class="ln" data-l="10">  <i class="t-fn">validate</i>(c: <i class="t-type">AbstractControl</i>): <i class="t-type">ValidationErrors</i> | <i class="t-key">null</i> {</span><span class="ln" data-l="11">    <i class="t-key">return</i> <i class="t-fn">isValidIban</i>(c.value) ? <i class="t-key">null</i> : { iban: <i class="t-key">true</i> };</span><span class="ln" data-l="12">  }</span><span class="ln" data-l="13">}</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-com">// &lt;app-iban formControlName="account" /&gt;  is now self-validating.</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">// a control can also carry its own validation rules,</i></span><span class="ln" data-l="2"><i class="t-com">// so the consumer does not have to know them.</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><b class="nm nm-ng" data-nm="providers">providers</b>: [</span><span class="ln" data-l="5"><span class="v0">  { <b class="nm nm-ng" data-nm="provide">provide</b>: <i class="t-type"><b class="nm nm-ng" data-nm="NG_VALUE_ACCESSOR">NG_VALUE_ACCESSOR</b></i>, <b class="nm nm-ng" data-nm="useExisting">useExisting</b>: <i class="t-fn"><b class="nm nm-ng" data-nm="forwardRef">forwardRef</b></i>(() =&gt; <i class="t-type"><b class="nm nm-pub" data-nm="Iban">Iban</b></i>), <b class="nm nm-ng" data-nm="multi">multi</b>: <i class="t-key">true</i> },</span><span class="v1">  { <b class="nm nm-ng" data-nm="provide">provide</b>: <i class="t-type"><b class="nm nm-ng" data-nm="NG_VALUE_ACCESSOR">NG_VALUE_ACCESSOR</b></i>, <b class="nm nm-ng" data-nm="useExisting">useExisting</b>: <i class="t-fn"><b class="nm nm-ng" data-nm="forwardRef">forwardRef</b></i>(() =&gt; <i class="t-type"><b class="nm nm-pub" data-nm="Iban">Lemon</b></i>), <b class="nm nm-ng" data-nm="multi">multi</b>: <i class="t-key">true</i> },</span></span><span class="ln" data-l="6"><span class="v0">  { <b class="nm nm-ng" data-nm="provide">provide</b>: <i class="t-type"><b class="nm nm-ng" data-nm="NG_VALIDATORS">NG_VALIDATORS</b></i>,     <b class="nm nm-ng" data-nm="useExisting">useExisting</b>: <i class="t-fn"><b class="nm nm-ng" data-nm="forwardRef">forwardRef</b></i>(() =&gt; <i class="t-type"><b class="nm nm-pub" data-nm="Iban">Iban</b></i>), <b class="nm nm-ng" data-nm="multi">multi</b>: <i class="t-key">true</i> },</span><span class="v1">  { <b class="nm nm-ng" data-nm="provide">provide</b>: <i class="t-type"><b class="nm nm-ng" data-nm="NG_VALIDATORS">NG_VALIDATORS</b></i>,     <b class="nm nm-ng" data-nm="useExisting">useExisting</b>: <i class="t-fn"><b class="nm nm-ng" data-nm="forwardRef">forwardRef</b></i>(() =&gt; <i class="t-type"><b class="nm nm-pub" data-nm="Iban">Lemon</b></i>), <b class="nm nm-ng" data-nm="multi">multi</b>: <i class="t-key">true</i> },</span></span><span class="ln" data-l="7">]</span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Iban">Iban</b></i> <i class="t-key">implements</i> <i class="t-type"><b class="nm nm-ng" data-nm="ControlValueAccessor">ControlValueAccessor</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="Validator">Validator</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Iban">Lemon</b></i> <i class="t-key">implements</i> <i class="t-type"><b class="nm nm-ng" data-nm="ControlValueAccessor">ControlValueAccessor</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="Validator">Validator</b></i> {</span></span><span class="ln" data-l="10">  <i class="t-fn"><b class="nm nm-ng" data-nm="validate">validate</b></i>(c: <i class="t-type"><b class="nm nm-ng" data-nm="AbstractControl">AbstractControl</b></i>): <i class="t-type"><b class="nm nm-ng" data-nm="ValidationErrors">ValidationErrors</b></i> | <i class="t-key">null</i> {</span><span class="ln" data-l="11"><span class="v0">    <i class="t-key">return</i> <i class="t-fn"><b class="nm nm-pub" data-nm="isValidIban">isValidIban</b></i>(c.value) ? <i class="t-key">null</i> : { <b class="nm nm-pub" data-nm="iban">iban</b>: <i class="t-key">true</i> };</span><span class="v1">    <i class="t-key">return</i> <i class="t-fn"><b class="nm nm-pub" data-nm="isValidIban">carrot</b></i>(c.value) ? <i class="t-key">null</i> : { <b class="nm nm-pub" data-nm="iban">biscuit</b>: <i class="t-key">true</i> };</span></span><span class="ln" data-l="12">  }</span><span class="ln" data-l="13">}</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-com">// &lt;app-iban formControlName="account" /&gt;  is now self-validating.</i></span></pre>
       </div></div>
 
   
@@ -684,13 +773,291 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="cu1" data-lang="ts">
         <div class="fc-h"><span class="d"></span>money-input.component.ts<span class="tag"><span class="l-en">the translation</span><span class="l-ar" dir="auto">الترجمة</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">MoneyInput</i> <i class="t-key">implements</i> <i class="t-type">ControlValueAccessor</i> {</span><span class="ln" data-l="2">  <i class="t-key">protected</i> <i class="t-key">readonly</i> text = <i class="t-fn">signal</i>(<i class="t-str">''</i>);</span><span class="ln" data-l="3">  <i class="t-key">private</i> onChange: (v: <i class="t-key">number</i>) =&gt; <i class="t-key">void</i> = () =&gt; {};</span><span class="ln" data-l="4">  <i class="t-key">private</i> onTouched = () =&gt; {};</span><span class="ln" data-l="5"> </span><span class="ln" data-l="6">  <i class="t-com">// form (cents) → screen (formatted)</i></span><span class="ln" data-l="7">  <i class="t-fn">writeValue</i>(cents: <i class="t-key">number</i> | <i class="t-key">null</i>) {</span><span class="ln" data-l="8">    <i class="t-key">this</i>.text.<i class="t-key">set</i>(cents == <i class="t-key">null</i> ? <i class="t-str">''</i> : (cents / <i class="t-num">100</i>).<i class="t-fn">toFixed</i>(<i class="t-num">2</i>));</span><span class="ln" data-l="9">  }</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">  <i class="t-com">// screen (typed) → form (cents)</i></span><span class="ln" data-l="12">  <i class="t-fn">onInput</i>(raw: <i class="t-key">string</i>) {</span><span class="ln" data-l="13">    <i class="t-key">this</i>.text.<i class="t-key">set</i>(raw);</span><span class="ln" data-l="14">    <i class="t-key">const</i> n = <i class="t-fn">Number</i>(raw.<i class="t-fn">replace</i>(/[^<i class="t-num">0</i>-<i class="t-num">9.</i>]/g, <i class="t-str">''</i>));</span><span class="ln" data-l="15">    <i class="t-key">this</i>.<i class="t-fn">onChange</i>(<i class="t-type">Number</i>.<i class="t-fn">isFinite</i>(n) ? <i class="t-type">Math</i>.<i class="t-fn">round</i>(n * <i class="t-num">100</i>) : <i class="t-num">0</i>);</span><span class="ln" data-l="16">  }</span><span class="ln" data-l="17"> </span><span class="ln" data-l="18">  <i class="t-fn">onBlur</i>() {</span><span class="ln" data-l="19">    <i class="t-key">this</i>.<i class="t-fn">onTouched</i>();</span><span class="ln" data-l="20">    <i class="t-key">const</i> n = <i class="t-fn">Number</i>(<i class="t-key">this</i>.<i class="t-fn">text</i>().<i class="t-fn">replace</i>(/[^<i class="t-num">0</i>-<i class="t-num">9.</i>]/g, <i class="t-str">''</i>));</span><span class="ln" data-l="21">    <i class="t-key">if</i> (<i class="t-type">Number</i>.<i class="t-fn">isFinite</i>(n)) <i class="t-key">this</i>.text.<i class="t-key">set</i>(n.<i class="t-fn">toFixed</i>(<i class="t-num">2</i>));   <i class="t-com">// tidy up</i></span><span class="ln" data-l="22">  }</span><span class="ln" data-l="23"> </span><span class="ln" data-l="24">  <i class="t-fn">registerOnChange</i>(fn: (v: <i class="t-key">number</i>) =&gt; <i class="t-key">void</i>) { <i class="t-key">this</i>.onChange = fn; }</span><span class="ln" data-l="25">  <i class="t-fn">registerOnTouched</i>(fn: () =&gt; <i class="t-key">void</i>) { <i class="t-key">this</i>.onTouched = fn; }</span><span class="ln" data-l="26">  <i class="t-fn">setDisabledState</i>(d: <i class="t-key">boolean</i>) { <i class="t-key">this</i>.disabled.<i class="t-key">set</i>(d); }</span><span class="ln" data-l="27">}</span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="MoneyInput">MoneyInput</b></i> <i class="t-key">implements</i> <i class="t-type"><b class="nm nm-ng" data-nm="ControlValueAccessor">ControlValueAccessor</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="MoneyInput">Olive</b></i> <i class="t-key">implements</i> <i class="t-type"><b class="nm nm-ng" data-nm="ControlValueAccessor">ControlValueAccessor</b></i> {</span></span><span class="ln" data-l="2"><span class="v0">  <i class="t-key">protected</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="text">text</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-str">''</i>);</span><span class="v1">  <i class="t-key">protected</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="text">cookie</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-str">''</i>);</span></span><span class="ln" data-l="3"><span class="v0">  <i class="t-key">private</i> <b class="nm nm-mine" data-nm="onChange">onChange</b>: (v: <i class="t-key">number</i>) =&gt; <i class="t-key">void</i> = () =&gt; {};</span><span class="v1">  <i class="t-key">private</i> <b class="nm nm-mine" data-nm="onChange">noodle</b>: (v: <i class="t-key">number</i>) =&gt; <i class="t-key">void</i> = () =&gt; {};</span></span><span class="ln" data-l="4"><span class="v0">  <i class="t-key">private</i> <b class="nm nm-mine" data-nm="onTouched">onTouched</b> = () =&gt; {};</span><span class="v1">  <i class="t-key">private</i> <b class="nm nm-mine" data-nm="onTouched">pumpkin</b> = () =&gt; {};</span></span><span class="ln" data-l="5"> </span><span class="ln" data-l="6">  <i class="t-com">// form (cents) → screen (formatted)</i></span><span class="ln" data-l="7">  <i class="t-fn"><b class="nm nm-ng" data-nm="writeValue">writeValue</b></i>(cents: <i class="t-key">number</i> | <i class="t-key">null</i>) {</span><span class="ln" data-l="8"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="text">text</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(cents == <i class="t-key">null</i> ? <i class="t-str">''</i> : (cents / <i class="t-num">100</i>).<i class="t-fn">toFixed</i>(<i class="t-num">2</i>));</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="text">cookie</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(cents == <i class="t-key">null</i> ? <i class="t-str">''</i> : (cents / <i class="t-num">100</i>).<i class="t-fn">toFixed</i>(<i class="t-num">2</i>));</span></span><span class="ln" data-l="9">  }</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">  <i class="t-com">// screen (typed) → form (cents)</i></span><span class="ln" data-l="12"><span class="v0">  <i class="t-fn"><b class="nm nm-mine" data-nm="onInput">onInput</b></i>(raw: <i class="t-key">string</i>) {</span><span class="v1">  <i class="t-fn"><b class="nm nm-mine" data-nm="onInput">melon</b></i>(raw: <i class="t-key">string</i>) {</span></span><span class="ln" data-l="13"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="text">text</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(raw);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="text">cookie</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(raw);</span></span><span class="ln" data-l="14">    <i class="t-key">const</i> n = <i class="t-fn">Number</i>(raw.<i class="t-fn">replace</i>(/[^<i class="t-num">0</i>-<i class="t-num">9.</i>]/g, <i class="t-str">''</i>));</span><span class="ln" data-l="15"><span class="v0">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="onChange">onChange</b></i>(<i class="t-type">Number</i>.<i class="t-fn">isFinite</i>(n) ? <i class="t-type">Math</i>.<i class="t-fn">round</i>(n * <i class="t-num">100</i>) : <i class="t-num">0</i>);</span><span class="v1">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="onChange">noodle</b></i>(<i class="t-type">Number</i>.<i class="t-fn">isFinite</i>(n) ? <i class="t-type">Math</i>.<i class="t-fn">round</i>(n * <i class="t-num">100</i>) : <i class="t-num">0</i>);</span></span><span class="ln" data-l="16">  }</span><span class="ln" data-l="17"> </span><span class="ln" data-l="18"><span class="v0">  <i class="t-fn"><b class="nm nm-mine" data-nm="onBlur">onBlur</b></i>() {</span><span class="v1">  <i class="t-fn"><b class="nm nm-mine" data-nm="onBlur">radish</b></i>() {</span></span><span class="ln" data-l="19"><span class="v0">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="onTouched">onTouched</b></i>();</span><span class="v1">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="onTouched">pumpkin</b></i>();</span></span><span class="ln" data-l="20"><span class="v0">    <i class="t-key">const</i> n = <i class="t-fn">Number</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="text">text</b></i>().<i class="t-fn">replace</i>(/[^<i class="t-num">0</i>-<i class="t-num">9.</i>]/g, <i class="t-str">''</i>));</span><span class="v1">    <i class="t-key">const</i> n = <i class="t-fn">Number</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="text">cookie</b></i>().<i class="t-fn">replace</i>(/[^<i class="t-num">0</i>-<i class="t-num">9.</i>]/g, <i class="t-str">''</i>));</span></span><span class="ln" data-l="21"><span class="v0">    <i class="t-key">if</i> (<i class="t-type">Number</i>.<i class="t-fn">isFinite</i>(n)) <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="text">text</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(n.<i class="t-fn">toFixed</i>(<i class="t-num">2</i>));   <i class="t-com">// tidy up</i></span><span class="v1">    <i class="t-key">if</i> (<i class="t-type">Number</i>.<i class="t-fn">isFinite</i>(n)) <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="text">cookie</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(n.<i class="t-fn">toFixed</i>(<i class="t-num">2</i>));   <i class="t-com">// tidy up</i></span></span><span class="ln" data-l="22">  }</span><span class="ln" data-l="23"> </span><span class="ln" data-l="24"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="registerOnChange">registerOnChange</b></i>(<b class="nm nm-mine" data-nm="fn">fn</b>: (v: <i class="t-key">number</i>) =&gt; <i class="t-key">void</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="onChange">onChange</b> = <b class="nm nm-mine" data-nm="fn">fn</b>; }</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="registerOnChange">registerOnChange</b></i>(<b class="nm nm-mine" data-nm="fn">turnip</b>: (v: <i class="t-key">number</i>) =&gt; <i class="t-key">void</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="onChange">noodle</b> = <b class="nm nm-mine" data-nm="fn">turnip</b>; }</span></span><span class="ln" data-l="25"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="registerOnTouched">registerOnTouched</b></i>(<b class="nm nm-mine" data-nm="fn">fn</b>: () =&gt; <i class="t-key">void</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="onTouched">onTouched</b> = <b class="nm nm-mine" data-nm="fn">fn</b>; }</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="registerOnTouched">registerOnTouched</b></i>(<b class="nm nm-mine" data-nm="fn">turnip</b>: () =&gt; <i class="t-key">void</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="onTouched">pumpkin</b> = <b class="nm nm-mine" data-nm="fn">turnip</b>; }</span></span><span class="ln" data-l="26"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="setDisabledState">setDisabledState</b></i>(d: <i class="t-key">boolean</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="disabled">disabled</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(d); }</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="setDisabledState">setDisabledState</b></i>(d: <i class="t-key">boolean</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="disabled">waffle</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(d); }</span></span><span class="ln" data-l="27">}</span></pre>
       </div></div>
   </div>
 
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">The four methods <code>writeValue</code>, <code>registerOnChange</code>, <code>registerOnTouched</code> and <code>setDisabledState</code> sit in your class, but the interface fixed their names: the forms module calls them by exactly those names. Their parameter names, and the fields you store the callbacks in, are yours.</span><span class="l-ar" dir="auto">الأربع ميثودز <code>writeValue</code> و<code>registerOnChange</code> و<code>registerOnTouched</code> و<code>setDisabledState</code> قاعدين في الكلاس بتاعك، بس الـ interface هو اللي حدد أسماءهم: الـ forms module بيناديهم بالأسماء دي بالظبط. أسماء الـ parameters، والـ fields اللي بتحفظ فيها الـ callbacks، دي بتاعتك.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="ControlValueAccessor">
+        <td><b class="nm nm-ng" data-nm="ControlValueAccessor">ControlValueAccessor</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s interface that lets a component act as a form control.</span><span class="l-ar" dir="auto">الـ interface بتاع أنجولار اللي بيخلي الـ component يشتغل كـ form control.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>bonus: validate yourself</code> <code>money-input.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="NG_VALUE_ACCESSOR">
+        <td><b class="nm nm-ng" data-nm="NG_VALUE_ACCESSOR">NG_VALUE_ACCESSOR</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s token. The forms module looks up exactly this token to find your component.</span><span class="l-ar" dir="auto">الـ token بتاع أنجولار. الـ forms module بيدوّر على الـ token ده بالظبط عشان يلاقي الـ component بتاعك.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>bonus: validate yourself</code></td>
+      </tr>
+      <tr data-nmrow="NG_VALIDATORS">
+        <td><b class="nm nm-ng" data-nm="NG_VALIDATORS">NG_VALIDATORS</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s token for validators that come with a control.</span><span class="l-ar" dir="auto">الـ token بتاع أنجولار للـ validators اللي جاية مع الكنترول.</span></td>
+        <td class="nmfiles"><code>bonus: validate yourself</code></td>
+      </tr>
+      <tr data-nmrow="providers">
+        <td><b class="nm nm-ng" data-nm="providers">providers</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>bonus: validate yourself</code></td>
+      </tr>
+      <tr data-nmrow="provide">
+        <td><b class="nm nm-ng" data-nm="provide">provide</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A provider key: which token is being supplied.</span><span class="l-ar" dir="auto">مفتاح في الـ provider: أنهي token اللي بنقدّمه.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>bonus: validate yourself</code></td>
+      </tr>
+      <tr data-nmrow="useExisting">
+        <td><b class="nm nm-ng" data-nm="useExisting">useExisting</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A provider key: “use the instance that already exists”, which is this component.</span><span class="l-ar" dir="auto">مفتاح في الـ provider: “استخدم النسخة اللي موجودة أصلاً”، اللي هي الـ component ده.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>bonus: validate yourself</code></td>
+      </tr>
+      <tr data-nmrow="forwardRef">
+        <td><b class="nm nm-ng" data-nm="forwardRef">forwardRef</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function for pointing at a class that is not defined yet at that line.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتشاور على كلاس لسه متعرّفش في السطر ده.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>bonus: validate yourself</code></td>
+      </tr>
+      <tr data-nmrow="multi">
+        <td><b class="nm nm-ng" data-nm="multi">multi</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A provider key: add to the list, do not replace it. Forget it and you replace Angular’s built-in accessors.</span><span class="l-ar" dir="auto">مفتاح في الـ provider: ضيف على الليستة متبدّلهاش. لو نسيته هتبدّل الـ accessors الجاهزة بتاعة أنجولار.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>bonus: validate yourself</code></td>
+      </tr>
+      <tr data-nmrow="writeValue">
+        <td><b class="nm nm-ng" data-nm="writeValue">writeValue</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Required by the interface. The form calls it to push a value into your component.</span><span class="l-ar" dir="auto">الـ interface بيطلبها. الفورم بيناديها عشان يحط قيمة جوه الـ component بتاعك.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>money-input.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="registerOnChange">
+        <td><b class="nm nm-ng" data-nm="registerOnChange">registerOnChange</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Required by the interface. The form hands you its “value changed” callback here.</span><span class="l-ar" dir="auto">الـ interface بيطلبها. الفورم بيديك هنا الـ callback بتاع “القيمة اتغيرت”.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>money-input.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="registerOnTouched">
+        <td><b class="nm nm-ng" data-nm="registerOnTouched">registerOnTouched</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Required by the interface. The form hands you its “touched” callback here.</span><span class="l-ar" dir="auto">الـ interface بيطلبها. الفورم بيديك هنا الـ callback بتاع “اتلمس”.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>money-input.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="setDisabledState">
+        <td><b class="nm nm-ng" data-nm="setDisabledState">setDisabledState</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Optional in the interface, but the name is fixed. The form calls it on <code>disable()</code> and <code>enable()</code>.</span><span class="l-ar" dir="auto">اختيارية في الـ interface، بس الاسم ثابت. الفورم بيناديها مع <code>disable()</code> و<code>enable()</code>.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>money-input.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="Validator">
+        <td><b class="nm nm-ng" data-nm="Validator">Validator</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s interface for a class that validates.</span><span class="l-ar" dir="auto">الـ interface بتاع أنجولار لكلاس بيعمل validation.</span></td>
+        <td class="nmfiles"><code>bonus: validate yourself</code></td>
+      </tr>
+      <tr data-nmrow="validate">
+        <td><b class="nm nm-ng" data-nm="validate">validate</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The one method the <code>Validator</code> interface requires.</span><span class="l-ar" dir="auto">الميثود الوحيدة اللي الـ interface <code>Validator</code> بيطلبها.</span></td>
+        <td class="nmfiles"><code>bonus: validate yourself</code></td>
+      </tr>
+      <tr data-nmrow="AbstractControl">
+        <td><b class="nm nm-ng" data-nm="AbstractControl">AbstractControl</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s base type for every form control.</span><span class="l-ar" dir="auto">النوع الأساسي بتاع أنجولار لأي form control.</span></td>
+        <td class="nmfiles"><code>bonus: validate yourself</code></td>
+      </tr>
+      <tr data-nmrow="ValidationErrors">
+        <td><b class="nm nm-ng" data-nm="ValidationErrors">ValidationErrors</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s type for the error object a validator returns.</span><span class="l-ar" dir="auto">النوع بتاع أنجولار لأوبجكت الأخطاء اللي الـ validator بيرجّعه.</span></td>
+        <td class="nmfiles"><code>bonus: validate yourself</code></td>
+      </tr>
+      <tr data-nmrow="Validators">
+        <td><b class="nm nm-ng" data-nm="Validators">Validators</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s ready-made validators, like <code>required</code> and <code>min</code>.</span><span class="l-ar" dir="auto">الـ validators الجاهزة بتاعة أنجولار، زي <code>required</code> و<code>min</code>.</span></td>
+        <td class="nmfiles"><code>profile.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="input">
+        <td><b class="nm nm-ng" data-nm="input">input</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that creates an input.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتعمل input.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="signal">
+        <td><b class="nm nm-ng" data-nm="signal">signal</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s writable signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة أنجولار اللي بتتكتب.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>money-input.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="set">
+        <td><b class="nm nm-ng" data-nm="set">set</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal method.</span><span class="l-ar" dir="auto">ميثود بتاعة الـ signal.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>money-input.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="@Component">
+        <td><b class="nm nm-ng" data-nm="@Component">@Component</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s decorator that turns a class into a component.</span><span class="l-ar" dir="auto">الـ decorator بتاع أنجولار اللي بيحوّل الكلاس لـ component.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="click">
+        <td><b class="nm nm-ng" data-nm="click">click</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s own event name.</span><span class="l-ar" dir="auto">اسم الـ event بتاع المتصفح نفسه.</span></td>
+        <td class="nmfiles"><code>star-rating.component.html</code></td>
+      </tr>
+      <tr data-nmrow="blur">
+        <td><b class="nm nm-ng" data-nm="blur">blur</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s event for “focus left this element”. The usual moment to report touched.</span><span class="l-ar" dir="auto">الـ event بتاع المتصفح لما الـ focus يسيب الـ element. ده الوقت المعتاد اللي بتقول فيه إنه اتلمس.</span></td>
+        <td class="nmfiles"><code>star-rating.component.html</code></td>
+      </tr>
+      <tr data-nmrow="StarRating">
+        <td><b class="nm nm-pub" data-nm="StarRating">StarRating</b><span class="nmas">&rarr; <code>Banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The class name. <code>forwardRef</code> points at it, and whoever lists it in <code>imports</code> follows a rename.</span><span class="l-ar" dir="auto">اسم الكلاس. <code>forwardRef</code> بيشاور عليه، وأي حد كاتبه في <code>imports</code> بيتغير معاه.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="app-star-rating">
+        <td><b class="nm nm-pub" data-nm="app-star-rating">app-star-rating</b><span class="nmas">&rarr; <code>app-potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Selector: the string here and the tag in the form’s template must match.</span><span class="l-ar" dir="auto">الـ selector: النص هنا والتاج في تمبلت الفورم لازم يبقوا زي بعض.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="max">
+        <td><b class="nm nm-pub" data-nm="max">max</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">An input. The parent sets it with <code>[max]</code>.</span><span class="l-ar" dir="auto">input. الأب بيحطه بـ <code>[max]</code>.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>star-rating.component.html</code></td>
+      </tr>
+      <tr data-nmrow="value">
+        <td><b class="nm nm-mine" data-nm="value">value</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your own signal holding the stars. <code>c.value</code> in the validator is Angular’s control value, a different thing.</span><span class="l-ar" dir="auto">الـ signal بتاعتك اللي شايلة عدد النجوم. و<code>c.value</code> اللي في الـ validator دي قيمة الكنترول بتاعة أنجولار، حاجة تانية.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>star-rating.component.html</code></td>
+      </tr>
+      <tr data-nmrow="disabled">
+        <td><b class="nm nm-mine" data-nm="disabled">disabled</b><span class="nmas">&rarr; <code>waffle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your own signal. In <code>[disabled]="disabled()"</code> the left side is the button’s DOM property, not yours.</span><span class="l-ar" dir="auto">الـ signal بتاعتك. في <code>[disabled]="disabled()"</code> الناحية الشمال دي property الـ DOM بتاعة الزرار، مش بتاعتك.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>star-rating.component.html</code> <code>money-input.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="onChange">
+        <td><b class="nm nm-mine" data-nm="onChange">onChange</b><span class="nmas">&rarr; <code>noodle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The field where you keep Angular’s callback. Any name works; Angular never reads it.</span><span class="l-ar" dir="auto">الـ field اللي بتحفظ فيه الـ callback بتاع أنجولار. أي اسم ينفع؛ أنجولار عمره ما بيقراه.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>money-input.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="onTouched">
+        <td><b class="nm nm-mine" data-nm="onTouched">onTouched</b><span class="nmas">&rarr; <code>pumpkin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The field for the touched callback, called from your own template on <code>(blur)</code>.</span><span class="l-ar" dir="auto">الـ field بتاع الـ callback بتاع اللمس، وبتناديه من التمبلت بتاعك في <code>(blur)</code>.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>star-rating.component.html</code> <code>money-input.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="fn">
+        <td><b class="nm nm-mine" data-nm="fn">fn</b><span class="nmas">&rarr; <code>turnip</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The parameter name. The method name is fixed; this is not.</span><span class="l-ar" dir="auto">اسم الـ parameter. اسم الميثود ثابت؛ ده لأ.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>money-input.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="isDisabled">
+        <td><b class="nm nm-mine" data-nm="isDisabled">isDisabled</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The parameter name of <code>setDisabledState</code>. Yours to rename.</span><span class="l-ar" dir="auto">اسم الـ parameter بتاع <code>setDisabledState</code>. تقدر تغيّره.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="pick">
+        <td><b class="nm nm-mine" data-nm="pick">pick</b><span class="nmas">&rarr; <code>taco</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your own method, called from your own template.</span><span class="l-ar" dir="auto">الميثود بتاعتك، بتناديها من التمبلت بتاعك.</span></td>
+        <td class="nmfiles"><code>star-rating.component.ts</code> <code>star-rating.component.html</code></td>
+      </tr>
+      <tr data-nmrow="Profile">
+        <td><b class="nm nm-pub" data-nm="Profile">Profile</b><span class="nmas">&rarr; <code>Kiwi</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The form page’s class name.</span><span class="l-ar" dir="auto">اسم كلاس صفحة الفورم.</span></td>
+        <td class="nmfiles"><code>profile.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="form">
+        <td><b class="nm nm-mine" data-nm="form">form</b><span class="nmas">&rarr; <code>donut</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The page’s own form group, bound with <code>[formGroup]="form"</code> in its template.</span><span class="l-ar" dir="auto">الـ form group بتاع الصفحة، بيتربط بـ <code>[formGroup]="form"</code> في التمبلت بتاعها.</span></td>
+        <td class="nmfiles"><code>profile.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="rating">
+        <td><b class="nm nm-mine" data-nm="rating">rating</b><span class="nmas">&rarr; <code>pepper</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A control name. <code>formControlName="rating"</code> in the same component’s template must match it.</span><span class="l-ar" dir="auto">اسم كنترول. <code>formControlName="rating"</code> في تمبلت نفس الـ component لازم يطابقه.</span></td>
+        <td class="nmfiles"><code>profile.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="Iban">
+        <td><b class="nm nm-pub" data-nm="Iban">Iban</b><span class="nmas">&rarr; <code>Lemon</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your control’s class name, referenced by both <code>forwardRef</code>s.</span><span class="l-ar" dir="auto">اسم كلاس الكنترول بتاعك، والـ <code>forwardRef</code> الاتنين بيشاوروا عليه.</span></td>
+        <td class="nmfiles"><code>bonus: validate yourself</code></td>
+      </tr>
+      <tr data-nmrow="isValidIban">
+        <td><b class="nm nm-pub" data-nm="isValidIban">isValidIban</b><span class="nmas">&rarr; <code>carrot</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your helper function, written in another file.</span><span class="l-ar" dir="auto">الـ helper function بتاعتك، مكتوبة في ملف تاني.</span></td>
+        <td class="nmfiles"><code>bonus: validate yourself</code></td>
+      </tr>
+      <tr data-nmrow="iban">
+        <td><b class="nm nm-pub" data-nm="iban">iban</b><span class="nmas">&rarr; <code>biscuit</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The error key you return. Templates check it with <code>hasError('iban')</code>, so both change together.</span><span class="l-ar" dir="auto">مفتاح الـ error اللي بترجّعه. التمبلتس بتشيّك عليه بـ <code>hasError('iban')</code>، فالاتنين بيتغيروا مع بعض.</span></td>
+        <td class="nmfiles"><code>bonus: validate yourself</code></td>
+      </tr>
+      <tr data-nmrow="MoneyInput">
+        <td><b class="nm nm-pub" data-nm="MoneyInput">MoneyInput</b><span class="nmas">&rarr; <code>Olive</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Another control’s class name.</span><span class="l-ar" dir="auto">اسم كلاس كنترول تاني.</span></td>
+        <td class="nmfiles"><code>money-input.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="text">
+        <td><b class="nm nm-mine" data-nm="text">text</b><span class="nmas">&rarr; <code>cookie</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your own signal with what the user sees on screen.</span><span class="l-ar" dir="auto">الـ signal بتاعتك اللي فيها اللي اليوزر شايفه على الشاشة.</span></td>
+        <td class="nmfiles"><code>money-input.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="onInput">
+        <td><b class="nm nm-mine" data-nm="onInput">onInput</b><span class="nmas">&rarr; <code>melon</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your own method, called from your template on <code>(input)</code>. The <code>on</code> prefix is only a habit.</span><span class="l-ar" dir="auto">الميثود بتاعتك، بتناديها من التمبلت على <code>(input)</code>. البادئة <code>on</code> مجرد عادة.</span></td>
+        <td class="nmfiles"><code>money-input.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="onBlur">
+        <td><b class="nm nm-mine" data-nm="onBlur">onBlur</b><span class="nmas">&rarr; <code>radish</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your own method, called on <code>(blur)</code>.</span><span class="l-ar" dir="auto">الميثود بتاعتك، بتتنادى على <code>(blur)</code>.</span></td>
+        <td class="nmfiles"><code>money-input.component.ts</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="control-value-accessor-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en"><code>ControlValueAccessor</code>, name by name</span><span class="l-ar" dir="auto"><code>ControlValueAccessor</code>، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">One star rating used inside a profile form, followed from the form’s value to the stars and back. Every name coloured: the four method names Angular fixed, the callback fields you name yourself, and the control name the rating never even sees.</span><span class="l-ar" dir="auto">تقييم بالنجوم واحد جوه فورم بروفايل، ماشيين وراه من قيمة الفورم للنجوم ورجوعًا. كل اسم ملوّن: الأربع أسماء ميثودز اللي أنجولار ثبّتها، والـ fields بتاعة الـ callbacks اللي انت بتسمّيها، واسم الكنترول اللي التقييم عمره ما بيشوفه أصلًا.</span></span>
+  </a>
+
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
-    <ul><li><span class="l-en">Forgetting to call <code class="i">onChange()</code> is the number one bug: the UI updates, the form control stays empty, and validation never passes.</span><span class="l-ar" dir="auto">نسيان نداء <code class="i">onChange()</code> هو الباج رقم واحد: الواجهة بتتحدث، والـ form control بيفضل فاضي، والـ validation عمره ما بينجح.</span></li><li><span class="l-en">Never call <code class="i">onChange()</code> from inside <code class="i">writeValue()</code>. That is the form telling <b>you</b> — reporting it back creates an infinite loop.</span><span class="l-ar" dir="auto">عمرك ما تنادي <code class="i">onChange()</code> من جوه <code class="i">writeValue()</code>. دي الفورم بيقول <b>لك</b> — والتبليغ راجع بيعمل حلقة لا نهائية.</span></li><li><span class="l-en">Implement <code class="i">setDisabledState</code>. Without it <code class="i">form.disable()</code> has no effect on your control, which is a real accessibility and data-integrity bug.</span><span class="l-ar" dir="auto">نفّذ <code class="i">setDisabledState</code>. ومن غيرها <code class="i">form.disable()</code> مالهاش تأثير على الـ control بتاعك، وده باج حقيقي في الإتاحة وسلامة البيانات.</span></li><li><span class="l-en"><code class="i">forwardRef</code> is required because the class is referenced on a line inside its own decorator, before it exists. Omitting it throws at startup.</span><span class="l-ar" dir="auto"><code class="i">forwardRef</code> مطلوبة لإن الكلاس بيتذكر في سطر جوه الـ decorator بتاعه، قبل ما يبقى موجود. ونسيانها بترمي ايرور عند التشغيل.</span></li><li><span class="l-en">Call <code class="i">onTouched()</code> on blur, not on change. Otherwise validation messages appear while the person is still typing the first character.</span><span class="l-ar" dir="auto">نادي <code class="i">onTouched()</code> عند الـ blur، مش عند التغيير. وإلا رسايل الـ validation هتظهر والشخص لسه بيكتب أول حرف.</span></li></ul>
+    <ul><li><span class="l-en">Forgetting to call <code class="i">onChange()</code> is the number one bug: the UI updates, the form control stays empty, and validation never passes.</span><span class="l-ar" dir="auto">نسيان نداء <code class="i">onChange()</code> هو الباج رقم واحد: الواجهة بتتحدث، والـ form control بيفضل فاضي، والـ validation عمره ما بينجح.</span></li><li><span class="l-en">Never call <code class="i">onChange()</code> from inside <code class="i">writeValue()</code>. That is the form telling <b>you</b>. Reporting it back makes the form think the <i>user</i> changed it, so <code class="i">patchValue()</code> or <code class="i">reset()</code> leaves the control marked dirty.</span><span class="l-ar" dir="auto">عمرك ما تنادي <code class="i">onChange()</code> من جوه <code class="i">writeValue()</code>. دي الفورم بيقول <b>لك</b>. لو بلّغته راجع، الفورم هيفتكر إن <i>المستخدم</i> هو اللي غيّرها، فـ <code class="i">patchValue()</code> أو <code class="i">reset()</code> هيسيبوا الـ control متعلّم إنه dirty.</span></li><li><span class="l-en">Implement <code class="i">setDisabledState</code>. Without it <code class="i">form.disable()</code> has no effect on your control, which is a real accessibility and data-integrity bug.</span><span class="l-ar" dir="auto">نفّذ <code class="i">setDisabledState</code>. ومن غيرها <code class="i">form.disable()</code> مالهاش تأثير على الـ control بتاعك، وده باج حقيقي في الإتاحة وسلامة البيانات.</span></li><li><span class="l-en"><code class="i">forwardRef</code> is required because the class is referenced on a line inside its own decorator, before it exists. Omitting it throws at startup.</span><span class="l-ar" dir="auto"><code class="i">forwardRef</code> مطلوبة لإن الكلاس بيتذكر في سطر جوه الـ decorator بتاعه، قبل ما يبقى موجود. ونسيانها بترمي ايرور عند التشغيل.</span></li><li><span class="l-en">Call <code class="i">onTouched()</code> on blur, not on change. Otherwise validation messages appear while the person is still typing the first character.</span><span class="l-ar" dir="auto">نادي <code class="i">onTouched()</code> عند الـ blur، مش عند التغيير. وإلا رسايل الـ validation هتظهر والشخص لسه بيكتب أول حرف.</span></li></ul>
   </div>
 
   
@@ -786,8 +1153,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../advanced/35-dynamic-components.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">Creating components at runtime</span><span class="l-ar" dir="auto">إنشاء components وقت التشغيل</span></b></a>
-    <a class="nx" href="../advanced/37-renderer2.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en"><code>Renderer2</code> and safe DOM access</span><span class="l-ar" dir="auto"><code>Renderer2</code> والوصول الآمن للـ DOM</span></b></a>
+    <a class="pv" href="../advanced/dynamic-components-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">Dynamic components, name by name</span><span class="l-ar" dir="auto">الـ dynamic components، اسم اسم</span></b></a>
+    <a class="nx" href="../advanced/control-value-accessor-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en"><code>ControlValueAccessor</code>, name by name</span><span class="l-ar" dir="auto"><code>ControlValueAccessor</code>، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -829,6 +1196,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){

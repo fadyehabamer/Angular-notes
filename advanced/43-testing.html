@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -656,26 +727,44 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="spec" data-lang="ts">
         <div class="fc-h"><span class="d"></span>cart.component.spec.ts<span class="tag"><span class="l-en">the shape of every test</span><span class="l-ar" dir="auto">شكل أي تست</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">TestBed</i> } <i class="t-key">from</i> <i class="t-str">'@angular/core/testing'</i>;</span><span class="ln" data-l="2"><i class="t-key">import</i> { <i class="t-type">Cart</i> } <i class="t-key">from</i> <i class="t-str">'./cart.component'</i>;</span><span class="ln" data-l="3"><i class="t-key">import</i> { <i class="t-type">CartStore</i> } <i class="t-key">from</i> <i class="t-str">'./cart.store'</i>;</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><i class="t-fn">describe</i>(<i class="t-str">'Cart'</i>, () =&gt; {</span><span class="ln" data-l="6">  <i class="t-com">// a fake store: same shape, no real logic</i></span><span class="ln" data-l="7">  <i class="t-key">const</i> store = {</span><span class="ln" data-l="8">    items: signal&lt;<i class="t-type">Item</i>[]&gt;([]),</span><span class="ln" data-l="9">    add: jasmine.<i class="t-fn">createSpy</i>(<i class="t-str">'add'</i>),</span><span class="ln" data-l="10">  };</span><span class="ln" data-l="11"> </span><span class="ln" data-l="12">  <i class="t-fn">beforeEach</i>(() =&gt; <i class="t-type">TestBed</i>.<i class="t-fn">configureTestingModule</i>({</span><span class="ln" data-l="13">    imports: [<i class="t-type">Cart</i>],                                  <i class="t-com">// the real component</i></span><span class="ln" data-l="14">    providers: [{ provide: <i class="t-type">CartStore</i>, useValue: store }],  <i class="t-com">// the fake service</i></span><span class="ln" data-l="15">  }));</span><span class="ln" data-l="16"> </span><span class="ln" data-l="17">  <i class="t-fn">it</i>(<i class="t-str">'shows the item count'</i>, <i class="t-key">async</i> () =&gt; {</span><span class="ln" data-l="18">    store.items.<i class="t-key">set</i>([{ id: <i class="t-str">'1'</i>, title: <i class="t-str">'Mouse'</i>, price: <i class="t-num">100</i> }]);</span><span class="ln" data-l="19"> </span><span class="ln" data-l="20">    <i class="t-key">const</i> fixture = <i class="t-type">TestBed</i>.<i class="t-fn">createComponent</i>(<i class="t-type">Cart</i>);</span><span class="ln" data-l="21">    <i class="t-key">await</i> fixture.<i class="t-fn">whenStable</i>();          <i class="t-com">// zoneless-safe. not detectChanges().</i></span><span class="ln" data-l="22"> </span><span class="ln" data-l="23">    <i class="t-key">const</i> text = fixture.nativeElement.textContent;</span><span class="ln" data-l="24">    <i class="t-fn">expect</i>(text).<i class="t-fn">toContain</i>(<i class="t-str">'Cart (1)'</i>);</span><span class="ln" data-l="25">  });</span><span class="ln" data-l="26">});</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i> } <i class="t-key">from</i> <i class="t-str">'@angular/core/testing'</i>;</span><span class="ln" data-l="2"><span class="v0"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="Cart">Cart</b></i> } <i class="t-key">from</i> <i class="t-str">'./cart.component'</i>;</span><span class="v1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="Cart">Banana</b></i> } <i class="t-key">from</i> <i class="t-str">'./cart.component'</i>;</span></span><span class="ln" data-l="3"><span class="v0"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="CartStore">CartStore</b></i> } <i class="t-key">from</i> <i class="t-str">'./cart.store'</i>;</span><span class="v1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="CartStore">Potato</b></i> } <i class="t-key">from</i> <i class="t-str">'./cart.store'</i>;</span></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><i class="t-fn"><b class="nm nm-ng" data-nm="describe">describe</b></i>(<i class="t-str">'Cart'</i>, () =&gt; {</span><span class="ln" data-l="6">  <i class="t-com">// a fake store: same shape, no real logic</i></span><span class="ln" data-l="7"><span class="v0">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="store">store</b> = {</span><span class="v1">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="store">kiwi</b> = {</span></span><span class="ln" data-l="8"><span class="v0">    <b class="nm nm-pub" data-nm="items">items</b>: signal&lt;<i class="t-type">Item</i>[]&gt;([]),</span><span class="v1">    <b class="nm nm-pub" data-nm="items">mango</b>: signal&lt;<i class="t-type">Item</i>[]&gt;([]),</span></span><span class="ln" data-l="9"><span class="v0">    <b class="nm nm-pub" data-nm="add">add</b>: <b class="nm nm-ng" data-nm="jasmine.createSpy">jasmine.</b><i class="t-fn"><b class="nm nm-ng" data-nm="jasmine.createSpy">createSpy</b></i>(<i class="t-str">'add'</i>),</span><span class="v1">    <b class="nm nm-pub" data-nm="add">pickle</b>: <b class="nm nm-ng" data-nm="jasmine.createSpy">jasmine.</b><i class="t-fn"><b class="nm nm-ng" data-nm="jasmine.createSpy">createSpy</b></i>(<i class="t-str">'add'</i>),</span></span><span class="ln" data-l="10">  };</span><span class="ln" data-l="11"> </span><span class="ln" data-l="12">  <i class="t-fn"><b class="nm nm-ng" data-nm="beforeEach">beforeEach</b></i>(() =&gt; <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn"><b class="nm nm-ng" data-nm="configureTestingModule">configureTestingModule</b></i>({</span><span class="ln" data-l="13"><span class="v0">    imports: [<i class="t-type"><b class="nm nm-pub" data-nm="Cart">Cart</b></i>],                                  <i class="t-com">// the real component</i></span><span class="v1">    imports: [<i class="t-type"><b class="nm nm-pub" data-nm="Cart">Banana</b></i>],                                  <i class="t-com">// the real component</i></span></span><span class="ln" data-l="14"><span class="v0">    <b class="nm nm-ng" data-nm="providers">providers</b>: [{ provide: <i class="t-type"><b class="nm nm-pub" data-nm="CartStore">CartStore</b></i>, <b class="nm nm-ng" data-nm="useValue">useValue</b>: <b class="nm nm-mine" data-nm="store">store</b> }],  <i class="t-com">// the fake service</i></span><span class="v1">    <b class="nm nm-ng" data-nm="providers">providers</b>: [{ provide: <i class="t-type"><b class="nm nm-pub" data-nm="CartStore">Potato</b></i>, <b class="nm nm-ng" data-nm="useValue">useValue</b>: <b class="nm nm-mine" data-nm="store">kiwi</b> }],  <i class="t-com">// the fake service</i></span></span><span class="ln" data-l="15">  }));</span><span class="ln" data-l="16"> </span><span class="ln" data-l="17">  <i class="t-fn"><b class="nm nm-ng" data-nm="it">it</b></i>(<i class="t-str">'shows the item count'</i>, <i class="t-key">async</i> () =&gt; {</span><span class="ln" data-l="18"><span class="v0">    <b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="items">items</b>.<i class="t-key">set</i>([{ id: <i class="t-str">'1'</i>, title: <i class="t-str">'Mouse'</i>, price: <i class="t-num">100</i> }]);</span><span class="v1">    <b class="nm nm-mine" data-nm="store">kiwi</b>.<b class="nm nm-pub" data-nm="items">mango</b>.<i class="t-key">set</i>([{ id: <i class="t-str">'1'</i>, title: <i class="t-str">'Mouse'</i>, price: <i class="t-num">100</i> }]);</span></span><span class="ln" data-l="19"> </span><span class="ln" data-l="20"><span class="v0">    <i class="t-key">const</i> <b class="nm nm-mine" data-nm="fixture">fixture</b> = <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn"><b class="nm nm-ng" data-nm="createComponent">createComponent</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Cart">Cart</b></i>);</span><span class="v1">    <i class="t-key">const</i> <b class="nm nm-mine" data-nm="fixture">donut</b> = <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn"><b class="nm nm-ng" data-nm="createComponent">createComponent</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Cart">Banana</b></i>);</span></span><span class="ln" data-l="21"><span class="v0">    <i class="t-key">await</i> <b class="nm nm-mine" data-nm="fixture">fixture</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="whenStable">whenStable</b></i>();          <i class="t-com">// zoneless-safe. not detectChanges().</i></span><span class="v1">    <i class="t-key">await</i> <b class="nm nm-mine" data-nm="fixture">donut</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="whenStable">whenStable</b></i>();          <i class="t-com">// zoneless-safe. not detectChanges().</i></span></span><span class="ln" data-l="22"> </span><span class="ln" data-l="23"><span class="v0">    <i class="t-key">const</i> text = <b class="nm nm-mine" data-nm="fixture">fixture</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<b class="nm nm-ng" data-nm="textContent">textContent</b>;</span><span class="v1">    <i class="t-key">const</i> text = <b class="nm nm-mine" data-nm="fixture">donut</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<b class="nm nm-ng" data-nm="textContent">textContent</b>;</span></span><span class="ln" data-l="24">    <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(text).<i class="t-fn"><b class="nm nm-ng" data-nm="toContain">toContain</b></i>(<i class="t-str">'Cart (1)'</i>);</span><span class="ln" data-l="25">  });</span><span class="ln" data-l="26">});</span></pre>
       </div>
       <div class="fc" data-file="kinds" data-lang="ts">
         <div class="fc-h"><span class="d"></span>the three tests worth writing<span class="tag"><span class="l-en">start here</span><span class="l-ar" dir="auto">ابدأ من هنا</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">// 1. A PURE FUNCTION — no TestBed, no Angular, instant.</i></span><span class="ln" data-l="2"><i class="t-com">//    computed values, validators, formatters, reducers.</i></span><span class="ln" data-l="3"><i class="t-fn">it</i>(<i class="t-str">'adds VAT'</i>, () =&gt; {</span><span class="ln" data-l="4">  <i class="t-fn">expect</i>(<i class="t-fn">withVat</i>(<i class="t-num">100</i>)).<i class="t-fn">toBe</i>(<i class="t-num">114</i>);</span><span class="ln" data-l="5">});</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">// 2. A COMPONENT'S OUTPUT — given this state, what is on screen?</i></span><span class="ln" data-l="8"><i class="t-fn">it</i>(<i class="t-str">'shows the empty message'</i>, <i class="t-key">async</i> () =&gt; {</span><span class="ln" data-l="9">  store.items.<i class="t-key">set</i>([]);</span><span class="ln" data-l="10">  <i class="t-key">const</i> f = <i class="t-type">TestBed</i>.<i class="t-fn">createComponent</i>(<i class="t-type">Cart</i>);</span><span class="ln" data-l="11">  <i class="t-key">await</i> f.<i class="t-fn">whenStable</i>();</span><span class="ln" data-l="12">  <i class="t-fn">expect</i>(f.nativeElement.textContent).<i class="t-fn">toContain</i>(<i class="t-str">'Your cart is empty'</i>);</span><span class="ln" data-l="13">});</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-com">// 3. AN INTERACTION — given this click, what happened?</i></span><span class="ln" data-l="16"><i class="t-fn">it</i>(<i class="t-str">'adds an item when the button is clicked'</i>, <i class="t-key">async</i> () =&gt; {</span><span class="ln" data-l="17">  <i class="t-key">const</i> f = <i class="t-type">TestBed</i>.<i class="t-fn">createComponent</i>(<i class="t-type">Cart</i>);</span><span class="ln" data-l="18">  <i class="t-key">await</i> f.<i class="t-fn">whenStable</i>();</span><span class="ln" data-l="19"> </span><span class="ln" data-l="20">  f.nativeElement.<i class="t-fn">querySelector</i>(<i class="t-str">'button.add'</i>).<i class="t-fn">click</i>();</span><span class="ln" data-l="21">  <i class="t-key">await</i> f.<i class="t-fn">whenStable</i>();</span><span class="ln" data-l="22"> </span><span class="ln" data-l="23">  <i class="t-fn">expect</i>(store.add).<i class="t-fn">toHaveBeenCalled</i>();</span><span class="ln" data-l="24">});</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">// 1. A PURE FUNCTION — no TestBed, no Angular, instant.</i></span><span class="ln" data-l="2"><i class="t-com">//    computed values, validators, formatters, reducers.</i></span><span class="ln" data-l="3"><i class="t-fn"><b class="nm nm-ng" data-nm="it">it</b></i>(<i class="t-str">'adds VAT'</i>, () =&gt; {</span><span class="ln" data-l="4"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<i class="t-fn"><b class="nm nm-pub" data-nm="withVat">withVat</b></i>(<i class="t-num">100</i>)).<i class="t-fn"><b class="nm nm-ng" data-nm="toBe">toBe</b></i>(<i class="t-num">114</i>);</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<i class="t-fn"><b class="nm nm-pub" data-nm="withVat">taco</b></i>(<i class="t-num">100</i>)).<i class="t-fn"><b class="nm nm-ng" data-nm="toBe">toBe</b></i>(<i class="t-num">114</i>);</span></span><span class="ln" data-l="5">});</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">// 2. A COMPONENT'S OUTPUT — given this state, what is on screen?</i></span><span class="ln" data-l="8"><i class="t-fn"><b class="nm nm-ng" data-nm="it">it</b></i>(<i class="t-str">'shows the empty message'</i>, <i class="t-key">async</i> () =&gt; {</span><span class="ln" data-l="9"><span class="v0">  <b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="items">items</b>.<i class="t-key">set</i>([]);</span><span class="v1">  <b class="nm nm-mine" data-nm="store">kiwi</b>.<b class="nm nm-pub" data-nm="items">mango</b>.<i class="t-key">set</i>([]);</span></span><span class="ln" data-l="10"><span class="v0">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="f">f</b> = <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn"><b class="nm nm-ng" data-nm="createComponent">createComponent</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Cart">Cart</b></i>);</span><span class="v1">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="f">pepper</b> = <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn"><b class="nm nm-ng" data-nm="createComponent">createComponent</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Cart">Banana</b></i>);</span></span><span class="ln" data-l="11"><span class="v0">  <i class="t-key">await</i> <b class="nm nm-mine" data-nm="f">f</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="whenStable">whenStable</b></i>();</span><span class="v1">  <i class="t-key">await</i> <b class="nm nm-mine" data-nm="f">pepper</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="whenStable">whenStable</b></i>();</span></span><span class="ln" data-l="12"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<b class="nm nm-mine" data-nm="f">f</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<b class="nm nm-ng" data-nm="textContent">textContent</b>).<i class="t-fn"><b class="nm nm-ng" data-nm="toContain">toContain</b></i>(<i class="t-str">'Your cart is empty'</i>);</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<b class="nm nm-mine" data-nm="f">pepper</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<b class="nm nm-ng" data-nm="textContent">textContent</b>).<i class="t-fn"><b class="nm nm-ng" data-nm="toContain">toContain</b></i>(<i class="t-str">'Your cart is empty'</i>);</span></span><span class="ln" data-l="13">});</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-com">// 3. AN INTERACTION — given this click, what happened?</i></span><span class="ln" data-l="16"><i class="t-fn"><b class="nm nm-ng" data-nm="it">it</b></i>(<i class="t-str">'adds an item when the button is clicked'</i>, <i class="t-key">async</i> () =&gt; {</span><span class="ln" data-l="17"><span class="v0">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="f">f</b> = <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn"><b class="nm nm-ng" data-nm="createComponent">createComponent</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Cart">Cart</b></i>);</span><span class="v1">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="f">pepper</b> = <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn"><b class="nm nm-ng" data-nm="createComponent">createComponent</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Cart">Banana</b></i>);</span></span><span class="ln" data-l="18"><span class="v0">  <i class="t-key">await</i> <b class="nm nm-mine" data-nm="f">f</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="whenStable">whenStable</b></i>();</span><span class="v1">  <i class="t-key">await</i> <b class="nm nm-mine" data-nm="f">pepper</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="whenStable">whenStable</b></i>();</span></span><span class="ln" data-l="19"> </span><span class="ln" data-l="20"><span class="v0">  <b class="nm nm-mine" data-nm="f">f</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="querySelector">querySelector</b></i>(<i class="t-str">'button<b class="nm nm-pub" data-nm=".add">.add</b>'</i>).<i class="t-fn"><b class="nm nm-ng" data-nm="click">click</b></i>();</span><span class="v1">  <b class="nm nm-mine" data-nm="f">pepper</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="querySelector">querySelector</b></i>(<i class="t-str">'button<b class="nm nm-pub" data-nm=".add">.buy-btn</b>'</i>).<i class="t-fn"><b class="nm nm-ng" data-nm="click">click</b></i>();</span></span><span class="ln" data-l="21"><span class="v0">  <i class="t-key">await</i> <b class="nm nm-mine" data-nm="f">f</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="whenStable">whenStable</b></i>();</span><span class="v1">  <i class="t-key">await</i> <b class="nm nm-mine" data-nm="f">pepper</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="whenStable">whenStable</b></i>();</span></span><span class="ln" data-l="22"> </span><span class="ln" data-l="23"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="add">add</b>).<i class="t-fn"><b class="nm nm-ng" data-nm="toHaveBeenCalled">toHaveBeenCalled</b></i>();</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<b class="nm nm-mine" data-nm="store">kiwi</b>.<b class="nm nm-pub" data-nm="add">pickle</b>).<i class="t-fn"><b class="nm nm-ng" data-nm="toHaveBeenCalled">toHaveBeenCalled</b></i>();</span></span><span class="ln" data-l="24">});</span></pre>
       </div>
       <div class="fc" data-file="inputs" data-lang="ts">
         <div class="fc-h"><span class="d"></span>setting inputs and reading outputs<span class="tag"><span class="l-en">the component API</span><span class="l-ar" dir="auto">واجهة الـ component</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-fn">it</i>(<i class="t-str">'renders the product title'</i>, <i class="t-key">async</i> () =&gt; {</span><span class="ln" data-l="2">  <i class="t-key">const</i> f = <i class="t-type">TestBed</i>.<i class="t-fn">createComponent</i>(<i class="t-type">ProductCard</i>);</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">  <i class="t-com">// set a signal input from the outside</i></span><span class="ln" data-l="5">  f.componentRef.<i class="t-fn">setInput</i>(<i class="t-str">'product'</i>, { id: <i class="t-str">'1'</i>, title: <i class="t-str">'Mouse'</i>, price: <i class="t-num">100</i> });</span><span class="ln" data-l="6">  <i class="t-key">await</i> f.<i class="t-fn">whenStable</i>();</span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-fn">expect</i>(f.nativeElement.<i class="t-fn">querySelector</i>(<i class="t-str">'h3'</i>).textContent).<i class="t-fn">toBe</i>(<i class="t-str">'Mouse'</i>);</span><span class="ln" data-l="9">});</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-fn">it</i>(<i class="t-str">'emits when removed'</i>, <i class="t-key">async</i> () =&gt; {</span><span class="ln" data-l="12">  <i class="t-key">const</i> f = <i class="t-type">TestBed</i>.<i class="t-fn">createComponent</i>(<i class="t-type">ProductCard</i>);</span><span class="ln" data-l="13">  f.componentRef.<i class="t-fn">setInput</i>(<i class="t-str">'product'</i>, product);</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15">  <i class="t-key">let</i> emitted: <i class="t-key">string</i> | <i class="t-key">undefined</i>;</span><span class="ln" data-l="16">  f.componentInstance.removed.<i class="t-fn">subscribe</i>(id =&gt; emitted = id);</span><span class="ln" data-l="17"> </span><span class="ln" data-l="18">  f.nativeElement.<i class="t-fn">querySelector</i>(<i class="t-str">'.remove'</i>).<i class="t-fn">click</i>();</span><span class="ln" data-l="19">  <i class="t-fn">expect</i>(emitted).<i class="t-fn">toBe</i>(<i class="t-str">'1'</i>);</span><span class="ln" data-l="20">});</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-fn"><b class="nm nm-ng" data-nm="it">it</b></i>(<i class="t-str">'renders the product title'</i>, <i class="t-key">async</i> () =&gt; {</span><span class="ln" data-l="2"><span class="v0">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="f">f</b> = <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn"><b class="nm nm-ng" data-nm="createComponent">createComponent</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="ProductCard">ProductCard</b></i>);</span><span class="v1">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="f">pepper</b> = <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn"><b class="nm nm-ng" data-nm="createComponent">createComponent</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="ProductCard">Waffle</b></i>);</span></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">  <i class="t-com">// set a signal input from the outside</i></span><span class="ln" data-l="5"><span class="v0">  <b class="nm nm-mine" data-nm="f">f</b>.<b class="nm nm-ng" data-nm="componentRef">componentRef</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setInput">setInput</b></i>(<i class="t-str">'<b class="nm nm-pub" data-nm="product">product</b>'</i>, { id: <i class="t-str">'1'</i>, title: <i class="t-str">'Mouse'</i>, price: <i class="t-num">100</i> });</span><span class="v1">  <b class="nm nm-mine" data-nm="f">pepper</b>.<b class="nm nm-ng" data-nm="componentRef">componentRef</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setInput">setInput</b></i>(<i class="t-str">'<b class="nm nm-pub" data-nm="product">noodle</b>'</i>, { id: <i class="t-str">'1'</i>, title: <i class="t-str">'Mouse'</i>, price: <i class="t-num">100</i> });</span></span><span class="ln" data-l="6"><span class="v0">  <i class="t-key">await</i> <b class="nm nm-mine" data-nm="f">f</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="whenStable">whenStable</b></i>();</span><span class="v1">  <i class="t-key">await</i> <b class="nm nm-mine" data-nm="f">pepper</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="whenStable">whenStable</b></i>();</span></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<b class="nm nm-mine" data-nm="f">f</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="querySelector">querySelector</b></i>(<i class="t-str">'h3'</i>).<b class="nm nm-ng" data-nm="textContent">textContent</b>).<i class="t-fn"><b class="nm nm-ng" data-nm="toBe">toBe</b></i>(<i class="t-str">'Mouse'</i>);</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<b class="nm nm-mine" data-nm="f">pepper</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="querySelector">querySelector</b></i>(<i class="t-str">'h3'</i>).<b class="nm nm-ng" data-nm="textContent">textContent</b>).<i class="t-fn"><b class="nm nm-ng" data-nm="toBe">toBe</b></i>(<i class="t-str">'Mouse'</i>);</span></span><span class="ln" data-l="9">});</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-fn"><b class="nm nm-ng" data-nm="it">it</b></i>(<i class="t-str">'emits when removed'</i>, <i class="t-key">async</i> () =&gt; {</span><span class="ln" data-l="12"><span class="v0">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="f">f</b> = <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn"><b class="nm nm-ng" data-nm="createComponent">createComponent</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="ProductCard">ProductCard</b></i>);</span><span class="v1">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="f">pepper</b> = <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn"><b class="nm nm-ng" data-nm="createComponent">createComponent</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="ProductCard">Waffle</b></i>);</span></span><span class="ln" data-l="13"><span class="v0">  <b class="nm nm-mine" data-nm="f">f</b>.<b class="nm nm-ng" data-nm="componentRef">componentRef</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setInput">setInput</b></i>(<i class="t-str">'<b class="nm nm-pub" data-nm="product">product</b>'</i>, product);</span><span class="v1">  <b class="nm nm-mine" data-nm="f">pepper</b>.<b class="nm nm-ng" data-nm="componentRef">componentRef</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setInput">setInput</b></i>(<i class="t-str">'<b class="nm nm-pub" data-nm="product">noodle</b>'</i>, product);</span></span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><span class="v0">  <i class="t-key">let</i> <b class="nm nm-mine" data-nm="emitted">emitted</b>: <i class="t-key">string</i> | <i class="t-key">undefined</i>;</span><span class="v1">  <i class="t-key">let</i> <b class="nm nm-mine" data-nm="emitted">lemon</b>: <i class="t-key">string</i> | <i class="t-key">undefined</i>;</span></span><span class="ln" data-l="16"><span class="v0">  <b class="nm nm-mine" data-nm="f">f</b>.<b class="nm nm-ng" data-nm="componentInstance">componentInstance</b>.<b class="nm nm-pub" data-nm="removed">removed</b>.<i class="t-fn">subscribe</i>(id =&gt; <b class="nm nm-mine" data-nm="emitted">emitted</b> = id);</span><span class="v1">  <b class="nm nm-mine" data-nm="f">pepper</b>.<b class="nm nm-ng" data-nm="componentInstance">componentInstance</b>.<b class="nm nm-pub" data-nm="removed">pumpkin</b>.<i class="t-fn">subscribe</i>(id =&gt; <b class="nm nm-mine" data-nm="emitted">lemon</b> = id);</span></span><span class="ln" data-l="17"> </span><span class="ln" data-l="18"><span class="v0">  <b class="nm nm-mine" data-nm="f">f</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="querySelector">querySelector</b></i>(<i class="t-str">'<b class="nm nm-pub" data-nm=".remove">.remove</b>'</i>).<i class="t-fn"><b class="nm nm-ng" data-nm="click">click</b></i>();</span><span class="v1">  <b class="nm nm-mine" data-nm="f">pepper</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="querySelector">querySelector</b></i>(<i class="t-str">'<b class="nm nm-pub" data-nm=".remove">.trash-btn</b>'</i>).<i class="t-fn"><b class="nm nm-ng" data-nm="click">click</b></i>();</span></span><span class="ln" data-l="19"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<b class="nm nm-mine" data-nm="emitted">emitted</b>).<i class="t-fn"><b class="nm nm-ng" data-nm="toBe">toBe</b></i>(<i class="t-str">'1'</i>);</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<b class="nm nm-mine" data-nm="emitted">lemon</b>).<i class="t-fn"><b class="nm nm-ng" data-nm="toBe">toBe</b></i>(<i class="t-str">'1'</i>);</span></span><span class="ln" data-l="20">});</span></pre>
       </div>
       <div class="fc" data-file="http" data-lang="ts">
         <div class="fc-h"><span class="d"></span>testing something that calls the server<span class="tag"><span class="l-en">no real network</span><span class="l-ar" dir="auto">من غير شبكة حقيقية</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { provideHttpClient } <i class="t-key">from</i> <i class="t-str">'@angular/common/http'</i>;</span><span class="ln" data-l="2"><i class="t-key">import</i> { provideHttpClientTesting, <i class="t-type">HttpTestingController</i> }</span><span class="ln" data-l="3">  <i class="t-key">from</i> <i class="t-str">'@angular/common/http/testing'</i>;</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><i class="t-fn">beforeEach</i>(() =&gt; <i class="t-type">TestBed</i>.<i class="t-fn">configureTestingModule</i>({</span><span class="ln" data-l="6">  providers: [<i class="t-fn">provideHttpClient</i>(), <i class="t-fn">provideHttpClientTesting</i>()],</span><span class="ln" data-l="7">}));</span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><i class="t-fn">it</i>(<i class="t-str">'loads the user'</i>, () =&gt; {</span><span class="ln" data-l="10">  <i class="t-key">const</i> api = <i class="t-type">TestBed</i>.<i class="t-fn">inject</i>(<i class="t-type">UserApi</i>);</span><span class="ln" data-l="11">  <i class="t-key">const</i> http = <i class="t-type">TestBed</i>.<i class="t-fn">inject</i>(<i class="t-type">HttpTestingController</i>);</span><span class="ln" data-l="12"> </span><span class="ln" data-l="13">  <i class="t-key">let</i> result: <i class="t-type">User</i> | <i class="t-key">undefined</i>;</span><span class="ln" data-l="14">  api.<i class="t-fn">load</i>(<i class="t-str">'u1'</i>).<i class="t-fn">subscribe</i>(u =&gt; result = u);</span><span class="ln" data-l="15"> </span><span class="ln" data-l="16">  <i class="t-com">// assert the request, then answer it yourself</i></span><span class="ln" data-l="17">  <i class="t-key">const</i> req = http.<i class="t-fn">expectOne</i>(<i class="t-str">'/api/users/u1'</i>);</span><span class="ln" data-l="18">  <i class="t-fn">expect</i>(req.request.method).<i class="t-fn">toBe</i>(<i class="t-str">'GET'</i>);</span><span class="ln" data-l="19">  req.<i class="t-fn">flush</i>({ id: <i class="t-str">'u1'</i>, name: <i class="t-str">'Mona'</i> });</span><span class="ln" data-l="20"> </span><span class="ln" data-l="21">  <i class="t-fn">expect</i>(result?.name).<i class="t-fn">toBe</i>(<i class="t-str">'Mona'</i>);</span><span class="ln" data-l="22">  http.<i class="t-fn">verify</i>();      <i class="t-com">// fails if any request went unanswered</i></span><span class="ln" data-l="23">});</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { provideHttpClient } <i class="t-key">from</i> <i class="t-str">'@angular/common/http'</i>;</span><span class="ln" data-l="2"><i class="t-key">import</i> { <b class="nm nm-ng" data-nm="provideHttpClientTesting">provideHttpClientTesting</b>, <i class="t-type"><b class="nm nm-ng" data-nm="HttpTestingController">HttpTestingController</b></i> }</span><span class="ln" data-l="3">  <i class="t-key">from</i> <i class="t-str">'@angular/common/http/testing'</i>;</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><i class="t-fn"><b class="nm nm-ng" data-nm="beforeEach">beforeEach</b></i>(() =&gt; <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn"><b class="nm nm-ng" data-nm="configureTestingModule">configureTestingModule</b></i>({</span><span class="ln" data-l="6">  <b class="nm nm-ng" data-nm="providers">providers</b>: [<i class="t-fn">provideHttpClient</i>(), <i class="t-fn"><b class="nm nm-ng" data-nm="provideHttpClientTesting">provideHttpClientTesting</b></i>()],</span><span class="ln" data-l="7">}));</span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><i class="t-fn"><b class="nm nm-ng" data-nm="it">it</b></i>(<i class="t-str">'loads the user'</i>, () =&gt; {</span><span class="ln" data-l="10"><span class="v0">  <i class="t-key">const</i> api = <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn">inject</i>(<i class="t-type"><b class="nm nm-pub" data-nm="UserApi">UserApi</b></i>);</span><span class="v1">  <i class="t-key">const</i> api = <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn">inject</i>(<i class="t-type"><b class="nm nm-pub" data-nm="UserApi">Turnip</b></i>);</span></span><span class="ln" data-l="11"><span class="v0">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="http">http</b> = <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn">inject</i>(<i class="t-type"><b class="nm nm-ng" data-nm="HttpTestingController">HttpTestingController</b></i>);</span><span class="v1">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="http">carrot</b> = <i class="t-type"><b class="nm nm-ng" data-nm="TestBed">TestBed</b></i>.<i class="t-fn">inject</i>(<i class="t-type"><b class="nm nm-ng" data-nm="HttpTestingController">HttpTestingController</b></i>);</span></span><span class="ln" data-l="12"> </span><span class="ln" data-l="13">  <i class="t-key">let</i> result: <i class="t-type">User</i> | <i class="t-key">undefined</i>;</span><span class="ln" data-l="14"><span class="v0">  api.<i class="t-fn"><b class="nm nm-pub" data-nm="load">load</b></i>(<i class="t-str">'u1'</i>).<i class="t-fn">subscribe</i>(u =&gt; result = u);</span><span class="v1">  api.<i class="t-fn"><b class="nm nm-pub" data-nm="load">muffin</b></i>(<i class="t-str">'u1'</i>).<i class="t-fn">subscribe</i>(u =&gt; result = u);</span></span><span class="ln" data-l="15"> </span><span class="ln" data-l="16">  <i class="t-com">// assert the request, then answer it yourself</i></span><span class="ln" data-l="17"><span class="v0">  <i class="t-key">const</i> req = <b class="nm nm-mine" data-nm="http">http</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="expectOne">expectOne</b></i>(<i class="t-str">'/api/users/u1'</i>);</span><span class="v1">  <i class="t-key">const</i> req = <b class="nm nm-mine" data-nm="http">carrot</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="expectOne">expectOne</b></i>(<i class="t-str">'/api/users/u1'</i>);</span></span><span class="ln" data-l="18">  <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(req.request.method).<i class="t-fn"><b class="nm nm-ng" data-nm="toBe">toBe</b></i>(<i class="t-str">'GET'</i>);</span><span class="ln" data-l="19">  req.<i class="t-fn"><b class="nm nm-ng" data-nm="flush">flush</b></i>({ id: <i class="t-str">'u1'</i>, name: <i class="t-str">'Mona'</i> });</span><span class="ln" data-l="20"> </span><span class="ln" data-l="21">  <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(result?.name).<i class="t-fn"><b class="nm nm-ng" data-nm="toBe">toBe</b></i>(<i class="t-str">'Mona'</i>);</span><span class="ln" data-l="22"><span class="v0">  <b class="nm nm-mine" data-nm="http">http</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="verify">verify</b></i>();      <i class="t-com">// fails if any request went unanswered</i></span><span class="v1">  <b class="nm nm-mine" data-nm="http">carrot</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="verify">verify</b></i>();      <i class="t-com">// fails if any request went unanswered</i></span></span><span class="ln" data-l="23">});</span></pre>
       </div>
       <div class="fc" data-file="fake" data-lang="ts">
         <div class="fc-h"><span class="d"></span>what to fake, and what not to<span class="tag"><span class="l-en">judgement</span><span class="l-ar" dir="auto">الحكم</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">// FAKE: anything slow, remote, random or outside your control.</i></span><span class="ln" data-l="2"><i class="t-com">//   HTTP, the router, timers, Date.now, localStorage, analytics.</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-com">// DO NOT FAKE: your own components, your own pipes, your own</i></span><span class="ln" data-l="5"><i class="t-com">//   computed values. A test full of fakes tests only the fakes.</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">// a spy remembers how it was called</i></span><span class="ln" data-l="8"><i class="t-key">const</i> store = { add: jasmine.<i class="t-fn">createSpy</i>(<i class="t-str">'add'</i>) };</span><span class="ln" data-l="9"><i class="t-fn">expect</i>(store.add).<i class="t-fn">toHaveBeenCalledWith</i>(item);</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-com">// the router, faked</i></span><span class="ln" data-l="12">providers: [{ provide: <i class="t-type">Router</i>, useValue: { navigate: jasmine.<i class="t-fn">createSpy</i>() } }]</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">// FAKE: anything slow, remote, random or outside your control.</i></span><span class="ln" data-l="2"><i class="t-com">//   HTTP, the router, timers, Date.now, localStorage, analytics.</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-com">// DO NOT FAKE: your own components, your own pipes, your own</i></span><span class="ln" data-l="5"><i class="t-com">//   computed values. A test full of fakes tests only the fakes.</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">// a spy remembers how it was called</i></span><span class="ln" data-l="8"><span class="v0"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="store">store</b> = { <b class="nm nm-pub" data-nm="add">add</b>: <b class="nm nm-ng" data-nm="jasmine.createSpy">jasmine.</b><i class="t-fn"><b class="nm nm-ng" data-nm="jasmine.createSpy">createSpy</b></i>(<i class="t-str">'add'</i>) };</span><span class="v1"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="store">kiwi</b> = { <b class="nm nm-pub" data-nm="add">pickle</b>: <b class="nm nm-ng" data-nm="jasmine.createSpy">jasmine.</b><i class="t-fn"><b class="nm nm-ng" data-nm="jasmine.createSpy">createSpy</b></i>(<i class="t-str">'add'</i>) };</span></span><span class="ln" data-l="9"><span class="v0"><i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="add">add</b>).<i class="t-fn"><b class="nm nm-ng" data-nm="toHaveBeenCalledWith">toHaveBeenCalledWith</b></i>(item);</span><span class="v1"><i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<b class="nm nm-mine" data-nm="store">kiwi</b>.<b class="nm nm-pub" data-nm="add">pickle</b>).<i class="t-fn"><b class="nm nm-ng" data-nm="toHaveBeenCalledWith">toHaveBeenCalledWith</b></i>(item);</span></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-com">// the router, faked</i></span><span class="ln" data-l="12"><b class="nm nm-ng" data-nm="providers">providers</b>: [{ provide: <i class="t-type">Router</i>, <b class="nm nm-ng" data-nm="useValue">useValue</b>: { navigate: <b class="nm nm-ng" data-nm="jasmine.createSpy">jasmine.</b><i class="t-fn"><b class="nm nm-ng" data-nm="jasmine.createSpy">createSpy</b></i>() } }]</span></pre>
       </div></div>
 
   
@@ -688,13 +777,303 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="e1" data-lang="ts">
         <div class="fc-h"><span class="d"></span>money.ts<span class="tag"><span class="l-en">the code</span><span class="l-ar" dir="auto">الكود</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">function</i> <i class="t-fn">withVat</i>(amount: <i class="t-key">number</i>, rate = <i class="t-num">0.14</i>): <i class="t-key">number</i> {</span><span class="ln" data-l="2">  <i class="t-key">return</i> <i class="t-type">Math</i>.<i class="t-fn">round</i>(amount * (<i class="t-num">1</i> + rate) * <i class="t-num">100</i>) / <i class="t-num">100</i>;</span><span class="ln" data-l="3">}</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><i class="t-key">export</i> <i class="t-key">function</i> <i class="t-fn">matchFields</i>(a: <i class="t-key">string</i>, b: <i class="t-key">string</i>): <i class="t-type">ValidatorFn</i> {</span><span class="ln" data-l="6">  <i class="t-key">return</i> g =&gt; g.<i class="t-key">get</i>(a)?.value === g.<i class="t-key">get</i>(b)?.value ? <i class="t-key">null</i> : { mismatch: <i class="t-key">true</i> };</span><span class="ln" data-l="7">}</span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-key">export</i> <i class="t-key">function</i> <i class="t-fn"><b class="nm nm-pub" data-nm="withVat">withVat</b></i>(<b class="nm nm-mine" data-nm="amount">amount</b>: <i class="t-key">number</i>, rate = <i class="t-num">0.14</i>): <i class="t-key">number</i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">function</i> <i class="t-fn"><b class="nm nm-pub" data-nm="withVat">taco</b></i>(<b class="nm nm-mine" data-nm="amount">biscuit</b>: <i class="t-key">number</i>, rate = <i class="t-num">0.14</i>): <i class="t-key">number</i> {</span></span><span class="ln" data-l="2"><span class="v0">  <i class="t-key">return</i> <i class="t-type">Math</i>.<i class="t-fn">round</i>(<b class="nm nm-mine" data-nm="amount">amount</b> * (<i class="t-num">1</i> + rate) * <i class="t-num">100</i>) / <i class="t-num">100</i>;</span><span class="v1">  <i class="t-key">return</i> <i class="t-type">Math</i>.<i class="t-fn">round</i>(<b class="nm nm-mine" data-nm="amount">biscuit</b> * (<i class="t-num">1</i> + rate) * <i class="t-num">100</i>) / <i class="t-num">100</i>;</span></span><span class="ln" data-l="3">}</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><i class="t-key">export</i> <i class="t-key">function</i> <i class="t-fn">matchFields</i>(a: <i class="t-key">string</i>, b: <i class="t-key">string</i>): <i class="t-type">ValidatorFn</i> {</span><span class="ln" data-l="6">  <i class="t-key">return</i> g =&gt; g.<i class="t-key">get</i>(a)?.value === g.<i class="t-key">get</i>(b)?.value ? <i class="t-key">null</i> : { mismatch: <i class="t-key">true</i> };</span><span class="ln" data-l="7">}</span></pre>
       </div>
       <div class="fc" data-file="e2" data-lang="ts">
         <div class="fc-h"><span class="d"></span>money.spec.ts<span class="tag"><span class="l-en">no Angular at all</span><span class="l-ar" dir="auto">من غير أنجولار خالص</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-fn">describe</i>(<i class="t-str">'withVat'</i>, () =&gt; {</span><span class="ln" data-l="2">  <i class="t-fn">it</i>(<i class="t-str">'adds 14% by default'</i>, () =&gt; {</span><span class="ln" data-l="3">    <i class="t-fn">expect</i>(<i class="t-fn">withVat</i>(<i class="t-num">100</i>)).<i class="t-fn">toBe</i>(<i class="t-num">114</i>);</span><span class="ln" data-l="4">  });</span><span class="ln" data-l="5"> </span><span class="ln" data-l="6">  <i class="t-fn">it</i>(<i class="t-str">'rounds to two decimals'</i>, () =&gt; {</span><span class="ln" data-l="7">    <i class="t-fn">expect</i>(<i class="t-fn">withVat</i>(<i class="t-num">99.99</i>)).<i class="t-fn">toBe</i>(<i class="t-num">113.99</i>);</span><span class="ln" data-l="8">  });</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10">  <i class="t-fn">it</i>(<i class="t-str">'handles zero'</i>, () =&gt; {</span><span class="ln" data-l="11">    <i class="t-fn">expect</i>(<i class="t-fn">withVat</i>(<i class="t-num">0</i>)).<i class="t-fn">toBe</i>(<i class="t-num">0</i>);</span><span class="ln" data-l="12">  });</span><span class="ln" data-l="13">});</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-com">// three tests, no TestBed, runs in under a millisecond.</i></span><span class="ln" data-l="16"><i class="t-com">// this is the highest value per line of test code you will write.</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-fn"><b class="nm nm-ng" data-nm="describe">describe</b></i>(<i class="t-str">'withVat'</i>, () =&gt; {</span><span class="ln" data-l="2">  <i class="t-fn"><b class="nm nm-ng" data-nm="it">it</b></i>(<i class="t-str">'adds 14% by default'</i>, () =&gt; {</span><span class="ln" data-l="3"><span class="v0">    <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<i class="t-fn"><b class="nm nm-pub" data-nm="withVat">withVat</b></i>(<i class="t-num">100</i>)).<i class="t-fn"><b class="nm nm-ng" data-nm="toBe">toBe</b></i>(<i class="t-num">114</i>);</span><span class="v1">    <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<i class="t-fn"><b class="nm nm-pub" data-nm="withVat">taco</b></i>(<i class="t-num">100</i>)).<i class="t-fn"><b class="nm nm-ng" data-nm="toBe">toBe</b></i>(<i class="t-num">114</i>);</span></span><span class="ln" data-l="4">  });</span><span class="ln" data-l="5"> </span><span class="ln" data-l="6">  <i class="t-fn"><b class="nm nm-ng" data-nm="it">it</b></i>(<i class="t-str">'rounds to two decimals'</i>, () =&gt; {</span><span class="ln" data-l="7"><span class="v0">    <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<i class="t-fn"><b class="nm nm-pub" data-nm="withVat">withVat</b></i>(<i class="t-num">99.99</i>)).<i class="t-fn"><b class="nm nm-ng" data-nm="toBe">toBe</b></i>(<i class="t-num">113.99</i>);</span><span class="v1">    <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<i class="t-fn"><b class="nm nm-pub" data-nm="withVat">taco</b></i>(<i class="t-num">99.99</i>)).<i class="t-fn"><b class="nm nm-ng" data-nm="toBe">toBe</b></i>(<i class="t-num">113.99</i>);</span></span><span class="ln" data-l="8">  });</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10">  <i class="t-fn"><b class="nm nm-ng" data-nm="it">it</b></i>(<i class="t-str">'handles zero'</i>, () =&gt; {</span><span class="ln" data-l="11"><span class="v0">    <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<i class="t-fn"><b class="nm nm-pub" data-nm="withVat">withVat</b></i>(<i class="t-num">0</i>)).<i class="t-fn"><b class="nm nm-ng" data-nm="toBe">toBe</b></i>(<i class="t-num">0</i>);</span><span class="v1">    <i class="t-fn"><b class="nm nm-ng" data-nm="expect">expect</b></i>(<i class="t-fn"><b class="nm nm-pub" data-nm="withVat">taco</b></i>(<i class="t-num">0</i>)).<i class="t-fn"><b class="nm nm-ng" data-nm="toBe">toBe</b></i>(<i class="t-num">0</i>);</span></span><span class="ln" data-l="12">  });</span><span class="ln" data-l="13">});</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-com">// three tests, no TestBed, runs in under a millisecond.</i></span><span class="ln" data-l="16"><i class="t-com">// this is the highest value per line of test code you will write.</i></span></pre>
       </div></div>
   </div>
+
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">A test types three kinds of words: the test runner’s (<code>describe</code>, <code>it</code>, <code>expect</code>), Angular’s (<code>TestBed</code>, <code>whenStable</code>) and <b>names from the code under test</b>. Those last ones are orange: rename <code>withVat</code> or an input in the app and the test must follow. The text inside <code>describe('…')</code> and <code>it('…')</code> is just a label.</span><span class="l-ar" dir="auto">التيست بيكتب تلات أنواع كلام: كلام الـ test runner (<code>describe</code> و<code>it</code> و<code>expect</code>)، وكلام أنجولار (<code>TestBed</code> و<code>whenStable</code>)، و<b>أسماء من الكود اللي بتختبره</b>. الأخيرة دي برتقاني: لو غيّرت <code>withVat</code> أو input في التطبيق، التيست لازم يتغير معاه. والنص اللي جوه <code>describe('…')</code> و<code>it('…')</code> مجرد عنوان.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="describe">
+        <td><b class="nm nm-ng" data-nm="describe">describe</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The test runner’s function (Jasmine, Jest and Vitest all have it) that groups tests. The string is a free label.</span><span class="l-ar" dir="auto">function بتاعة الـ test runner (Jasmine وJest وVitest كلهم فيهم) بتجمّع التستات. والنص اللي جواها عنوان براحتك.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>money.spec.ts</code></td>
+      </tr>
+      <tr data-nmrow="it">
+        <td><b class="nm nm-ng" data-nm="it">it</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The test runner’s function for one test. The sentence inside is yours; the word <code>it</code> is not.</span><span class="l-ar" dir="auto">function الـ test runner لتيست واحد. الجملة اللي جواها بتاعتك؛ لكن كلمة <code>it</code> لأ.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>the three tests worth writing</code> <code>setting inputs and reading outputs</code> <code>testing something that calls the server</code> <code>money.spec.ts</code></td>
+      </tr>
+      <tr data-nmrow="beforeEach">
+        <td><b class="nm nm-ng" data-nm="beforeEach">beforeEach</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The test runner’s hook that runs before every test.</span><span class="l-ar" dir="auto">hook بتاع الـ test runner بيشتغل قبل كل تيست.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>testing something that calls the server</code></td>
+      </tr>
+      <tr data-nmrow="expect">
+        <td><b class="nm nm-ng" data-nm="expect">expect</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The test runner’s assertion function.</span><span class="l-ar" dir="auto">function الـ test runner اللي بتتأكد من النتيجة.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>the three tests worth writing</code> <code>setting inputs and reading outputs</code> <code>testing something that calls the server</code> <code>what to fake, and what not to</code> <code>money.spec.ts</code></td>
+      </tr>
+      <tr data-nmrow="toBe">
+        <td><b class="nm nm-ng" data-nm="toBe">toBe</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A matcher from the test runner.</span><span class="l-ar" dir="auto">matcher من الـ test runner.</span></td>
+        <td class="nmfiles"><code>the three tests worth writing</code> <code>setting inputs and reading outputs</code> <code>testing something that calls the server</code> <code>money.spec.ts</code></td>
+      </tr>
+      <tr data-nmrow="toContain">
+        <td><b class="nm nm-ng" data-nm="toContain">toContain</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A matcher from the test runner.</span><span class="l-ar" dir="auto">matcher من الـ test runner.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>the three tests worth writing</code></td>
+      </tr>
+      <tr data-nmrow="toHaveBeenCalled">
+        <td><b class="nm nm-ng" data-nm="toHaveBeenCalled">toHaveBeenCalled</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A spy matcher from the test runner.</span><span class="l-ar" dir="auto">matcher للـ spy من الـ test runner.</span></td>
+        <td class="nmfiles"><code>the three tests worth writing</code></td>
+      </tr>
+      <tr data-nmrow="toHaveBeenCalledWith">
+        <td><b class="nm nm-ng" data-nm="toHaveBeenCalledWith">toHaveBeenCalledWith</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A spy matcher that also checks the arguments.</span><span class="l-ar" dir="auto">matcher للـ spy بيتأكد كمان من الـ arguments.</span></td>
+        <td class="nmfiles"><code>what to fake, and what not to</code></td>
+      </tr>
+      <tr data-nmrow="jasmine.createSpy">
+        <td><b class="nm nm-ng" data-nm="jasmine.createSpy">jasmine.createSpy</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Jasmine’s fake function that remembers its calls (Vitest: <code>vi.fn()</code>). The string you pass is only a label for error messages.</span><span class="l-ar" dir="auto">function مزيفة من Jasmine بتفتكر اتنادت إزاي (في Vitest: <code>vi.fn()</code>). والنص اللي بتبعته مجرد اسم بيظهر في رسايل الإيرور.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>what to fake, and what not to</code></td>
+      </tr>
+      <tr data-nmrow="TestBed">
+        <td><b class="nm nm-ng" data-nm="TestBed">TestBed</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s testing environment.</span><span class="l-ar" dir="auto">بيئة التستات بتاعة أنجولار.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>the three tests worth writing</code> <code>setting inputs and reading outputs</code> <code>testing something that calls the server</code></td>
+      </tr>
+      <tr data-nmrow="configureTestingModule">
+        <td><b class="nm nm-ng" data-nm="configureTestingModule">configureTestingModule</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The <code>TestBed</code> method that sets up <code>imports</code> and <code>providers</code> for the test.</span><span class="l-ar" dir="auto">ميثود <code>TestBed</code> اللي بتجهّز الـ <code>imports</code> والـ <code>providers</code> للتيست.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>testing something that calls the server</code></td>
+      </tr>
+      <tr data-nmrow="providers">
+        <td><b class="nm nm-ng" data-nm="providers">providers</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>testing something that calls the server</code> <code>what to fake, and what not to</code></td>
+      </tr>
+      <tr data-nmrow="useValue">
+        <td><b class="nm nm-ng" data-nm="useValue">useValue</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Part of a provider: “use this object instead”.</span><span class="l-ar" dir="auto">جزء من الـ provider: “استخدم الأوبجكت ده بداله”.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>what to fake, and what not to</code></td>
+      </tr>
+      <tr data-nmrow="createComponent">
+        <td><b class="nm nm-ng" data-nm="createComponent">createComponent</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The <code>TestBed</code> method that builds a real component for the test.</span><span class="l-ar" dir="auto">ميثود <code>TestBed</code> اللي بتبني component حقيقي للتيست.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>the three tests worth writing</code> <code>setting inputs and reading outputs</code></td>
+      </tr>
+      <tr data-nmrow="whenStable">
+        <td><b class="nm nm-ng" data-nm="whenStable">whenStable</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s “wait until the screen is up to date”. Works with and without zone.js.</span><span class="l-ar" dir="auto">بتاعة أنجولار: “استنى لحد ما الشاشة تتحدّث”. بتشتغل بـ zone.js ومن غيره.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>the three tests worth writing</code> <code>setting inputs and reading outputs</code></td>
+      </tr>
+      <tr data-nmrow="nativeElement">
+        <td><b class="nm nm-ng" data-nm="nativeElement">nativeElement</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The component’s real DOM element.</span><span class="l-ar" dir="auto">الـ element الحقيقي بتاع الـ component في الـ DOM.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>the three tests worth writing</code> <code>setting inputs and reading outputs</code></td>
+      </tr>
+      <tr data-nmrow="componentRef">
+        <td><b class="nm nm-ng" data-nm="componentRef">componentRef</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s handle on the created component.</span><span class="l-ar" dir="auto">المسكة اللي أنجولار بيديهالك على الـ component اللي اتعمل.</span></td>
+        <td class="nmfiles"><code>setting inputs and reading outputs</code></td>
+      </tr>
+      <tr data-nmrow="setInput">
+        <td><b class="nm nm-ng" data-nm="setInput">setInput</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s way to set an input from a test. The first argument is the input’s name as a string.</span><span class="l-ar" dir="auto">طريقة أنجولار إنك تحط قيمة input من التيست. أول argument هو اسم الـ input كـ string.</span></td>
+        <td class="nmfiles"><code>setting inputs and reading outputs</code></td>
+      </tr>
+      <tr data-nmrow="componentInstance">
+        <td><b class="nm nm-ng" data-nm="componentInstance">componentInstance</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The component’s class instance, so you can reach its outputs.</span><span class="l-ar" dir="auto">الـ instance بتاع كلاس الـ component، عشان توصل للـ outputs بتاعته.</span></td>
+        <td class="nmfiles"><code>setting inputs and reading outputs</code></td>
+      </tr>
+      <tr data-nmrow="querySelector">
+        <td><b class="nm nm-ng" data-nm="querySelector">querySelector</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s DOM search.</span><span class="l-ar" dir="auto">البحث في الـ DOM بتاع المتصفح.</span></td>
+        <td class="nmfiles"><code>the three tests worth writing</code> <code>setting inputs and reading outputs</code></td>
+      </tr>
+      <tr data-nmrow="textContent">
+        <td><b class="nm nm-ng" data-nm="textContent">textContent</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s DOM property: all the text inside an element.</span><span class="l-ar" dir="auto">property في الـ DOM بتاعة المتصفح: كل النص اللي جوه الـ element.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>the three tests worth writing</code> <code>setting inputs and reading outputs</code></td>
+      </tr>
+      <tr data-nmrow="click">
+        <td><b class="nm nm-ng" data-nm="click">click</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s DOM method that clicks an element.</span><span class="l-ar" dir="auto">ميثود الـ DOM بتاعة المتصفح اللي بتدوس على الـ element.</span></td>
+        <td class="nmfiles"><code>the three tests worth writing</code> <code>setting inputs and reading outputs</code></td>
+      </tr>
+      <tr data-nmrow="provideHttpClientTesting">
+        <td><b class="nm nm-ng" data-nm="provideHttpClientTesting">provideHttpClientTesting</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s fake backend: requests are caught instead of sent.</span><span class="l-ar" dir="auto">الباك إند المزيف بتاع أنجولار: الـ requests بتتمسك بدل ما تتبعت.</span></td>
+        <td class="nmfiles"><code>testing something that calls the server</code></td>
+      </tr>
+      <tr data-nmrow="HttpTestingController">
+        <td><b class="nm nm-ng" data-nm="HttpTestingController">HttpTestingController</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s controller for that fake backend. <code>expectOne</code>, <code>flush</code> and <code>verify</code> are its methods.</span><span class="l-ar" dir="auto">الكنترولر بتاع أنجولار للباك إند المزيف. و<code>expectOne</code> و<code>flush</code> و<code>verify</code> ميثودز بتاعته.</span></td>
+        <td class="nmfiles"><code>testing something that calls the server</code></td>
+      </tr>
+      <tr data-nmrow="expectOne">
+        <td><b class="nm nm-ng" data-nm="expectOne">expectOne</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A method of <code>HttpTestingController</code>.</span><span class="l-ar" dir="auto">ميثود في <code>HttpTestingController</code>.</span></td>
+        <td class="nmfiles"><code>testing something that calls the server</code></td>
+      </tr>
+      <tr data-nmrow="flush">
+        <td><b class="nm nm-ng" data-nm="flush">flush</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A method of the caught request: answer it with this data.</span><span class="l-ar" dir="auto">ميثود في الـ request اللي اتمسك: رد عليه بالداتا دي.</span></td>
+        <td class="nmfiles"><code>testing something that calls the server</code></td>
+      </tr>
+      <tr data-nmrow="verify">
+        <td><b class="nm nm-ng" data-nm="verify">verify</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A method of <code>HttpTestingController</code>.</span><span class="l-ar" dir="auto">ميثود في <code>HttpTestingController</code>.</span></td>
+        <td class="nmfiles"><code>testing something that calls the server</code></td>
+      </tr>
+      <tr data-nmrow="Cart">
+        <td><b class="nm nm-pub" data-nm="Cart">Cart</b><span class="nmas">&rarr; <code>Banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The component class, imported from its own file. The <code>'Cart'</code> in <code>describe</code> and <code>'Cart (1)'</code> are just text.</span><span class="l-ar" dir="auto">كلاس الـ component، متعمله import من الملف بتاعه. و<code>'Cart'</code> اللي في <code>describe</code> و<code>'Cart (1)'</code> مجرد نص.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>the three tests worth writing</code></td>
+      </tr>
+      <tr data-nmrow="CartStore">
+        <td><b class="nm nm-pub" data-nm="CartStore">CartStore</b><span class="nmas">&rarr; <code>Potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The real service class. The test names it in <code>provide</code> so Angular knows which one to replace.</span><span class="l-ar" dir="auto">كلاس الـ service الحقيقي. التيست بيكتبه في <code>provide</code> عشان أنجولار يعرف يستبدل أنهي واحد.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code></td>
+      </tr>
+      <tr data-nmrow="items">
+        <td><b class="nm nm-pub" data-nm="items">items</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The fake must copy the real store’s shape: the component reads <code>store.items</code>, so this name must match the real <code>CartStore</code>.</span><span class="l-ar" dir="auto">الـ fake لازم ينسخ شكل الـ store الحقيقي: الـ component بيقرا <code>store.items</code>، فالاسم ده لازم يطابق <code>CartStore</code> الحقيقي.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>the three tests worth writing</code></td>
+      </tr>
+      <tr data-nmrow="add">
+        <td><b class="nm nm-pub" data-nm="add">add</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Same rule: the component calls <code>store.add()</code>, so the fake needs the same method name. The <code>'add'</code> string is just the spy’s label.</span><span class="l-ar" dir="auto">نفس القاعدة: الـ component بينادي <code>store.add()</code>، فالـ fake محتاج نفس اسم الميثود. و<code>'add'</code> اللي كـ string مجرد اسم للـ spy.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>the three tests worth writing</code> <code>what to fake, and what not to</code></td>
+      </tr>
+      <tr data-nmrow=".add">
+        <td><b class="nm nm-pub" data-nm=".add">.add</b><span class="nmas">&rarr; <code>.buy-btn</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A CSS class in the <code>Cart</code> template. The test finds the button by it, so rename it in the template and the test together.</span><span class="l-ar" dir="auto">CSS class في تمبلت <code>Cart</code>. التيست بيلاقي الزرار بيه، فغيّره في التمبلت والتيست مع بعض.</span></td>
+        <td class="nmfiles"><code>the three tests worth writing</code></td>
+      </tr>
+      <tr data-nmrow=".remove">
+        <td><b class="nm nm-pub" data-nm=".remove">.remove</b><span class="nmas">&rarr; <code>.trash-btn</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A CSS class in the <code>ProductCard</code> template, typed again by the test.</span><span class="l-ar" dir="auto">CSS class في تمبلت <code>ProductCard</code>، والتيست بيكتبه تاني.</span></td>
+        <td class="nmfiles"><code>setting inputs and reading outputs</code></td>
+      </tr>
+      <tr data-nmrow="ProductCard">
+        <td><b class="nm nm-pub" data-nm="ProductCard">ProductCard</b><span class="nmas">&rarr; <code>Waffle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The component class, imported from its own file.</span><span class="l-ar" dir="auto">كلاس الـ component، متعمله import من الملف بتاعه.</span></td>
+        <td class="nmfiles"><code>setting inputs and reading outputs</code></td>
+      </tr>
+      <tr data-nmrow="product">
+        <td><b class="nm nm-pub" data-nm="product">product</b><span class="nmas">&rarr; <code>noodle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The input’s name, written as a string. It must match the <code>input()</code> in <code>ProductCard</code> exactly, and nothing warns you if it does not.</span><span class="l-ar" dir="auto">اسم الـ input مكتوب كـ string. لازم يطابق الـ <code>input()</code> اللي في <code>ProductCard</code> بالظبط، ومحدش هينبهك لو مش مطابق.</span></td>
+        <td class="nmfiles"><code>setting inputs and reading outputs</code></td>
+      </tr>
+      <tr data-nmrow="removed">
+        <td><b class="nm nm-pub" data-nm="removed">removed</b><span class="nmas">&rarr; <code>pumpkin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The output’s name in <code>ProductCard</code>. Rename it there and here.</span><span class="l-ar" dir="auto">اسم الـ output في <code>ProductCard</code>. غيّره هناك وهنا.</span></td>
+        <td class="nmfiles"><code>setting inputs and reading outputs</code></td>
+      </tr>
+      <tr data-nmrow="UserApi">
+        <td><b class="nm nm-pub" data-nm="UserApi">UserApi</b><span class="nmas">&rarr; <code>Turnip</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your service class, imported from its own file.</span><span class="l-ar" dir="auto">كلاس الـ service بتاعك، متعمله import من الملف بتاعه.</span></td>
+        <td class="nmfiles"><code>testing something that calls the server</code></td>
+      </tr>
+      <tr data-nmrow="load">
+        <td><b class="nm nm-pub" data-nm="load">load</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A method of <code>UserApi</code>. Rename it there and in the test.</span><span class="l-ar" dir="auto">ميثود في <code>UserApi</code>. غيّرها هناك وفي التيست.</span></td>
+        <td class="nmfiles"><code>testing something that calls the server</code></td>
+      </tr>
+      <tr data-nmrow="withVat">
+        <td><b class="nm nm-pub" data-nm="withVat">withVat</b><span class="nmas">&rarr; <code>taco</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Exported from <code>money.ts</code> and imported by the spec, so both files change. The <code>'withVat'</code> in <code>describe</code> is just a label.</span><span class="l-ar" dir="auto">متعمله export من <code>money.ts</code> والـ spec بيعمله import، فالملفين بيتغيروا. و<code>'withVat'</code> اللي في <code>describe</code> مجرد عنوان.</span></td>
+        <td class="nmfiles"><code>the three tests worth writing</code> <code>money.ts</code> <code>money.spec.ts</code></td>
+      </tr>
+      <tr data-nmrow="store">
+        <td><b class="nm nm-mine" data-nm="store">store</b><span class="nmas">&rarr; <code>kiwi</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The test’s own name for the fake. <code>useValue: store</code> is what connects it.</span><span class="l-ar" dir="auto">الاسم اللي التيست اختاره للـ fake. و<code>useValue: store</code> هو اللي بيربطه.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code> <code>the three tests worth writing</code> <code>what to fake, and what not to</code></td>
+      </tr>
+      <tr data-nmrow="fixture">
+        <td><b class="nm nm-mine" data-nm="fixture">fixture</b><span class="nmas">&rarr; <code>donut</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A variable name you chose for what <code>createComponent</code> returns.</span><span class="l-ar" dir="auto">اسم متغير انت اخترته للي <code>createComponent</code> بترجعه.</span></td>
+        <td class="nmfiles"><code>cart.component.spec.ts</code></td>
+      </tr>
+      <tr data-nmrow="f">
+        <td><b class="nm nm-mine" data-nm="f">f</b><span class="nmas">&rarr; <code>pepper</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The same thing as <code>fixture</code>, just shorter. Any name works.</span><span class="l-ar" dir="auto">نفس <code>fixture</code> بس أقصر. أي اسم ينفع.</span></td>
+        <td class="nmfiles"><code>the three tests worth writing</code> <code>setting inputs and reading outputs</code></td>
+      </tr>
+      <tr data-nmrow="emitted">
+        <td><b class="nm nm-mine" data-nm="emitted">emitted</b><span class="nmas">&rarr; <code>lemon</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A variable name you chose.</span><span class="l-ar" dir="auto">اسم متغير انت اخترته.</span></td>
+        <td class="nmfiles"><code>setting inputs and reading outputs</code></td>
+      </tr>
+      <tr data-nmrow="http">
+        <td><b class="nm nm-mine" data-nm="http">http</b><span class="nmas">&rarr; <code>carrot</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your variable holding the <code>HttpTestingController</code>. The <code>http</code> in the import path is part of Angular’s package name.</span><span class="l-ar" dir="auto">المتغير بتاعك اللي شايل الـ <code>HttpTestingController</code>. و<code>http</code> اللي في مسار الـ import جزء من اسم باكدج أنجولار.</span></td>
+        <td class="nmfiles"><code>testing something that calls the server</code></td>
+      </tr>
+      <tr data-nmrow="amount">
+        <td><b class="nm nm-mine" data-nm="amount">amount</b><span class="nmas">&rarr; <code>biscuit</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A parameter name. Callers pass by position, so it is private.</span><span class="l-ar" dir="auto">اسم parameter. اللي بينادي بيبعت حسب الترتيب، فهو خاص.</span></td>
+        <td class="nmfiles"><code>money.ts</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="testing-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en">Component tests, name by name</span><span class="l-ar" dir="auto">تستات الـ components، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">The page for when a spec file feels like a wall of strange words. One cart and its test, every name coloured: the <b>test runner’s</b> and <b>Angular’s</b>, the ones <b>you</b> made up, and the ones the test <b>copies from the app</b>. Then what breaks when the app renames something and the test does not.</span><span class="l-ar" dir="auto">الصفحة دي للي ملف الـ spec بيبانله حيطة كلمات غريبة. كارت واحد والتست بتاعه، وكل اسم ملوّن: بتاع <b>الـ test runner</b> و<b>أنجولار</b>، واللي <b>انت</b> ألفته، واللي التست <b>بينسخه من التطبيق</b>. وبعدين إيه اللي بيبوظ لما التطبيق يغيّر اسم والتست لأ.</span></span>
+  </a>
 
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
@@ -794,8 +1173,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../advanced/42-security.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">XSS, sanitization and the bypass that is usually a bug</span><span class="l-ar" dir="auto">XSS والتعقيم والتجاوز اللي غالباً باج</span></b></a>
-    <a class="nx" href="../advanced/44-e2e-testing.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">End-to-end testing with Playwright</span><span class="l-ar" dir="auto">اختبار شامل بـ Playwright</span></b></a>
+    <a class="pv" href="../advanced/security-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">Security, name by name</span><span class="l-ar" dir="auto">الأمان، اسم اسم</span></b></a>
+    <a class="nx" href="../advanced/testing-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Component tests, name by name</span><span class="l-ar" dir="auto">تستات الـ components، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -837,6 +1216,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){

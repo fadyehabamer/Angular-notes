@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -660,26 +731,44 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="routes" data-lang="ts">
         <div class="fc-h"><span class="d"></span>app.routes.ts<span class="tag"><span class="l-en">the map</span><span class="l-ar" dir="auto">الخريطة</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Routes</i> } <i class="t-key">from</i> <i class="t-str">'@angular/router'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-key">export</i> <i class="t-key">const</i> routes: <i class="t-type">Routes</i> = [</span><span class="ln" data-l="4">  <i class="t-com">// '' is the home page. pathMatch: 'full' or it matches everything.</i></span><span class="ln" data-l="5">  { path: <i class="t-str">''</i>, pathMatch: <i class="t-str">'full'</i>, redirectTo: <i class="t-str">'products'</i> },</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">  {</span><span class="ln" data-l="8">    path: <i class="t-str">'products'</i>,</span><span class="ln" data-l="9">    title: <i class="t-str">'Products'</i>,        <i class="t-com">// sets the browser tab title. free a11y win.</i></span><span class="ln" data-l="10">    loadComponent: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./pages/products'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type">Products</i>),</span><span class="ln" data-l="11">  },</span><span class="ln" data-l="12"> </span><span class="ln" data-l="13">  <i class="t-com">// :id is a PARAMETER — /products/42 puts '42' into it</i></span><span class="ln" data-l="14">  {</span><span class="ln" data-l="15">    path: <i class="t-str">'products/:id'</i>,</span><span class="ln" data-l="16">    loadComponent: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./pages/product-detail'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type">ProductDetail</i>),</span><span class="ln" data-l="17">  },</span><span class="ln" data-l="18"> </span><span class="ln" data-l="19">  { path: <i class="t-str">'about'</i>, loadComponent: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./pages/about'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type">About</i>) },</span><span class="ln" data-l="20"> </span><span class="ln" data-l="21">  <i class="t-com">// ** matches anything left over. it MUST be last.</i></span><span class="ln" data-l="22">  { path: <i class="t-str">'**'</i>, loadComponent: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./pages/not-found'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type">NotFound</i>) },</span><span class="ln" data-l="23">];</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-ng" data-nm="Routes">Routes</b></i> } <i class="t-key">from</i> <i class="t-str">'@angular/router'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><span class="v0"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="routes">routes</b>: <i class="t-type"><b class="nm nm-ng" data-nm="Routes">Routes</b></i> = [</span><span class="v1"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="routes">banana</b>: <i class="t-type"><b class="nm nm-ng" data-nm="Routes">Routes</b></i> = [</span></span><span class="ln" data-l="4">  <i class="t-com">// '' is the home page. pathMatch: 'full' or it matches everything.</i></span><span class="ln" data-l="5"><span class="v0">  { <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">''</i>, <b class="nm nm-ng" data-nm="pathMatch">pathMatch</b>: <i class="t-str">'<b class="nm nm-ng" data-nm="full">full</b>'</i>, <b class="nm nm-ng" data-nm="redirectTo">redirectTo</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="products">products</b>'</i> },</span><span class="v1">  { <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">''</i>, <b class="nm nm-ng" data-nm="pathMatch">pathMatch</b>: <i class="t-str">'<b class="nm nm-ng" data-nm="full">full</b>'</i>, <b class="nm nm-ng" data-nm="redirectTo">redirectTo</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="products">potato</b>'</i> },</span></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">  {</span><span class="ln" data-l="8"><span class="v0">    <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="products">products</b>'</i>,</span><span class="v1">    <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="products">potato</b>'</i>,</span></span><span class="ln" data-l="9">    <b class="nm nm-ng" data-nm="title">title</b>: <i class="t-str">'Products'</i>,        <i class="t-com">// sets the browser tab title. free a11y win.</i></span><span class="ln" data-l="10"><span class="v0">    <b class="nm nm-ng" data-nm="loadComponent">loadComponent</b>: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./pages/products'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type"><b class="nm nm-pub" data-nm="Products">Products</b></i>),</span><span class="v1">    <b class="nm nm-ng" data-nm="loadComponent">loadComponent</b>: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./pages/products'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type"><b class="nm nm-pub" data-nm="Products">Pumpkin</b></i>),</span></span><span class="ln" data-l="11">  },</span><span class="ln" data-l="12"> </span><span class="ln" data-l="13">  <i class="t-com">// :id is a PARAMETER — /products/42 puts '42' into it</i></span><span class="ln" data-l="14">  {</span><span class="ln" data-l="15"><span class="v0">    <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="products">products</b>/:<b class="nm nm-pub" data-nm="id">id</b>'</i>,</span><span class="v1">    <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="products">potato</b>/:<b class="nm nm-pub" data-nm="id">pickle</b>'</i>,</span></span><span class="ln" data-l="16"><span class="v0">    <b class="nm nm-ng" data-nm="loadComponent">loadComponent</b>: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./pages/product-detail'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type"><b class="nm nm-pub" data-nm="ProductDetail">ProductDetail</b></i>),</span><span class="v1">    <b class="nm nm-ng" data-nm="loadComponent">loadComponent</b>: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./pages/product-detail'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type"><b class="nm nm-pub" data-nm="ProductDetail">Turnip</b></i>),</span></span><span class="ln" data-l="17">  },</span><span class="ln" data-l="18"> </span><span class="ln" data-l="19"><span class="v0">  { <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="about">about</b>'</i>, <b class="nm nm-ng" data-nm="loadComponent">loadComponent</b>: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./pages/about'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type">About</i>) },</span><span class="v1">  { <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="about">mango</b>'</i>, <b class="nm nm-ng" data-nm="loadComponent">loadComponent</b>: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./pages/about'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type">About</i>) },</span></span><span class="ln" data-l="20"> </span><span class="ln" data-l="21">  <i class="t-com">// ** matches anything left over. it MUST be last.</i></span><span class="ln" data-l="22">  { <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">'<b class="nm nm-ng" data-nm="**">**</b>'</i>, <b class="nm nm-ng" data-nm="loadComponent">loadComponent</b>: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./pages/not-found'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type">NotFound</i>) },</span><span class="ln" data-l="23">];</span></pre>
       </div>
       <div class="fc" data-file="shell" data-lang="html">
         <div class="fc-h"><span class="d"></span>app.html<span class="tag"><span class="l-en">the layout</span><span class="l-ar" dir="auto">التخطيط</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;nav</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="2">  <i class="t-com">&lt;!-- routerLink does NOT reload the page. href does. --&gt;</i></span><span class="ln" data-l="3">  <i class="t-tag">&lt;a</i> <i class="t-attr">routerLink</i>=<i class="t-str">"/products"</i> <i class="t-attr">routerLinkActive</i>=<i class="t-str">"active"</i><i class="t-tag">&gt;</i>Products<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="4">  <i class="t-tag">&lt;a</i> <i class="t-attr">routerLink</i>=<i class="t-str">"/about"</i> <i class="t-attr">routerLinkActive</i>=<i class="t-str">"active"</i><i class="t-tag">&gt;</i>About<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5"> </span><span class="ln" data-l="6">  &lt;!-- exact match, so /products does not stay highlighted</span><span class="ln" data-l="7">       when you are on /products/42 --<i class="t-tag">&gt;</i></span><span class="ln" data-l="8">  <i class="t-tag">&lt;a</i> <i class="t-attr">routerLink</i>=<i class="t-str">"/"</i> <i class="t-attr">routerLinkActive</i>=<i class="t-str">"active"</i></span><span class="ln" data-l="9">     <i class="t-bind">[routerLinkActiveOptions]</i>=<i class="t-str">"{ exact: true }"</i><i class="t-tag">&gt;</i>Home<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">  <i class="t-com">&lt;!-- building a URL from parts --&gt;</i></span><span class="ln" data-l="12">  <i class="t-tag">&lt;a</i> <i class="t-bind">[routerLink]</i>=<i class="t-str">"['/products', product.id]"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ product.name }}</i><i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="13"> </span><span class="ln" data-l="14">  <i class="t-com">&lt;!-- with a query string: /products?sort=price&amp;page=2 --&gt;</i></span><span class="ln" data-l="15">  <i class="t-tag">&lt;a</i> <i class="t-attr">routerLink</i>=<i class="t-str">"/products"</i> <i class="t-bind">[queryParams]</i>=<i class="t-str">"{ sort: 'price', page: 2 }"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="16">    Cheapest first</span><span class="ln" data-l="17">  <i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="18"><i class="t-tag">&lt;/nav</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="19"> </span><span class="ln" data-l="20"><i class="t-com">&lt;!-- THE HOLE. the matched component is rendered right here. --&gt;</i></span><span class="ln" data-l="21"><i class="t-tag">&lt;router-outlet</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="22"> </span><span class="ln" data-l="23"><i class="t-tag">&lt;footer</i><i class="t-tag">&gt;</i>Always visible, on every page.<i class="t-tag">&lt;/footer</i><i class="t-tag">&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;nav</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="2">  <i class="t-com">&lt;!-- routerLink does NOT reload the page. href does. --&gt;</i></span><span class="ln" data-l="3"><span class="v0">  <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/<b class="nm nm-pub" data-nm="products">products</b>"</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLinkActive">routerLinkActive</b></i>=<i class="t-str">"<b class="nm nm-pub" data-nm="active">active</b>"</i><i class="t-tag">&gt;</i>Products<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/<b class="nm nm-pub" data-nm="products">potato</b>"</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLinkActive">routerLinkActive</b></i>=<i class="t-str">"<b class="nm nm-pub" data-nm="active">noodle</b>"</i><i class="t-tag">&gt;</i>Products<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="4"><span class="v0">  <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/<b class="nm nm-pub" data-nm="about">about</b>"</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLinkActive">routerLinkActive</b></i>=<i class="t-str">"<b class="nm nm-pub" data-nm="active">active</b>"</i><i class="t-tag">&gt;</i>About<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/<b class="nm nm-pub" data-nm="about">mango</b>"</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLinkActive">routerLinkActive</b></i>=<i class="t-str">"<b class="nm nm-pub" data-nm="active">noodle</b>"</i><i class="t-tag">&gt;</i>About<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="5"> </span><span class="ln" data-l="6">  &lt;!-- exact match, so /products does not stay highlighted</span><span class="ln" data-l="7">       when you are on /products/42 --<i class="t-tag">&gt;</i></span><span class="ln" data-l="8"><span class="v0">  <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/"</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLinkActive">routerLinkActive</b></i>=<i class="t-str">"<b class="nm nm-pub" data-nm="active">active</b>"</i></span><span class="v1">  <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/"</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLinkActive">routerLinkActive</b></i>=<i class="t-str">"<b class="nm nm-pub" data-nm="active">noodle</b>"</i></span></span><span class="ln" data-l="9">     <i class="t-bind">[<b class="nm nm-ng" data-nm="routerLinkActiveOptions">routerLinkActiveOptions</b>]</i>=<i class="t-str">"{ <b class="nm nm-ng" data-nm="exact">exact</b>: true }"</i><i class="t-tag">&gt;</i>Home<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">  <i class="t-com">&lt;!-- building a URL from parts --&gt;</i></span><span class="ln" data-l="12"><span class="v0">  <i class="t-tag">&lt;a</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="routerLink">routerLink</b>]</i>=<i class="t-str">"['/<b class="nm nm-pub" data-nm="products">products</b>', product.id]"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ product.name }}</i><i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;a</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="routerLink">routerLink</b>]</i>=<i class="t-str">"['/<b class="nm nm-pub" data-nm="products">potato</b>', product.id]"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ product.name }}</i><i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="13"> </span><span class="ln" data-l="14">  <i class="t-com">&lt;!-- with a query string: /products?sort=price&amp;page=2 --&gt;</i></span><span class="ln" data-l="15"><span class="v0">  <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/<b class="nm nm-pub" data-nm="products">products</b>"</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="queryParams">queryParams</b>]</i>=<i class="t-str">"{ <b class="nm nm-pub" data-nm="sort">sort</b>: 'price', page: 2 }"</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/<b class="nm nm-pub" data-nm="products">potato</b>"</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="queryParams">queryParams</b>]</i>=<i class="t-str">"{ <b class="nm nm-pub" data-nm="sort">waffle</b>: 'price', page: 2 }"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="16">    Cheapest first</span><span class="ln" data-l="17">  <i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="18"><i class="t-tag">&lt;/nav</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="19"> </span><span class="ln" data-l="20"><i class="t-com">&lt;!-- THE HOLE. the matched component is rendered right here. --&gt;</i></span><span class="ln" data-l="21"><i class="t-tag">&lt;<b class="nm nm-ng" data-nm="router-outlet">router-outlet</b></i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="22"> </span><span class="ln" data-l="23"><i class="t-tag">&lt;footer</i><i class="t-tag">&gt;</i>Always visible, on every page.<i class="t-tag">&lt;/footer</i><i class="t-tag">&gt;</i></span></pre>
       </div>
       <div class="fc" data-file="page" data-lang="ts">
         <div class="fc-h"><span class="d"></span>product-detail.ts<span class="tag"><span class="l-en">reading the URL</span><span class="l-ar" dir="auto">قراية الـ URL</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-dec">@Component</i>({ selector: <i class="t-str">'app-product-detail'</i>, template: <i class="t-str">`…`</i> })</span><span class="ln" data-l="2"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">ProductDetail</i> {</span><span class="ln" data-l="3">  <i class="t-com">// with withComponentInputBinding(), the router fills these</i></span><span class="ln" data-l="4">  <i class="t-com">// straight from the URL. no ActivatedRoute needed.</i></span><span class="ln" data-l="5">  <i class="t-key">readonly</i> id = input.required&lt;<i class="t-key">string</i>&gt;();      <i class="t-com">// from  /products/:id</i></span><span class="ln" data-l="6">  <i class="t-key">readonly</i> sort = <i class="t-fn">input</i>(<i class="t-str">'name'</i>);               <i class="t-com">// from  ?sort=</i></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-com">// and because it is a signal, navigating from /products/1</i></span><span class="ln" data-l="9">  <i class="t-com">// to /products/2 just changes the value — the component</i></span><span class="ln" data-l="10">  <i class="t-com">// is reused and everything downstream updates.</i></span><span class="ln" data-l="11">  <i class="t-key">readonly</i> product = <i class="t-fn">computed</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">lookup</i>(<i class="t-key">this</i>.<i class="t-fn">id</i>()));</span><span class="ln" data-l="12">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-dec">@Component</i>({ selector: <i class="t-str">'app-product-detail'</i>, template: <i class="t-str">`…`</i> })</span><span class="ln" data-l="2"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="ProductDetail">ProductDetail</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="ProductDetail">Turnip</b></i> {</span></span><span class="ln" data-l="3">  <i class="t-com">// with withComponentInputBinding(), the router fills these</i></span><span class="ln" data-l="4">  <i class="t-com">// straight from the URL. no ActivatedRoute needed.</i></span><span class="ln" data-l="5"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="id">id</b> = <b class="nm nm-ng" data-nm="input">input</b>.required&lt;<i class="t-key">string</i>&gt;();      <i class="t-com">// from  /products/:id</i></span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="id">pickle</b> = <b class="nm nm-ng" data-nm="input">input</b>.required&lt;<i class="t-key">string</i>&gt;();      <i class="t-com">// from  /products/:id</i></span></span><span class="ln" data-l="6"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="sort">sort</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-str">'name'</i>);               <i class="t-com">// from  ?sort=</i></span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="sort">waffle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-str">'name'</i>);               <i class="t-com">// from  ?sort=</i></span></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-com">// and because it is a signal, navigating from /products/1</i></span><span class="ln" data-l="9">  <i class="t-com">// to /products/2 just changes the value — the component</i></span><span class="ln" data-l="10">  <i class="t-com">// is reused and everything downstream updates.</i></span><span class="ln" data-l="11"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="product">product</b> = <i class="t-fn">computed</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="lookup">lookup</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="id">id</b></i>()));</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="product">muffin</b> = <i class="t-fn">computed</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="lookup">taco</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="id">pickle</b></i>()));</span></span><span class="ln" data-l="12">}</span></pre>
       </div>
       <div class="fc" data-file="ts" data-lang="ts">
         <div class="fc-h"><span class="d"></span>login.ts<span class="tag"><span class="l-en">navigating in code</span><span class="l-ar" dir="auto">التنقل بالكود</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Login</i> {</span><span class="ln" data-l="2">  <i class="t-key">private</i> <i class="t-key">readonly</i> router = <i class="t-fn">inject</i>(<i class="t-type">Router</i>);</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">  <i class="t-key">async</i> <i class="t-fn">submit</i>() {</span><span class="ln" data-l="5">    <i class="t-key">await</i> <i class="t-key">this</i>.api.<i class="t-fn">signIn</i>(<i class="t-key">this</i>.<i class="t-fn">email</i>(), <i class="t-key">this</i>.<i class="t-fn">password</i>());</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">    <i class="t-com">// a plain URL</i></span><span class="ln" data-l="8">    <i class="t-key">this</i>.router.<i class="t-fn">navigateByUrl</i>(<i class="t-str">'/products'</i>);</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10">    <i class="t-com">// built from parts — safer, it escapes for you</i></span><span class="ln" data-l="11">    <i class="t-key">this</i>.router.<i class="t-fn">navigate</i>([<i class="t-str">'/products'</i>, id]);</span><span class="ln" data-l="12"> </span><span class="ln" data-l="13">    <i class="t-com">// with a query string</i></span><span class="ln" data-l="14">    <i class="t-key">this</i>.router.<i class="t-fn">navigate</i>([<i class="t-str">'/products'</i>], { queryParams: { sort: <i class="t-str">'price'</i> } });</span><span class="ln" data-l="15"> </span><span class="ln" data-l="16">    <i class="t-com">// replace history so Back does not return to the login form</i></span><span class="ln" data-l="17">    <i class="t-key">this</i>.router.<i class="t-fn">navigate</i>([<i class="t-str">'/'</i>], { replaceUrl: <i class="t-key">true</i> });</span><span class="ln" data-l="18">  }</span><span class="ln" data-l="19">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Login</i> {</span><span class="ln" data-l="2"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="router">router</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="Router">Router</b></i>);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="router">kiwi</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="Router">Router</b></i>);</span></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">  <i class="t-key">async</i> <i class="t-fn">submit</i>() {</span><span class="ln" data-l="5">    <i class="t-key">await</i> <i class="t-key">this</i>.api.<i class="t-fn">signIn</i>(<i class="t-key">this</i>.<i class="t-fn">email</i>(), <i class="t-key">this</i>.<i class="t-fn">password</i>());</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">    <i class="t-com">// a plain URL</i></span><span class="ln" data-l="8"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="router">router</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="navigateByUrl">navigateByUrl</b></i>(<i class="t-str">'/<b class="nm nm-pub" data-nm="products">products</b>'</i>);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="router">kiwi</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="navigateByUrl">navigateByUrl</b></i>(<i class="t-str">'/<b class="nm nm-pub" data-nm="products">potato</b>'</i>);</span></span><span class="ln" data-l="9"> </span><span class="ln" data-l="10">    <i class="t-com">// built from parts — safer, it escapes for you</i></span><span class="ln" data-l="11"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="router">router</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="navigate">navigate</b></i>([<i class="t-str">'/<b class="nm nm-pub" data-nm="products">products</b>'</i>, id]);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="router">kiwi</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="navigate">navigate</b></i>([<i class="t-str">'/<b class="nm nm-pub" data-nm="products">potato</b>'</i>, id]);</span></span><span class="ln" data-l="12"> </span><span class="ln" data-l="13">    <i class="t-com">// with a query string</i></span><span class="ln" data-l="14"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="router">router</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="navigate">navigate</b></i>([<i class="t-str">'/<b class="nm nm-pub" data-nm="products">products</b>'</i>], { <b class="nm nm-ng" data-nm="queryParams">queryParams</b>: { <b class="nm nm-pub" data-nm="sort">sort</b>: <i class="t-str">'price'</i> } });</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="router">kiwi</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="navigate">navigate</b></i>([<i class="t-str">'/<b class="nm nm-pub" data-nm="products">potato</b>'</i>], { <b class="nm nm-ng" data-nm="queryParams">queryParams</b>: { <b class="nm nm-pub" data-nm="sort">waffle</b>: <i class="t-str">'price'</i> } });</span></span><span class="ln" data-l="15"> </span><span class="ln" data-l="16">    <i class="t-com">// replace history so Back does not return to the login form</i></span><span class="ln" data-l="17"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="router">router</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="navigate">navigate</b></i>([<i class="t-str">'/'</i>], { <b class="nm nm-ng" data-nm="replaceUrl">replaceUrl</b>: <i class="t-key">true</i> });</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="router">kiwi</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="navigate">navigate</b></i>([<i class="t-str">'/'</i>], { <b class="nm nm-ng" data-nm="replaceUrl">replaceUrl</b>: <i class="t-key">true</i> });</span></span><span class="ln" data-l="18">  }</span><span class="ln" data-l="19">}</span></pre>
       </div>
       <div class="fc" data-file="cfg" data-lang="ts">
         <div class="fc-h"><span class="d"></span>app.config.ts<span class="tag"><span class="l-en">turning it on</span><span class="l-ar" dir="auto">التشغيل</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { provideRouter, withComponentInputBinding } <i class="t-key">from</i> <i class="t-str">'@angular/router'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3">providers: [</span><span class="ln" data-l="4">  <i class="t-fn">provideRouter</i>(routes, <i class="t-fn">withComponentInputBinding</i>()),</span><span class="ln" data-l="5">]</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">// and in app.ts:</i></span><span class="ln" data-l="8"><i class="t-com">// imports: [RouterOutlet, RouterLink, RouterLinkActive]</i></span><span class="ln" data-l="9"><i class="t-com">//</i></span><span class="ln" data-l="10"><i class="t-com">// these three are components/directives like any other —</i></span><span class="ln" data-l="11"><i class="t-com">// forget them and the tags silently do nothing.</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <b class="nm nm-ng" data-nm="provideRouter">provideRouter</b>, <b class="nm nm-ng" data-nm="withComponentInputBinding">withComponentInputBinding</b> } <i class="t-key">from</i> <i class="t-str">'@angular/router'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3">providers: [</span><span class="ln" data-l="4"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="provideRouter">provideRouter</b></i>(<b class="nm nm-pub" data-nm="routes">routes</b>, <i class="t-fn"><b class="nm nm-ng" data-nm="withComponentInputBinding">withComponentInputBinding</b></i>()),</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="provideRouter">provideRouter</b></i>(<b class="nm nm-pub" data-nm="routes">banana</b>, <i class="t-fn"><b class="nm nm-ng" data-nm="withComponentInputBinding">withComponentInputBinding</b></i>()),</span></span><span class="ln" data-l="5">]</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">// and in app.ts:</i></span><span class="ln" data-l="8"><i class="t-com">// imports: [RouterOutlet, RouterLink, RouterLinkActive]</i></span><span class="ln" data-l="9"><i class="t-com">//</i></span><span class="ln" data-l="10"><i class="t-com">// these three are components/directives like any other —</i></span><span class="ln" data-l="11"><i class="t-com">// forget them and the tags silently do nothing.</i></span></pre>
       </div></div>
 
   
@@ -692,13 +781,231 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="md1" data-lang="html">
         <div class="fc-h"><span class="d"></span>products.html<span class="tag"><span class="l-en">the list</span><span class="l-ar" dir="auto">اللستة</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">@for</i> (p of products(); track p.id) {</span><span class="ln" data-l="2">  <i class="t-tag">&lt;a</i> <i class="t-bind">[routerLink]</i>=<i class="t-str">"['/products', p.id]"</i> <i class="t-attr">class</i>=<i class="t-str">"card"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="3">    <i class="t-tag">&lt;h3</i><i class="t-tag">&gt;</i><i class="t-bind">{{ p.name }}</i><i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="4">    <i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i><i class="t-bind">{{ p.price | currency:'EGP' }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5">  <i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">@for</i> (p of products(); track p.id) {</span><span class="ln" data-l="2"><span class="v0">  <i class="t-tag">&lt;a</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="routerLink">routerLink</b>]</i>=<i class="t-str">"['/<b class="nm nm-pub" data-nm="products">products</b>', p.id]"</i> <i class="t-attr">class</i>=<i class="t-str">"card"</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;a</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="routerLink">routerLink</b>]</i>=<i class="t-str">"['/<b class="nm nm-pub" data-nm="products">potato</b>', p.id]"</i> <i class="t-attr">class</i>=<i class="t-str">"card"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="3">    <i class="t-tag">&lt;h3</i><i class="t-tag">&gt;</i><i class="t-bind">{{ p.name }}</i><i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="4">    <i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i><i class="t-bind">{{ p.price | currency:'EGP' }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5">  <i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6">}</span></pre>
       </div>
       <div class="fc" data-file="md2" data-lang="html">
         <div class="fc-h"><span class="d"></span>product-detail.html<span class="tag"><span class="l-en">the detail</span><span class="l-ar" dir="auto">التفاصيل</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">@if</i> (product(); as p) {</span><span class="ln" data-l="2">  <i class="t-tag">&lt;a</i> <i class="t-attr">routerLink</i>=<i class="t-str">"/products"</i><i class="t-tag">&gt;</i>← All products<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="3">  <i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ p.name }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="4">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ p.description }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5">  <i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"addToCart(p)"</i><i class="t-tag">&gt;</i>Add to cart<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6">} <i class="t-key">@else</i> {</span><span class="ln" data-l="7">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i>That product does not exist. <i class="t-tag">&lt;a</i> <i class="t-attr">routerLink</i>=<i class="t-str">"/products"</i><i class="t-tag">&gt;</i>Go back<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="8">}</span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-key">@if</i> (<b class="nm nm-mine" data-nm="product">product</b>(); as p) {</span><span class="v1"><i class="t-key">@if</i> (<b class="nm nm-mine" data-nm="product">muffin</b>(); as p) {</span></span><span class="ln" data-l="2"><span class="v0">  <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/<b class="nm nm-pub" data-nm="products">products</b>"</i><i class="t-tag">&gt;</i>← All products<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/<b class="nm nm-pub" data-nm="products">potato</b>"</i><i class="t-tag">&gt;</i>← All products<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="3">  <i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ p.name }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="4">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ p.description }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5">  <i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"addToCart(p)"</i><i class="t-tag">&gt;</i>Add to cart<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6">} <i class="t-key">@else</i> {</span><span class="ln" data-l="7"><span class="v0">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i>That product does not exist. <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/<b class="nm nm-pub" data-nm="products">products</b>"</i><i class="t-tag">&gt;</i>Go back<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i>That product does not exist. <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/<b class="nm nm-pub" data-nm="products">potato</b>"</i><i class="t-tag">&gt;</i>Go back<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="8">}</span></pre>
       </div></div>
   </div>
+
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">A route path is a name you invent, but it is typed in many places: the route table, every <code>routerLink</code> and every <code>navigate()</code>. Rename it in one place only and the link lands on the <code>**</code> page. Nothing warns you.</span><span class="l-ar" dir="auto">مسار الـ route اسم انت بتخترعه، بس بيتكتب في أماكن كتير: جدول الـ routes، وكل <code>routerLink</code>، وكل <code>navigate()</code>. لو غيّرته في مكان واحد بس اللينك هيوديك على صفحة الـ <code>**</code>. ومحدش هيحذّرك.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="Routes">
+        <td><b class="nm nm-ng" data-nm="Routes">Routes</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s type for a route table.</span><span class="l-ar" dir="auto">الـ type بتاع أنجولار لجدول الـ routes.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="path">
+        <td><b class="nm nm-ng" data-nm="path">path</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route option key Angular reads. The string you give it is yours.</span><span class="l-ar" dir="auto">مفتاح إعداد في الـ route أنجولار بيقراه. النص اللي بتديهوله بتاعك.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="pathMatch">
+        <td><b class="nm nm-ng" data-nm="pathMatch">pathMatch</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route option key Angular reads.</span><span class="l-ar" dir="auto">مفتاح إعداد في الـ route أنجولار بيقراه.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="full">
+        <td><b class="nm nm-ng" data-nm="full">full</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">One of the two values <code>pathMatch</code> accepts (the other is <code>prefix</code>).</span><span class="l-ar" dir="auto">واحدة من القيمتين اللي <code>pathMatch</code> بيقبلهم (التانية <code>prefix</code>).</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="redirectTo">
+        <td><b class="nm nm-ng" data-nm="redirectTo">redirectTo</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route option key Angular reads.</span><span class="l-ar" dir="auto">مفتاح إعداد في الـ route أنجولار بيقراه.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="title">
+        <td><b class="nm nm-ng" data-nm="title">title</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route option key: Angular puts its value in the browser tab.</span><span class="l-ar" dir="auto">مفتاح إعداد في الـ route: أنجولار بيحط قيمته في تاب المتصفح.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="loadComponent">
+        <td><b class="nm nm-ng" data-nm="loadComponent">loadComponent</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route option key for a lazily loaded component.</span><span class="l-ar" dir="auto">مفتاح إعداد في الـ route لـ component بيتحمّل وقت ما يتطلب.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="**">
+        <td><b class="nm nm-ng" data-nm="**">**</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The router’s wildcard: matches any URL nothing above it matched.</span><span class="l-ar" dir="auto">الـ wildcard بتاع الـ router: بيطابق أي URL محدش فوقه طابقه.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="routerLink">
+        <td><b class="nm nm-ng" data-nm="routerLink">routerLink</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s directive that navigates without reloading the page.</span><span class="l-ar" dir="auto">الـ directive بتاع أنجولار اللي بيتنقل من غير ما يعمل reload للصفحة.</span></td>
+        <td class="nmfiles"><code>app.html</code> <code>products.html</code> <code>product-detail.html</code></td>
+      </tr>
+      <tr data-nmrow="routerLinkActive">
+        <td><b class="nm nm-ng" data-nm="routerLinkActive">routerLinkActive</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s directive that adds a CSS class while the link is the current page. The class name you give it is yours.</span><span class="l-ar" dir="auto">الـ directive بتاع أنجولار اللي بيحط CSS class طول ما اللينك هو الصفحة الحالية. اسم الـ class اللي بتديهوله بتاعك.</span></td>
+        <td class="nmfiles"><code>app.html</code></td>
+      </tr>
+      <tr data-nmrow="routerLinkActiveOptions">
+        <td><b class="nm nm-ng" data-nm="routerLinkActiveOptions">routerLinkActiveOptions</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An input of Angular’s <code>routerLinkActive</code>.</span><span class="l-ar" dir="auto">input في <code>routerLinkActive</code> بتاع أنجولار.</span></td>
+        <td class="nmfiles"><code>app.html</code></td>
+      </tr>
+      <tr data-nmrow="exact">
+        <td><b class="nm nm-ng" data-nm="exact">exact</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key <code>routerLinkActive</code> reads.</span><span class="l-ar" dir="auto">مفتاح إعداد <code>routerLinkActive</code> بيقراه.</span></td>
+        <td class="nmfiles"><code>app.html</code></td>
+      </tr>
+      <tr data-nmrow="queryParams">
+        <td><b class="nm nm-ng" data-nm="queryParams">queryParams</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s name for the <code>?key=value</code> part, both on <code>routerLink</code> and in <code>navigate()</code>. The keys inside are yours.</span><span class="l-ar" dir="auto">اسم أنجولار لجزء <code>?key=value</code>، في <code>routerLink</code> وفي <code>navigate()</code>. المفاتيح اللي جواه بتاعتك.</span></td>
+        <td class="nmfiles"><code>app.html</code> <code>login.ts</code></td>
+      </tr>
+      <tr data-nmrow="router-outlet">
+        <td><b class="nm nm-ng" data-nm="router-outlet">router-outlet</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s tag: the hole the matched page is drawn into.</span><span class="l-ar" dir="auto">تاج أنجولار: الفتحة اللي الصفحة المطابقة بتترسم فيها.</span></td>
+        <td class="nmfiles"><code>app.html</code></td>
+      </tr>
+      <tr data-nmrow="input">
+        <td><b class="nm nm-ng" data-nm="input">input</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that creates an input.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتعمل input.</span></td>
+        <td class="nmfiles"><code>product-detail.ts</code></td>
+      </tr>
+      <tr data-nmrow="withComponentInputBinding">
+        <td><b class="nm nm-ng" data-nm="withComponentInputBinding">withComponentInputBinding</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s router feature that fills inputs from the URL, matching them by name.</span><span class="l-ar" dir="auto">ميزة في الـ router بتاع أنجولار بتملا الـ inputs من الـ URL، وبتطابقهم بالاسم.</span></td>
+        <td class="nmfiles"><code>app.config.ts</code></td>
+      </tr>
+      <tr data-nmrow="provideRouter">
+        <td><b class="nm nm-ng" data-nm="provideRouter">provideRouter</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that switches the router on.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتشغّل الـ router.</span></td>
+        <td class="nmfiles"><code>app.config.ts</code></td>
+      </tr>
+      <tr data-nmrow="Router">
+        <td><b class="nm nm-ng" data-nm="Router">Router</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s router service.</span><span class="l-ar" dir="auto">الـ service بتاعة الـ router في أنجولار.</span></td>
+        <td class="nmfiles"><code>login.ts</code></td>
+      </tr>
+      <tr data-nmrow="inject">
+        <td><b class="nm nm-ng" data-nm="inject">inject</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that hands you a service.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتديك service.</span></td>
+        <td class="nmfiles"><code>login.ts</code></td>
+      </tr>
+      <tr data-nmrow="navigate">
+        <td><b class="nm nm-ng" data-nm="navigate">navigate</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A <code>Router</code> method that takes the URL in parts.</span><span class="l-ar" dir="auto">ميثود في الـ <code>Router</code> بتاخد الـ URL أجزاء.</span></td>
+        <td class="nmfiles"><code>login.ts</code></td>
+      </tr>
+      <tr data-nmrow="navigateByUrl">
+        <td><b class="nm nm-ng" data-nm="navigateByUrl">navigateByUrl</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A <code>Router</code> method that takes the whole URL as one string.</span><span class="l-ar" dir="auto">ميثود في الـ <code>Router</code> بتاخد الـ URL كله نص واحد.</span></td>
+        <td class="nmfiles"><code>login.ts</code></td>
+      </tr>
+      <tr data-nmrow="replaceUrl">
+        <td><b class="nm nm-ng" data-nm="replaceUrl">replaceUrl</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A navigation option key Angular reads.</span><span class="l-ar" dir="auto">مفتاح إعداد في التنقل أنجولار بيقراه.</span></td>
+        <td class="nmfiles"><code>login.ts</code></td>
+      </tr>
+      <tr data-nmrow="routes">
+        <td><b class="nm nm-pub" data-nm="routes">routes</b><span class="nmas">&rarr; <code>banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your route table. <code>app.config.ts</code> imports it by this name.</span><span class="l-ar" dir="auto">جدول الـ routes بتاعك. <code>app.config.ts</code> بيعمله import بالاسم ده.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code> <code>app.config.ts</code></td>
+      </tr>
+      <tr data-nmrow="products">
+        <td><b class="nm nm-pub" data-nm="products">products</b><span class="nmas">&rarr; <code>potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A URL segment you invented. The route path, every <code>routerLink</code> and every <code>navigate()</code> must spell it the same. The <code>products()</code> signal and the <code>./pages/products</code> file are different things.</span><span class="l-ar" dir="auto">جزء من الـ URL انت اخترعته. مسار الـ route وكل <code>routerLink</code> وكل <code>navigate()</code> لازم يكتبوه زي بعض. والـ signal <code>products()</code> والملف <code>./pages/products</code> حاجات تانية.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code> <code>app.html</code> <code>login.ts</code> <code>products.html</code> <code>product-detail.html</code></td>
+      </tr>
+      <tr data-nmrow="about">
+        <td><b class="nm nm-pub" data-nm="about">about</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A URL segment: the route path and the link must match.</span><span class="l-ar" dir="auto">جزء من الـ URL: مسار الـ route واللينك لازم يطابقوا بعض.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code> <code>app.html</code></td>
+      </tr>
+      <tr data-nmrow="id">
+        <td><b class="nm nm-pub" data-nm="id">id</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The route parameter. With <code>withComponentInputBinding()</code> the input must be named exactly like <code>:id</code> in the path.</span><span class="l-ar" dir="auto">الـ parameter بتاع الـ route. مع <code>withComponentInputBinding()</code> الـ input لازم اسمه يبقى زي <code>:id</code> في المسار بالظبط.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code> <code>product-detail.ts</code></td>
+      </tr>
+      <tr data-nmrow="sort">
+        <td><b class="nm nm-pub" data-nm="sort">sort</b><span class="nmas">&rarr; <code>waffle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A query parameter. Whoever builds the link and the page that reads it with <code>input()</code> must use the same key.</span><span class="l-ar" dir="auto">query parameter. اللي بيبني اللينك والصفحة اللي بتقراه بـ <code>input()</code> لازم يستخدموا نفس المفتاح.</span></td>
+        <td class="nmfiles"><code>app.html</code> <code>product-detail.ts</code> <code>login.ts</code></td>
+      </tr>
+      <tr data-nmrow="active">
+        <td><b class="nm nm-pub" data-nm="active">active</b><span class="nmas">&rarr; <code>noodle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your CSS class name. The stylesheet must style the same name.</span><span class="l-ar" dir="auto">اسم الـ CSS class بتاعك. الـ stylesheet لازم يستايل نفس الاسم.</span></td>
+        <td class="nmfiles"><code>app.html</code></td>
+      </tr>
+      <tr data-nmrow="Products">
+        <td><b class="nm nm-pub" data-nm="Products">Products</b><span class="nmas">&rarr; <code>Pumpkin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The page’s class name. The <code>m.Products</code> in the lazy import must match its export.</span><span class="l-ar" dir="auto">اسم كلاس الصفحة. الـ <code>m.Products</code> في الـ lazy import لازم يطابق الـ export بتاعه.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="ProductDetail">
+        <td><b class="nm nm-pub" data-nm="ProductDetail">ProductDetail</b><span class="nmas">&rarr; <code>Turnip</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The detail page’s class name, picked out of the lazy import by name.</span><span class="l-ar" dir="auto">اسم كلاس صفحة التفاصيل، بيتاخد من الـ lazy import بالاسم.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code> <code>product-detail.ts</code></td>
+      </tr>
+      <tr data-nmrow="product">
+        <td><b class="nm nm-mine" data-nm="product">product</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The detail page’s own computed, read by its own template.</span><span class="l-ar" dir="auto">الـ computed بتاع صفحة التفاصيل، والتمبلت بتاعها بيقراه.</span></td>
+        <td class="nmfiles"><code>product-detail.ts</code> <code>product-detail.html</code></td>
+      </tr>
+      <tr data-nmrow="lookup">
+        <td><b class="nm nm-mine" data-nm="lookup">lookup</b><span class="nmas">&rarr; <code>taco</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The page’s own method.</span><span class="l-ar" dir="auto">ميثود الصفحة نفسها.</span></td>
+        <td class="nmfiles"><code>product-detail.ts</code></td>
+      </tr>
+      <tr data-nmrow="router">
+        <td><b class="nm nm-mine" data-nm="router">router</b><span class="nmas">&rarr; <code>kiwi</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The field you store the injected <code>Router</code> in.</span><span class="l-ar" dir="auto">الـ field اللي بتحط فيه الـ <code>Router</code> اللي اتعمله inject.</span></td>
+        <td class="nmfiles"><code>login.ts</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="basic-routing-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en">Routing, name by name</span><span class="l-ar" dir="auto">الـ routing، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">The page for when routes, links and params feel like a guessing game. One product list and one product page, followed from the click to the page that appears, every name coloured: the router’s words, your URL words, and the names that must match across files with nothing to check them.</span><span class="l-ar" dir="auto">الصفحة دي للي حاسس إن الـ routes واللينكات والـ params لعبة تخمين. ليستة منتجات وصفحة منتج، ماشيين وراهم من الكليك لحد الصفحة اللي بتظهر، وكل اسم ملوّن: كلمات الراوتر، وكلمات الـ URL بتاعتك، والأسماء اللي لازم تطابق بين الملفات ومحدش بيتأكد منها.</span></span>
+  </a>
 
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
@@ -798,8 +1105,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../beginner/12-lifecycle.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">Lifecycle: what runs, and when</span><span class="l-ar" dir="auto">دورة الحياة: إيه اللي بيشتغل، وإمتى</span></b></a>
-    <a class="nx" href="../beginner/14-template-driven-forms.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Template-driven forms with <code>ngModel</code></span><span class="l-ar" dir="auto">الفورمز من التمبلت بـ <code>ngModel</code></span></b></a>
+    <a class="pv" href="../beginner/lifecycle-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">Lifecycle, name by name</span><span class="l-ar" dir="auto">دورة الحياة، اسم اسم</span></b></a>
+    <a class="nx" href="../beginner/basic-routing-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Routing, name by name</span><span class="l-ar" dir="auto">الـ routing، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -841,6 +1148,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){

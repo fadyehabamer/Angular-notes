@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Template syntax, name by name — The Angular Signal</title>
+<meta name="description" content="The idea is simple: a template is HTML that can read your class. {{ }} prints, [ ] sets, ( ) listens, # labels. The confusing part is the names. In one line like (click)="rename(bo">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Cairo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--c:var(--beg)}
+/* ============================================================
+   Two skins, one set of names. Light is the default; the top-bar
+   switch stamps data-theme="dark" on the root element, and only the
+   below change. Never hard-code a colour outside these blocks.
+   ============================================================ */
+:root{
+  color-scheme:light;
+  /* surfaces */
+  --bg:#f3f4fb; --bg2:#eaecf7; --card:#ffffff; --card2:#f7f8fd; --code:#fbfbff;
+  --line:rgba(23,27,64,.14); --line2:rgba(23,27,64,.08);
+  --sunk:rgba(23,27,64,.03); --sunk2:rgba(23,27,64,.05); --hover:rgba(23,27,64,.05);
+  --chip:rgba(23,27,64,.065); --chipink:#3a3f70;
+  --topbg:rgba(248,249,254,.84);
+  --wire:rgba(23,27,64,.24); --dotbg:rgba(23,27,64,.17);
+  --nodesh:0 12px 26px -20px rgba(23,27,64,.55), inset 0 1px 0 #fff;
+  --glow1:9%; --glow2:5%;
+  /* ink */
+  --ink:#12142c; --mut:#4d5480; --dim:#767d9f; --onc:#ffffff;
+  --ok:#0a8f5b; --no:#c62348;   /* quiz: right / wrong */
+  /* track accents — darkened so they carry on paper */
+  --beg:#0c9280;    /* track 1 */
+  --int:#5b3ad4;    /* track 2 */
+  --adv:#c60059;    /* track 3 */
+  --ts:#1566cc; --js:#9a6410; --html:#c04d1a; --svc:#8a5f00; --cfg:#5b3ad4;
+  /* syntax */
+  --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
+  --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
+  --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
+  --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0b0d1c; --bg2:#101430; --card:#141935; --card2:#171d3d; --code:transparent;
+  --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.055);
+  --sunk:rgba(255,255,255,.03); --sunk2:rgba(255,255,255,.05); --hover:rgba(255,255,255,.04);
+  --chip:rgba(255,255,255,.07); --chipink:#cfd6ff;
+  --topbg:rgba(8,10,22,.72);
+  --wire:rgba(255,255,255,.13); --dotbg:rgba(255,255,255,.16);
+  --nodesh:0 10px 26px -18px #000, inset 0 1px 0 rgba(255,255,255,.05);
+  --glow1:16%; --glow2:8%;
+  --ink:#eceefb; --mut:#98a0c8; --dim:#69719e; --onc:#0b0d1c;
+  --ok:#3ddc97; --no:#ff5470;
+  --beg:#2ee6c5; --int:#8b6cff; --adv:#ff2e88;
+  --ts:#4a9eff; --js:#ffc857; --html:#ff7a45; --svc:#ffb020; --cfg:#8b6cff;
+  --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
+  --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
+  --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:
+    radial-gradient(1100px 700px at 78% -10%,color-mix(in srgb,var(--c) var(--glow1),transparent),transparent 62%),
+    radial-gradient(900px 600px at 4% 108%,color-mix(in srgb,var(--adv) var(--glow2),transparent),transparent 62%),
+    var(--bg);
+  color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--c);color:var(--onc)}
+:focus-visible{outline:2px solid var(--c);outline-offset:3px;border-radius:6px}
+a{color:var(--c)}
+code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+
+/* ---------- language ---------- */
+:root[data-lang="en"] .l-ar{display:none !important}
+:root[data-lang="ar"] .l-en{display:none !important}
+:root[dir="rtl"]{
+  --disp:'Cairo','IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+}
+:root[dir="rtl"] h1.title{line-height:1.32;letter-spacing:0}
+:root[dir="rtl"] .lead{font-size:15px;line-height:1.75}
+:root[dir="rtl"] .num,:root[dir="rtl"] .badge{letter-spacing:.04em}
+/* keep neighbouring runs from reordering each other in RTL */
+.kick span,.cover-top span{unicode-bidi:isolate}
+/* diagrams and code always read left-to-right */
+.stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
+
+/* ---------- top bar ---------- */
+.top{
+  position:sticky;top:0;z-index:40;background:var(--topbg);
+  backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);
+  border-bottom:1px solid var(--line2);
+}
+.top-in{
+  max-width:1220px;margin:0 auto;padding:9px clamp(16px,3.4vw,40px);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.home{
+  display:inline-flex;align-items:baseline;gap:9px;text-decoration:none;white-space:nowrap;
+}
+.home b{
+  font-family:var(--disp);font-weight:800;font-size:15.5px;letter-spacing:-.02em;
+  background:linear-gradient(92deg,#e40035,#f20089 45%,#9717e2);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.home span{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase}
+.tracknav{display:flex;gap:4px;flex-wrap:wrap;margin-inline-start:6px}
+.tracknav a{
+  font-size:12.5px;font-weight:600;text-decoration:none;color:var(--dim);
+  padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.tracknav a i{width:7px;height:7px;border-radius:99px;background:currentColor;display:block;flex:none}
+.tracknav a:hover{color:var(--mut);background:var(--hover)}
+.tracknav a[aria-current="page"]{color:var(--onc);background:var(--c)}
+.top-right{display:flex;align-items:center;gap:8px;margin-inline-start:auto}
+.seg{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:var(--hover)}
+.seg button{
+  appearance:none;border:0;background:none;cursor:pointer;padding:5px 12px;
+  font-family:var(--body);font-size:12.5px;font-weight:600;color:var(--dim);line-height:1.5;
+}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--c);color:var(--onc)}
+
+/* ---------- article shell ---------- */
+.page{max-width:1220px;margin:0 auto;padding:clamp(24px,3.6vw,44px) clamp(16px,3.4vw,40px) 0}
+.eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.num{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.16em}
+/* a numeric counter must not be reordered by the bidi algorithm */
+.num.seq{direction:ltr;unicode-bidi:isolate}
+:root[dir="rtl"] .num:not(.seq){font-family:var(--body);letter-spacing:0;font-size:12.5px}
+.badge{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;border:1px solid currentColor;color:var(--c);
+  background:color-mix(in srgb,var(--c) 12%,transparent);
+}
+:root[dir="rtl"] .badge{font-family:var(--body);font-weight:600;text-transform:none;font-size:11.5px}
+h1.title{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.03em;line-height:1.02;
+  font-size:clamp(28px,4vw,46px);margin:0 0 10px;text-wrap:balance;
+}
+h1.title code{font-family:var(--mono);font-size:.82em;font-weight:600;color:var(--c);letter-spacing:0}
+.lead{color:var(--mut);max-width:74ch;margin:0 0 22px;font-size:15.5px;text-wrap:pretty}
+.lead b{color:var(--ink);font-weight:600}
+
+/* ---------- stage / diagram ---------- */
+.stage{position:relative;margin:6px 0 4px;padding:26px 8px;display:flex;flex-direction:column;gap:74px}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.row{display:flex;justify-content:center;gap:clamp(92px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
+.node{
+  background:linear-gradient(180deg,var(--card2),var(--card));
+  border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:172px;
+  box-shadow:var(--nodesh);
+  transition:border-color .3s,box-shadow .3s,transform .3s;
+}
+.node .role{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:3px;font-family:var(--mono)}
+:root[dir="rtl"] .node .role{font-family:var(--body);font-size:11px;letter-spacing:0;text-transform:none}
+:root[dir="rtl"] .home span{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .fc-h .tag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .pager a em{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .stepbar .cap span.n{direction:ltr;unicode-bidi:isolate}
+.node .file{font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--ink);white-space:nowrap;display:block}
+.node[data-kind="ts"] .file b{color:var(--ts)}
+.node[data-kind="html"] .file b{color:var(--html)}
+.node[data-kind="svc"] .file b{color:var(--svc)}
+.node[data-kind="cfg"] .file b{color:var(--cfg)}
+.node.active{border-color:color-mix(in srgb,var(--c) 65%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent),0 0 34px -8px var(--c);transform:translateY(-2px)}
+.edge path.wire{fill:none;stroke:var(--wire);stroke-width:1.6}
+.edge path.head{fill:var(--wire);stroke:none}
+.edge.lit path.head{fill:var(--c)}
+.edge path.flow{fill:none;stroke:var(--c);stroke-width:2.2;stroke-dasharray:5 9;opacity:0;stroke-linecap:round}
+.edge.lit path.wire{stroke:color-mix(in srgb,var(--c) 40%,transparent)}
+.edge.lit path.flow{opacity:1;animation:march 1s linear infinite}
+@keyframes march{to{stroke-dashoffset:-28}}
+.edge text{font-family:var(--mono);font-size:10.5px;fill:var(--dim);paint-order:stroke;stroke:var(--bg);stroke-width:5px;stroke-linejoin:round}
+.edge.lit text{fill:var(--c)}
+.packet{opacity:0}
+.packet rect{fill:var(--c)}
+.packet text{font-family:var(--mono);font-size:11px;font-weight:600;fill:var(--onc);stroke:none}
+
+/* ---------- step bar ---------- */
+.stepbar{
+  display:flex;align-items:center;gap:14px;margin:8px 0 22px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk);
+}
+.stepbar .dots{display:flex;gap:6px;flex-shrink:0}
+.stepbar .dot{width:7px;height:7px;border-radius:99px;background:var(--dotbg);cursor:pointer;border:0;padding:0;transition:.2s}
+.stepbar .dot.on{background:var(--c);box-shadow:0 0 10px -1px var(--c);transform:scale(1.25)}
+.stepbar .cap{flex:1;min-width:0;font-size:14px;color:var(--ink);text-wrap:pretty}
+.stepbar .cap span.n{color:var(--dim);font-family:var(--mono);font-size:11px;margin-inline-end:8px}
+.iconbtn{
+  background:var(--sunk2);border:1px solid var(--line);color:var(--mut);
+  border-radius:8px;padding:5px 11px;font-family:var(--mono);font-size:11px;cursor:pointer;white-space:nowrap;
+}
+.iconbtn:hover{color:var(--ink);border-color:color-mix(in srgb,var(--c) 55%,transparent)}
+
+/* ---------- code cards ---------- */
+.sechead{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:28px 0 12px}
+:root[dir="rtl"] .sechead{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.files{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:14px}
+.fc{background:var(--card);border:1px solid var(--line2);border-radius:12px;overflow:hidden;transition:border-color .3s;min-width:0}
+.fc.active{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.fc-h{
+  display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid var(--line2);
+  background:var(--sunk);font-family:var(--mono);font-size:11.5px;color:var(--mut);
+}
+.fc-h .d{width:7px;height:7px;border-radius:99px;flex-shrink:0}
+.fc[data-lang="ts"] .d{background:var(--ts)}
+.fc[data-lang="html"] .d{background:var(--html)}
+.fc[data-lang="json"] .d{background:var(--svc)}
+.fc[data-lang="bash"] .d{background:var(--beg)}
+.fc-h .tag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:var(--mono);font-size:12.2px;line-height:1.72;scrollbar-width:thin}
+.ln{display:block;padding:0 15px;white-space:pre;border-left:2px solid transparent;transition:background .25s,border-color .25s}
+.ln.hl{background:color-mix(in srgb,var(--c) 13%,transparent);border-left-color:var(--c)}
+.t-key{color:var(--t-key)}.t-str{color:var(--t-str)}.t-com{color:var(--t-com);font-style:italic}
+.t-dec{color:var(--t-dec)}.t-tag{color:var(--t-tag)}.t-bind{color:var(--t-bind)}.t-num{color:var(--t-num)}
+.t-fn{color:var(--t-fn)}.t-type{color:var(--t-type)}.t-attr{color:var(--t-attr)}.t-punc{color:var(--t-punc)}
+
+/* ---------- real example ---------- */
+.example{margin-top:26px;padding-top:18px;border-top:1px solid var(--line2)}
+.exhead{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:7px}
+.extag{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);border:1px solid currentColor;border-radius:99px;padding:3px 9px;
+  background:color-mix(in srgb,var(--c) 12%,transparent);white-space:nowrap;
+}
+:root[dir="rtl"] .extag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+.exhead b{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--ink)}
+.exlead{margin:0 0 14px;color:var(--mut);font-size:14px;max-width:82ch;text-wrap:pretty}
+
+/* ---------- gotchas ---------- */
+.gotchas{margin-top:22px;border-top:1px solid var(--line2);padding-top:16px}
+.gotchas h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 10px;font-weight:500}
+:root[dir="rtl"] .gotchas h4{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.gotchas ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:9px 22px}
+.gotchas li{position:relative;padding-inline-start:20px;font-size:13.6px;color:var(--mut);text-wrap:pretty}
+.gotchas li::before{content:"!";position:absolute;inset-inline-start:0;top:0;font-family:var(--mono);font-size:11px;color:var(--c);font-weight:700}
+.gotchas li b{color:var(--ink);font-weight:600}
+
+/* ---------- pager ---------- */
+.pager{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin:34px 0 0;padding:22px 0 46px;border-top:1px solid var(--line2);
+}
+.pager a{
+  display:flex;flex-direction:column;gap:4px;text-decoration:none;padding:14px 16px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--card);transition:.22s;min-width:0;
+}
+.pager a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.pager a em{font-family:var(--mono);font-style:normal;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.pager a b{font-size:14.5px;color:var(--ink);font-weight:600;line-height:1.35;text-wrap:pretty}
+.pager a.nx{text-align:end;align-items:flex-end}
+.pager .void{border:1px dashed var(--line2);border-radius:12px;opacity:.35}
+@media (max-width:600px){.pager{grid-template-columns:1fr}.pager a.nx{text-align:start;align-items:flex-start}}
+
+@media (max-width:900px){
+  .row{gap:16px}
+  .node{min-width:0;flex:1 1 auto}
+  .stage{gap:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+
+/* ================= reference-document layout (TypeScript page) ============ */
+.doc{display:grid;grid-template-columns:212px minmax(0,1fr);gap:clamp(20px,3.4vw,54px);align-items:start}
+@media (max-width:940px){.doc{grid-template-columns:1fr}}
+.doc-rail{position:sticky;top:70px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;scrollbar-width:thin}
+@media (max-width:940px){.doc-rail{position:static;max-height:none;border-bottom:1px solid var(--line2);padding-bottom:14px}}
+.doc-rail b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;font-weight:500}
+:root[dir="rtl"] .doc-rail b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.doc-rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.doc-rail a{
+  display:grid;grid-template-columns:1.6rem 1fr;gap:8px;align-items:baseline;
+  text-decoration:none;color:var(--dim);font-size:13px;line-height:1.35;
+  padding:6px 9px;border-radius:7px;transition:.16s;
+}
+.doc-rail a em{font-family:var(--mono);font-style:normal;font-size:10.5px;opacity:.7}
+.doc-rail a:hover{color:var(--ink);background:var(--hover)}
+.doc-rail a.on{color:var(--onc);background:var(--c)}
+.doc-rail a.on em{opacity:.75}
+
+.sec{padding-block:clamp(26px,3.6vw,44px);border-top:1px solid var(--line2);scroll-margin-top:74px}
+.sec:first-child{border-top:0;padding-top:6px}
+.sec-kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--c);margin-bottom:8px}
+:root[dir="rtl"] .sec-kick{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.sec h2{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.028em;line-height:1.08;
+  font-size:clamp(23px,3vw,33px);margin:0 0 10px;text-wrap:balance;
+}
+:root[dir="rtl"] .sec h2{letter-spacing:0;line-height:1.4}
+.sec h2 code{font-family:var(--mono);font-size:.8em;font-weight:600;color:var(--c);letter-spacing:0}
+.sec > .sec-lead{color:var(--mut);max-width:74ch;margin:0 0 4px;font-size:15px;text-wrap:pretty}
+.sec > .sec-lead b{color:var(--ink);font-weight:600}
+.sec p{max-width:74ch;text-wrap:pretty;color:var(--mut)}
+.sec p b{color:var(--ink);font-weight:600}
+.sec > p{margin:18px 0 0}
+.sec .code{margin-top:18px}
+.sec ul{margin:16px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;max-width:74ch}
+.sec ul li{padding-inline-start:20px;position:relative;color:var(--mut);text-wrap:pretty}
+.sec ul li::before{content:"";position:absolute;inset-inline-start:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--c);opacity:.6}
+
+.code{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--card);min-width:0}
+.code .fc-h{background:var(--sunk)}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;margin-top:18px}
+.code.bad{border-color:color-mix(in srgb,var(--adv) 42%,transparent)}
+.code.bad .fc-h{background:color-mix(in srgb,var(--adv) 10%,transparent)}
+.code.bad .fc-h .d{background:var(--adv)}
+.code.good{border-color:color-mix(in srgb,var(--beg) 42%,transparent)}
+.code.good .fc-h{background:color-mix(in srgb,var(--beg) 10%,transparent)}
+.code.good .fc-h .d{background:var(--beg)}
+.code .flag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.code.bad .flag{color:var(--adv)}
+.code.good .flag{color:var(--beg)}
+:root[dir="rtl"] .code .flag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+
+.note{
+  margin-top:20px;max-width:76ch;background:color-mix(in srgb,var(--c) 8%,transparent);
+  border-inline-start:3px solid var(--c);border-radius:0 9px 9px 0;padding:13px 16px;
+}
+:root[dir="rtl"] .note{border-radius:9px 0 0 9px}
+.note b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .note b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.note p{margin:0;font-size:14.2px;color:var(--mut)}
+
+.dtbl-wrap{overflow-x:auto;border:1px solid var(--line2);border-radius:12px;margin-top:18px;background:var(--card)}
+.dtbl{width:100%;border-collapse:collapse;font-size:13.6px;min-width:640px}
+.dtbl th{
+  text-align:start;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);font-weight:500;padding:10px 14px;border-bottom:1px solid var(--line);
+  background:var(--sunk);white-space:nowrap;
+}
+:root[dir="rtl"] .dtbl th{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px;font-weight:600}
+.dtbl td{padding:11px 14px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--mut);line-height:1.55}
+.dtbl tr:last-child td{border-bottom:0}
+.dtbl td:first-child{color:var(--ink);font-family:var(--mono);font-size:12px}
+
+/* ========================= roadmap page ========================= */
+.verdict{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin:26px 0 8px}
+.verdict div{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.verdict b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:8px;font-weight:600}
+:root[dir="rtl"] .verdict b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.verdict p{margin:0;color:var(--mut);font-size:14.2px;line-height:1.6;text-wrap:pretty}
+
+.phase{position:relative;padding:0 0 0 clamp(22px,3vw,42px);margin-top:clamp(24px,3.4vw,38px)}
+:root[dir="rtl"] .phase{padding:0 clamp(22px,3vw,42px) 0 0}
+.phase::before{content:"";position:absolute;inset-inline-start:0;top:6px;bottom:0;width:2px;background:linear-gradient(180deg,var(--c),transparent)}
+.phase-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.phase-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 8px;font-weight:600;direction:ltr}
+.phase-h h3{margin:0;font-family:var(--disp);font-weight:800;font-size:clamp(20px,2.6vw,27px);letter-spacing:-.02em;color:var(--ink)}
+:root[dir="rtl"] .phase-h h3{letter-spacing:0;line-height:1.4}
+.phase-when{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em;direction:ltr;unicode-bidi:isolate}
+.phase-goal{margin:0 0 14px;color:var(--mut);max-width:72ch;font-size:14.6px;text-wrap:pretty}
+.phase-list{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:14px}
+.phase-list a{
+  display:grid;grid-template-columns:1.8rem 1fr;gap:9px;align-items:baseline;text-decoration:none;
+  padding:8px 11px;border-radius:8px;border:1px solid var(--line2);background:var(--card);transition:.18s;min-width:0;
+}
+.phase-list a em{font-family:var(--mono);font-style:normal;font-size:10.5px;color:var(--dim)}
+.phase-list a span{font-size:13.6px;color:var(--ink);line-height:1.35;text-wrap:pretty}
+.phase-list a span code{font-family:var(--mono);font-size:.86em;color:var(--c)}
+.phase-list a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.phase-build{
+  border-inline-start:3px solid var(--c);background:color-mix(in srgb,var(--c) 7%,transparent);
+  border-radius:0 9px 9px 0;padding:12px 15px;max-width:72ch;
+}
+:root[dir="rtl"] .phase-build{border-radius:9px 0 0 9px}
+.phase-build b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .phase-build b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.phase-build p{margin:0;color:var(--mut);font-size:14px;line-height:1.6;text-wrap:pretty}
+
+.gap{margin-top:16px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.gap section{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.gap h4{margin:0 0 10px;font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.3;text-wrap:pretty}
+.gap ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.gap li{padding-inline-start:19px;position:relative;font-size:13.4px;color:var(--mut);line-height:1.5;text-wrap:pretty}
+.gap li::before{content:"○";position:absolute;inset-inline-start:0;top:0;font-size:10px;color:var(--c);opacity:.7}
+.gap li code{font-family:var(--mono);font-size:.88em;background:var(--chip);padding:1px 4px;border-radius:3px;color:var(--chipink)}
+
+.advice{margin-top:16px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.advice div{border-top:2px solid var(--c);padding-top:12px;min-width:0}
+.advice b{display:block;font-family:var(--disp);font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px;letter-spacing:-.015em}
+:root[dir="rtl"] .advice b{letter-spacing:0}
+.advice p{margin:0;color:var(--mut);font-size:13.8px;line-height:1.6;text-wrap:pretty}
+
+/* ---------- theme switch (icon segment) ---------- */
+.seg.ico button{padding:5px 10px;display:grid;place-items:center}
+.seg.ico svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block}
+@media (max-width:820px){.seg.ico{order:2}}
+
+/* ================= beginner scaffolding on every topic ================= */
+/* three plain-language cards that sit above the technical diagram */
+.plain{display:grid;gap:12px;grid-template-columns:1.4fr 1fr 1fr;margin:2px 0 26px}
+@media (max-width:900px){.plain{grid-template-columns:1fr}}
+.pc{
+  border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);
+  min-width:0;display:flex;flex-direction:column;gap:9px;
+}
+.pc.say{background:color-mix(in srgb,var(--c) 7%,var(--card));border-color:color-mix(in srgb,var(--c) 26%,transparent)}
+.pc .ph{display:flex;align-items:center;gap:8px}
+.pc .ph svg{width:16px;height:16px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pc .ph b{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);font-weight:600}
+:root[dir="rtl"] .pc .ph b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.pc p{margin:0;font-size:14.2px;color:var(--mut);line-height:1.62;text-wrap:pretty}
+.pc p b{color:var(--ink);font-weight:600}
+.pc p code{font-family:var(--mono);font-size:.87em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+.pc.say p{font-size:16px;color:var(--ink)}
+
+/* the idea, as a strip of pictures */
+.strip{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(188px,1fr));margin:2px 0 4px}
+.sp{position:relative;border:1px solid var(--line2);border-radius:14px;padding:15px 16px 14px;background:var(--card);min-width:0}
+.sp .plate{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:11px;
+  background:color-mix(in srgb,var(--c) 13%,transparent);border:1px solid color-mix(in srgb,var(--c) 20%,transparent);
+}
+.sp .plate svg{width:21px;height:21px;stroke:var(--c);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sp b{display:block;font-size:14.5px;color:var(--ink);font-weight:600;margin-bottom:4px;line-height:1.32;text-wrap:pretty}
+.sp p{margin:0;font-size:13.3px;color:var(--mut);line-height:1.55;text-wrap:pretty}
+.sp p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+.sp::after{
+  content:"";position:absolute;top:30px;right:-15px;width:11px;height:11px;
+  border-top:1.6px solid var(--line);border-right:1.6px solid var(--line);
+  transform:rotate(45deg);z-index:2;
+}
+:root[dir="rtl"] .sp::after{right:auto;left:-15px;transform:rotate(-135deg)}
+.sp:last-child::after{display:none}
+@media (max-width:760px){.sp::after{display:none}}
+
+/* the single sentence worth memorising */
+.oneline{
+  margin-top:26px;display:flex;gap:14px;align-items:flex-start;border-radius:14px;padding:16px 19px;
+  border:1px solid color-mix(in srgb,var(--c) 30%,transparent);
+  background:color-mix(in srgb,var(--c) 8%,transparent);
+}
+.oneline > svg{width:22px;height:22px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin-top:3px}
+.oneline b.lbl{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .oneline b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.oneline p{margin:0;font-size:15px;color:var(--ink);line-height:1.62;text-wrap:pretty;max-width:78ch}
+.oneline p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+/* ============================================================
+   Check yourself — the quiz block, same shape on every topic page
+   ============================================================ */
+.edge text.plain{font-size:9.5px;fill:var(--mut);letter-spacing:.01em;opacity:.85}
+.edge.lit text.plain{opacity:1}
+/* Arabic is cursive: the mono face and any letter-spacing break the joins,
+   so the wire words switch to the Arabic text face in RTL */
+:root[dir="rtl"] .edge text.plain{font-family:var(--body);letter-spacing:0;font-size:10.5px}
+
+.quiz{display:grid;gap:13px;margin-top:4px}
+.qbar{
+  display:flex;align-items:center;gap:13px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--sunk);
+}
+.qbar .qtxt{font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap}
+.qbar .qtxt b{color:var(--ink);font-weight:600}
+.qbar .qtxt em{font-style:normal;color:var(--ok);font-weight:600}
+.qmeter{flex:1;min-width:50px;height:4px;border-radius:99px;background:var(--dotbg);overflow:hidden}
+.qmeter i{display:block;height:100%;width:0;background:var(--c);transition:width .35s cubic-bezier(.2,.7,.3,1)}
+
+.qcard{border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);transition:border-color .3s}
+.qcard.right{border-color:color-mix(in srgb,var(--ok) 48%,transparent)}
+.qcard.wrong{border-color:color-mix(in srgb,var(--no) 48%,transparent)}
+.qhead{display:flex;gap:12px;align-items:baseline;margin-bottom:12px}
+.qnum{font-family:var(--mono);font-size:11px;color:var(--c);flex:none}
+.qask{font-size:14.8px;line-height:1.5;color:var(--ink);font-weight:600;text-wrap:pretty}
+.qask code{font-family:var(--mono);font-size:.87em;color:var(--c);font-weight:500}
+.qcode{border:1px solid var(--line2);border-radius:11px;overflow:hidden;margin-bottom:12px;background:var(--code)}
+.qcode .qcf{padding:7px 13px;border-bottom:1px solid var(--line2);background:var(--sunk);
+            font-family:var(--mono);font-size:11px;color:var(--dim)}
+.qcode pre{font-size:12px;padding:10px 0;margin:0;overflow-x:auto}
+
+.opts{display:grid;gap:8px}
+.opt{
+  display:flex;gap:11px;align-items:flex-start;width:100%;text-align:start;cursor:pointer;
+  background:var(--sunk);border:1px solid var(--line2);border-radius:10px;padding:10px 13px;
+  color:var(--mut);font-family:var(--body);font-size:13.8px;line-height:1.5;transition:.18s;
+}
+.opt .k{font-family:var(--mono);font-size:11px;color:var(--dim);border:1px solid var(--line);
+        border-radius:6px;padding:0 6px;flex:none;line-height:1.6}
+.opt .ot{flex:1;min-width:0;text-wrap:pretty}
+.opt .ot code{font-family:var(--mono);font-size:.87em}
+.opt .mark{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;flex:none;line-height:2}
+.opt:hover{color:var(--ink);background:var(--hover);border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.qcard.done .opt,.qcard.done .opt:hover{cursor:default;background:var(--sunk);border-color:var(--line2);color:var(--mut)}
+.qcard.done .opt.ok{color:var(--ink);border-color:color-mix(in srgb,var(--ok) 55%,transparent);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.qcard.done .opt.ok .k{color:var(--ok);border-color:currentColor}
+.qcard.done .opt.ok .mark{color:var(--ok)}
+.qcard.done .opt.no{color:var(--ink);border-color:color-mix(in srgb,var(--no) 55%,transparent);background:color-mix(in srgb,var(--no) 9%,transparent)}
+.qcard.done .opt.no .k{color:var(--no);border-color:currentColor}
+.qcard.done .opt.no .mark{color:var(--no)}
+
+.why{
+  display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:12px 15px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk2);
+}
+.why[hidden]{display:none}
+.why .wt{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);flex:none;padding-top:3px}
+.why p{margin:0;flex:1;min-width:0;font-size:13.6px;line-height:1.68;color:var(--mut);text-wrap:pretty}
+.why p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+.qend{border:1px solid var(--line2);border-radius:14px;padding:19px;text-align:center;background:var(--card2)}
+.qend .sc{display:block;font-family:var(--disp);font-weight:800;font-size:29px;letter-spacing:-.03em;color:var(--ink)}
+.qend p{margin:6px 0 13px;color:var(--mut);font-size:13.6px}
+
+:root[dir="rtl"] .qnum,:root[dir="rtl"] .qbar .qtxt{font-family:var(--body);letter-spacing:0}
+:root[dir="rtl"] .opt .mark,:root[dir="rtl"] .why .wt{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .qask,:root[dir="rtl"] .opt,:root[dir="rtl"] .why p{line-height:1.8}
+@media (max-width:900px){
+  .qbar{flex-wrap:wrap;gap:10px}
+  .qmeter{order:3;flex-basis:100%}
+  .qcard{padding:14px 15px}
+}
+
+/* ================= build-project tutorials (step-by-step) ============ */
+.pstep{margin-top:26px;border-top:1px solid var(--line2);padding-top:18px}
+.sec .pstep:first-child{margin-top:12px}
+.pstep-h{display:flex;align-items:center;gap:11px;margin-bottom:2px}
+.pstep-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 9px;font-weight:600;direction:ltr;flex:none}
+.pstep-h b{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:-.015em;color:var(--ink);line-height:1.3;text-wrap:pretty}
+:root[dir="rtl"] .pstep-h b{letter-spacing:0}
+.pstep > p{margin:13px 0 0}
+
+.chk{
+  margin-top:16px;max-width:76ch;background:color-mix(in srgb,var(--beg) 9%,transparent);
+  border-inline-start:3px solid var(--beg);border-radius:0 9px 9px 0;padding:12px 16px;
+}
+:root[dir="rtl"] .chk{border-radius:9px 0 0 9px}
+.chk b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--beg);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .chk b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.chk p{margin:0;font-size:14.2px;color:var(--mut)}
+.chk p code{font-family:var(--mono);font-size:.87em}
+
+.build-link{
+  display:inline-flex;align-items:center;gap:7px;margin-top:12px;text-decoration:none;
+  font-size:13.6px;font-weight:600;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);
+  border-radius:9px;padding:7px 13px;background:var(--card);transition:.18s;
+}
+.build-link:hover{background:color-mix(in srgb,var(--c) 12%,transparent)}
+
+/* the roadmap's build-projects index */
+.blds{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:16px}
+.blds-track{border:1px solid var(--line2);border-top:2px solid var(--c);border-radius:12px;padding:15px 18px;background:var(--card);min-width:0;display:flex;flex-direction:column;gap:11px}
+.blds-track > b{font-family:var(--disp);font-weight:700;font-size:16.5px;letter-spacing:-.015em;color:var(--ink)}
+:root[dir="rtl"] .blds-track > b{letter-spacing:0}
+.blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
+.blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
+</style>
+<script>
+(function(){var r=document.documentElement;try{
+if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
+r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
+</script>
+</head>
+<body>
+<header class="top"><div class="top-in">
+    <a class="home" href="../index.html"><b>The Angular Signal</b><span class="l-en">contents</span><span class="l-ar">المحتويات</span></a>
+    <nav class="tracknav"><a href="../roadmap.html" style="--c:var(--beg)"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="../beginner/index.html" style="--c:var(--beg)" aria-current="page"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="../intermediate/index.html" style="--c:var(--int)"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="../advanced/index.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="../javascript-for-angular.html" style="--c:var(--js)"><i></i><span class="l-en">JavaScript</span><span class="l-ar">JavaScript</span></a><a href="../typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
+    <div class="top-right">
+      <div class="seg" role="group" aria-label="Language">
+        <button id="b-en" aria-pressed="true">EN</button>
+        <button id="b-ar" aria-pressed="false" lang="ar">مصري</button>
+      </div>
+      <div class="seg ico" role="group" aria-label="Theme">
+        <button id="b-lt" aria-pressed="true" title="Light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.2v2.3M12 19.5v2.3M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.2 12h2.3M19.5 12h2.3M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button>
+        <button id="b-dk" aria-pressed="false" title="Dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.7 6.7 0 0 0 11.1 11.1z"/></svg></button>
+      </div>
+    </div>
+  </div></header>
+<main class="page" id="page">
+  <div class="eyebrow">
+    <span class="num seq">04+</span>
+    <span class="badge"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <span class="num"><span class="l-en">Right after topic 04</span><span class="l-ar" dir="auto">بعد موضوع 04 على طول</span></span>
+  </div>
+  <h1 class="title"><span class="l-en">Template syntax, name by name</span><span class="l-ar" dir="auto">صياغة التمبلت، اسم اسم</span></h1>
+  <p class="lead"><span class="l-en">The idea is simple: <b>a template is HTML that can read your class.</b> <code>{{ }}</code> prints, <code>[ ]</code> sets, <code>( )</code> listens, <code>#</code> labels. The confusing part is the names. In one line like <code>(click)="rename(box.value)"</code> there are four words from three different owners, and nobody tells you which is which. This page answers exactly that.</span><span class="l-ar" dir="auto">الفكرة بسيطة: <b>التمبلت ده HTML بيقدر يقرا الكلاس بتاعك.</b> <code>{{ }}</code> بتطبع، و<code>[ ]</code> بتحط، و<code>( )</code> بتسمع، و<code>#</code> بتسمّي. اللي بيلخبط هو الأسماء. في سطر واحد زي <code>(click)="rename(box.value)"</code> فيه أربع كلمات من تلات أصحاب مختلفين، ومحدش بيقولك مين بتاع مين. الصفحة دي بتجاوب على ده بالظبط.</span></p>
+
+  <div class="doc">
+    <nav class="doc-rail">
+      <b><span class="l-en">On this page</span><span class="l-ar">في الصفحة دي</span></b>
+      <ol><li><a href="#trip" data-rail="trip"><em>01</em><span><span class="l-en">One rename, five stops</span><span class="l-ar" dir="auto">تغيير اسم واحد، خمس محطات</span></span></a></li><li><a href="#who" data-rail="who"><em>02</em><span><span class="l-en">Who declares what, and who picks the name</span><span class="l-ar" dir="auto">مين بيعلن إيه، ومين بيختار الاسم</span></span></a></li><li><a href="#files" data-rail="files"><em>03</em><span><span class="l-en">All three files, every name coloured</span><span class="l-ar" dir="auto">التلات ملفات، وكل اسم ملوّن</span></span></a></li><li><a href="#rename" data-rail="rename"><em>04</em><span><span class="l-en">What breaks when you rename each name</span><span class="l-ar" dir="auto">إيه اللي بيبوظ لما تغيّر كل اسم</span></span></a></li><li><a href="#fixed" data-rail="fixed"><em>05</em><span><span class="l-en">The fixed names: @, $, and the browser</span><span class="l-ar" dir="auto">الأسماء الثابتة: @ و$ والمتصفح</span></span></a></li><li><a href="#habits" data-rail="habits"><em>06</em><span><span class="l-en">How to pick good names for a template</span><span class="l-ar" dir="auto">تختار أسماء كويسة للتمبلت إزاي</span></span></a></li><li><a href="#forced" data-rail="forced"><em>07</em><span><span class="l-en">Three rules about what a template can see</span><span class="l-ar" dir="auto">تلات قواعد عن التمبلت يقدر يشوف إيه</span></span></a></li><li><a href="#old" data-rail="old"><em>08</em><span><span class="l-en">*ngFor: you had to name the index yourself</span><span class="l-ar" dir="auto">*ngFor: كان لازم تسمّي الـ index بنفسك</span></span></a></li><li><a href="#silent" data-rail="silent"><em>09</em><span><span class="l-en">Mistakes that fail silently</span><span class="l-ar" dir="auto">غلطات بتفشل في صمت</span></span></a></li><li><a href="#check" data-rail="check"><em>10</em><span><span class="l-en">Six questions, in this order</span><span class="l-ar" dir="auto">ست أسئلة، بالترتيب ده</span></span></a></li></ol>
+    </nav>
+    <div>
+      <section class="sec" id="trip">
+        <div class="sec-kick"><span class="l-en">Start here</span><span class="l-ar" dir="auto">ابدأ من هنا</span></div>
+        <h2><span class="l-en">One rename, five stops</span><span class="l-ar" dir="auto">تغيير اسم واحد، خمس محطات</span></h2>
+        <p class="sec-lead"><span class="l-en">A profile page shows a name. You type a new one in a box and press a button, and the heading changes. Follow the value from the class, through the template, and back:</span><span class="l-ar" dir="auto">صفحة بروفايل بتعرض اسم. بتكتب اسم جديد في خانة وتدوس زرار، والعنوان بيتغير. امشي ورا القيمة من الكلاس، للتمبلت، وبالعكس:</span></p>
+        
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div><ol class="chain">
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">1</span><span class="ch-f">profile.ts</span><span class="ch-w"><span class="l-en">the class · owns it</span><span class="l-ar" dir="auto">الكلاس · صاحبها</span></span></div>
+        <pre class="ch-c" data-lang="ts"><span class="ln"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="name">name</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-str">'Mona'</i>);</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="name">muffin</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-str">'Mona'</i>);</span></span></pre>
+        <p><span class="l-en">Everything the template shows starts in the class. <b class="nm nm-mine" data-nm="name">name</b> is yours; <b class="nm nm-ng" data-nm="signal">signal</b> is Angular’s. <b class="nm nm-ng" data-nm="protected">protected</b> means “the template may read this, other classes may not”.</span><span class="l-ar" dir="auto">كل حاجة التمبلت بيعرضها بتبدأ في الكلاس. <b class="nm nm-mine" data-nm="name">name</b> بتاعك؛ و<b class="nm nm-ng" data-nm="signal">signal</b> بتاعة أنجولار. و<b class="nm nm-ng" data-nm="protected">protected</b> معناها «التمبلت يقدر يقرا ده، والكلاسات التانية لأ».</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">2</span><span class="ch-f">profile.html</span><span class="ch-w"><span class="l-en">the template · prints</span><span class="l-ar" dir="auto">التمبلت · بيطبع</span></span></div>
+        <pre class="ch-c" data-lang="html"><span class="ln"><span class="v0"><i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="name">name</b>() }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="name">muffin</b>() }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span></span></pre>
+        <p><span class="l-en">Inside <code>{{ }}</code>, Angular looks up <b class="nm nm-mine" data-nm="name">name</b> <b>on the class</b>. No <code>this.</code> in templates: every bare name means “my component’s”. The brackets read the signal.</span><span class="l-ar" dir="auto">جوه <code>{{ }}</code>، أنجولار بيدوّر على <b class="nm nm-mine" data-nm="name">name</b> <b>في الكلاس</b>. مفيش <code>this.</code> في التمبلتس: أي اسم لوحده معناه «بتاع الـ component بتاعي». والقوسين بيقروا الـ signal.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">3</span><span class="ch-f">profile.html</span><span class="ch-w"><span class="l-en">the template · labels</span><span class="l-ar" dir="auto">التمبلت · بيسمّي</span></span></div>
+        <pre class="ch-c" data-lang="html"><span class="ln"><span class="v0"><i class="t-tag">&lt;input</i> <i class="t-bind">#<b class="nm nm-mine" data-nm="box">box</b></i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;input</i> <i class="t-bind">#<b class="nm nm-mine" data-nm="box">carrot</b></i><i class="t-tag">&gt;</i></span></span></pre>
+        <p><span class="l-en">The <code>#</code> gives this element a name, <b class="nm nm-mine" data-nm="box">box</b>. You picked it, and it exists <b>only in this template</b>. The class has no idea it exists.</span><span class="l-ar" dir="auto">الـ <code>#</code> بتدّي العنصر ده اسم، <b class="nm nm-mine" data-nm="box">box</b>. انت اللي اخترته، وموجود <b>في التمبلت ده بس</b>. الكلاس ميعرفش إنه موجود أصلًا.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">4</span><span class="ch-f">profile.html</span><span class="ch-w"><span class="l-en">the template · listens</span><span class="l-ar" dir="auto">التمبلت · بيسمع</span></span></div>
+        <pre class="ch-c" data-lang="html"><span class="ln"><span class="v0"><i class="t-tag">&lt;button</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="click">click</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="rename">rename</b>(<b class="nm nm-mine" data-nm="box">box</b>.<b class="nm nm-ng" data-nm="value">value</b>)"</i><i class="t-tag">&gt;</i>Use what I typed<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;button</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="click">click</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="rename">pepper</b>(<b class="nm nm-mine" data-nm="box">carrot</b>.<b class="nm nm-ng" data-nm="value">value</b>)"</i><i class="t-tag">&gt;</i>Use what I typed<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span></span></pre>
+        <p><span class="l-en">Four words, three owners. <b class="nm nm-ng" data-nm="click">click</b> is the browser’s event. <b class="nm nm-mine" data-nm="rename">rename</b> is your class’s method. <b class="nm nm-mine" data-nm="box">box</b> is the template’s label. <b class="nm nm-ng" data-nm="value">value</b> is the browser’s property of an input.</span><span class="l-ar" dir="auto">أربع كلمات، تلات أصحاب. <b class="nm nm-ng" data-nm="click">click</b> الـ event بتاع المتصفح. و<b class="nm nm-mine" data-nm="rename">rename</b> الميثود بتاعة الكلاس بتاعك. و<b class="nm nm-mine" data-nm="box">box</b> الاسم اللي التمبلت ادّاه. و<b class="nm nm-ng" data-nm="value">value</b> الـ property بتاعة الـ input في المتصفح.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">5</span><span class="ch-f">profile.ts</span><span class="ch-w"><span class="l-en">the class · updates</span><span class="l-ar" dir="auto">الكلاس · بيحدّث</span></span></div>
+        <pre class="ch-c" data-lang="ts"><span class="ln"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-fn"><b class="nm nm-mine" data-nm="rename">rename</b></i>(<b class="nm nm-mine" data-nm="newName">newName</b>: <i class="t-key">string</i>) {</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-fn"><b class="nm nm-mine" data-nm="rename">pepper</b></i>(<b class="nm nm-mine" data-nm="newName">lemon</b>: <i class="t-key">string</i>) {</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="name">name</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<b class="nm nm-mine" data-nm="newName">newName</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="trim">trim</b></i>());</span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="name">muffin</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<b class="nm nm-mine" data-nm="newName">lemon</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="trim">trim</b></i>());</span></span><span class="ln">}</span></pre>
+        <p><span class="l-en">Back in the class, the value arrives as a parameter. You can call it anything; here it is <b class="nm nm-mine" data-nm="newName">newName</b>. <b class="nm nm-ng" data-nm="set">set</b> changes the signal, and the <code>&lt;h1&gt;</code> updates by itself.</span><span class="l-ar" dir="auto">ورجعنا للكلاس، القيمة بتوصل كـ parameter. تقدر تسمّيه أي حاجة؛ هنا اسمه <b class="nm nm-mine" data-nm="newName">newName</b>. و<b class="nm nm-ng" data-nm="set">set</b> بتغيّر الـ signal، والـ <code>&lt;h1&gt;</code> بيتحدّث لوحده.</span></p>
+      </li>
+    </ol><div class="note"><b class="lbl"><span class="l-en">The whole thing in one line</span><span class="l-ar" dir="auto">الحكاية كلها في سطر</span></b><p><span class="l-en">In a template, a bare name is <b>yours</b>: first the template’s own names (<code>#box</code>, <code>@let</code>, loop variables), then your class’s members. After a dot on an element, or inside <code>[ ]</code> and <code>( )</code> on a plain HTML tag, the name is <b>the browser’s</b>. A name starting with <code>$</code> or <code>@</code> is <b>Angular’s</b>.</span><span class="l-ar" dir="auto">في التمبلت، الاسم اللي لوحده <b>بتاعك</b>: الأول أسماء التمبلت نفسه (<code>#box</code> و<code>@let</code> ومتغيرات اللوب)، وبعدين members الكلاس بتاعك. وبعد نقطة على عنصر، أو جوه <code>[ ]</code> و<code>( )</code> على تاج HTML عادي، الاسم <b>بتاع المتصفح</b>. وأي اسم بيبدأ بـ <code>$</code> أو <code>@</code> <b>بتاع أنجولار</b>.</span></p></div>
+      </section>
+      <section class="sec" id="who">
+        <div class="sec-kick"><span class="l-en">Class or template?</span><span class="l-ar" dir="auto">الكلاس ولا التمبلت؟</span></div>
+        <h2><span class="l-en">Who declares what, and who picks the name</span><span class="l-ar" dir="auto">مين بيعلن إيه، ومين بيختار الاسم</span></h2>
+        <p class="sec-lead"><span class="l-en">Every name in a template was declared somewhere. Find where, and you know who owns it and how far it reaches.</span><span class="l-ar" dir="auto">كل اسم في التمبلت اتعلن في حتة. اعرف فين، وهتعرف مين صاحبه ولحد فين بيوصل.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">Piece</span><span class="l-ar" dir="auto">الحتة</span></th><th><span class="l-en">Declared in</span><span class="l-ar" dir="auto">اتعلن في</span></th><th><span class="l-en">Reaches</span><span class="l-ar" dir="auto">بيوصل لحد</span></th><th><span class="l-en">Who picks the name</span><span class="l-ar" dir="auto">مين بيختار الاسم</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en"><code>{{ name() }}</code></span><span class="l-ar" dir="auto"><code>{{ name() }}</code></span></td><td><span class="l-en">the class</span><span class="l-ar" dir="auto">الكلاس</span></td><td><span class="l-en">the whole template</span><span class="l-ar" dir="auto">التمبلت كله</span></td><td><span class="l-en">you pick <b class="nm nm-mine" data-nm="name">name</b></span><span class="l-ar" dir="auto">انت بتختار <b class="nm nm-mine" data-nm="name">name</b></span></td></tr><tr><td><span class="l-en"><code>[src]="user()?.avatar"</code></span><span class="l-ar" dir="auto"><code>[src]="user()?.avatar"</code></span></td><td><span class="l-en">left: the browser; right: your class and your type</span><span class="l-ar" dir="auto">الشمال: المتصفح؛ اليمين: الكلاس والـ type بتوعك</span></td><td><span class="l-en">—</span><span class="l-ar" dir="auto">—</span></td><td><span class="l-en"><b class="nm nm-ng" data-nm="src">src</b> is the browser’s; <b class="nm nm-mine" data-nm="user">user</b> and <b class="nm nm-pub" data-nm="avatar">avatar</b> are yours</span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="src">src</b> بتاع المتصفح؛ و<b class="nm nm-mine" data-nm="user">user</b> و<b class="nm nm-pub" data-nm="avatar">avatar</b> بتوعك</span></td></tr><tr><td><span class="l-en"><code>(click)="rename(box.value)"</code></span><span class="l-ar" dir="auto"><code>(click)="rename(box.value)"</code></span></td><td><span class="l-en">left: the browser; right: your class and the template</span><span class="l-ar" dir="auto">الشمال: المتصفح؛ اليمين: الكلاس والتمبلت</span></td><td><span class="l-en">—</span><span class="l-ar" dir="auto">—</span></td><td><span class="l-en"><b class="nm nm-ng" data-nm="click">click</b> and <b class="nm nm-ng" data-nm="value">value</b> are the browser’s; <b class="nm nm-mine" data-nm="rename">rename</b> and <b class="nm nm-mine" data-nm="box">box</b> are yours</span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="click">click</b> و<b class="nm nm-ng" data-nm="value">value</b> بتوع المتصفح؛ و<b class="nm nm-mine" data-nm="rename">rename</b> و<b class="nm nm-mine" data-nm="box">box</b> بتوعك</span></td></tr><tr><td><span class="l-en"><code>#box</code></span><span class="l-ar" dir="auto"><code>#box</code></span></td><td><span class="l-en">the template</span><span class="l-ar" dir="auto">التمبلت</span></td><td><span class="l-en">the whole template, not the class</span><span class="l-ar" dir="auto">التمبلت كله، مش الكلاس</span></td><td><span class="l-en">you pick <b class="nm nm-mine" data-nm="box">box</b></span><span class="l-ar" dir="auto">انت بتختار <b class="nm nm-mine" data-nm="box">box</b></span></td></tr><tr><td><span class="l-en"><code>@let sub = …</code></span><span class="l-ar" dir="auto"><code>@let sub = …</code></span></td><td><span class="l-en">the template</span><span class="l-ar" dir="auto">التمبلت</span></td><td><span class="l-en">the lines after it, in the same block</span><span class="l-ar" dir="auto">السطور اللي بعده، في نفس البلوك</span></td><td><span class="l-en">you pick <b class="nm nm-mine" data-nm="sub">sub</b>; <b class="nm nm-ng" data-nm="@let">@let</b> is Angular’s</span><span class="l-ar" dir="auto">انت بتختار <b class="nm nm-mine" data-nm="sub">sub</b>؛ و<b class="nm nm-ng" data-nm="@let">@let</b> بتاعة أنجولار</span></td></tr><tr><td><span class="l-en"><code>@for (tag of tags(); …)</code></span><span class="l-ar" dir="auto"><code>@for (tag of tags(); …)</code></span></td><td><span class="l-en">the template</span><span class="l-ar" dir="auto">التمبلت</span></td><td><span class="l-en">inside the <code>@for</code> block only</span><span class="l-ar" dir="auto">جوه بلوك الـ <code>@for</code> بس</span></td><td><span class="l-en">you pick <b class="nm nm-mine" data-nm="tag">tag</b>; <b class="nm nm-ng" data-nm="$index">$index</b> is Angular’s</span><span class="l-ar" dir="auto">انت بتختار <b class="nm nm-mine" data-nm="tag">tag</b>؛ و<b class="nm nm-ng" data-nm="$index">$index</b> بتاعة أنجولار</span></td></tr></tbody>
+    </table></div><ul><li><span class="l-en"><b>No <code>this.</code> in a template.</b> <code>name()</code> in the template and <code>this.name()</code> in the class are the same thing. Writing <code>this.</code> in a template works but is never needed.</span><span class="l-ar" dir="auto"><b>مفيش <code>this.</code> في التمبلت.</b> <code>name()</code> في التمبلت و<code>this.name()</code> في الكلاس هما نفس الحاجة. لو كتبت <code>this.</code> في التمبلت هتشتغل، بس عمرك ما هتحتاجها.</span></li><li><span class="l-en"><b>The left side of <code>[ ]</code> and <code>( )</code> belongs to the element.</b> On <code>&lt;img&gt;</code> and <code>&lt;button&gt;</code> that is the browser. You never invent <code>src</code> or <code>click</code>; you look them up.</span><span class="l-ar" dir="auto"><b>الناحية الشمال من <code>[ ]</code> و<code>( )</code> بتاعة العنصر.</b> على <code>&lt;img&gt;</code> و<code>&lt;button&gt;</code> ده المتصفح. عمرك ما بتألف <code>src</code> ولا <code>click</code>؛ بتدوّر عليهم.</span></li><li><span class="l-en"><b>The class cannot see template names.</b> <code>box</code>, <code>sub</code> and <code>tag</code> do not exist in <code>profile.ts</code>. To use their values there, pass them to a method, as <code>rename(box.value)</code> does.</span><span class="l-ar" dir="auto"><b>الكلاس مش شايف أسماء التمبلت.</b> <code>box</code> و<code>sub</code> و<code>tag</code> مش موجودين في <code>profile.ts</code>. عشان تستخدم قيمهم هناك، ابعتهم لميثود، زي ما <code>rename(box.value)</code> بتعمل.</span></li></ul>
+      </section>
+      <section class="sec" id="files">
+        <div class="sec-kick"><span class="l-en">The real files</span><span class="l-ar" dir="auto">الملفات الحقيقية</span></div>
+        <h2><span class="l-en">All three files, every name coloured</span><span class="l-ar" dir="auto">التلات ملفات، وكل اسم ملوّن</span></h2>
+        <p class="sec-lead"><span class="l-en">The same profile, complete, with all four powers and the two template-only names. Hover a coloured name to light up everywhere else it appears. Then press <b>Rename test</b>: every name you own turns into a made-up word, Angular’s and the browser’s words stay put, and the code is still correct.</span><span class="l-ar" dir="auto">نفس البروفايل، كامل، بالأربع قدرات والاسمين اللي التمبلت بس بيعلنهم. قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها. وبعدين دوس <b>جرّب تغيّر الأسماء</b>: كل اسم بتاعك هيبقى كلمة عشوائية، وكلمات أنجولار والمتصفح هتفضل مكانها، والكود لسه صح.</span></p>
+        
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>user.ts<span class="tag"><span class="l-en">the data</span><span class="l-ar" dir="auto">الداتا</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">interface</i> <i class="t-type"><b class="nm nm-pub" data-nm="User">User</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">interface</i> <i class="t-type"><b class="nm nm-pub" data-nm="User">Banana</b></i> {</span></span><span class="ln"><span class="v0">  <b class="nm nm-pub" data-nm="email">email</b>: <i class="t-key">string</i>;</span><span class="v1">  <b class="nm nm-pub" data-nm="email">potato</b>: <i class="t-key">string</i>;</span></span><span class="ln"><span class="v0">  <b class="nm nm-pub" data-nm="avatar">avatar</b>: <i class="t-key">string</i>;</span><span class="v1">  <b class="nm nm-pub" data-nm="avatar">mango</b>: <i class="t-key">string</i>;</span></span><span class="ln"><span class="v0">  <b class="nm nm-pub" data-nm="subscription">subscription</b>?: { <b class="nm nm-pub" data-nm="plan">plan</b>: <i class="t-key">string</i>; <b class="nm nm-pub" data-nm="renewsAt">renewsAt</b>: <i class="t-key">string</i> };</span><span class="v1">  <b class="nm nm-pub" data-nm="subscription">pickle</b>?: { <b class="nm nm-pub" data-nm="plan">waffle</b>: <i class="t-key">string</i>; <b class="nm nm-pub" data-nm="renewsAt">noodle</b>: <i class="t-key">string</i> };</span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>profile.ts<span class="tag"><span class="l-en">the class</span><span class="l-ar" dir="auto">الكلاس</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Component</i>, <b class="nm nm-ng" data-nm="signal">signal</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"><span class="v0"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="User">User</b></i> } <i class="t-key">from</i> <i class="t-str">'./user'</i>;</span><span class="v1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="User">Banana</b></i> } <i class="t-key">from</i> <i class="t-str">'./user'</i>;</span></span><span class="ln"> </span><span class="ln"><i class="t-dec"><b class="nm nm-ng" data-nm="@Component">@Component</b></i>({</span><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-profile">app-profile</b>'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-profile">app-turnip</b>'</i>,</span></span><span class="ln">  <b class="nm nm-ng" data-nm="templateUrl">templateUrl</b>: <i class="t-str">'./profile.html'</i>,</span><span class="ln">})</span><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Profile">Profile</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Profile">Pumpkin</b></i> {</span></span><span class="ln"><span class="v0">  <i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="name">name</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-str">'Mona'</i>);</span><span class="v1">  <i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="name">muffin</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-str">'Mona'</i>);</span></span><span class="ln"><span class="v0">  <i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="age">age</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-num">30</i>);</span><span class="v1">  <i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="age">taco</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-num">30</i>);</span></span><span class="ln"><span class="v0">  <i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="tags">tags</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>([<i class="t-str">'admin'</i>, <i class="t-str">'beta'</i>]);</span><span class="v1">  <i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="tags">kiwi</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>([<i class="t-str">'admin'</i>, <i class="t-str">'beta'</i>]);</span></span><span class="ln"><span class="v0">  <i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="user">user</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="User">User</b></i> | <i class="t-key">null</i>&gt;(<i class="t-key">null</i>);</span><span class="v1">  <i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="user">donut</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="User">Banana</b></i> | <i class="t-key">null</i>&gt;(<i class="t-key">null</i>);</span></span><span class="ln"> </span><span class="ln"><span class="v0">  <i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-fn"><b class="nm nm-mine" data-nm="rename">rename</b></i>(<b class="nm nm-mine" data-nm="newName">newName</b>: <i class="t-key">string</i>) {</span><span class="v1">  <i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-fn"><b class="nm nm-mine" data-nm="rename">pepper</b></i>(<b class="nm nm-mine" data-nm="newName">lemon</b>: <i class="t-key">string</i>) {</span></span><span class="ln"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="name">name</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<b class="nm nm-mine" data-nm="newName">newName</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="trim">trim</b></i>());</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="name">muffin</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<b class="nm nm-mine" data-nm="newName">lemon</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="trim">trim</b></i>());</span></span><span class="ln">  }</span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="html">
+        <div class="fc-h"><span class="d"></span>profile.html<span class="tag"><span class="l-en">the template</span><span class="l-ar" dir="auto">التمبلت</span></span></div>
+        <pre><span class="ln"><i class="t-com">&lt;!-- 1. {{ }} prints --&gt;</i></span><span class="ln"><span class="v0"><i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="name">name</b>() }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="name">muffin</b>() }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span></span><span class="ln"><span class="v0"><i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="age">age</b>() }}</i> years old, <i class="t-bind">{{ <b class="nm nm-mine" data-nm="age">age</b>() &gt;= 18 ? 'adult' : 'minor' }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="age">taco</b>() }}</i> years old, <i class="t-bind">{{ <b class="nm nm-mine" data-nm="age">taco</b>() &gt;= 18 ? 'adult' : 'minor' }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span></span><span class="ln"><span class="v0"><i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="user">user</b>()?.<b class="nm nm-pub" data-nm="email">email</b> ?? 'no email on file' }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="user">donut</b>()?.<b class="nm nm-pub" data-nm="email">potato</b> ?? 'no email on file' }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span></span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@for">@for</b></i> (<b class="nm nm-mine" data-nm="tag">tag</b> <b class="nm nm-ng" data-nm="of">of</b> <b class="nm nm-mine" data-nm="tags">tags</b>(); <b class="nm nm-ng" data-nm="track">track</b> <b class="nm nm-mine" data-nm="tag">tag</b>) {</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@for">@for</b></i> (<b class="nm nm-mine" data-nm="tag">olive</b> <b class="nm nm-ng" data-nm="of">of</b> <b class="nm nm-mine" data-nm="tags">kiwi</b>(); <b class="nm nm-ng" data-nm="track">track</b> <b class="nm nm-mine" data-nm="tag">olive</b>) {</span></span><span class="ln"><span class="v0">  <i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-ng" data-nm="$index">$index</b> + 1 }}</i>. <i class="t-bind">{{ <b class="nm nm-mine" data-nm="tag">tag</b> }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-ng" data-nm="$index">$index</b> + 1 }}</i>. <i class="t-bind">{{ <b class="nm nm-mine" data-nm="tag">olive</b> }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-com">&lt;!-- 2. [ ] sets a property --&gt;</i></span><span class="ln"><span class="v0"><i class="t-tag">&lt;img</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="src">src</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="user">user</b>()?.<b class="nm nm-pub" data-nm="avatar">avatar</b>"</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="alt">alt</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="name">name</b>()"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;img</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="src">src</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="user">donut</b>()?.<b class="nm nm-pub" data-nm="avatar">mango</b>"</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="alt">alt</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="name">muffin</b>()"</i><i class="t-tag">&gt;</i></span></span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@let">@let</b></i> <b class="nm nm-mine" data-nm="sub">sub</b> = <b class="nm nm-mine" data-nm="user">user</b>()?.<b class="nm nm-pub" data-nm="subscription">subscription</b>;</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@let">@let</b></i> <b class="nm nm-mine" data-nm="sub">biscuit</b> = <b class="nm nm-mine" data-nm="user">donut</b>()?.<b class="nm nm-pub" data-nm="subscription">pickle</b>;</span></span><span class="ln"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@if">@if</b></i> <i class="t-bind">(<b class="nm nm-mine" data-nm="sub">sub</b>)</i> {</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@if">@if</b></i> <i class="t-bind">(<b class="nm nm-mine" data-nm="sub">biscuit</b>)</i> {</span></span><span class="ln"><span class="v0">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="sub">sub</b>.<b class="nm nm-pub" data-nm="plan">plan</b> }}</i> plan, renews <i class="t-bind">{{ <b class="nm nm-mine" data-nm="sub">sub</b>.<b class="nm nm-pub" data-nm="renewsAt">renewsAt</b> }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="sub">biscuit</b>.<b class="nm nm-pub" data-nm="plan">waffle</b> }}</i> plan, renews <i class="t-bind">{{ <b class="nm nm-mine" data-nm="sub">biscuit</b>.<b class="nm nm-pub" data-nm="renewsAt">noodle</b> }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span></span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-com">&lt;!-- 3. # labels, 4. ( ) listens --&gt;</i></span><span class="ln"><span class="v0"><i class="t-tag">&lt;input</i> <i class="t-bind">#<b class="nm nm-mine" data-nm="box">box</b></i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;input</i> <i class="t-bind">#<b class="nm nm-mine" data-nm="box">carrot</b></i><i class="t-tag">&gt;</i></span></span><span class="ln"><span class="v0"><i class="t-tag">&lt;button</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="click">click</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="rename">rename</b>(<b class="nm nm-mine" data-nm="box">box</b>.<b class="nm nm-ng" data-nm="value">value</b>)"</i><i class="t-tag">&gt;</i>Use what I typed<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;button</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="click">click</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="rename">pepper</b>(<b class="nm nm-mine" data-nm="box">carrot</b>.<b class="nm nm-ng" data-nm="value">value</b>)"</i><i class="t-tag">&gt;</i>Use what I typed<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">A template can read three kinds of names: members of its own class (green, declared in <code>profile.ts</code>), names the template declares itself (green too: <code>#box</code>, <code>@let sub</code>, the loop’s <code>tag</code>), and fields of your data types (orange, because <code>user.ts</code> declares them). Blue is Angular’s syntax and the browser’s properties and events.</span><span class="l-ar" dir="auto">التمبلت يقدر يقرا تلات أنواع أسماء: members في الكلاس بتاعه (أخضر، متعلنة في <code>profile.ts</code>)، وأسماء التمبلت بيعلنها بنفسه (أخضر برضه: <code>#box</code> و<code>@let sub</code> و<code>tag</code> بتاع اللوب)، والـ fields بتاعة أنواع الداتا بتاعتك (برتقاني، عشان <code>user.ts</code> هو اللي معلنها). والأزرق هو صياغة أنجولار والـ properties والـ events بتاعة المتصفح.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="User">
+        <td><b class="nm nm-pub" data-nm="User">User</b><span class="nmas">&rarr; <code>Banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your data type. Every file that imports it follows a rename.</span><span class="l-ar" dir="auto">نوع الداتا بتاعك. أي ملف بيعمله import بيتغير معاه.</span></td>
+        <td class="nmfiles"><code>user.ts</code> <code>profile.ts</code></td>
+      </tr>
+      <tr data-nmrow="email">
+        <td><b class="nm nm-pub" data-nm="email">email</b><span class="nmas">&rarr; <code>potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field of <code>User</code>. The template reads it as <code>user()?.email</code>. The word inside <code>'no email on file'</code> is just text.</span><span class="l-ar" dir="auto">field في <code>User</code>. التمبلت بيقراه كـ <code>user()?.email</code>. والكلمة اللي جوه <code>'no email on file'</code> مجرد كلام.</span></td>
+        <td class="nmfiles"><code>user.ts</code> <code>profile.html</code></td>
+      </tr>
+      <tr data-nmrow="avatar">
+        <td><b class="nm nm-pub" data-nm="avatar">avatar</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field of <code>User</code>, bound to the image’s <code>src</code>.</span><span class="l-ar" dir="auto">field في <code>User</code>، مربوط بالـ <code>src</code> بتاع الصورة.</span></td>
+        <td class="nmfiles"><code>user.ts</code> <code>profile.html</code></td>
+      </tr>
+      <tr data-nmrow="subscription">
+        <td><b class="nm nm-pub" data-nm="subscription">subscription</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field of <code>User</code>. It may be missing, hence the <code>?</code>.</span><span class="l-ar" dir="auto">field في <code>User</code>. ممكن يبقى مش موجود، عشان كده الـ <code>?</code>.</span></td>
+        <td class="nmfiles"><code>user.ts</code> <code>profile.html</code></td>
+      </tr>
+      <tr data-nmrow="plan">
+        <td><b class="nm nm-pub" data-nm="plan">plan</b><span class="nmas">&rarr; <code>waffle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field inside <code>subscription</code>. The plain word “plan” in the text is not this name.</span><span class="l-ar" dir="auto">field جوه <code>subscription</code>. كلمة «plan» العادية اللي في الكلام مش هي الاسم ده.</span></td>
+        <td class="nmfiles"><code>user.ts</code> <code>profile.html</code></td>
+      </tr>
+      <tr data-nmrow="renewsAt">
+        <td><b class="nm nm-pub" data-nm="renewsAt">renewsAt</b><span class="nmas">&rarr; <code>noodle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field inside <code>subscription</code>.</span><span class="l-ar" dir="auto">field جوه <code>subscription</code>.</span></td>
+        <td class="nmfiles"><code>user.ts</code> <code>profile.html</code></td>
+      </tr>
+      <tr data-nmrow="Profile">
+        <td><b class="nm nm-pub" data-nm="Profile">Profile</b><span class="nmas">&rarr; <code>Pumpkin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The component’s class. Whoever shows it imports it by this name.</span><span class="l-ar" dir="auto">كلاس الـ component. أي حد بيعرضه بيعمله import بالاسم ده.</span></td>
+        <td class="nmfiles"><code>profile.ts</code></td>
+      </tr>
+      <tr data-nmrow="app-profile">
+        <td><b class="nm nm-pub" data-nm="app-profile">app-profile</b><span class="nmas">&rarr; <code>app-turnip</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The component’s selector. A parent types it as a tag.</span><span class="l-ar" dir="auto">الـ selector بتاع الـ component. الأب بيكتبه كتاج.</span></td>
+        <td class="nmfiles"><code>profile.ts</code></td>
+      </tr>
+      <tr data-nmrow="name">
+        <td><b class="nm nm-mine" data-nm="name">name</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own signal. The template reads it with <code>name()</code>.</span><span class="l-ar" dir="auto">الـ signal بتاعة الـ component. التمبلت بيقراها بـ <code>name()</code>.</span></td>
+        <td class="nmfiles"><code>profile.ts</code> <code>profile.html</code> <code>profile.html · no clash</code></td>
+      </tr>
+      <tr data-nmrow="age">
+        <td><b class="nm nm-mine" data-nm="age">age</b><span class="nmas">&rarr; <code>taco</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة الـ component.</span></td>
+        <td class="nmfiles"><code>profile.ts</code> <code>profile.html</code></td>
+      </tr>
+      <tr data-nmrow="tags">
+        <td><b class="nm nm-mine" data-nm="tags">tags</b><span class="nmas">&rarr; <code>kiwi</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own signal: a list.</span><span class="l-ar" dir="auto">الـ signal بتاعة الـ component: ليستة.</span></td>
+        <td class="nmfiles"><code>profile.ts</code> <code>profile.html</code> <code>profile.html — older style</code> <code>profile.html — today</code></td>
+      </tr>
+      <tr data-nmrow="user">
+        <td><b class="nm nm-mine" data-nm="user">user</b><span class="nmas">&rarr; <code>donut</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own signal. It may be <code>null</code>, hence the <code>?.</code>.</span><span class="l-ar" dir="auto">الـ signal بتاعة الـ component. ممكن تبقى <code>null</code>، عشان كده الـ <code>?.</code>.</span></td>
+        <td class="nmfiles"><code>profile.ts</code> <code>profile.html</code></td>
+      </tr>
+      <tr data-nmrow="rename">
+        <td><b class="nm nm-mine" data-nm="rename">rename</b><span class="nmas">&rarr; <code>pepper</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own method, called from the template’s <code>(click)</code>.</span><span class="l-ar" dir="auto">الميثود بتاعة الـ component، والـ <code>(click)</code> في التمبلت هو اللي بيناديها.</span></td>
+        <td class="nmfiles"><code>profile.html</code> <code>profile.ts</code></td>
+      </tr>
+      <tr data-nmrow="newName">
+        <td><b class="nm nm-mine" data-nm="newName">newName</b><span class="nmas">&rarr; <code>lemon</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The method’s parameter. It receives <code>box.value</code>, but you can call it anything.</span><span class="l-ar" dir="auto">الـ parameter بتاع الميثود. بيستقبل <code>box.value</code>، بس تقدر تسمّيه أي حاجة.</span></td>
+        <td class="nmfiles"><code>profile.ts</code></td>
+      </tr>
+      <tr data-nmrow="box">
+        <td><b class="nm nm-mine" data-nm="box">box</b><span class="nmas">&rarr; <code>carrot</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A template reference: <code>#box</code> names the <code>&lt;input&gt;</code>. Only this template knows it; the class does not.</span><span class="l-ar" dir="auto">template reference: <code>#box</code> بيسمّي الـ <code>&lt;input&gt;</code>. التمبلت ده بس اللي يعرفه؛ الكلاس ميعرفوش.</span></td>
+        <td class="nmfiles"><code>profile.html</code> <code>profile.html · no clash</code></td>
+      </tr>
+      <tr data-nmrow="sub">
+        <td><b class="nm nm-mine" data-nm="sub">sub</b><span class="nmas">&rarr; <code>biscuit</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The name you gave with <code>@let</code>. It exists only after that line, inside the same block.</span><span class="l-ar" dir="auto">الاسم اللي ادّيته بـ <code>@let</code>. موجود بس بعد السطر ده، وجوه نفس البلوك.</span></td>
+        <td class="nmfiles"><code>profile.html</code></td>
+      </tr>
+      <tr data-nmrow="tag">
+        <td><b class="nm nm-mine" data-nm="tag">tag</b><span class="nmas">&rarr; <code>olive</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The loop variable: each item of <code>tags()</code>. It exists only inside the <code>@for</code> block.</span><span class="l-ar" dir="auto">متغير اللوب: كل عنصر في <code>tags()</code>. موجود بس جوه بلوك الـ <code>@for</code>.</span></td>
+        <td class="nmfiles"><code>profile.html</code> <code>profile.html — older style</code> <code>profile.html — today</code></td>
+      </tr>
+      <tr data-nmrow="i">
+        <td><b class="nm nm-mine" data-nm="i">i</b><span class="nmas">&rarr; <code>cookie</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">In the old syntax, the name you gave the index. You picked <code>i</code>; <code>index</code> is Angular’s.</span><span class="l-ar" dir="auto">في الصياغة القديمة، الاسم اللي ادّيته للـ index. انت اخترت <code>i</code>؛ و<code>index</code> بتاعة أنجولار.</span></td>
+        <td class="nmfiles"><code>profile.html — older style</code></td>
+      </tr>
+      <tr data-nmrow="@Component">
+        <td><b class="nm nm-ng" data-nm="@Component">@Component</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s decorator.</span><span class="l-ar" dir="auto">الـ decorator بتاع أنجولار.</span></td>
+        <td class="nmfiles"><code>profile.ts</code></td>
+      </tr>
+      <tr data-nmrow="selector">
+        <td><b class="nm nm-ng" data-nm="selector">selector</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key. The tag after it is yours.</span><span class="l-ar" dir="auto">مفتاح إعداد. التاج اللي بعده بتاعك.</span></td>
+        <td class="nmfiles"><code>profile.ts</code></td>
+      </tr>
+      <tr data-nmrow="templateUrl">
+        <td><b class="nm nm-ng" data-nm="templateUrl">templateUrl</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key. The path after it points at your template.</span><span class="l-ar" dir="auto">مفتاح إعداد. المسار اللي بعده بيشاور على التمبلت بتاعك.</span></td>
+        <td class="nmfiles"><code>profile.ts</code></td>
+      </tr>
+      <tr data-nmrow="protected">
+        <td><b class="nm nm-ng" data-nm="protected">protected</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A TypeScript keyword. A <code>protected</code> member can be read by the template; a <code>private</code> one cannot.</span><span class="l-ar" dir="auto">كلمة من TypeScript. الـ member الـ <code>protected</code> التمبلت يقدر يقراه؛ والـ <code>private</code> لأ.</span></td>
+        <td class="nmfiles"><code>profile.ts</code></td>
+      </tr>
+      <tr data-nmrow="signal">
+        <td><b class="nm nm-ng" data-nm="signal">signal</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s writable signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة أنجولار اللي بتتكتب.</span></td>
+        <td class="nmfiles"><code>profile.ts</code></td>
+      </tr>
+      <tr data-nmrow="set">
+        <td><b class="nm nm-ng" data-nm="set">set</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal method: replace the value.</span><span class="l-ar" dir="auto">ميثود بتاعة الـ signal: بتستبدل القيمة.</span></td>
+        <td class="nmfiles"><code>profile.ts</code></td>
+      </tr>
+      <tr data-nmrow="trim">
+        <td><b class="nm nm-ng" data-nm="trim">trim</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">JavaScript’s string method.</span><span class="l-ar" dir="auto">ميثود الـ string بتاعة JavaScript.</span></td>
+        <td class="nmfiles"><code>profile.ts</code></td>
+      </tr>
+      <tr data-nmrow="@for">
+        <td><b class="nm nm-ng" data-nm="@for">@for</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s loop block.</span><span class="l-ar" dir="auto">بلوك اللوب بتاع أنجولار.</span></td>
+        <td class="nmfiles"><code>profile.html</code> <code>profile.html — today</code></td>
+      </tr>
+      <tr data-nmrow="of">
+        <td><b class="nm nm-ng" data-nm="of">of</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Part of <code>@for</code>.</span><span class="l-ar" dir="auto">جزء من <code>@for</code>.</span></td>
+        <td class="nmfiles"><code>profile.html</code> <code>profile.html — older style</code> <code>profile.html — today</code></td>
+      </tr>
+      <tr data-nmrow="track">
+        <td><b class="nm nm-ng" data-nm="track">track</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Part of <code>@for</code>. The expression after it is yours.</span><span class="l-ar" dir="auto">جزء من <code>@for</code>. التعبير اللي بعدها بتاعك.</span></td>
+        <td class="nmfiles"><code>profile.html</code> <code>profile.html — today</code></td>
+      </tr>
+      <tr data-nmrow="$index">
+        <td><b class="nm nm-ng" data-nm="$index">$index</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s fixed name for the position inside <code>@for</code>, starting at 0. You never declare it.</span><span class="l-ar" dir="auto">اسم أنجولار الثابت لمكان العنصر جوه <code>@for</code>، بيبدأ من 0. عمرك ما بتعلنه.</span></td>
+        <td class="nmfiles"><code>profile.html</code> <code>profile.html — today</code></td>
+      </tr>
+      <tr data-nmrow="@let">
+        <td><b class="nm nm-ng" data-nm="@let">@let</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s keyword for a read-only name in the template.</span><span class="l-ar" dir="auto">كلمة أنجولار لاسم read-only في التمبلت.</span></td>
+        <td class="nmfiles"><code>profile.html</code></td>
+      </tr>
+      <tr data-nmrow="@if">
+        <td><b class="nm nm-ng" data-nm="@if">@if</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s if block.</span><span class="l-ar" dir="auto">بلوك الـ if بتاع أنجولار.</span></td>
+        <td class="nmfiles"><code>profile.html</code></td>
+      </tr>
+      <tr data-nmrow="src">
+        <td><b class="nm nm-ng" data-nm="src">src</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s DOM property of <code>&lt;img&gt;</code>.</span><span class="l-ar" dir="auto">الـ property بتاعة <code>&lt;img&gt;</code> في الـ DOM، بتاعة المتصفح.</span></td>
+        <td class="nmfiles"><code>profile.html</code></td>
+      </tr>
+      <tr data-nmrow="alt">
+        <td><b class="nm nm-ng" data-nm="alt">alt</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s DOM property of <code>&lt;img&gt;</code>.</span><span class="l-ar" dir="auto">الـ property بتاعة <code>&lt;img&gt;</code> في الـ DOM، بتاعة المتصفح.</span></td>
+        <td class="nmfiles"><code>profile.html</code></td>
+      </tr>
+      <tr data-nmrow="click">
+        <td><b class="nm nm-ng" data-nm="click">click</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s event name.</span><span class="l-ar" dir="auto">اسم الـ event بتاع المتصفح.</span></td>
+        <td class="nmfiles"><code>profile.html</code></td>
+      </tr>
+      <tr data-nmrow="value">
+        <td><b class="nm nm-ng" data-nm="value">value</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s property of an <code>&lt;input&gt;</code>: what was typed.</span><span class="l-ar" dir="auto">الـ property بتاعة الـ <code>&lt;input&gt;</code> في المتصفح: اللي اتكتب.</span></td>
+        <td class="nmfiles"><code>profile.html</code></td>
+      </tr>
+      <tr data-nmrow="*ngFor">
+        <td><b class="nm nm-ng" data-nm="*ngFor">*ngFor</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The older loop directive.</span><span class="l-ar" dir="auto">الـ directive القديم بتاع اللوب.</span></td>
+        <td class="nmfiles"><code>profile.html — older style</code></td>
+      </tr>
+      <tr data-nmrow="index">
+        <td><b class="nm nm-ng" data-nm="index">index</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">In the old syntax, Angular’s word for the position. You give it your own name with <code>let i = index</code>.</span><span class="l-ar" dir="auto">في الصياغة القديمة، كلمة أنجولار لمكان العنصر. بتدّيها اسم من عندك بـ <code>let i = index</code>.</span></td>
+        <td class="nmfiles"><code>profile.html — older style</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+      </section>
+      <section class="sec" id="rename">
+        <div class="sec-kick"><span class="l-en">Is it OK to change it?</span><span class="l-ar" dir="auto">ينفع أغيّره؟</span></div>
+        <h2><span class="l-en">What breaks when you rename each name</span><span class="l-ar" dir="auto">إيه اللي بيبوظ لما تغيّر كل اسم</span></h2>
+        <p class="sec-lead"><span class="l-en">Angular type-checks templates against the class, so almost every missed rename is a compile error, which is good. The dangerous ones are the browser’s <b>event</b> names: a wrong one is not an error.</span><span class="l-ar" dir="auto">أنجولار بيعمل type-check للتمبلتس على الكلاس، فتقريبًا أي تغيير اسم نسيته بيبقى compile error، وده كويس. الخطيرين هما أسماء الـ <b>events</b> بتاعة المتصفح: الاسم الغلط فيهم مش error.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">If you rename…</span><span class="l-ar" dir="auto">لو غيّرت…</span></th><th><span class="l-en">Also edit…</span><span class="l-ar" dir="auto">غيّر كمان…</span></th><th><span class="l-en">If you forget</span><span class="l-ar" dir="auto">لو نسيت</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en"><b class="nm nm-mine" data-nm="name">name</b>, <b class="nm nm-mine" data-nm="age">age</b>, <b class="nm nm-mine" data-nm="tags">tags</b>, <b class="nm nm-mine" data-nm="user">user</b></span><span class="l-ar" dir="auto"><b class="nm nm-mine" data-nm="name">name</b> و<b class="nm nm-mine" data-nm="age">age</b> و<b class="nm nm-mine" data-nm="tags">tags</b> و<b class="nm nm-mine" data-nm="user">user</b></span></td><td><span class="l-en">every use in the template</span><span class="l-ar" dir="auto">كل استخدام في التمبلت</span></td><td><span class="l-en">Compile error: the property does not exist on the class.</span><span class="l-ar" dir="auto">Compile error: الـ property مش موجودة في الكلاس.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-mine" data-nm="rename">rename</b> (method)</span><span class="l-ar" dir="auto"><b class="nm nm-mine" data-nm="rename">rename</b> (ميثود)</span></td><td><span class="l-en"><code>(click)="rename(…)"</code></span><span class="l-ar" dir="auto"><code>(click)="rename(…)"</code></span></td><td><span class="l-en">Compile error in the template.</span><span class="l-ar" dir="auto">Compile error في التمبلت.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-mine" data-nm="newName">newName</b> (parameter)</span><span class="l-ar" dir="auto"><b class="nm nm-mine" data-nm="newName">newName</b> (parameter)</span></td><td><span class="l-en">only the body of that method</span><span class="l-ar" dir="auto">جسم الميثود دي بس</span></td><td><span class="l-en">Compile error inside the method.</span><span class="l-ar" dir="auto">Compile error جوه الميثود.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-mine" data-nm="box">box</b> (<code>#box</code>)</span><span class="l-ar" dir="auto"><b class="nm nm-mine" data-nm="box">box</b> (<code>#box</code>)</span></td><td><span class="l-en">every <code>box.</code> in the same template</span><span class="l-ar" dir="auto">كل <code>box.</code> في نفس التمبلت</span></td><td><span class="l-en">Compile error: Angular then looks for <code>box</code> on the class and does not find it.</span><span class="l-ar" dir="auto">Compile error: أنجولار ساعتها بيدوّر على <code>box</code> في الكلاس ومش بيلاقيه.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-mine" data-nm="sub">sub</b> (<code>@let</code>)</span><span class="l-ar" dir="auto"><b class="nm nm-mine" data-nm="sub">sub</b> (<code>@let</code>)</span></td><td><span class="l-en">the uses after it, in the same block</span><span class="l-ar" dir="auto">الاستخدامات اللي بعده، في نفس البلوك</span></td><td><span class="l-en">Compile error in the template.</span><span class="l-ar" dir="auto">Compile error في التمبلت.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-mine" data-nm="tag">tag</b> (loop variable)</span><span class="l-ar" dir="auto"><b class="nm nm-mine" data-nm="tag">tag</b> (متغير اللوب)</span></td><td><span class="l-en">the <code>track</code> expression and the block’s body</span><span class="l-ar" dir="auto">تعبير الـ <code>track</code> وجسم البلوك</span></td><td><span class="l-en">Compile error inside the block.</span><span class="l-ar" dir="auto">Compile error جوه البلوك.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="email">email</b>, <b class="nm nm-pub" data-nm="avatar">avatar</b>, <b class="nm nm-pub" data-nm="plan">plan</b> (fields)</span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="email">email</b> و<b class="nm nm-pub" data-nm="avatar">avatar</b> و<b class="nm nm-pub" data-nm="plan">plan</b> (fields)</span></td><td><span class="l-en">the <code>User</code> interface and every template that reads them</span><span class="l-ar" dir="auto">الـ interface <code>User</code> وكل تمبلت بيقراهم</span></td><td><span class="l-en">Compile error wherever the old field is read.</span><span class="l-ar" dir="auto">Compile error في كل حتة بتقرا الـ field القديم.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-ng" data-nm="src">src</b> (a browser property)</span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="src">src</b> (property بتاعة المتصفح)</span></td><td><span class="l-en">you cannot: <code>[scr]</code> is a typo, not a rename</span><span class="l-ar" dir="auto">مينفعش: <code>[scr]</code> غلطة إملائية، مش تغيير اسم</span></td><td><span class="l-en">Compile error: <i>Can’t bind to 'scr' since it isn’t a known property of 'img'</i>.</span><span class="l-ar" dir="auto">Compile error: <i>Can’t bind to 'scr' since it isn’t a known property of 'img'</i>.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-ng" data-nm="click">click</b> (a browser event)</span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="click">click</b> (event بتاع المتصفح)</span></td><td><span class="l-en">you cannot: <code>(clik)</code> is a typo</span><span class="l-ar" dir="auto">مينفعش: <code>(clik)</code> غلطة إملائية</span></td><td><span class="l-en"><b>No error at all.</b> Angular listens for an event called <code>clik</code>, which never comes.</span><span class="l-ar" dir="auto"><b>مفيش أي error.</b> أنجولار بيسمع لـ event اسمه <code>clik</code>، وده عمره ما هييجي.</span></td></tr></tbody>
+    </table></div><div class="note"><b class="lbl"><span class="l-en">Try it</span><span class="l-ar" dir="auto">جرّبها</span></b><p><span class="l-en">Press <b>Rename test</b> in the bar above the files. <code>name</code>, <code>box</code>, <code>sub</code> and <code>tag</code> all change, but <code>src</code>, <code>alt</code>, <code>click</code>, <code>value</code> and <code>$index</code> do not move. That is the line between your names and everyone else’s.</span><span class="l-ar" dir="auto">دوس <b>جرّب تغيّر الأسماء</b> في الشريط اللي فوق الملفات. <code>name</code> و<code>box</code> و<code>sub</code> و<code>tag</code> كلهم بيتغيروا، لكن <code>src</code> و<code>alt</code> و<code>click</code> و<code>value</code> و<code>$index</code> مش بيتحركوا. ده الخط اللي بين أسماءك وأسماء كل الناس التانية.</span></p></div>
+      </section>
+      <section class="sec" id="fixed">
+        <div class="sec-kick"><span class="l-en">Not yours</span><span class="l-ar" dir="auto">مش بتوعك</span></div>
+        <h2><span class="l-en">The fixed names: <code>@</code>, <code>$</code>, and the browser</span><span class="l-ar" dir="auto">الأسماء الثابتة: <code>@</code> و<code>$</code> والمتصفح</span></h2>
+        <p class="sec-lead"><span class="l-en">Three families of names in a template are never yours. Two of them are easy to spot because of their first character.</span><span class="l-ar" dir="auto">فيه تلات عائلات أسماء في التمبلت عمرها ما بتبقى بتاعتك. اتنين منهم سهل تعرفهم من أول حرف.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">Family</span><span class="l-ar" dir="auto">العيلة</span></th><th><span class="l-en">Examples</span><span class="l-ar" dir="auto">أمثلة</span></th><th><span class="l-en">Rule</span><span class="l-ar" dir="auto">القاعدة</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en"><b>Starts with <code>@</code></b>: Angular’s blocks</span><span class="l-ar" dir="auto"><b>بيبدأ بـ <code>@</code></b>: بلوكات أنجولار</span></td><td><span class="l-en"><b class="nm nm-ng" data-nm="@if">@if</b>, <b class="nm nm-ng" data-nm="@for">@for</b>, <b class="nm nm-ng" data-nm="@let">@let</b>, <code>@switch</code>, <code>@defer</code></span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="@if">@if</b> و<b class="nm nm-ng" data-nm="@for">@for</b> و<b class="nm nm-ng" data-nm="@let">@let</b> و<code>@switch</code> و<code>@defer</code></span></td><td><span class="l-en">Only Angular defines these. The names you put <i>after</i> them (<code>@let sub</code>) are yours.</span><span class="l-ar" dir="auto">أنجولار بس اللي بيعرّفهم. والأسماء اللي بتحطها <i>بعدهم</i> (<code>@let sub</code>) بتاعتك.</span></td></tr><tr><td><span class="l-en"><b>Starts with <code>$</code></b>: Angular’s special values</span><span class="l-ar" dir="auto"><b>بيبدأ بـ <code>$</code></b>: قيم أنجولار الخاصة</span></td><td><span class="l-en"><b class="nm nm-ng" data-nm="$index">$index</b>, <code>$first</code>, <code>$last</code>, <code>$count</code> in <code>@for</code>; <code>$event</code> in <code>( )</code>; <code>$any()</code></span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="$index">$index</b> و<code>$first</code> و<code>$last</code> و<code>$count</code> في <code>@for</code>؛ و<code>$event</code> في <code>( )</code>؛ و<code>$any()</code></span></td><td><span class="l-en">They exist without you declaring them, only in their place: <code>$index</code> only inside <code>@for</code>, <code>$event</code> only inside <code>( )="…"</code>.</span><span class="l-ar" dir="auto">موجودين من غير ما تعلنهم، بس في مكانهم: <code>$index</code> جوه <code>@for</code> بس، و<code>$event</code> جوه <code>( )="…"</code> بس.</span></td></tr><tr><td><span class="l-en"><b>The browser’s</b>: tags, properties, events</span><span class="l-ar" dir="auto"><b>بتوع المتصفح</b>: تاجات، properties، events</span></td><td><span class="l-en"><b class="nm nm-ng" data-nm="src">src</b>, <b class="nm nm-ng" data-nm="alt">alt</b>, <b class="nm nm-ng" data-nm="value">value</b>, <b class="nm nm-ng" data-nm="click">click</b>, <code>&lt;img&gt;</code>, <code>&lt;input&gt;</code></span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="src">src</b> و<b class="nm nm-ng" data-nm="alt">alt</b> و<b class="nm nm-ng" data-nm="value">value</b> و<b class="nm nm-ng" data-nm="click">click</b> و<code>&lt;img&gt;</code> و<code>&lt;input&gt;</code></span></td><td><span class="l-en">Look them up (MDN), never invent them. A wrong property is a compile error; a wrong event is silent.</span><span class="l-ar" dir="auto">دوّر عليهم (MDN)، ومتألفهمش. الـ property الغلط compile error؛ والـ event الغلط ساكت.</span></td></tr></tbody>
+    </table></div><p><span class="l-en">Plain JavaScript methods work inside expressions, and they are JavaScript’s names: <b class="nm nm-ng" data-nm="trim">trim</b> in the class, <code>toUpperCase()</code> or <code>join()</code> in a template. What a template cannot reach are <b>globals</b> like <code>window</code>, <code>Math</code> or <code>console</code>: if you need one, expose it from the class.</span><span class="l-ar" dir="auto">ميثودز JavaScript العادية بتشتغل جوه التعبيرات، وأسماءها بتاعة JavaScript: <b class="nm nm-ng" data-nm="trim">trim</b> في الكلاس، أو <code>toUpperCase()</code> أو <code>join()</code> في التمبلت. اللي التمبلت مايقدرش يوصله هو الـ <b>globals</b> زي <code>window</code> و<code>Math</code> و<code>console</code>: لو محتاج واحد منهم، اعرضه من الكلاس.</span></p>
+      </section>
+      <section class="sec" id="habits">
+        <div class="sec-kick"><span class="l-en">Conventions, not rules</span><span class="l-ar" dir="auto">عادات، مش قواعد</span></div>
+        <h2><span class="l-en">How to pick good names for a template</span><span class="l-ar" dir="auto">تختار أسماء كويسة للتمبلت إزاي</span></h2>
+        <p class="sec-lead"><span class="l-en">A template is read far more often than it is written. These habits make it read like a sentence.</span><span class="l-ar" dir="auto">التمبلت بيتقري أكتر بكتير ما بيتكتب. العادات دي بتخليه يتقري زي جملة.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">Naming</span><span class="l-ar" dir="auto">بتسمّي</span></th><th><span class="l-en">Good</span><span class="l-ar" dir="auto">كويس</span></th><th><span class="l-en">Avoid</span><span class="l-ar" dir="auto">ابعد عن</span></th><th><span class="l-en">Why</span><span class="l-ar" dir="auto">ليه</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en">a class member the template reads</span><span class="l-ar" dir="auto">member في الكلاس التمبلت بيقراه</span></td><td><span class="l-en"><code>name</code>, <code>user</code>, <code>isAdult</code></span><span class="l-ar" dir="auto"><code>name</code>، <code>user</code>، <code>isAdult</code></span></td><td><span class="l-en"><code>data</code>, <code>val</code>, <code>x</code></span><span class="l-ar" dir="auto"><code>data</code>، <code>val</code>، <code>x</code></span></td><td><span class="l-en">The template shows it; the name should say what the user sees.</span><span class="l-ar" dir="auto">التمبلت بيعرضه؛ فالاسم المفروض يقول المستخدم شايف إيه.</span></td></tr><tr><td><span class="l-en">a template reference</span><span class="l-ar" dir="auto">template reference</span></td><td><span class="l-en"><code>#box</code>, <code>#searchInput</code></span><span class="l-ar" dir="auto"><code>#box</code>، <code>#searchInput</code></span></td><td><span class="l-en"><code>#input</code>, <code>#name</code></span><span class="l-ar" dir="auto"><code>#input</code>، <code>#name</code></span></td><td><span class="l-en">Do not reuse a class member’s name, or a tag name. The template name wins and hides the other one (see below).</span><span class="l-ar" dir="auto">متستخدمش اسم member في الكلاس، ولا اسم تاج. اسم التمبلت بيكسب وبيخبّي التاني (بص تحت).</span></td></tr><tr><td><span class="l-en">a loop variable</span><span class="l-ar" dir="auto">متغير اللوب</span></td><td><span class="l-en"><code>tag</code> for <code>tags()</code></span><span class="l-ar" dir="auto"><code>tag</code> لـ <code>tags()</code></span></td><td><span class="l-en"><code>item</code> for everything, <code>tags</code> for one tag</span><span class="l-ar" dir="auto"><code>item</code> لكل حاجة، <code>tags</code> لتاج واحد</span></td><td><span class="l-en">Singular of the list’s name. It reads as “for each tag of tags”.</span><span class="l-ar" dir="auto">مفرد اسم الليستة. بتتقري «لكل tag في tags».</span></td></tr><tr><td><span class="l-en">an <code>@let</code></span><span class="l-ar" dir="auto"><code>@let</code></span></td><td><span class="l-en"><code>sub</code>, <code>total</code></span><span class="l-ar" dir="auto"><code>sub</code>، <code>total</code></span></td><td><span class="l-en">long names copied from the chain</span><span class="l-ar" dir="auto">أسماء طويلة منسوخة من السلسلة</span></td><td><span class="l-en">It exists to shorten a long expression. Short and clear.</span><span class="l-ar" dir="auto">هو معمول عشان يختصر تعبير طويل. قصير وواضح.</span></td></tr><tr><td><span class="l-en">members only the template uses</span><span class="l-ar" dir="auto">members التمبلت بس بيستخدمها</span></td><td><span class="l-en"><code>protected</code></span><span class="l-ar" dir="auto"><code>protected</code></span></td><td><span class="l-en"><code>public</code> by default, or <code>private</code></span><span class="l-ar" dir="auto"><code>public</code> على طول، أو <code>private</code></span></td><td><span class="l-en">The Angular style guide suggests <code>protected</code> for members used only by the template. <code>private</code> ones the template cannot read at all.</span><span class="l-ar" dir="auto">دليل أنجولار بينصح بـ <code>protected</code> للـ members اللي التمبلت بس بيستخدمها. والـ <code>private</code> التمبلت مايقدرش يقراها خالص.</span></td></tr></tbody>
+    </table></div>
+      </section>
+      <section class="sec" id="forced">
+        <div class="sec-kick"><span class="l-en">When a rule picks the name</span><span class="l-ar" dir="auto">لما قاعدة هي اللي بتختار الاسم</span></div>
+        <h2><span class="l-en">Three rules about what a template can see</span><span class="l-ar" dir="auto">تلات قواعد عن التمبلت يقدر يشوف إيه</span></h2>
+        <p class="sec-lead"><span class="l-en">A name being yours does not mean the template can use it anywhere. Three rules decide.</span><span class="l-ar" dir="auto">إن الاسم بتاعك مش معناه إن التمبلت يقدر يستخدمه في أي حتة. فيه تلات قواعد هي اللي بتحكم.</span></p>
+        <div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">A</span><b><span class="l-en">private members are invisible to the template</span><span class="l-ar" dir="auto">الـ members الـ private مش ظاهرة للتمبلت</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>profile.ts<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="name">name</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-str">'Mona'</i>);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="name">muffin</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-str">'Mona'</i>);</span></span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>profile.ts<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0">  <i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="name">name</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-str">'Mona'</i>);</span><span class="v1">  <i class="t-key"><b class="nm nm-ng" data-nm="protected">protected</b></i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="name">muffin</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-str">'Mona'</i>);</span></span></pre>
+      </div>
+    </div><p><span class="l-en">The template is checked like code outside the class, so a <code>private</code> member used in it is a compile error. <code>protected</code> and <code>public</code> both work.</span><span class="l-ar" dir="auto">التمبلت بيتراجع كأنه كود برّه الكلاس، فأي member <code>private</code> مستخدم فيه بيبقى compile error. <code>protected</code> و<code>public</code> الاتنين شغالين.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">B</span><b><span class="l-en">A template name hides a class name</span><span class="l-ar" dir="auto">اسم التمبلت بيخبّي اسم الكلاس</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="html">
+        <div class="fc-h"><span class="d"></span>profile.html · clash<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ name() }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span><span class="ln"><i class="t-tag">&lt;input</i> <i class="t-bind">#name</i><i class="t-tag">&gt;</i></span></pre>
+      </div>
+      <div class="code good" data-lang="html">
+        <div class="fc-h"><span class="d"></span>profile.html · no clash<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="name">name</b>() }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="name">muffin</b>() }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span></span><span class="ln"><span class="v0"><i class="t-tag">&lt;input</i> <i class="t-bind">#<b class="nm nm-mine" data-nm="box">box</b></i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;input</i> <i class="t-bind">#<b class="nm nm-mine" data-nm="box">carrot</b></i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+    </div><p><span class="l-en">When a template name (a <code>#ref</code>, a loop variable, an <code>@let</code>) and a class member share a spelling, the template name wins everywhere in its scope. Here <code>name</code> suddenly means the <code>&lt;input&gt;</code> element, and <code>name()</code> fails with a confusing “not callable” error.</span><span class="l-ar" dir="auto">لما اسم في التمبلت (<code>#ref</code>، أو متغير لوب، أو <code>@let</code>) وmember في الكلاس يبقوا نفس الكتابة، اسم التمبلت بيكسب في كل مكان جوه النطاق بتاعه. هنا <code>name</code> فجأة بقى معناه عنصر الـ <code>&lt;input&gt;</code>، و<code>name()</code> بتفشل بـ error ملخبط «not callable».</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">C</span><b><span class="l-en">Template names have a scope</span><span class="l-ar" dir="auto">أسماء التمبلت ليها نطاق</span></b></div>
+      <p><span class="l-en"><b class="nm nm-mine" data-nm="tag">tag</b> exists only inside its <code>@for</code> block. <b class="nm nm-mine" data-nm="sub">sub</b> exists only after its <code>@let</code> line, inside the same block, and can never be reassigned. <b class="nm nm-mine" data-nm="box">box</b> is visible in the whole template (unless it sits inside a block like <code>@if</code>, then only in that block). None of them exist in the class.</span><span class="l-ar" dir="auto"><b class="nm nm-mine" data-nm="tag">tag</b> موجود بس جوه بلوك الـ <code>@for</code> بتاعه. و<b class="nm nm-mine" data-nm="sub">sub</b> موجود بس بعد سطر الـ <code>@let</code> بتاعه، وجوه نفس البلوك، ومينفعش يتغير أبدًا. و<b class="nm nm-mine" data-nm="box">box</b> ظاهر في التمبلت كله (إلا لو هو جوه بلوك زي <code>@if</code>، ساعتها جوه البلوك ده بس). ولا واحد فيهم موجود في الكلاس.</span></p>
+    </div>
+      </section>
+      <section class="sec" id="old">
+        <div class="sec-kick"><span class="l-en">Older code</span><span class="l-ar" dir="auto">كود أقدم</span></div>
+        <h2><span class="l-en"><code>*ngFor</code>: you had to name the index yourself</span><span class="l-ar" dir="auto"><code>*ngFor</code>: كان لازم تسمّي الـ index بنفسك</span></h2>
+        <p class="sec-lead"><span class="l-en">Older templates use <code>*ngFor</code> and <code>*ngIf</code>. The loop variable works the same, but the extras are the other way round: you invent a name and point it at Angular’s word.</span><span class="l-ar" dir="auto">التمبلتس الأقدم بتستخدم <code>*ngFor</code> و<code>*ngIf</code>. متغير اللوب بيشتغل بنفس الطريقة، بس الحاجات الزيادة بالعكس: انت بتألف اسم وتربطه بكلمة أنجولار.</span></p>
+        <div class="pair">
+      <div class="code bad" data-lang="html">
+        <div class="fc-h"><span class="d"></span>profile.html — older style<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;span</i> <i class="t-bind"><b class="nm nm-ng" data-nm="*ngFor">*ngFor</b></i>=<i class="t-str">"let <b class="nm nm-mine" data-nm="tag">tag</b> <b class="nm nm-ng" data-nm="of">of</b> <b class="nm nm-mine" data-nm="tags">tags</b>(); let <b class="nm nm-mine" data-nm="i">i</b> = <b class="nm nm-ng" data-nm="index">index</b>"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;span</i> <i class="t-bind"><b class="nm nm-ng" data-nm="*ngFor">*ngFor</b></i>=<i class="t-str">"let <b class="nm nm-mine" data-nm="tag">olive</b> <b class="nm nm-ng" data-nm="of">of</b> <b class="nm nm-mine" data-nm="tags">kiwi</b>(); let <b class="nm nm-mine" data-nm="i">cookie</b> = <b class="nm nm-ng" data-nm="index">index</b>"</i><i class="t-tag">&gt;</i></span></span><span class="ln"><span class="v0">  <i class="t-bind">{{ <b class="nm nm-mine" data-nm="i">i</b> + 1 }}</i>. <i class="t-bind">{{ <b class="nm nm-mine" data-nm="tag">tag</b> }}</i></span><span class="v1">  <i class="t-bind">{{ <b class="nm nm-mine" data-nm="i">cookie</b> + 1 }}</i>. <i class="t-bind">{{ <b class="nm nm-mine" data-nm="tag">olive</b> }}</i></span></span><span class="ln"><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></pre>
+      </div>
+      <div class="code good" data-lang="html">
+        <div class="fc-h"><span class="d"></span>profile.html — today<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@for">@for</b></i> (<b class="nm nm-mine" data-nm="tag">tag</b> <b class="nm nm-ng" data-nm="of">of</b> <b class="nm nm-mine" data-nm="tags">tags</b>(); <b class="nm nm-ng" data-nm="track">track</b> <b class="nm nm-mine" data-nm="tag">tag</b>) {</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@for">@for</b></i> (<b class="nm nm-mine" data-nm="tag">olive</b> <b class="nm nm-ng" data-nm="of">of</b> <b class="nm nm-mine" data-nm="tags">kiwi</b>(); <b class="nm nm-ng" data-nm="track">track</b> <b class="nm nm-mine" data-nm="tag">olive</b>) {</span></span><span class="ln"><span class="v0">  <i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-ng" data-nm="$index">$index</b> + 1 }}</i>. <i class="t-bind">{{ <b class="nm nm-mine" data-nm="tag">tag</b> }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-ng" data-nm="$index">$index</b> + 1 }}</i>. <i class="t-bind">{{ <b class="nm nm-mine" data-nm="tag">olive</b> }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></span><span class="ln">}</span></pre>
+      </div>
+    </div><p><span class="l-en">In <code>let i = index</code>, <b class="nm nm-mine" data-nm="i">i</b> is yours and <b class="nm nm-ng" data-nm="index">index</b> is Angular’s. With <b class="nm nm-ng" data-nm="@for">@for</b> you skip that step: <b class="nm nm-ng" data-nm="$index">$index</b> is already there. The old form also needs <code>NgFor</code> (or <code>CommonModule</code>) in <code>imports</code>, which <code>@for</code> does not.</span><span class="l-ar" dir="auto">في <code>let i = index</code>، <b class="nm nm-mine" data-nm="i">i</b> بتاعك و<b class="nm nm-ng" data-nm="index">index</b> بتاعة أنجولار. مع <b class="nm nm-ng" data-nm="@for">@for</b> بتنط الخطوة دي: <b class="nm nm-ng" data-nm="$index">$index</b> موجودة جاهزة. والشكل القديم محتاج كمان <code>NgFor</code> (أو <code>CommonModule</code>) في <code>imports</code>، و<code>@for</code> لأ.</span></p>
+      </section>
+      <section class="sec" id="silent">
+        <div class="sec-kick"><span class="l-en">It does nothing, and says nothing</span><span class="l-ar" dir="auto">مش بيعمل حاجة، ومش بيقول حاجة</span></div>
+        <h2><span class="l-en">Mistakes that fail silently</span><span class="l-ar" dir="auto">غلطات بتفشل في صمت</span></h2>
+        <p class="sec-lead"><span class="l-en">Most template mistakes are caught at compile time. These are the ones that are not, or that give an error you would not connect to the cause.</span><span class="l-ar" dir="auto">أغلب غلطات التمبلت بتتمسك وقت الـ compile. دول اللي مش بيتمسكوا، أو اللي بيدّوا error مش هتربطه بالسبب.</span></p>
+        <div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">1</span><b><span class="l-en">A typo in an event name</span><span class="l-ar" dir="auto">غلطة إملائية في اسم event</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="html">
+        <div class="fc-h"><span class="d"></span>profile.html<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;button</i> <i class="t-bind">(clik)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="rename">rename</b>(<b class="nm nm-mine" data-nm="box">box</b>.<b class="nm nm-ng" data-nm="value">value</b>)"</i><i class="t-tag">&gt;</i>Use what I typed<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;button</i> <i class="t-bind">(clik)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="rename">pepper</b>(<b class="nm nm-mine" data-nm="box">carrot</b>.<b class="nm nm-ng" data-nm="value">value</b>)"</i><i class="t-tag">&gt;</i>Use what I typed<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+      <div class="code good" data-lang="html">
+        <div class="fc-h"><span class="d"></span>profile.html<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;button</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="click">click</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="rename">rename</b>(<b class="nm nm-mine" data-nm="box">box</b>.<b class="nm nm-ng" data-nm="value">value</b>)"</i><i class="t-tag">&gt;</i>Use what I typed<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;button</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="click">click</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="rename">pepper</b>(<b class="nm nm-mine" data-nm="box">carrot</b>.<b class="nm nm-ng" data-nm="value">value</b>)"</i><i class="t-tag">&gt;</i>Use what I typed<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+    </div><p><span class="l-en">Browsers allow custom events with any name, so Angular accepts <code>(clik)</code> and waits for an event that never fires. No error. Property names are checked; event names are not.</span><span class="l-ar" dir="auto">المتصفحات بتسمح بـ events متألفة بأي اسم، فأنجولار بيقبل <code>(clik)</code> ويستنى event عمره ما هيحصل. مفيش error. أسماء الـ properties بتتراجع؛ أسماء الـ events لأ.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">2</span><b><span class="l-en">Forgetting the square brackets</span><span class="l-ar" dir="auto">نسيان الأقواس المربعة</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="html">
+        <div class="fc-h"><span class="d"></span>profile.html<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;img</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="src">src</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="user">user</b>()?.<b class="nm nm-pub" data-nm="avatar">avatar</b>"</i> <i class="t-attr"><b class="nm nm-ng" data-nm="alt">alt</b></i>=<i class="t-str">"name()"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;img</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="src">src</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="user">donut</b>()?.<b class="nm nm-pub" data-nm="avatar">mango</b>"</i> <i class="t-attr"><b class="nm nm-ng" data-nm="alt">alt</b></i>=<i class="t-str">"name()"</i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+      <div class="code good" data-lang="html">
+        <div class="fc-h"><span class="d"></span>profile.html<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;img</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="src">src</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="user">user</b>()?.<b class="nm nm-pub" data-nm="avatar">avatar</b>"</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="alt">alt</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="name">name</b>()"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;img</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="src">src</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="user">donut</b>()?.<b class="nm nm-pub" data-nm="avatar">mango</b>"</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="alt">alt</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="name">muffin</b>()"</i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+    </div><p><span class="l-en">Without brackets, <code>alt</code> is a plain HTML attribute, and its value is the literal text <code>name()</code>. Valid HTML, so nothing complains. Brackets are what make the quotes mean “an expression”.</span><span class="l-ar" dir="auto">من غير أقواس، <code>alt</code> بتبقى attribute HTML عادية، وقيمتها الكلام الحرفي <code>name()</code>. HTML سليم، فمحدش بيشتكي. الأقواس هي اللي بتخلي علامات التنصيص معناها «تعبير».</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">3</span><b><span class="l-en">A signal without its brackets</span><span class="l-ar" dir="auto">signal من غير القوسين بتوعها</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="html">
+        <div class="fc-h"><span class="d"></span>profile.html<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="name">name</b> }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="name">muffin</b> }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+      <div class="code good" data-lang="html">
+        <div class="fc-h"><span class="d"></span>profile.html<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="name">name</b>() }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;h1</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="name">muffin</b>() }}</i><i class="t-tag">&lt;/h1</i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+    </div><p><span class="l-en">A signal is a function. <code>{{ name }}</code> prints the signal itself instead of <code>Mona</code>, and <code>@if (name)</code> is always true. Angular may show a warning for this, but it is not an error.</span><span class="l-ar" dir="auto">الـ signal دي function. <code>{{ name }}</code> بتطبع الـ signal نفسها بدل <code>Mona</code>، و<code>@if (name)</code> بتبقى true دايمًا. أنجولار ممكن يطلّع warning، بس ده مش error.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">4</span><b><span class="l-en">Missing ?. on data that is not there yet</span><span class="l-ar" dir="auto">نسيان ?. على داتا لسه موصلتش</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="html">
+        <div class="fc-h"><span class="d"></span>profile.html<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="user">user</b>().<b class="nm nm-pub" data-nm="email">email</b> }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="user">donut</b>().<b class="nm nm-pub" data-nm="email">potato</b> }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+      <div class="code good" data-lang="html">
+        <div class="fc-h"><span class="d"></span>profile.html<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="user">user</b>()?.<b class="nm nm-pub" data-nm="email">email</b> ?? 'no email on file' }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="user">donut</b>()?.<b class="nm nm-pub" data-nm="email">potato</b> ?? 'no email on file' }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+    </div><p><span class="l-en"><code>user()</code> starts as <code>null</code>. Angular’s strict checking usually catches this at compile time, because the type says <code>User | null</code>. If the type is too loose (say, <code>any</code>), it slips through and becomes <i>Cannot read properties of null</i> in the browser console.</span><span class="l-ar" dir="auto"><code>user()</code> بتبدأ <code>null</code>. الـ strict checking بتاع أنجولار غالبًا بيمسك ده وقت الـ compile، عشان الـ type بيقول <code>User | null</code>. لو الـ type واسع أوي (زي <code>any</code>)، بيعدّي ويبقى <i>Cannot read properties of null</i> في الـ console بتاع المتصفح.</span></p>
+    </div>
+      </section>
+      <section class="sec" id="check">
+        <div class="sec-kick"><span class="l-en">When it shows the wrong thing</span><span class="l-ar" dir="auto">لما بيعرض حاجة غلط</span></div>
+        <h2><span class="l-en">Six questions, in this order</span><span class="l-ar" dir="auto">ست أسئلة، بالترتيب ده</span></h2>
+        <p class="sec-lead"><span class="l-en">Your template shows nothing, shows your code, or ignores a click. Ask these first.</span><span class="l-ar" dir="auto">التمبلت بتاعك مش بيعرض حاجة، أو بيعرض الكود بتاعك، أو بيتجاهل كليك. اسأل دول الأول.</span></p>
+        <div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>1.</b> Is every bare name either a non-<code>private</code> member of this component’s class, or declared in this template (<code>#</code>, <code>@let</code>, loop variable)?</span><span class="l-ar" dir="auto"><b>1.</b> كل اسم لوحده يا إما member مش <code>private</code> في كلاس الـ component ده، يا إما متعلن في التمبلت ده (<code>#</code> أو <code>@let</code> أو متغير لوب)؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>2.</b> Are signals called with brackets: <code>name()</code>?</span><span class="l-ar" dir="auto"><b>2.</b> الـ signals متنادية بالقوسين: <code>name()</code>؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>3.</b> Does every attribute that should hold an expression have <code>[ ]</code> around its name?</span><span class="l-ar" dir="auto"><b>3.</b> كل attribute المفروض فيها تعبير عليها <code>[ ]</code> حوالين اسمها؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>4.</b> Is the event name in <code>( )</code> the browser’s real event name?</span><span class="l-ar" dir="auto"><b>4.</b> اسم الـ event اللي في <code>( )</code> هو اسم الـ event الحقيقي بتاع المتصفح؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>5.</b> Does a <code>#ref</code>, loop variable or <code>@let</code> accidentally share a name with a class member?</span><span class="l-ar" dir="auto"><b>5.</b> فيه <code>#ref</code> أو متغير لوب أو <code>@let</code> واخد نفس اسم member في الكلاس بالغلط؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>6.</b> Is there a <code>?.</code> wherever the data may still be <code>null</code>?</span><span class="l-ar" dir="auto"><b>6.</b> فيه <code>?.</code> في كل حتة الداتا ممكن تكون لسه <code>null</code>؟</span></p></div>
+      </section></div>
+  </div>
+
+  <nav class="pager">
+    <a class="pv" href="04-template-syntax.html"><em>&larr; <span class="l-en">Back to the topic</span><span class="l-ar" dir="auto">رجوع للموضوع</span></em><b><span class="l-en">Template syntax and interpolation</span><span class="l-ar" dir="auto">صياغة التمبلت والـ interpolation</span></b></a>
+    <a class="nx" href="../beginner/05-data-binding.html"><em><span class="l-en">Next topic</span><span class="l-ar" dir="auto">الموضوع اللي بعده</span> &rarr;</em><b><span class="l-en">Property, attribute, event and two-way binding</span><span class="l-ar" dir="auto">ربط الـ property والـ attribute والحدث والاتجاهين</span></b></a>
+  </nav>
+</main>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+/* ---------- language + theme, shared by every page ---------- */
+function _g(id){ return document.getElementById(id); }
+function syncUI(){
+  const r = document.documentElement;
+  const l = r.dataset.lang === 'ar' ? 'ar' : 'en';
+  const t = r.dataset.theme === 'dark' ? 'dark' : 'light';
+  const set = (id, on) => { const b = _g(id); if (b) b.setAttribute('aria-pressed', String(on)); };
+  set('b-en', l === 'en'); set('b-ar', l === 'ar');
+  set('b-lt', t === 'light'); set('b-dk', t === 'dark');
+}
+function setLang(l){
+  const r = document.documentElement;
+  r.dataset.lang = l;
+  r.dir  = l === 'ar' ? 'rtl' : 'ltr';
+  r.lang = l === 'ar' ? 'ar-EG' : 'en';
+  try { localStorage.setItem('tas-lang', l); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+function setTheme(t){
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('tas-theme', t); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+_g('b-en').onclick = () => setLang('en');
+_g('b-ar').onclick = () => setLang('ar');
+_g('b-lt').onclick = () => setTheme('light');
+_g('b-dk').onclick = () => setTheme('dark');
+syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
+
+/* highlight the section you are reading.
+   Position-based, not IntersectionObserver: after clicking a link the previous
+   section still overlaps the observation band by a few pixels, and picking the
+   first intersecting one left the rail a step behind until you nudged the page. */
+const links = new Map([...document.querySelectorAll('[data-rail]')].map(a => [a.dataset.rail, a]));
+const secs = [...document.querySelectorAll('.sec')];
+const LINE = 92;                      /* the reading line, just under the sticky bar */
+
+function markActive(id){
+  links.forEach((a, key) => a.classList.toggle('on', key === id));
+}
+function spy(){
+  if (!secs.length) return;
+  let current = secs[0];
+  for (const sec of secs) {
+    if (sec.getBoundingClientRect().top - LINE <= 0) current = sec; else break;
+  }
+  /* the last section is often too short to ever cross the line */
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) current = secs[secs.length - 1];
+  markActive(current.id);
+}
+
+/* a click should light up immediately, not after the scroll settles */
+links.forEach((a, id) => a.addEventListener('click', () => markActive(id)));
+
+let spying = false;
+addEventListener('scroll', () => {
+  if (spying) return;
+  spying = true;
+  requestAnimationFrame(() => { spying = false; spy(); });
+}, { passive: true });
+addEventListener('resize', spy);
+addEventListener('hashchange', () => requestAnimationFrame(spy));
+addEventListener('load', spy);   /* the browser applies #hash after parsing */
+spy();
+</script>
+</body>
+</html>

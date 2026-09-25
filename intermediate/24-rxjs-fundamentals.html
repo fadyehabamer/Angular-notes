@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -656,22 +727,40 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="obs" data-lang="ts">
         <div class="fc-h"><span class="d"></span>what an Observable actually is<span class="tag"><span class="l-en">the recipe</span><span class="l-ar" dir="auto">الوصفة</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Observable</i> } <i class="t-key">from</i> <i class="t-str">'rxjs'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-com">// nothing in here runs until somebody subscribes.</i></span><span class="ln" data-l="4"><i class="t-key">const</i> clock$ = <i class="t-key">new</i> <i class="t-type">Observable</i>&lt;<i class="t-key">number</i>&gt;(observer =&gt; {</span><span class="ln" data-l="5">  <i class="t-key">let</i> n = <i class="t-num">0</i>;</span><span class="ln" data-l="6">  <i class="t-key">const</i> id = <i class="t-fn">setInterval</i>(() =&gt; observer.<i class="t-fn">next</i>(n++), <i class="t-num">1000</i>);</span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-com">// the teardown. runs on unsubscribe, error or complete.</i></span><span class="ln" data-l="9">  <i class="t-key">return</i> () =&gt; <i class="t-fn">clearInterval</i>(id);</span><span class="ln" data-l="10">});</span><span class="ln" data-l="11"> </span><span class="ln" data-l="12"><i class="t-com">// three callbacks, all optional</i></span><span class="ln" data-l="13"><i class="t-key">const</i> sub = clock$.<i class="t-fn">subscribe</i>({</span><span class="ln" data-l="14">  next:     v =&gt; console.<i class="t-fn">log</i>(<i class="t-str">'tick'</i>, v),</span><span class="ln" data-l="15">  error:    e =&gt; console.<i class="t-fn">error</i>(e),        <i class="t-com">// ends the stream</i></span><span class="ln" data-l="16">  complete: () =&gt; console.<i class="t-fn">log</i>(<i class="t-str">'done'</i>),    <i class="t-com">// also ends it</i></span><span class="ln" data-l="17">});</span><span class="ln" data-l="18"> </span><span class="ln" data-l="19">sub.<i class="t-fn">unsubscribe</i>();     <i class="t-com">// runs the teardown above</i></span><span class="ln" data-l="20"> </span><span class="ln" data-l="21"><i class="t-com">// CONVENTION: a variable holding an observable ends in $</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-ng" data-nm="Observable">Observable</b></i> } <i class="t-key">from</i> <i class="t-str">'rxjs'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-com">// nothing in here runs until somebody subscribes.</i></span><span class="ln" data-l="4"><span class="v0"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="clock$">clock$</b> = <i class="t-key">new</i> <i class="t-type"><b class="nm nm-ng" data-nm="Observable">Observable</b></i>&lt;<i class="t-key">number</i>&gt;(<b class="nm nm-mine" data-nm="observer">observer</b> =&gt; {</span><span class="v1"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="clock$">kofta$</b> = <i class="t-key">new</i> <i class="t-type"><b class="nm nm-ng" data-nm="Observable">Observable</b></i>&lt;<i class="t-key">number</i>&gt;(<b class="nm nm-mine" data-nm="observer">banana</b> =&gt; {</span></span><span class="ln" data-l="5">  <i class="t-key">let</i> n = <i class="t-num">0</i>;</span><span class="ln" data-l="6"><span class="v0">  <i class="t-key">const</i> id = <i class="t-fn"><b class="nm nm-ng" data-nm="setInterval">setInterval</b></i>(() =&gt; <b class="nm nm-mine" data-nm="observer">observer</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="next">next</b></i>(n++), <i class="t-num">1000</i>);</span><span class="v1">  <i class="t-key">const</i> id = <i class="t-fn"><b class="nm nm-ng" data-nm="setInterval">setInterval</b></i>(() =&gt; <b class="nm nm-mine" data-nm="observer">banana</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="next">next</b></i>(n++), <i class="t-num">1000</i>);</span></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-com">// the teardown. runs on unsubscribe, error or complete.</i></span><span class="ln" data-l="9">  <i class="t-key">return</i> () =&gt; <i class="t-fn"><b class="nm nm-ng" data-nm="clearInterval">clearInterval</b></i>(id);</span><span class="ln" data-l="10">});</span><span class="ln" data-l="11"> </span><span class="ln" data-l="12"><i class="t-com">// three callbacks, all optional</i></span><span class="ln" data-l="13"><span class="v0"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="sub">sub</b> = <b class="nm nm-mine" data-nm="clock$">clock$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>({</span><span class="v1"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="sub">potato</b> = <b class="nm nm-mine" data-nm="clock$">kofta$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>({</span></span><span class="ln" data-l="14">  <b class="nm nm-ng" data-nm="next">next</b>:     v =&gt; console.<i class="t-fn">log</i>(<i class="t-str">'tick'</i>, v),</span><span class="ln" data-l="15">  <b class="nm nm-ng" data-nm="error">error</b>:    e =&gt; console.<i class="t-fn"><b class="nm nm-ng" data-nm="error">error</b></i>(e),        <i class="t-com">// ends the stream</i></span><span class="ln" data-l="16">  <b class="nm nm-ng" data-nm="complete">complete</b>: () =&gt; console.<i class="t-fn">log</i>(<i class="t-str">'done'</i>),    <i class="t-com">// also ends it</i></span><span class="ln" data-l="17">});</span><span class="ln" data-l="18"> </span><span class="ln" data-l="19"><span class="v0"><b class="nm nm-mine" data-nm="sub">sub</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="unsubscribe">unsubscribe</b></i>();     <i class="t-com">// runs the teardown above</i></span><span class="v1"><b class="nm nm-mine" data-nm="sub">potato</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="unsubscribe">unsubscribe</b></i>();     <i class="t-com">// runs the teardown above</i></span></span><span class="ln" data-l="20"> </span><span class="ln" data-l="21"><i class="t-com">// CONVENTION: a variable holding an observable ends in $</i></span></pre>
       </div>
       <div class="fc" data-file="cold" data-lang="ts">
         <div class="fc-h"><span class="d"></span>cold vs hot — the one that surprises people<span class="tag"><span class="l-en">important</span><span class="l-ar" dir="auto">مهم</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">// COLD: each subscriber gets its OWN independent run.</i></span><span class="ln" data-l="2"><i class="t-key">const</i> request$ = <i class="t-key">this</i>.http.<i class="t-key">get</i>&lt;<i class="t-type">User</i>[]&gt;(<i class="t-str">'/api/users'</i>);</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">request$.<i class="t-fn">subscribe</i>();      <i class="t-com">// HTTP request #1</i></span><span class="ln" data-l="5">request$.<i class="t-fn">subscribe</i>();      <i class="t-com">// HTTP request #2 — a second, separate call</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">// this is why two  | async  on the same observable = two requests.</i></span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><i class="t-com">// HOT: one source, shared by everyone. a Subject is hot.</i></span><span class="ln" data-l="10"><i class="t-key">const</i> clicks$ = <i class="t-key">new</i> <i class="t-type">Subject</i>&lt;<i class="t-key">void</i>&gt;();</span><span class="ln" data-l="11">clicks$.<i class="t-fn">subscribe</i>(() =&gt; console.<i class="t-fn">log</i>(<i class="t-str">'a'</i>));</span><span class="ln" data-l="12">clicks$.<i class="t-fn">subscribe</i>(() =&gt; console.<i class="t-fn">log</i>(<i class="t-str">'b'</i>));</span><span class="ln" data-l="13">clicks$.<i class="t-fn">next</i>();            <i class="t-com">// logs 'a' AND 'b' — one push, two listeners</i></span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-com">// make a cold one shared:</i></span><span class="ln" data-l="16"><i class="t-key">const</i> shared$ = request$.<i class="t-fn">pipe</i>(<i class="t-fn">shareReplay</i>({ bufferSize: <i class="t-num">1</i>, refCount: <i class="t-key">true</i> }));</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">// COLD: each subscriber gets its OWN independent run.</i></span><span class="ln" data-l="2"><span class="v0"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="request$">request$</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">http</b>.<i class="t-key">get</i>&lt;<i class="t-type">User</i>[]&gt;(<i class="t-str">'/api/users'</i>);</span><span class="v1"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="request$">tahini$</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">mango</b>.<i class="t-key">get</i>&lt;<i class="t-type">User</i>[]&gt;(<i class="t-str">'/api/users'</i>);</span></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><span class="v0"><b class="nm nm-mine" data-nm="request$">request$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>();      <i class="t-com">// HTTP request #1</i></span><span class="v1"><b class="nm nm-mine" data-nm="request$">tahini$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>();      <i class="t-com">// HTTP request #1</i></span></span><span class="ln" data-l="5"><span class="v0"><b class="nm nm-mine" data-nm="request$">request$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>();      <i class="t-com">// HTTP request #2 — a second, separate call</i></span><span class="v1"><b class="nm nm-mine" data-nm="request$">tahini$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>();      <i class="t-com">// HTTP request #2 — a second, separate call</i></span></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">// this is why two  | async  on the same observable = two requests.</i></span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><i class="t-com">// HOT: one source, shared by everyone. a Subject is hot.</i></span><span class="ln" data-l="10"><span class="v0"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="clicks$">clicks$</b> = <i class="t-key">new</i> <i class="t-type"><b class="nm nm-ng" data-nm="Subject">Subject</b></i>&lt;<i class="t-key">void</i>&gt;();</span><span class="v1"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="clicks$">hummus$</b> = <i class="t-key">new</i> <i class="t-type"><b class="nm nm-ng" data-nm="Subject">Subject</b></i>&lt;<i class="t-key">void</i>&gt;();</span></span><span class="ln" data-l="11"><span class="v0"><b class="nm nm-mine" data-nm="clicks$">clicks$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>(() =&gt; console.<i class="t-fn">log</i>(<i class="t-str">'a'</i>));</span><span class="v1"><b class="nm nm-mine" data-nm="clicks$">hummus$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>(() =&gt; console.<i class="t-fn">log</i>(<i class="t-str">'a'</i>));</span></span><span class="ln" data-l="12"><span class="v0"><b class="nm nm-mine" data-nm="clicks$">clicks$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>(() =&gt; console.<i class="t-fn">log</i>(<i class="t-str">'b'</i>));</span><span class="v1"><b class="nm nm-mine" data-nm="clicks$">hummus$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>(() =&gt; console.<i class="t-fn">log</i>(<i class="t-str">'b'</i>));</span></span><span class="ln" data-l="13"><span class="v0"><b class="nm nm-mine" data-nm="clicks$">clicks$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="next">next</b></i>();            <i class="t-com">// logs 'a' AND 'b' — one push, two listeners</i></span><span class="v1"><b class="nm nm-mine" data-nm="clicks$">hummus$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="next">next</b></i>();            <i class="t-com">// logs 'a' AND 'b' — one push, two listeners</i></span></span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-com">// make a cold one shared:</i></span><span class="ln" data-l="16"><span class="v0"><i class="t-key">const</i> shared$ = <b class="nm nm-mine" data-nm="request$">request$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(<i class="t-fn"><b class="nm nm-ng" data-nm="shareReplay">shareReplay</b></i>({ <b class="nm nm-ng" data-nm="bufferSize">bufferSize</b>: <i class="t-num">1</i>, <b class="nm nm-ng" data-nm="refCount">refCount</b>: <i class="t-key">true</i> }));</span><span class="v1"><i class="t-key">const</i> shared$ = <b class="nm nm-mine" data-nm="request$">tahini$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(<i class="t-fn"><b class="nm nm-ng" data-nm="shareReplay">shareReplay</b></i>({ <b class="nm nm-ng" data-nm="bufferSize">bufferSize</b>: <i class="t-num">1</i>, <b class="nm nm-ng" data-nm="refCount">refCount</b>: <i class="t-key">true</i> }));</span></span></pre>
       </div>
       <div class="fc" data-file="subj" data-lang="ts">
         <div class="fc-h"><span class="d"></span>the three Subjects<span class="tag"><span class="l-en">pick the right one</span><span class="l-ar" dir="auto">اختار الصح</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Subject</i>, <i class="t-type">BehaviorSubject</i>, <i class="t-type">ReplaySubject</i> } <i class="t-key">from</i> <i class="t-str">'rxjs'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-com">// Subject — no memory. subscribe late and you miss everything.</i></span><span class="ln" data-l="4"><i class="t-key">const</i> events$ = <i class="t-key">new</i> <i class="t-type">Subject</i>&lt;<i class="t-key">string</i>&gt;();</span><span class="ln" data-l="5">events$.<i class="t-fn">next</i>(<i class="t-str">'one'</i>);</span><span class="ln" data-l="6">events$.<i class="t-fn">subscribe</i>(v =&gt; console.<i class="t-fn">log</i>(v));   <i class="t-com">// logs NOTHING. 'one' is gone.</i></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8"><i class="t-com">// BehaviorSubject — holds the CURRENT value. needs an initial one.</i></span><span class="ln" data-l="9"><i class="t-key">const</i> user$ = <i class="t-key">new</i> <i class="t-type">BehaviorSubject</i>&lt;<i class="t-type">User</i> | <i class="t-key">null</i>&gt;(<i class="t-key">null</i>);</span><span class="ln" data-l="10">user$.<i class="t-fn">next</i>(mona);</span><span class="ln" data-l="11">user$.<i class="t-fn">subscribe</i>(v =&gt; console.<i class="t-fn">log</i>(v));     <i class="t-com">// logs mona immediately</i></span><span class="ln" data-l="12">user$.value;                              <i class="t-com">// and you can read it directly</i></span><span class="ln" data-l="13"> </span><span class="ln" data-l="14"><i class="t-com">// ReplaySubject — remembers the last N values</i></span><span class="ln" data-l="15"><i class="t-key">const</i> log$ = <i class="t-key">new</i> <i class="t-type">ReplaySubject</i>&lt;<i class="t-key">string</i>&gt;(<i class="t-num">3</i>);</span><span class="ln" data-l="16"> </span><span class="ln" data-l="17"><i class="t-com">// THE RULE: for STATE use BehaviorSubject (or, better, a signal).</i></span><span class="ln" data-l="18"><i class="t-com">//           for EVENTS use Subject.</i></span><span class="ln" data-l="19"><i class="t-com">// 'my subscriber gets nothing' is almost always a plain Subject</i></span><span class="ln" data-l="20"><i class="t-com">// being used where BehaviorSubject was needed.</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-ng" data-nm="Subject">Subject</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="BehaviorSubject">BehaviorSubject</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="ReplaySubject">ReplaySubject</b></i> } <i class="t-key">from</i> <i class="t-str">'rxjs'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-com">// Subject — no memory. subscribe late and you miss everything.</i></span><span class="ln" data-l="4"><span class="v0"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="events$">events$</b> = <i class="t-key">new</i> <i class="t-type"><b class="nm nm-ng" data-nm="Subject">Subject</b></i>&lt;<i class="t-key">string</i>&gt;();</span><span class="v1"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="events$">zaatar$</b> = <i class="t-key">new</i> <i class="t-type"><b class="nm nm-ng" data-nm="Subject">Subject</b></i>&lt;<i class="t-key">string</i>&gt;();</span></span><span class="ln" data-l="5"><span class="v0"><b class="nm nm-mine" data-nm="events$">events$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="next">next</b></i>(<i class="t-str">'one'</i>);</span><span class="v1"><b class="nm nm-mine" data-nm="events$">zaatar$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="next">next</b></i>(<i class="t-str">'one'</i>);</span></span><span class="ln" data-l="6"><span class="v0"><b class="nm nm-mine" data-nm="events$">events$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>(v =&gt; console.<i class="t-fn">log</i>(v));   <i class="t-com">// logs NOTHING. 'one' is gone.</i></span><span class="v1"><b class="nm nm-mine" data-nm="events$">zaatar$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>(v =&gt; console.<i class="t-fn">log</i>(v));   <i class="t-com">// logs NOTHING. 'one' is gone.</i></span></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8"><i class="t-com">// BehaviorSubject — holds the CURRENT value. needs an initial one.</i></span><span class="ln" data-l="9"><span class="v0"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="user$">user$</b> = <i class="t-key">new</i> <i class="t-type"><b class="nm nm-ng" data-nm="BehaviorSubject">BehaviorSubject</b></i>&lt;<i class="t-type">User</i> | <i class="t-key">null</i>&gt;(<i class="t-key">null</i>);</span><span class="v1"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="user$">molokhia$</b> = <i class="t-key">new</i> <i class="t-type"><b class="nm nm-ng" data-nm="BehaviorSubject">BehaviorSubject</b></i>&lt;<i class="t-type">User</i> | <i class="t-key">null</i>&gt;(<i class="t-key">null</i>);</span></span><span class="ln" data-l="10"><span class="v0"><b class="nm nm-mine" data-nm="user$">user$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="next">next</b></i>(mona);</span><span class="v1"><b class="nm nm-mine" data-nm="user$">molokhia$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="next">next</b></i>(mona);</span></span><span class="ln" data-l="11"><span class="v0"><b class="nm nm-mine" data-nm="user$">user$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>(v =&gt; console.<i class="t-fn">log</i>(v));     <i class="t-com">// logs mona immediately</i></span><span class="v1"><b class="nm nm-mine" data-nm="user$">molokhia$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>(v =&gt; console.<i class="t-fn">log</i>(v));     <i class="t-com">// logs mona immediately</i></span></span><span class="ln" data-l="12"><span class="v0"><b class="nm nm-mine" data-nm="user$">user$</b>.<b class="nm nm-ng" data-nm="value">value</b>;                              <i class="t-com">// and you can read it directly</i></span><span class="v1"><b class="nm nm-mine" data-nm="user$">molokhia$</b>.<b class="nm nm-ng" data-nm="value">value</b>;                              <i class="t-com">// and you can read it directly</i></span></span><span class="ln" data-l="13"> </span><span class="ln" data-l="14"><i class="t-com">// ReplaySubject — remembers the last N values</i></span><span class="ln" data-l="15"><i class="t-key">const</i> log$ = <i class="t-key">new</i> <i class="t-type"><b class="nm nm-ng" data-nm="ReplaySubject">ReplaySubject</b></i>&lt;<i class="t-key">string</i>&gt;(<i class="t-num">3</i>);</span><span class="ln" data-l="16"> </span><span class="ln" data-l="17"><i class="t-com">// THE RULE: for STATE use BehaviorSubject (or, better, a signal).</i></span><span class="ln" data-l="18"><i class="t-com">//           for EVENTS use Subject.</i></span><span class="ln" data-l="19"><i class="t-com">// 'my subscriber gets nothing' is almost always a plain Subject</i></span><span class="ln" data-l="20"><i class="t-com">// being used where BehaviorSubject was needed.</i></span></pre>
       </div>
       <div class="fc" data-file="ang" data-lang="ts">
         <div class="fc-h"><span class="d"></span>where you meet them in Angular<span class="tag"><span class="l-en">in practice</span><span class="l-ar" dir="auto">في الشغل</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">// COLD, completes after one value — no unsubscribe needed</i></span><span class="ln" data-l="2"><i class="t-key">this</i>.http.<i class="t-key">get</i>&lt;<i class="t-type">User</i>&gt;(<i class="t-str">'/api/me'</i>)</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-com">// HOT, never completes — you MUST unsubscribe</i></span><span class="ln" data-l="5"><i class="t-key">this</i>.form.valueChanges</span><span class="ln" data-l="6"><i class="t-key">this</i>.router.events</span><span class="ln" data-l="7"><i class="t-fn">fromEvent</i>(window, <i class="t-str">'resize'</i>)</span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><i class="t-com">// the safe pattern for anything that never completes:</i></span><span class="ln" data-l="10"><i class="t-key">this</i>.form.valueChanges</span><span class="ln" data-l="11">  .<i class="t-fn">pipe</i>(<i class="t-fn">takeUntilDestroyed</i>())</span><span class="ln" data-l="12">  .<i class="t-fn">subscribe</i>(v =&gt; <i class="t-key">this</i>.<i class="t-fn">autosave</i>(v));</span><span class="ln" data-l="13"> </span><span class="ln" data-l="14"><i class="t-com">// …or avoid the question entirely:</i></span><span class="ln" data-l="15"><i class="t-key">readonly</i> value = <i class="t-fn">toSignal</i>(<i class="t-key">this</i>.form.valueChanges, { initialValue: <i class="t-key">null</i> });</span><span class="ln" data-l="16"> </span><span class="ln" data-l="17"><i class="t-com">// modern Angular guidance: signals for STATE, RxJS for EVENTS</i></span><span class="ln" data-l="18"><i class="t-com">// AND for anything about time, order or cancellation.</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">// COLD, completes after one value — no unsubscribe needed</i></span><span class="ln" data-l="2"><span class="v0"><i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">http</b>.<i class="t-key">get</i>&lt;<i class="t-type">User</i>&gt;(<i class="t-str">'/api/me'</i>)</span><span class="v1"><i class="t-key">this</i>.<b class="nm nm-mine" data-nm="http">mango</b>.<i class="t-key">get</i>&lt;<i class="t-type">User</i>&gt;(<i class="t-str">'/api/me'</i>)</span></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-com">// HOT, never completes — you MUST unsubscribe</i></span><span class="ln" data-l="5"><span class="v0"><i class="t-key">this</i>.<b class="nm nm-mine" data-nm="form">form</b>.<b class="nm nm-ng" data-nm="valueChanges">valueChanges</b></span><span class="v1"><i class="t-key">this</i>.<b class="nm nm-mine" data-nm="form">pickle</b>.<b class="nm nm-ng" data-nm="valueChanges">valueChanges</b></span></span><span class="ln" data-l="6"><span class="v0"><i class="t-key">this</i>.<b class="nm nm-mine" data-nm="router">router</b>.<b class="nm nm-ng" data-nm="events">events</b></span><span class="v1"><i class="t-key">this</i>.<b class="nm nm-mine" data-nm="router">waffle</b>.<b class="nm nm-ng" data-nm="events">events</b></span></span><span class="ln" data-l="7"><i class="t-fn"><b class="nm nm-ng" data-nm="fromEvent">fromEvent</b></i>(window, <i class="t-str">'<b class="nm nm-ng" data-nm="resize">resize</b>'</i>)</span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><i class="t-com">// the safe pattern for anything that never completes:</i></span><span class="ln" data-l="10"><span class="v0"><i class="t-key">this</i>.<b class="nm nm-mine" data-nm="form">form</b>.<b class="nm nm-ng" data-nm="valueChanges">valueChanges</b></span><span class="v1"><i class="t-key">this</i>.<b class="nm nm-mine" data-nm="form">pickle</b>.<b class="nm nm-ng" data-nm="valueChanges">valueChanges</b></span></span><span class="ln" data-l="11">  .<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(<i class="t-fn"><b class="nm nm-ng" data-nm="takeUntilDestroyed">takeUntilDestroyed</b></i>())</span><span class="ln" data-l="12"><span class="v0">  .<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>(v =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="autosave">autosave</b></i>(v));</span><span class="v1">  .<i class="t-fn"><b class="nm nm-ng" data-nm="subscribe">subscribe</b></i>(v =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="autosave">noodle</b></i>(v));</span></span><span class="ln" data-l="13"> </span><span class="ln" data-l="14"><i class="t-com">// …or avoid the question entirely:</i></span><span class="ln" data-l="15"><span class="v0"><i class="t-key">readonly</i> value = <i class="t-fn"><b class="nm nm-ng" data-nm="toSignal">toSignal</b></i>(<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="form">form</b>.<b class="nm nm-ng" data-nm="valueChanges">valueChanges</b>, { <b class="nm nm-ng" data-nm="initialValue">initialValue</b>: <i class="t-key">null</i> });</span><span class="v1"><i class="t-key">readonly</i> value = <i class="t-fn"><b class="nm nm-ng" data-nm="toSignal">toSignal</b></i>(<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="form">pickle</b>.<b class="nm nm-ng" data-nm="valueChanges">valueChanges</b>, { <b class="nm nm-ng" data-nm="initialValue">initialValue</b>: <i class="t-key">null</i> });</span></span><span class="ln" data-l="16"> </span><span class="ln" data-l="17"><i class="t-com">// modern Angular guidance: signals for STATE, RxJS for EVENTS</i></span><span class="ln" data-l="18"><i class="t-com">// AND for anything about time, order or cancellation.</i></span></pre>
       </div></div>
 
   
@@ -684,13 +773,333 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="g1" data-lang="ts">
         <div class="fc-h"><span class="d"></span>the RxJS store<span class="tag"><span class="l-en">you will meet this</span><span class="l-ar" dir="auto">هتقابل دي</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-dec">@Injectable</i>({ providedIn: <i class="t-str">'root'</i> })</span><span class="ln" data-l="2"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">CartStore</i> {</span><span class="ln" data-l="3">  <i class="t-key">private</i> <i class="t-key">readonly</i> _items = <i class="t-key">new</i> <i class="t-type">BehaviorSubject</i>&lt;<i class="t-type">Item</i>[]&gt;([]);</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5">  <i class="t-key">readonly</i> items$ = <i class="t-key">this</i>._items.<i class="t-fn">asObservable</i>();      <i class="t-com">// read-only view</i></span><span class="ln" data-l="6">  <i class="t-key">readonly</i> count$ = <i class="t-key">this</i>.items$.<i class="t-fn">pipe</i>(<i class="t-fn">map</i>(i =&gt; i.length));</span><span class="ln" data-l="7">  <i class="t-key">readonly</i> total$ = <i class="t-key">this</i>.items$.<i class="t-fn">pipe</i>(</span><span class="ln" data-l="8">    <i class="t-fn">map</i>(i =&gt; i.<i class="t-fn">reduce</i>((s, x) =&gt; s + x.price, <i class="t-num">0</i>)));</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10">  <i class="t-fn">add</i>(item: <i class="t-type">Item</i>) {</span><span class="ln" data-l="11">    <i class="t-key">this</i>._items.<i class="t-fn">next</i>([...<i class="t-key">this</i>._items.value, item]);</span><span class="ln" data-l="12">  }</span><span class="ln" data-l="13">}</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-com">// template:  {{ count$ | async }}</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-dec">@Injectable</i>({ providedIn: <i class="t-str">'root'</i> })</span><span class="ln" data-l="2"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="CartStore">CartStore</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="CartStore">Pumpkin</b></i> {</span></span><span class="ln" data-l="3"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="_items">_items</b> = <i class="t-key">new</i> <i class="t-type"><b class="nm nm-ng" data-nm="BehaviorSubject">BehaviorSubject</b></i>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Item">Item</b></i>[]&gt;([]);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="_items">turnip</b> = <i class="t-key">new</i> <i class="t-type"><b class="nm nm-ng" data-nm="BehaviorSubject">BehaviorSubject</b></i>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Item">Pepper</b></i>[]&gt;([]);</span></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="items$">items$</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">_items</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="asObservable">asObservable</b></i>();      <i class="t-com">// read-only view</i></span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="items$">fattah$</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">turnip</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="asObservable">asObservable</b></i>();      <i class="t-com">// read-only view</i></span></span><span class="ln" data-l="6"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="count$">count$</b> = <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="items$">items$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(<i class="t-fn"><b class="nm nm-ng" data-nm="map">map</b></i>(i =&gt; i.length));</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="count$">konafa$</b> = <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="items$">fattah$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(<i class="t-fn"><b class="nm nm-ng" data-nm="map">map</b></i>(i =&gt; i.length));</span></span><span class="ln" data-l="7"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="total$">total$</b> = <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="items$">items$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="total$">mahshi$</b> = <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="items$">fattah$</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(</span></span><span class="ln" data-l="8">    <i class="t-fn"><b class="nm nm-ng" data-nm="map">map</b></i>(i =&gt; i.<i class="t-fn">reduce</i>((s, x) =&gt; s + x.price, <i class="t-num">0</i>)));</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10"><span class="v0">  <i class="t-fn"><b class="nm nm-pub" data-nm="add">add</b></i>(item: <i class="t-type"><b class="nm nm-pub" data-nm="Item">Item</b></i>) {</span><span class="v1">  <i class="t-fn"><b class="nm nm-pub" data-nm="add">donut</b></i>(item: <i class="t-type"><b class="nm nm-pub" data-nm="Item">Pepper</b></i>) {</span></span><span class="ln" data-l="11"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">_items</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="next">next</b></i>([...<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">_items</b>.<b class="nm nm-ng" data-nm="value">value</b>, item]);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">turnip</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="next">next</b></i>([...<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">turnip</b>.<b class="nm nm-ng" data-nm="value">value</b>, item]);</span></span><span class="ln" data-l="12">  }</span><span class="ln" data-l="13">}</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-com">// template:  {{ count$ | async }}</i></span></pre>
       </div>
       <div class="fc" data-file="g2" data-lang="ts">
         <div class="fc-h"><span class="d"></span>the signal store<span class="tag"><span class="l-en">write this</span><span class="l-ar" dir="auto">اكتب دي</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-dec">@Injectable</i>({ providedIn: <i class="t-str">'root'</i> })</span><span class="ln" data-l="2"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">CartStore</i> {</span><span class="ln" data-l="3">  <i class="t-key">private</i> <i class="t-key">readonly</i> _items = signal&lt;<i class="t-type">Item</i>[]&gt;([]);</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5">  <i class="t-key">readonly</i> items = <i class="t-key">this</i>._items.<i class="t-fn">asReadonly</i>();</span><span class="ln" data-l="6">  <i class="t-key">readonly</i> count = <i class="t-fn">computed</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">_items</i>().length);</span><span class="ln" data-l="7">  <i class="t-key">readonly</i> total = <i class="t-fn">computed</i>(() =&gt;</span><span class="ln" data-l="8">    <i class="t-key">this</i>.<i class="t-fn">_items</i>().<i class="t-fn">reduce</i>((s, x) =&gt; s + x.price, <i class="t-num">0</i>));</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10">  <i class="t-fn">add</i>(item: <i class="t-type">Item</i>) {</span><span class="ln" data-l="11">    <i class="t-key">this</i>._items.<i class="t-fn">update</i>(l =&gt; [...l, item]);</span><span class="ln" data-l="12">  }</span><span class="ln" data-l="13">}</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-com">// template:  {{ count() }}      — no pipe, no subscription</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-dec">@Injectable</i>({ providedIn: <i class="t-str">'root'</i> })</span><span class="ln" data-l="2"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="CartStore">CartStore</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="CartStore">Pumpkin</b></i> {</span></span><span class="ln" data-l="3"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="_items">_items</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Item">Item</b></i>[]&gt;([]);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="_items">turnip</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Item">Pepper</b></i>[]&gt;([]);</span></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="items">items</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">_items</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="asReadonly">asReadonly</b></i>();</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="items">muffin</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">turnip</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="asReadonly">asReadonly</b></i>();</span></span><span class="ln" data-l="6"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="count">count</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="_items">_items</b></i>().length);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="count">taco</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="_items">turnip</b></i>().length);</span></span><span class="ln" data-l="7"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="total">total</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt;</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="total">kiwi</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt;</span></span><span class="ln" data-l="8"><span class="v0">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="_items">_items</b></i>().<i class="t-fn">reduce</i>((s, x) =&gt; s + x.price, <i class="t-num">0</i>));</span><span class="v1">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="_items">turnip</b></i>().<i class="t-fn">reduce</i>((s, x) =&gt; s + x.price, <i class="t-num">0</i>));</span></span><span class="ln" data-l="9"> </span><span class="ln" data-l="10"><span class="v0">  <i class="t-fn"><b class="nm nm-pub" data-nm="add">add</b></i>(item: <i class="t-type"><b class="nm nm-pub" data-nm="Item">Item</b></i>) {</span><span class="v1">  <i class="t-fn"><b class="nm nm-pub" data-nm="add">donut</b></i>(item: <i class="t-type"><b class="nm nm-pub" data-nm="Item">Pepper</b></i>) {</span></span><span class="ln" data-l="11"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">_items</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(l =&gt; [...l, item]);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">turnip</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(l =&gt; [...l, item]);</span></span><span class="ln" data-l="12">  }</span><span class="ln" data-l="13">}</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-com">// template:  {{ count() }}      — no pipe, no subscription</i></span></pre>
       </div></div>
   </div>
+
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">The <code>$</code> at the end of <code>clock$</code> is a convention, not syntax: the name is still yours. <code>next</code>, <code>error</code> and <code>complete</code> are the opposite: they look like ordinary words but RxJS calls them by exactly those names.</span><span class="l-ar" dir="auto">الـ <code>$</code> اللي في آخر <code>clock$</code> ده عُرف مش جزء من اللغة: الاسم لسه بتاعك. أما <code>next</code> و<code>error</code> و<code>complete</code> فالعكس: شكلهم كلمات عادية بس RxJS بينادي عليهم بالأسامي دي بالظبط.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="Observable">
+        <td><b class="nm nm-ng" data-nm="Observable">Observable</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">RxJS’s stream type.</span><span class="l-ar" dir="auto">نوع الـ stream بتاع RxJS.</span></td>
+        <td class="nmfiles"><code>what an Observable actually is</code></td>
+      </tr>
+      <tr data-nmrow="subscribe">
+        <td><b class="nm nm-ng" data-nm="subscribe">subscribe</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The RxJS method that starts listening (and, for a cold stream, starts the work).</span><span class="l-ar" dir="auto">ميثود RxJS اللي بتبدأ تسمع (وفي الـ cold stream بتبدأ الشغل كمان).</span></td>
+        <td class="nmfiles"><code>what an Observable actually is</code> <code>cold vs hot — the one that surprises people</code> <code>the three Subjects</code> <code>where you meet them in Angular</code></td>
+      </tr>
+      <tr data-nmrow="unsubscribe">
+        <td><b class="nm nm-ng" data-nm="unsubscribe">unsubscribe</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The RxJS method that stops listening and runs the teardown.</span><span class="l-ar" dir="auto">ميثود RxJS اللي بتوقف السمع وبتشغّل الـ teardown.</span></td>
+        <td class="nmfiles"><code>what an Observable actually is</code></td>
+      </tr>
+      <tr data-nmrow="next">
+        <td><b class="nm nm-ng" data-nm="next">next</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">RxJS’s fixed name for “here is a value”: a method on the observer and on a Subject, and a key in the subscribe object.</span><span class="l-ar" dir="auto">الاسم الثابت في RxJS لـ “خد قيمة”: ميثود في الـ observer وفي الـ Subject، ومفتاح في الـ object بتاع subscribe.</span></td>
+        <td class="nmfiles"><code>what an Observable actually is</code> <code>cold vs hot — the one that surprises people</code> <code>the three Subjects</code> <code>the RxJS store</code></td>
+      </tr>
+      <tr data-nmrow="error">
+        <td><b class="nm nm-ng" data-nm="error">error</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">RxJS’s key for the failure callback. (<code>console.error</code> is the browser’s.)</span><span class="l-ar" dir="auto">مفتاح RxJS للـ callback بتاع الفشل. (و<code>console.error</code> بتاع المتصفح.)</span></td>
+        <td class="nmfiles"><code>what an Observable actually is</code></td>
+      </tr>
+      <tr data-nmrow="complete">
+        <td><b class="nm nm-ng" data-nm="complete">complete</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">RxJS’s key for the “finished” callback.</span><span class="l-ar" dir="auto">مفتاح RxJS للـ callback بتاع “خلصت”.</span></td>
+        <td class="nmfiles"><code>what an Observable actually is</code></td>
+      </tr>
+      <tr data-nmrow="setInterval">
+        <td><b class="nm nm-ng" data-nm="setInterval">setInterval</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s repeating timer.</span><span class="l-ar" dir="auto">التايمر المتكرر بتاع المتصفح.</span></td>
+        <td class="nmfiles"><code>what an Observable actually is</code></td>
+      </tr>
+      <tr data-nmrow="clearInterval">
+        <td><b class="nm nm-ng" data-nm="clearInterval">clearInterval</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s way to stop that timer.</span><span class="l-ar" dir="auto">طريقة المتصفح لإيقاف التايمر ده.</span></td>
+        <td class="nmfiles"><code>what an Observable actually is</code></td>
+      </tr>
+      <tr data-nmrow="Subject">
+        <td><b class="nm nm-ng" data-nm="Subject">Subject</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">RxJS’s hot stream with no memory.</span><span class="l-ar" dir="auto">الـ stream الـ hot بتاع RxJS اللي ملوش ذاكرة.</span></td>
+        <td class="nmfiles"><code>cold vs hot — the one that surprises people</code> <code>the three Subjects</code></td>
+      </tr>
+      <tr data-nmrow="BehaviorSubject">
+        <td><b class="nm nm-ng" data-nm="BehaviorSubject">BehaviorSubject</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">RxJS’s Subject that holds a current value.</span><span class="l-ar" dir="auto">الـ Subject بتاع RxJS اللي شايل قيمة حالية.</span></td>
+        <td class="nmfiles"><code>the three Subjects</code> <code>the RxJS store</code></td>
+      </tr>
+      <tr data-nmrow="ReplaySubject">
+        <td><b class="nm nm-ng" data-nm="ReplaySubject">ReplaySubject</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">RxJS’s Subject that remembers the last N values.</span><span class="l-ar" dir="auto">الـ Subject بتاع RxJS اللي بيفتكر آخر N قيم.</span></td>
+        <td class="nmfiles"><code>the three Subjects</code></td>
+      </tr>
+      <tr data-nmrow="value">
+        <td><b class="nm nm-ng" data-nm="value">value</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The current value of a <code>BehaviorSubject</code>, read directly.</span><span class="l-ar" dir="auto">القيمة الحالية في الـ <code>BehaviorSubject</code>، بتقراها على طول.</span></td>
+        <td class="nmfiles"><code>the three Subjects</code> <code>the RxJS store</code></td>
+      </tr>
+      <tr data-nmrow="pipe">
+        <td><b class="nm nm-ng" data-nm="pipe">pipe</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">RxJS’s method for chaining operators.</span><span class="l-ar" dir="auto">ميثود RxJS لتوصيل الـ operators ورا بعض.</span></td>
+        <td class="nmfiles"><code>cold vs hot — the one that surprises people</code> <code>where you meet them in Angular</code> <code>the RxJS store</code></td>
+      </tr>
+      <tr data-nmrow="shareReplay">
+        <td><b class="nm nm-ng" data-nm="shareReplay">shareReplay</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS operator that turns a cold stream into a shared one.</span><span class="l-ar" dir="auto">operator من RxJS بيحوّل الـ cold stream لواحد متشارك.</span></td>
+        <td class="nmfiles"><code>cold vs hot — the one that surprises people</code></td>
+      </tr>
+      <tr data-nmrow="bufferSize">
+        <td><b class="nm nm-ng" data-nm="bufferSize">bufferSize</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key <code>shareReplay</code> reads.</span><span class="l-ar" dir="auto">مفتاح إعداد <code>shareReplay</code> بيقراه.</span></td>
+        <td class="nmfiles"><code>cold vs hot — the one that surprises people</code></td>
+      </tr>
+      <tr data-nmrow="refCount">
+        <td><b class="nm nm-ng" data-nm="refCount">refCount</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key <code>shareReplay</code> reads.</span><span class="l-ar" dir="auto">مفتاح إعداد <code>shareReplay</code> بيقراه.</span></td>
+        <td class="nmfiles"><code>cold vs hot — the one that surprises people</code></td>
+      </tr>
+      <tr data-nmrow="map">
+        <td><b class="nm nm-ng" data-nm="map">map</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The RxJS operator that transforms each value.</span><span class="l-ar" dir="auto">الـ operator بتاع RxJS اللي بيحوّل كل قيمة.</span></td>
+        <td class="nmfiles"><code>the RxJS store</code></td>
+      </tr>
+      <tr data-nmrow="asObservable">
+        <td><b class="nm nm-ng" data-nm="asObservable">asObservable</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A Subject method: a read-only view of it.</span><span class="l-ar" dir="auto">ميثود في الـ Subject: نسخة للقراية بس.</span></td>
+        <td class="nmfiles"><code>the RxJS store</code></td>
+      </tr>
+      <tr data-nmrow="valueChanges">
+        <td><b class="nm nm-ng" data-nm="valueChanges">valueChanges</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s form Observable.</span><span class="l-ar" dir="auto">الـ Observable بتاع الفورم في أنجولار.</span></td>
+        <td class="nmfiles"><code>where you meet them in Angular</code></td>
+      </tr>
+      <tr data-nmrow="events">
+        <td><b class="nm nm-ng" data-nm="events">events</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s router Observable.</span><span class="l-ar" dir="auto">الـ Observable بتاع الـ router في أنجولار.</span></td>
+        <td class="nmfiles"><code>where you meet them in Angular</code></td>
+      </tr>
+      <tr data-nmrow="fromEvent">
+        <td><b class="nm nm-ng" data-nm="fromEvent">fromEvent</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS function that turns a DOM event into an Observable.</span><span class="l-ar" dir="auto">function من RxJS بتحوّل DOM event لـ Observable.</span></td>
+        <td class="nmfiles"><code>where you meet them in Angular</code></td>
+      </tr>
+      <tr data-nmrow="resize">
+        <td><b class="nm nm-ng" data-nm="resize">resize</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s own event name.</span><span class="l-ar" dir="auto">اسم الـ event بتاع المتصفح نفسه.</span></td>
+        <td class="nmfiles"><code>where you meet them in Angular</code></td>
+      </tr>
+      <tr data-nmrow="takeUntilDestroyed">
+        <td><b class="nm nm-ng" data-nm="takeUntilDestroyed">takeUntilDestroyed</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s operator: unsubscribe when the component goes away.</span><span class="l-ar" dir="auto">operator من أنجولار: اعمل unsubscribe لما الـ component يتشال.</span></td>
+        <td class="nmfiles"><code>where you meet them in Angular</code></td>
+      </tr>
+      <tr data-nmrow="toSignal">
+        <td><b class="nm nm-ng" data-nm="toSignal">toSignal</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s bridge from an Observable to a signal.</span><span class="l-ar" dir="auto">الكوبري بتاع أنجولار من Observable لـ signal.</span></td>
+        <td class="nmfiles"><code>where you meet them in Angular</code></td>
+      </tr>
+      <tr data-nmrow="initialValue">
+        <td><b class="nm nm-ng" data-nm="initialValue">initialValue</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key <code>toSignal</code> reads.</span><span class="l-ar" dir="auto">مفتاح إعداد <code>toSignal</code> بيقراه.</span></td>
+        <td class="nmfiles"><code>where you meet them in Angular</code></td>
+      </tr>
+      <tr data-nmrow="signal">
+        <td><b class="nm nm-ng" data-nm="signal">signal</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s writable signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة أنجولار اللي بتتكتب.</span></td>
+        <td class="nmfiles"><code>the signal store</code></td>
+      </tr>
+      <tr data-nmrow="asReadonly">
+        <td><b class="nm nm-ng" data-nm="asReadonly">asReadonly</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal method: a read-only view of it.</span><span class="l-ar" dir="auto">ميثود في الـ signal: نسخة للقراية بس.</span></td>
+        <td class="nmfiles"><code>the signal store</code></td>
+      </tr>
+      <tr data-nmrow="update">
+        <td><b class="nm nm-ng" data-nm="update">update</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal method.</span><span class="l-ar" dir="auto">ميثود بتاعة الـ signal.</span></td>
+        <td class="nmfiles"><code>the signal store</code></td>
+      </tr>
+      <tr data-nmrow="computed">
+        <td><b class="nm nm-ng" data-nm="computed">computed</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s derived signal.</span><span class="l-ar" dir="auto">الـ signal المشتقة بتاعة أنجولار.</span></td>
+        <td class="nmfiles"><code>the signal store</code></td>
+      </tr>
+      <tr data-nmrow="observer">
+        <td><b class="nm nm-mine" data-nm="observer">observer</b><span class="nmas">&rarr; <code>banana</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The callback’s parameter. RxJS passes it by position, so the name is yours; the <code>next</code> on it is not.</span><span class="l-ar" dir="auto">الـ parameter بتاع الـ callback. RxJS بيبعته بالترتيب، فالاسم بتاعك؛ بس الـ <code>next</code> اللي عليه لأ.</span></td>
+        <td class="nmfiles"><code>what an Observable actually is</code></td>
+      </tr>
+      <tr data-nmrow="clock$">
+        <td><b class="nm nm-mine" data-nm="clock$">clock$</b><span class="nmas">&rarr; <code>kofta$</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your variable. The <code>$</code> is only a convention.</span><span class="l-ar" dir="auto">الـ variable بتاعك. والـ <code>$</code> مجرد عُرف.</span></td>
+        <td class="nmfiles"><code>what an Observable actually is</code></td>
+      </tr>
+      <tr data-nmrow="sub">
+        <td><b class="nm nm-mine" data-nm="sub">sub</b><span class="nmas">&rarr; <code>potato</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your variable holding the subscription.</span><span class="l-ar" dir="auto">الـ variable بتاعك اللي شايل الـ subscription.</span></td>
+        <td class="nmfiles"><code>what an Observable actually is</code></td>
+      </tr>
+      <tr data-nmrow="request$">
+        <td><b class="nm nm-mine" data-nm="request$">request$</b><span class="nmas">&rarr; <code>tahini$</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your variable.</span><span class="l-ar" dir="auto">الـ variable بتاعك.</span></td>
+        <td class="nmfiles"><code>cold vs hot — the one that surprises people</code></td>
+      </tr>
+      <tr data-nmrow="clicks$">
+        <td><b class="nm nm-mine" data-nm="clicks$">clicks$</b><span class="nmas">&rarr; <code>hummus$</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your variable.</span><span class="l-ar" dir="auto">الـ variable بتاعك.</span></td>
+        <td class="nmfiles"><code>cold vs hot — the one that surprises people</code></td>
+      </tr>
+      <tr data-nmrow="events$">
+        <td><b class="nm nm-mine" data-nm="events$">events$</b><span class="nmas">&rarr; <code>zaatar$</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your variable. Not the same as the router’s <code>events</code>.</span><span class="l-ar" dir="auto">الـ variable بتاعك. مش هو <code>events</code> بتاع الـ router.</span></td>
+        <td class="nmfiles"><code>the three Subjects</code></td>
+      </tr>
+      <tr data-nmrow="user$">
+        <td><b class="nm nm-mine" data-nm="user$">user$</b><span class="nmas">&rarr; <code>molokhia$</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your variable.</span><span class="l-ar" dir="auto">الـ variable بتاعك.</span></td>
+        <td class="nmfiles"><code>the three Subjects</code></td>
+      </tr>
+      <tr data-nmrow="http">
+        <td><b class="nm nm-mine" data-nm="http">http</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your property holding the injected <code>HttpClient</code>.</span><span class="l-ar" dir="auto">الـ property بتاعتك اللي شايلة الـ <code>HttpClient</code> المتعمله inject.</span></td>
+        <td class="nmfiles"><code>cold vs hot — the one that surprises people</code> <code>where you meet them in Angular</code></td>
+      </tr>
+      <tr data-nmrow="form">
+        <td><b class="nm nm-mine" data-nm="form">form</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your property holding the form.</span><span class="l-ar" dir="auto">الـ property بتاعتك اللي شايلة الفورم.</span></td>
+        <td class="nmfiles"><code>where you meet them in Angular</code></td>
+      </tr>
+      <tr data-nmrow="router">
+        <td><b class="nm nm-mine" data-nm="router">router</b><span class="nmas">&rarr; <code>waffle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your property holding the injected <code>Router</code>.</span><span class="l-ar" dir="auto">الـ property بتاعتك اللي شايلة الـ <code>Router</code> المتعمله inject.</span></td>
+        <td class="nmfiles"><code>where you meet them in Angular</code></td>
+      </tr>
+      <tr data-nmrow="autosave">
+        <td><b class="nm nm-mine" data-nm="autosave">autosave</b><span class="nmas">&rarr; <code>noodle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own method.</span><span class="l-ar" dir="auto">ميثود الـ component نفسه.</span></td>
+        <td class="nmfiles"><code>where you meet them in Angular</code></td>
+      </tr>
+      <tr data-nmrow="CartStore">
+        <td><b class="nm nm-pub" data-nm="CartStore">CartStore</b><span class="nmas">&rarr; <code>Pumpkin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your service class. Every component that injects it follows a rename.</span><span class="l-ar" dir="auto">كلاس الـ service بتاعك. أي component بيعمله inject بيتغير معاه.</span></td>
+        <td class="nmfiles"><code>the RxJS store</code> <code>the signal store</code></td>
+      </tr>
+      <tr data-nmrow="_items">
+        <td><b class="nm nm-mine" data-nm="_items">_items</b><span class="nmas">&rarr; <code>turnip</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The store’s private source. Only the store writes to it.</span><span class="l-ar" dir="auto">المصدر الخاص بالـ store. الـ store بس اللي بيكتب فيه.</span></td>
+        <td class="nmfiles"><code>the RxJS store</code> <code>the signal store</code></td>
+      </tr>
+      <tr data-nmrow="items$">
+        <td><b class="nm nm-pub" data-nm="items$">items$</b><span class="nmas">&rarr; <code>fattah$</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Public stream that components read.</span><span class="l-ar" dir="auto">stream public والـ components بتقراه.</span></td>
+        <td class="nmfiles"><code>the RxJS store</code></td>
+      </tr>
+      <tr data-nmrow="count$">
+        <td><b class="nm nm-pub" data-nm="count$">count$</b><span class="nmas">&rarr; <code>konafa$</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Public stream a template reads with <code>| async</code>.</span><span class="l-ar" dir="auto">stream public التمبلت بيقراه بـ <code>| async</code>.</span></td>
+        <td class="nmfiles"><code>the RxJS store</code></td>
+      </tr>
+      <tr data-nmrow="total$">
+        <td><b class="nm nm-pub" data-nm="total$">total$</b><span class="nmas">&rarr; <code>mahshi$</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Public stream components read.</span><span class="l-ar" dir="auto">stream public والـ components بتقراه.</span></td>
+        <td class="nmfiles"><code>the RxJS store</code></td>
+      </tr>
+      <tr data-nmrow="items">
+        <td><b class="nm nm-pub" data-nm="items">items</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Public read-only signal components read.</span><span class="l-ar" dir="auto">signal public للقراية بس والـ components بتقراها.</span></td>
+        <td class="nmfiles"><code>the signal store</code></td>
+      </tr>
+      <tr data-nmrow="count">
+        <td><b class="nm nm-pub" data-nm="count">count</b><span class="nmas">&rarr; <code>taco</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Public computed a template reads as <code>count()</code>.</span><span class="l-ar" dir="auto">computed public التمبلت بيقراه كـ <code>count()</code>.</span></td>
+        <td class="nmfiles"><code>the signal store</code></td>
+      </tr>
+      <tr data-nmrow="total">
+        <td><b class="nm nm-pub" data-nm="total">total</b><span class="nmas">&rarr; <code>kiwi</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Public computed components read.</span><span class="l-ar" dir="auto">computed public والـ components بتقراه.</span></td>
+        <td class="nmfiles"><code>the signal store</code></td>
+      </tr>
+      <tr data-nmrow="add">
+        <td><b class="nm nm-pub" data-nm="add">add</b><span class="nmas">&rarr; <code>donut</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Public store method components call.</span><span class="l-ar" dir="auto">ميثود public في الـ store والـ components بتناديها.</span></td>
+        <td class="nmfiles"><code>the RxJS store</code> <code>the signal store</code></td>
+      </tr>
+      <tr data-nmrow="Item">
+        <td><b class="nm nm-pub" data-nm="Item">Item</b><span class="nmas">&rarr; <code>Pepper</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your data type.</span><span class="l-ar" dir="auto">نوع الداتا بتاعك.</span></td>
+        <td class="nmfiles"><code>the RxJS store</code> <code>the signal store</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="rxjs-fundamentals-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en">Observables and Subjects, name by name</span><span class="l-ar" dir="auto">الـ Observables والـ Subjects، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">One cart followed from the Add button, into a BehaviorSubject, out through <code>items$</code> and <code>| async</code> to a badge. Every name coloured: which are RxJS’s, which are yours, and what the <code>$</code> really means. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">كارت واحدة ماشيين وراها من زرار Add، لجوه BehaviorSubject، ولبرّه من <code>items$</code> و<code>| async</code> لحد badge. كل اسم ملوّن: مين بتاع RxJS، ومين بتاعك، والـ <code>$</code> معناها إيه بجد. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+  </a>
 
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
@@ -790,8 +1199,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../intermediate/23-error-handling.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">Failing well: retry, report, recover</span><span class="l-ar" dir="auto">تفشل بشكل كويس: إعادة، إبلاغ، تعافي</span></b></a>
-    <a class="nx" href="../intermediate/25-effects-vs-computed.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en"><code>effect()</code> is not a cheaper <code>computed()</code></span><span class="l-ar" dir="auto"><code>effect()</code> مش نسخة أرخص من <code>computed()</code></span></b></a>
+    <a class="pv" href="../intermediate/error-handling-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">Error handling, name by name</span><span class="l-ar" dir="auto">التعامل مع الأخطاء، اسم اسم</span></b></a>
+    <a class="nx" href="../intermediate/rxjs-fundamentals-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Observables and Subjects, name by name</span><span class="l-ar" dir="auto">الـ Observables والـ Subjects، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -833,6 +1242,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){

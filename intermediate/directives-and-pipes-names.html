@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Directives and pipes, name by name — The Angular Signal</title>
+<meta name="description" content="The idea is small: a directive is behaviour you stick on an element, a pipe is a formatter you put after a value. The confusing part is the names. Every directive and every pipe ha">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Cairo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--c:var(--int)}
+/* ============================================================
+   Two skins, one set of names. Light is the default; the top-bar
+   switch stamps data-theme="dark" on the root element, and only the
+   below change. Never hard-code a colour outside these blocks.
+   ============================================================ */
+:root{
+  color-scheme:light;
+  /* surfaces */
+  --bg:#f3f4fb; --bg2:#eaecf7; --card:#ffffff; --card2:#f7f8fd; --code:#fbfbff;
+  --line:rgba(23,27,64,.14); --line2:rgba(23,27,64,.08);
+  --sunk:rgba(23,27,64,.03); --sunk2:rgba(23,27,64,.05); --hover:rgba(23,27,64,.05);
+  --chip:rgba(23,27,64,.065); --chipink:#3a3f70;
+  --topbg:rgba(248,249,254,.84);
+  --wire:rgba(23,27,64,.24); --dotbg:rgba(23,27,64,.17);
+  --nodesh:0 12px 26px -20px rgba(23,27,64,.55), inset 0 1px 0 #fff;
+  --glow1:9%; --glow2:5%;
+  /* ink */
+  --ink:#12142c; --mut:#4d5480; --dim:#767d9f; --onc:#ffffff;
+  --ok:#0a8f5b; --no:#c62348;   /* quiz: right / wrong */
+  /* track accents — darkened so they carry on paper */
+  --beg:#0c9280;    /* track 1 */
+  --int:#5b3ad4;    /* track 2 */
+  --adv:#c60059;    /* track 3 */
+  --ts:#1566cc; --js:#9a6410; --html:#c04d1a; --svc:#8a5f00; --cfg:#5b3ad4;
+  /* syntax */
+  --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
+  --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
+  --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
+  --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0b0d1c; --bg2:#101430; --card:#141935; --card2:#171d3d; --code:transparent;
+  --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.055);
+  --sunk:rgba(255,255,255,.03); --sunk2:rgba(255,255,255,.05); --hover:rgba(255,255,255,.04);
+  --chip:rgba(255,255,255,.07); --chipink:#cfd6ff;
+  --topbg:rgba(8,10,22,.72);
+  --wire:rgba(255,255,255,.13); --dotbg:rgba(255,255,255,.16);
+  --nodesh:0 10px 26px -18px #000, inset 0 1px 0 rgba(255,255,255,.05);
+  --glow1:16%; --glow2:8%;
+  --ink:#eceefb; --mut:#98a0c8; --dim:#69719e; --onc:#0b0d1c;
+  --ok:#3ddc97; --no:#ff5470;
+  --beg:#2ee6c5; --int:#8b6cff; --adv:#ff2e88;
+  --ts:#4a9eff; --js:#ffc857; --html:#ff7a45; --svc:#ffb020; --cfg:#8b6cff;
+  --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
+  --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
+  --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:
+    radial-gradient(1100px 700px at 78% -10%,color-mix(in srgb,var(--c) var(--glow1),transparent),transparent 62%),
+    radial-gradient(900px 600px at 4% 108%,color-mix(in srgb,var(--adv) var(--glow2),transparent),transparent 62%),
+    var(--bg);
+  color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--c);color:var(--onc)}
+:focus-visible{outline:2px solid var(--c);outline-offset:3px;border-radius:6px}
+a{color:var(--c)}
+code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+
+/* ---------- language ---------- */
+:root[data-lang="en"] .l-ar{display:none !important}
+:root[data-lang="ar"] .l-en{display:none !important}
+:root[dir="rtl"]{
+  --disp:'Cairo','IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+}
+:root[dir="rtl"] h1.title{line-height:1.32;letter-spacing:0}
+:root[dir="rtl"] .lead{font-size:15px;line-height:1.75}
+:root[dir="rtl"] .num,:root[dir="rtl"] .badge{letter-spacing:.04em}
+/* keep neighbouring runs from reordering each other in RTL */
+.kick span,.cover-top span{unicode-bidi:isolate}
+/* diagrams and code always read left-to-right */
+.stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
+
+/* ---------- top bar ---------- */
+.top{
+  position:sticky;top:0;z-index:40;background:var(--topbg);
+  backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);
+  border-bottom:1px solid var(--line2);
+}
+.top-in{
+  max-width:1220px;margin:0 auto;padding:9px clamp(16px,3.4vw,40px);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.home{
+  display:inline-flex;align-items:baseline;gap:9px;text-decoration:none;white-space:nowrap;
+}
+.home b{
+  font-family:var(--disp);font-weight:800;font-size:15.5px;letter-spacing:-.02em;
+  background:linear-gradient(92deg,#e40035,#f20089 45%,#9717e2);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.home span{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase}
+.tracknav{display:flex;gap:4px;flex-wrap:wrap;margin-inline-start:6px}
+.tracknav a{
+  font-size:12.5px;font-weight:600;text-decoration:none;color:var(--dim);
+  padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.tracknav a i{width:7px;height:7px;border-radius:99px;background:currentColor;display:block;flex:none}
+.tracknav a:hover{color:var(--mut);background:var(--hover)}
+.tracknav a[aria-current="page"]{color:var(--onc);background:var(--c)}
+.top-right{display:flex;align-items:center;gap:8px;margin-inline-start:auto}
+.seg{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:var(--hover)}
+.seg button{
+  appearance:none;border:0;background:none;cursor:pointer;padding:5px 12px;
+  font-family:var(--body);font-size:12.5px;font-weight:600;color:var(--dim);line-height:1.5;
+}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--c);color:var(--onc)}
+
+/* ---------- article shell ---------- */
+.page{max-width:1220px;margin:0 auto;padding:clamp(24px,3.6vw,44px) clamp(16px,3.4vw,40px) 0}
+.eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.num{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.16em}
+/* a numeric counter must not be reordered by the bidi algorithm */
+.num.seq{direction:ltr;unicode-bidi:isolate}
+:root[dir="rtl"] .num:not(.seq){font-family:var(--body);letter-spacing:0;font-size:12.5px}
+.badge{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;border:1px solid currentColor;color:var(--c);
+  background:color-mix(in srgb,var(--c) 12%,transparent);
+}
+:root[dir="rtl"] .badge{font-family:var(--body);font-weight:600;text-transform:none;font-size:11.5px}
+h1.title{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.03em;line-height:1.02;
+  font-size:clamp(28px,4vw,46px);margin:0 0 10px;text-wrap:balance;
+}
+h1.title code{font-family:var(--mono);font-size:.82em;font-weight:600;color:var(--c);letter-spacing:0}
+.lead{color:var(--mut);max-width:74ch;margin:0 0 22px;font-size:15.5px;text-wrap:pretty}
+.lead b{color:var(--ink);font-weight:600}
+
+/* ---------- stage / diagram ---------- */
+.stage{position:relative;margin:6px 0 4px;padding:26px 8px;display:flex;flex-direction:column;gap:74px}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.row{display:flex;justify-content:center;gap:clamp(92px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
+.node{
+  background:linear-gradient(180deg,var(--card2),var(--card));
+  border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:172px;
+  box-shadow:var(--nodesh);
+  transition:border-color .3s,box-shadow .3s,transform .3s;
+}
+.node .role{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:3px;font-family:var(--mono)}
+:root[dir="rtl"] .node .role{font-family:var(--body);font-size:11px;letter-spacing:0;text-transform:none}
+:root[dir="rtl"] .home span{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .fc-h .tag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .pager a em{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .stepbar .cap span.n{direction:ltr;unicode-bidi:isolate}
+.node .file{font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--ink);white-space:nowrap;display:block}
+.node[data-kind="ts"] .file b{color:var(--ts)}
+.node[data-kind="html"] .file b{color:var(--html)}
+.node[data-kind="svc"] .file b{color:var(--svc)}
+.node[data-kind="cfg"] .file b{color:var(--cfg)}
+.node.active{border-color:color-mix(in srgb,var(--c) 65%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent),0 0 34px -8px var(--c);transform:translateY(-2px)}
+.edge path.wire{fill:none;stroke:var(--wire);stroke-width:1.6}
+.edge path.head{fill:var(--wire);stroke:none}
+.edge.lit path.head{fill:var(--c)}
+.edge path.flow{fill:none;stroke:var(--c);stroke-width:2.2;stroke-dasharray:5 9;opacity:0;stroke-linecap:round}
+.edge.lit path.wire{stroke:color-mix(in srgb,var(--c) 40%,transparent)}
+.edge.lit path.flow{opacity:1;animation:march 1s linear infinite}
+@keyframes march{to{stroke-dashoffset:-28}}
+.edge text{font-family:var(--mono);font-size:10.5px;fill:var(--dim);paint-order:stroke;stroke:var(--bg);stroke-width:5px;stroke-linejoin:round}
+.edge.lit text{fill:var(--c)}
+.packet{opacity:0}
+.packet rect{fill:var(--c)}
+.packet text{font-family:var(--mono);font-size:11px;font-weight:600;fill:var(--onc);stroke:none}
+
+/* ---------- step bar ---------- */
+.stepbar{
+  display:flex;align-items:center;gap:14px;margin:8px 0 22px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk);
+}
+.stepbar .dots{display:flex;gap:6px;flex-shrink:0}
+.stepbar .dot{width:7px;height:7px;border-radius:99px;background:var(--dotbg);cursor:pointer;border:0;padding:0;transition:.2s}
+.stepbar .dot.on{background:var(--c);box-shadow:0 0 10px -1px var(--c);transform:scale(1.25)}
+.stepbar .cap{flex:1;min-width:0;font-size:14px;color:var(--ink);text-wrap:pretty}
+.stepbar .cap span.n{color:var(--dim);font-family:var(--mono);font-size:11px;margin-inline-end:8px}
+.iconbtn{
+  background:var(--sunk2);border:1px solid var(--line);color:var(--mut);
+  border-radius:8px;padding:5px 11px;font-family:var(--mono);font-size:11px;cursor:pointer;white-space:nowrap;
+}
+.iconbtn:hover{color:var(--ink);border-color:color-mix(in srgb,var(--c) 55%,transparent)}
+
+/* ---------- code cards ---------- */
+.sechead{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:28px 0 12px}
+:root[dir="rtl"] .sechead{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.files{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:14px}
+.fc{background:var(--card);border:1px solid var(--line2);border-radius:12px;overflow:hidden;transition:border-color .3s;min-width:0}
+.fc.active{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.fc-h{
+  display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid var(--line2);
+  background:var(--sunk);font-family:var(--mono);font-size:11.5px;color:var(--mut);
+}
+.fc-h .d{width:7px;height:7px;border-radius:99px;flex-shrink:0}
+.fc[data-lang="ts"] .d{background:var(--ts)}
+.fc[data-lang="html"] .d{background:var(--html)}
+.fc[data-lang="json"] .d{background:var(--svc)}
+.fc[data-lang="bash"] .d{background:var(--beg)}
+.fc-h .tag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:var(--mono);font-size:12.2px;line-height:1.72;scrollbar-width:thin}
+.ln{display:block;padding:0 15px;white-space:pre;border-left:2px solid transparent;transition:background .25s,border-color .25s}
+.ln.hl{background:color-mix(in srgb,var(--c) 13%,transparent);border-left-color:var(--c)}
+.t-key{color:var(--t-key)}.t-str{color:var(--t-str)}.t-com{color:var(--t-com);font-style:italic}
+.t-dec{color:var(--t-dec)}.t-tag{color:var(--t-tag)}.t-bind{color:var(--t-bind)}.t-num{color:var(--t-num)}
+.t-fn{color:var(--t-fn)}.t-type{color:var(--t-type)}.t-attr{color:var(--t-attr)}.t-punc{color:var(--t-punc)}
+
+/* ---------- real example ---------- */
+.example{margin-top:26px;padding-top:18px;border-top:1px solid var(--line2)}
+.exhead{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:7px}
+.extag{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);border:1px solid currentColor;border-radius:99px;padding:3px 9px;
+  background:color-mix(in srgb,var(--c) 12%,transparent);white-space:nowrap;
+}
+:root[dir="rtl"] .extag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+.exhead b{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--ink)}
+.exlead{margin:0 0 14px;color:var(--mut);font-size:14px;max-width:82ch;text-wrap:pretty}
+
+/* ---------- gotchas ---------- */
+.gotchas{margin-top:22px;border-top:1px solid var(--line2);padding-top:16px}
+.gotchas h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 10px;font-weight:500}
+:root[dir="rtl"] .gotchas h4{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.gotchas ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:9px 22px}
+.gotchas li{position:relative;padding-inline-start:20px;font-size:13.6px;color:var(--mut);text-wrap:pretty}
+.gotchas li::before{content:"!";position:absolute;inset-inline-start:0;top:0;font-family:var(--mono);font-size:11px;color:var(--c);font-weight:700}
+.gotchas li b{color:var(--ink);font-weight:600}
+
+/* ---------- pager ---------- */
+.pager{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin:34px 0 0;padding:22px 0 46px;border-top:1px solid var(--line2);
+}
+.pager a{
+  display:flex;flex-direction:column;gap:4px;text-decoration:none;padding:14px 16px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--card);transition:.22s;min-width:0;
+}
+.pager a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.pager a em{font-family:var(--mono);font-style:normal;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.pager a b{font-size:14.5px;color:var(--ink);font-weight:600;line-height:1.35;text-wrap:pretty}
+.pager a.nx{text-align:end;align-items:flex-end}
+.pager .void{border:1px dashed var(--line2);border-radius:12px;opacity:.35}
+@media (max-width:600px){.pager{grid-template-columns:1fr}.pager a.nx{text-align:start;align-items:flex-start}}
+
+@media (max-width:900px){
+  .row{gap:16px}
+  .node{min-width:0;flex:1 1 auto}
+  .stage{gap:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+
+/* ================= reference-document layout (TypeScript page) ============ */
+.doc{display:grid;grid-template-columns:212px minmax(0,1fr);gap:clamp(20px,3.4vw,54px);align-items:start}
+@media (max-width:940px){.doc{grid-template-columns:1fr}}
+.doc-rail{position:sticky;top:70px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;scrollbar-width:thin}
+@media (max-width:940px){.doc-rail{position:static;max-height:none;border-bottom:1px solid var(--line2);padding-bottom:14px}}
+.doc-rail b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;font-weight:500}
+:root[dir="rtl"] .doc-rail b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.doc-rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.doc-rail a{
+  display:grid;grid-template-columns:1.6rem 1fr;gap:8px;align-items:baseline;
+  text-decoration:none;color:var(--dim);font-size:13px;line-height:1.35;
+  padding:6px 9px;border-radius:7px;transition:.16s;
+}
+.doc-rail a em{font-family:var(--mono);font-style:normal;font-size:10.5px;opacity:.7}
+.doc-rail a:hover{color:var(--ink);background:var(--hover)}
+.doc-rail a.on{color:var(--onc);background:var(--c)}
+.doc-rail a.on em{opacity:.75}
+
+.sec{padding-block:clamp(26px,3.6vw,44px);border-top:1px solid var(--line2);scroll-margin-top:74px}
+.sec:first-child{border-top:0;padding-top:6px}
+.sec-kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--c);margin-bottom:8px}
+:root[dir="rtl"] .sec-kick{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.sec h2{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.028em;line-height:1.08;
+  font-size:clamp(23px,3vw,33px);margin:0 0 10px;text-wrap:balance;
+}
+:root[dir="rtl"] .sec h2{letter-spacing:0;line-height:1.4}
+.sec h2 code{font-family:var(--mono);font-size:.8em;font-weight:600;color:var(--c);letter-spacing:0}
+.sec > .sec-lead{color:var(--mut);max-width:74ch;margin:0 0 4px;font-size:15px;text-wrap:pretty}
+.sec > .sec-lead b{color:var(--ink);font-weight:600}
+.sec p{max-width:74ch;text-wrap:pretty;color:var(--mut)}
+.sec p b{color:var(--ink);font-weight:600}
+.sec > p{margin:18px 0 0}
+.sec .code{margin-top:18px}
+.sec ul{margin:16px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;max-width:74ch}
+.sec ul li{padding-inline-start:20px;position:relative;color:var(--mut);text-wrap:pretty}
+.sec ul li::before{content:"";position:absolute;inset-inline-start:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--c);opacity:.6}
+
+.code{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--card);min-width:0}
+.code .fc-h{background:var(--sunk)}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;margin-top:18px}
+.code.bad{border-color:color-mix(in srgb,var(--adv) 42%,transparent)}
+.code.bad .fc-h{background:color-mix(in srgb,var(--adv) 10%,transparent)}
+.code.bad .fc-h .d{background:var(--adv)}
+.code.good{border-color:color-mix(in srgb,var(--beg) 42%,transparent)}
+.code.good .fc-h{background:color-mix(in srgb,var(--beg) 10%,transparent)}
+.code.good .fc-h .d{background:var(--beg)}
+.code .flag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.code.bad .flag{color:var(--adv)}
+.code.good .flag{color:var(--beg)}
+:root[dir="rtl"] .code .flag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+
+.note{
+  margin-top:20px;max-width:76ch;background:color-mix(in srgb,var(--c) 8%,transparent);
+  border-inline-start:3px solid var(--c);border-radius:0 9px 9px 0;padding:13px 16px;
+}
+:root[dir="rtl"] .note{border-radius:9px 0 0 9px}
+.note b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .note b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.note p{margin:0;font-size:14.2px;color:var(--mut)}
+
+.dtbl-wrap{overflow-x:auto;border:1px solid var(--line2);border-radius:12px;margin-top:18px;background:var(--card)}
+.dtbl{width:100%;border-collapse:collapse;font-size:13.6px;min-width:640px}
+.dtbl th{
+  text-align:start;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);font-weight:500;padding:10px 14px;border-bottom:1px solid var(--line);
+  background:var(--sunk);white-space:nowrap;
+}
+:root[dir="rtl"] .dtbl th{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px;font-weight:600}
+.dtbl td{padding:11px 14px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--mut);line-height:1.55}
+.dtbl tr:last-child td{border-bottom:0}
+.dtbl td:first-child{color:var(--ink);font-family:var(--mono);font-size:12px}
+
+/* ========================= roadmap page ========================= */
+.verdict{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin:26px 0 8px}
+.verdict div{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.verdict b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:8px;font-weight:600}
+:root[dir="rtl"] .verdict b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.verdict p{margin:0;color:var(--mut);font-size:14.2px;line-height:1.6;text-wrap:pretty}
+
+.phase{position:relative;padding:0 0 0 clamp(22px,3vw,42px);margin-top:clamp(24px,3.4vw,38px)}
+:root[dir="rtl"] .phase{padding:0 clamp(22px,3vw,42px) 0 0}
+.phase::before{content:"";position:absolute;inset-inline-start:0;top:6px;bottom:0;width:2px;background:linear-gradient(180deg,var(--c),transparent)}
+.phase-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.phase-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 8px;font-weight:600;direction:ltr}
+.phase-h h3{margin:0;font-family:var(--disp);font-weight:800;font-size:clamp(20px,2.6vw,27px);letter-spacing:-.02em;color:var(--ink)}
+:root[dir="rtl"] .phase-h h3{letter-spacing:0;line-height:1.4}
+.phase-when{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em;direction:ltr;unicode-bidi:isolate}
+.phase-goal{margin:0 0 14px;color:var(--mut);max-width:72ch;font-size:14.6px;text-wrap:pretty}
+.phase-list{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:14px}
+.phase-list a{
+  display:grid;grid-template-columns:1.8rem 1fr;gap:9px;align-items:baseline;text-decoration:none;
+  padding:8px 11px;border-radius:8px;border:1px solid var(--line2);background:var(--card);transition:.18s;min-width:0;
+}
+.phase-list a em{font-family:var(--mono);font-style:normal;font-size:10.5px;color:var(--dim)}
+.phase-list a span{font-size:13.6px;color:var(--ink);line-height:1.35;text-wrap:pretty}
+.phase-list a span code{font-family:var(--mono);font-size:.86em;color:var(--c)}
+.phase-list a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.phase-build{
+  border-inline-start:3px solid var(--c);background:color-mix(in srgb,var(--c) 7%,transparent);
+  border-radius:0 9px 9px 0;padding:12px 15px;max-width:72ch;
+}
+:root[dir="rtl"] .phase-build{border-radius:9px 0 0 9px}
+.phase-build b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .phase-build b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.phase-build p{margin:0;color:var(--mut);font-size:14px;line-height:1.6;text-wrap:pretty}
+
+.gap{margin-top:16px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.gap section{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.gap h4{margin:0 0 10px;font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.3;text-wrap:pretty}
+.gap ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.gap li{padding-inline-start:19px;position:relative;font-size:13.4px;color:var(--mut);line-height:1.5;text-wrap:pretty}
+.gap li::before{content:"○";position:absolute;inset-inline-start:0;top:0;font-size:10px;color:var(--c);opacity:.7}
+.gap li code{font-family:var(--mono);font-size:.88em;background:var(--chip);padding:1px 4px;border-radius:3px;color:var(--chipink)}
+
+.advice{margin-top:16px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.advice div{border-top:2px solid var(--c);padding-top:12px;min-width:0}
+.advice b{display:block;font-family:var(--disp);font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px;letter-spacing:-.015em}
+:root[dir="rtl"] .advice b{letter-spacing:0}
+.advice p{margin:0;color:var(--mut);font-size:13.8px;line-height:1.6;text-wrap:pretty}
+
+/* ---------- theme switch (icon segment) ---------- */
+.seg.ico button{padding:5px 10px;display:grid;place-items:center}
+.seg.ico svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block}
+@media (max-width:820px){.seg.ico{order:2}}
+
+/* ================= beginner scaffolding on every topic ================= */
+/* three plain-language cards that sit above the technical diagram */
+.plain{display:grid;gap:12px;grid-template-columns:1.4fr 1fr 1fr;margin:2px 0 26px}
+@media (max-width:900px){.plain{grid-template-columns:1fr}}
+.pc{
+  border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);
+  min-width:0;display:flex;flex-direction:column;gap:9px;
+}
+.pc.say{background:color-mix(in srgb,var(--c) 7%,var(--card));border-color:color-mix(in srgb,var(--c) 26%,transparent)}
+.pc .ph{display:flex;align-items:center;gap:8px}
+.pc .ph svg{width:16px;height:16px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pc .ph b{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);font-weight:600}
+:root[dir="rtl"] .pc .ph b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.pc p{margin:0;font-size:14.2px;color:var(--mut);line-height:1.62;text-wrap:pretty}
+.pc p b{color:var(--ink);font-weight:600}
+.pc p code{font-family:var(--mono);font-size:.87em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+.pc.say p{font-size:16px;color:var(--ink)}
+
+/* the idea, as a strip of pictures */
+.strip{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(188px,1fr));margin:2px 0 4px}
+.sp{position:relative;border:1px solid var(--line2);border-radius:14px;padding:15px 16px 14px;background:var(--card);min-width:0}
+.sp .plate{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:11px;
+  background:color-mix(in srgb,var(--c) 13%,transparent);border:1px solid color-mix(in srgb,var(--c) 20%,transparent);
+}
+.sp .plate svg{width:21px;height:21px;stroke:var(--c);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sp b{display:block;font-size:14.5px;color:var(--ink);font-weight:600;margin-bottom:4px;line-height:1.32;text-wrap:pretty}
+.sp p{margin:0;font-size:13.3px;color:var(--mut);line-height:1.55;text-wrap:pretty}
+.sp p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+.sp::after{
+  content:"";position:absolute;top:30px;right:-15px;width:11px;height:11px;
+  border-top:1.6px solid var(--line);border-right:1.6px solid var(--line);
+  transform:rotate(45deg);z-index:2;
+}
+:root[dir="rtl"] .sp::after{right:auto;left:-15px;transform:rotate(-135deg)}
+.sp:last-child::after{display:none}
+@media (max-width:760px){.sp::after{display:none}}
+
+/* the single sentence worth memorising */
+.oneline{
+  margin-top:26px;display:flex;gap:14px;align-items:flex-start;border-radius:14px;padding:16px 19px;
+  border:1px solid color-mix(in srgb,var(--c) 30%,transparent);
+  background:color-mix(in srgb,var(--c) 8%,transparent);
+}
+.oneline > svg{width:22px;height:22px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin-top:3px}
+.oneline b.lbl{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .oneline b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.oneline p{margin:0;font-size:15px;color:var(--ink);line-height:1.62;text-wrap:pretty;max-width:78ch}
+.oneline p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+/* ============================================================
+   Check yourself — the quiz block, same shape on every topic page
+   ============================================================ */
+.edge text.plain{font-size:9.5px;fill:var(--mut);letter-spacing:.01em;opacity:.85}
+.edge.lit text.plain{opacity:1}
+/* Arabic is cursive: the mono face and any letter-spacing break the joins,
+   so the wire words switch to the Arabic text face in RTL */
+:root[dir="rtl"] .edge text.plain{font-family:var(--body);letter-spacing:0;font-size:10.5px}
+
+.quiz{display:grid;gap:13px;margin-top:4px}
+.qbar{
+  display:flex;align-items:center;gap:13px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--sunk);
+}
+.qbar .qtxt{font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap}
+.qbar .qtxt b{color:var(--ink);font-weight:600}
+.qbar .qtxt em{font-style:normal;color:var(--ok);font-weight:600}
+.qmeter{flex:1;min-width:50px;height:4px;border-radius:99px;background:var(--dotbg);overflow:hidden}
+.qmeter i{display:block;height:100%;width:0;background:var(--c);transition:width .35s cubic-bezier(.2,.7,.3,1)}
+
+.qcard{border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);transition:border-color .3s}
+.qcard.right{border-color:color-mix(in srgb,var(--ok) 48%,transparent)}
+.qcard.wrong{border-color:color-mix(in srgb,var(--no) 48%,transparent)}
+.qhead{display:flex;gap:12px;align-items:baseline;margin-bottom:12px}
+.qnum{font-family:var(--mono);font-size:11px;color:var(--c);flex:none}
+.qask{font-size:14.8px;line-height:1.5;color:var(--ink);font-weight:600;text-wrap:pretty}
+.qask code{font-family:var(--mono);font-size:.87em;color:var(--c);font-weight:500}
+.qcode{border:1px solid var(--line2);border-radius:11px;overflow:hidden;margin-bottom:12px;background:var(--code)}
+.qcode .qcf{padding:7px 13px;border-bottom:1px solid var(--line2);background:var(--sunk);
+            font-family:var(--mono);font-size:11px;color:var(--dim)}
+.qcode pre{font-size:12px;padding:10px 0;margin:0;overflow-x:auto}
+
+.opts{display:grid;gap:8px}
+.opt{
+  display:flex;gap:11px;align-items:flex-start;width:100%;text-align:start;cursor:pointer;
+  background:var(--sunk);border:1px solid var(--line2);border-radius:10px;padding:10px 13px;
+  color:var(--mut);font-family:var(--body);font-size:13.8px;line-height:1.5;transition:.18s;
+}
+.opt .k{font-family:var(--mono);font-size:11px;color:var(--dim);border:1px solid var(--line);
+        border-radius:6px;padding:0 6px;flex:none;line-height:1.6}
+.opt .ot{flex:1;min-width:0;text-wrap:pretty}
+.opt .ot code{font-family:var(--mono);font-size:.87em}
+.opt .mark{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;flex:none;line-height:2}
+.opt:hover{color:var(--ink);background:var(--hover);border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.qcard.done .opt,.qcard.done .opt:hover{cursor:default;background:var(--sunk);border-color:var(--line2);color:var(--mut)}
+.qcard.done .opt.ok{color:var(--ink);border-color:color-mix(in srgb,var(--ok) 55%,transparent);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.qcard.done .opt.ok .k{color:var(--ok);border-color:currentColor}
+.qcard.done .opt.ok .mark{color:var(--ok)}
+.qcard.done .opt.no{color:var(--ink);border-color:color-mix(in srgb,var(--no) 55%,transparent);background:color-mix(in srgb,var(--no) 9%,transparent)}
+.qcard.done .opt.no .k{color:var(--no);border-color:currentColor}
+.qcard.done .opt.no .mark{color:var(--no)}
+
+.why{
+  display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:12px 15px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk2);
+}
+.why[hidden]{display:none}
+.why .wt{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);flex:none;padding-top:3px}
+.why p{margin:0;flex:1;min-width:0;font-size:13.6px;line-height:1.68;color:var(--mut);text-wrap:pretty}
+.why p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+.qend{border:1px solid var(--line2);border-radius:14px;padding:19px;text-align:center;background:var(--card2)}
+.qend .sc{display:block;font-family:var(--disp);font-weight:800;font-size:29px;letter-spacing:-.03em;color:var(--ink)}
+.qend p{margin:6px 0 13px;color:var(--mut);font-size:13.6px}
+
+:root[dir="rtl"] .qnum,:root[dir="rtl"] .qbar .qtxt{font-family:var(--body);letter-spacing:0}
+:root[dir="rtl"] .opt .mark,:root[dir="rtl"] .why .wt{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .qask,:root[dir="rtl"] .opt,:root[dir="rtl"] .why p{line-height:1.8}
+@media (max-width:900px){
+  .qbar{flex-wrap:wrap;gap:10px}
+  .qmeter{order:3;flex-basis:100%}
+  .qcard{padding:14px 15px}
+}
+
+/* ================= build-project tutorials (step-by-step) ============ */
+.pstep{margin-top:26px;border-top:1px solid var(--line2);padding-top:18px}
+.sec .pstep:first-child{margin-top:12px}
+.pstep-h{display:flex;align-items:center;gap:11px;margin-bottom:2px}
+.pstep-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 9px;font-weight:600;direction:ltr;flex:none}
+.pstep-h b{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:-.015em;color:var(--ink);line-height:1.3;text-wrap:pretty}
+:root[dir="rtl"] .pstep-h b{letter-spacing:0}
+.pstep > p{margin:13px 0 0}
+
+.chk{
+  margin-top:16px;max-width:76ch;background:color-mix(in srgb,var(--beg) 9%,transparent);
+  border-inline-start:3px solid var(--beg);border-radius:0 9px 9px 0;padding:12px 16px;
+}
+:root[dir="rtl"] .chk{border-radius:9px 0 0 9px}
+.chk b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--beg);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .chk b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.chk p{margin:0;font-size:14.2px;color:var(--mut)}
+.chk p code{font-family:var(--mono);font-size:.87em}
+
+.build-link{
+  display:inline-flex;align-items:center;gap:7px;margin-top:12px;text-decoration:none;
+  font-size:13.6px;font-weight:600;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);
+  border-radius:9px;padding:7px 13px;background:var(--card);transition:.18s;
+}
+.build-link:hover{background:color-mix(in srgb,var(--c) 12%,transparent)}
+
+/* the roadmap's build-projects index */
+.blds{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:16px}
+.blds-track{border:1px solid var(--line2);border-top:2px solid var(--c);border-radius:12px;padding:15px 18px;background:var(--card);min-width:0;display:flex;flex-direction:column;gap:11px}
+.blds-track > b{font-family:var(--disp);font-weight:700;font-size:16.5px;letter-spacing:-.015em;color:var(--ink)}
+:root[dir="rtl"] .blds-track > b{letter-spacing:0}
+.blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
+.blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
+</style>
+<script>
+(function(){var r=document.documentElement;try{
+if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
+r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
+</script>
+</head>
+<body>
+<header class="top"><div class="top-in">
+    <a class="home" href="../index.html"><b>The Angular Signal</b><span class="l-en">contents</span><span class="l-ar">المحتويات</span></a>
+    <nav class="tracknav"><a href="../roadmap.html" style="--c:var(--beg)"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="../beginner/index.html" style="--c:var(--beg)"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="../intermediate/index.html" style="--c:var(--int)" aria-current="page"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="../advanced/index.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="../javascript-for-angular.html" style="--c:var(--js)"><i></i><span class="l-en">JavaScript</span><span class="l-ar">JavaScript</span></a><a href="../typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
+    <div class="top-right">
+      <div class="seg" role="group" aria-label="Language">
+        <button id="b-en" aria-pressed="true">EN</button>
+        <button id="b-ar" aria-pressed="false" lang="ar">مصري</button>
+      </div>
+      <div class="seg ico" role="group" aria-label="Theme">
+        <button id="b-lt" aria-pressed="true" title="Light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.2v2.3M12 19.5v2.3M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.2 12h2.3M19.5 12h2.3M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button>
+        <button id="b-dk" aria-pressed="false" title="Dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.7 6.7 0 0 0 11.1 11.1z"/></svg></button>
+      </div>
+    </div>
+  </div></header>
+<main class="page" id="page">
+  <div class="eyebrow">
+    <span class="num seq">17+</span>
+    <span class="badge"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <span class="num"><span class="l-en">Right after topic 17</span><span class="l-ar" dir="auto">بعد موضوع 17 على طول</span></span>
+  </div>
+  <h1 class="title"><span class="l-en">Directives and pipes, name by name</span><span class="l-ar" dir="auto">الـ directives والـ pipes، اسم اسم</span></h1>
+  <p class="lead"><span class="l-en">The idea is small: <b>a directive is behaviour you stick on an element, a pipe is a formatter you put after a value.</b> The confusing part is the names. Every directive and every pipe has <b>two</b> names: one the template types (<code>appTooltip</code>, <code>timeAgo</code>) and one TypeScript types (<code>Tooltip</code>, <code>TimeAgo</code>). They look almost the same, they live in different places, and mixing them up is the most common mistake here. This page sorts out which is which.</span><span class="l-ar" dir="auto">الفكرة صغيرة: <b>الـ directive سلوك بتلزقه على عنصر، والـ pipe منسّق بتحطه بعد قيمة.</b> اللي بيلخبط هو الأسماء. كل directive وكل pipe ليه <b>اسمين</b>: اسم التمبلت بيكتبه (<code>appTooltip</code>، <code>timeAgo</code>) واسم TypeScript بيكتبه (<code>Tooltip</code>، <code>TimeAgo</code>). شكلهم تقريبًا واحد، وعايشين في أماكن مختلفة، واللخبطة بينهم أشهر غلطة هنا. الصفحة دي بتفرز مين فين.</span></p>
+
+  <div class="doc">
+    <nav class="doc-rail">
+      <b><span class="l-en">On this page</span><span class="l-ar">في الصفحة دي</span></b>
+      <ol><li><a href="#trip" data-rail="trip"><em>01</em><span><span class="l-en">One post on screen, six stops</span><span class="l-ar" dir="auto">بوست واحد على الشاشة، ست محطات</span></span></a></li><li><a href="#who" data-rail="who"><em>02</em><span><span class="l-en">Who writes what, and who picks the name</span><span class="l-ar" dir="auto">مين بيكتب إيه، ومين بيختار الاسم</span></span></a></li><li><a href="#files" data-rail="files"><em>03</em><span><span class="l-en">All seven files, every name coloured</span><span class="l-ar" dir="auto">السبع ملفات، وكل اسم ملوّن</span></span></a></li><li><a href="#rename" data-rail="rename"><em>04</em><span><span class="l-en">What breaks when you rename each name</span><span class="l-ar" dir="auto">إيه اللي بيبوظ لما تغيّر كل اسم</span></span></a></li><li><a href="#fixed" data-rail="fixed"><em>05</em><span><span class="l-en">The fixed names, and the two meanings of [ ]</span><span class="l-ar" dir="auto">الأسماء الثابتة، والمعنيين بتوع [ ]</span></span></a></li><li><a href="#habits" data-rail="habits"><em>06</em><span><span class="l-en">How to pick good names</span><span class="l-ar" dir="auto">تختار أسماء كويسة إزاي</span></span></a></li><li><a href="#forced" data-rail="forced"><em>07</em><span><span class="l-en">Three places where the name is not free</span><span class="l-ar" dir="auto">تلات أماكن الاسم فيهم مش براحتك</span></span></a></li><li><a href="#old" data-rail="old"><em>08</em><span><span class="l-en">The decorator version uses the same names</span><span class="l-ar" dir="auto">نسخة الـ decorators بتستخدم نفس الأسماء</span></span></a></li><li><a href="#silent" data-rail="silent"><em>09</em><span><span class="l-en">Mistakes that fail silently, or confusingly</span><span class="l-ar" dir="auto">غلطات بتفشل في صمت، أو بشكل ملخبط</span></span></a></li><li><a href="#check" data-rail="check"><em>10</em><span><span class="l-en">Six questions, in this order</span><span class="l-ar" dir="auto">ست أسئلة، بالترتيب ده</span></span></a></li></ol>
+    </nav>
+    <div>
+      <section class="sec" id="trip">
+        <div class="sec-kick"><span class="l-en">Start here</span><span class="l-ar" dir="auto">ابدأ من هنا</span></div>
+        <h2><span class="l-en">One post on screen, six stops</span><span class="l-ar" dir="auto">بوست واحد على الشاشة، ست محطات</span></h2>
+        <p class="sec-lead"><span class="l-en">A news feed. Each post has a heading that shows a tooltip on hover, and a date that reads “5 minutes ago”. Angular draws one post. Follow how it finds the directive and the pipe:</span><span class="l-ar" dir="auto">feed أخبار. كل بوست فيه عنوان بيطلّع tooltip لما تقف عليه بالماوس، وتاريخ مكتوب «5 minutes ago». أنجولار بيرسم بوست واحد. امشي وراه وهو بيدوّر على الـ directive والـ pipe:</span></p>
+        
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div><ol class="chain">
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">1</span><span class="ch-f">feed.component.html</span><span class="ch-w"><span class="l-en">template · uses the attribute</span><span class="l-ar" dir="auto">التمبلت · بيستخدم الـ attribute</span></span></div>
+        <pre class="ch-c" data-lang="html"><span class="ln"><span class="v0"><i class="t-tag">&lt;h3</i> <i class="t-bind">[<b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="post">post</b>.<b class="nm nm-pub" data-nm="summary">summary</b>"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="post">post</b>.<b class="nm nm-pub" data-nm="title">title</b> }}</i><i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;h3</i> <i class="t-bind">[<b class="nm nm-pub" data-nm="appTooltip">banana</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="post">potato2</b>.<b class="nm nm-pub" data-nm="summary">donut</b>"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="post">potato2</b>.<b class="nm nm-pub" data-nm="title">kiwi</b> }}</i><i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span></span></pre>
+        <p><span class="l-en">The template writes an attribute, <b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>. Angular now asks: <i>“is there a directive whose selector matches this?”</i> The template never mentions a class. It only knows the attribute.</span><span class="l-ar" dir="auto">التمبلت بيكتب attribute، <b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>. أنجولار ساعتها بيسأل: <i>«فيه directive الـ selector بتاعه بيطابق ده؟»</i> التمبلت عمره ما بيذكر كلاس. هو يعرف الـ attribute وبس.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">2</span><span class="ch-f">feed.component.ts</span><span class="ch-w"><span class="l-en">component · lists the classes</span><span class="l-ar" dir="auto">الـ component · بيكتب الكلاسات</span></span></div>
+        <pre class="ch-c" data-lang="ts"><span class="ln"><span class="v0"><b class="nm nm-ng" data-nm="imports">imports</b>: [<i class="t-type"><b class="nm nm-pub" data-nm="Autofocus">Autofocus</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Tooltip</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="TimeAgo">TimeAgo</b></i>],</span><span class="v1"><b class="nm nm-ng" data-nm="imports">imports</b>: [<i class="t-type"><b class="nm nm-pub" data-nm="Autofocus">Waffle</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Pickle</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="TimeAgo">Noodle</b></i>],</span></span></pre>
+        <p><span class="l-en">Angular only searches what is in <b class="nm nm-ng" data-nm="imports">imports</b>. This list holds <b>class names</b>: <b class="nm nm-pub" data-nm="Tooltip">Tooltip</b>, not <code>appTooltip</code>. This is the only place the feed types them.</span><span class="l-ar" dir="auto">أنجولار بيدوّر بس في اللي جوه <b class="nm nm-ng" data-nm="imports">imports</b>. الليستة دي فيها <b>أسماء كلاسات</b>: <b class="nm nm-pub" data-nm="Tooltip">Tooltip</b>، مش <code>appTooltip</code>. ده المكان الوحيد اللي الـ feed بيكتبهم فيه.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">3</span><span class="ch-f">tooltip.directive.ts</span><span class="ch-w"><span class="l-en">directive · the selector matches</span><span class="l-ar" dir="auto">الـ directive · الـ selector بيطابق</span></span></div>
+        <pre class="ch-c" data-lang="ts"><span class="ln"><span class="v0"><b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'[<b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>]'</i>,</span><span class="v1"><b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'[<b class="nm nm-pub" data-nm="appTooltip">banana</b>]'</i>,</span></span><span class="ln">…</span><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="appTooltip">appTooltip</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;();</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="appTooltip">banana</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;();</span></span></pre>
+        <p><span class="l-en">The square brackets inside the <b class="nm nm-ng" data-nm="selector">selector</b> string are <b>CSS</b>: “any element that has an attribute called <b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>”. There is also an input with the <b>same name</b>, so the same attribute both switches the directive on and carries <code>post.summary</code> in.</span><span class="l-ar" dir="auto">الأقواس المربعة اللي جوه نص الـ <b class="nm nm-ng" data-nm="selector">selector</b> دي <b>CSS</b>: «أي عنصر عليه attribute اسمه <b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>». وفيه كمان input <b>بنفس الاسم</b>، فنفس الـ attribute بيشغّل الـ directive وبيدخّل <code>post.summary</code> كمان.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">4</span><span class="ch-f">feed.component.html</span><span class="ch-w"><span class="l-en">template · uses the pipe</span><span class="l-ar" dir="auto">التمبلت · بيستخدم الـ pipe</span></span></div>
+        <pre class="ch-c" data-lang="html"><span class="ln"><span class="v0"><i class="t-tag">&lt;small</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="post">post</b>.<b class="nm nm-pub" data-nm="publishedAt">publishedAt</b> | <b class="nm nm-pub" data-nm="timeAgo">timeAgo</b>:'short' }}</i><i class="t-tag">&lt;/small</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;small</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="post">potato2</b>.<b class="nm nm-pub" data-nm="publishedAt">pepper</b> | <b class="nm nm-pub" data-nm="timeAgo">mango</b>:'short' }}</i><i class="t-tag">&lt;/small</i><i class="t-tag">&gt;</i></span></span></pre>
+        <p><span class="l-en">After the <code>|</code> comes the pipe’s <b>template name</b>, <b class="nm nm-pub" data-nm="timeAgo">timeAgo</b>, lowercase t. After the colon comes an extra argument. Again: no class name in the template.</span><span class="l-ar" dir="auto">بعد الـ <code>|</code> بييجي <b>اسم الـ pipe في التمبلت</b>، <b class="nm nm-pub" data-nm="timeAgo">timeAgo</b>، بـ t صغيرة. وبعد النقطتين بييجي argument زيادة. تاني: مفيش اسم كلاس في التمبلت.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">5</span><span class="ch-f">time-ago.pipe.ts</span><span class="ch-w"><span class="l-en">pipe · two names</span><span class="l-ar" dir="auto">الـ pipe · اسمين</span></span></div>
+        <pre class="ch-c" data-lang="ts"><span class="ln"><span class="v0"><i class="t-dec"><b class="nm nm-ng" data-nm="@Pipe">@Pipe</b></i>({ <b class="nm nm-ng" data-nm="name">name</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="timeAgo">timeAgo</b>'</i> })</span><span class="v1"><i class="t-dec"><b class="nm nm-ng" data-nm="@Pipe">@Pipe</b></i>({ <b class="nm nm-ng" data-nm="name">name</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="timeAgo">mango</b>'</i> })</span></span><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="TimeAgo">TimeAgo</b></i> <i class="t-key">implements</i> <i class="t-type"><b class="nm nm-ng" data-nm="PipeTransform">PipeTransform</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="TimeAgo">Noodle</b></i> <i class="t-key">implements</i> <i class="t-type"><b class="nm nm-ng" data-nm="PipeTransform">PipeTransform</b></i> {</span></span></pre>
+        <p><span class="l-en">Here are both names side by side. The <b class="nm nm-ng" data-nm="name">name</b> string, <b class="nm nm-pub" data-nm="timeAgo">timeAgo</b>, is what templates type. The class, <b class="nm nm-pub" data-nm="TimeAgo">TimeAgo</b>, is what <b class="nm nm-ng" data-nm="imports">imports</b> types. They look alike only because people choose them that way.</span><span class="l-ar" dir="auto">وهنا الاسمين جنب بعض. النص اللي في <b class="nm nm-ng" data-nm="name">name</b>، <b class="nm nm-pub" data-nm="timeAgo">timeAgo</b>، هو اللي التمبلتس بتكتبه. والكلاس، <b class="nm nm-pub" data-nm="TimeAgo">TimeAgo</b>، هو اللي <b class="nm nm-ng" data-nm="imports">imports</b> بتكتبه. شبه بعض بس عشان الناس بتختارهم كده.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">6</span><span class="ch-f">time-ago.pipe.ts</span><span class="ch-w"><span class="l-en">pipe · Angular calls it</span><span class="l-ar" dir="auto">الـ pipe · أنجولار بيناديها</span></span></div>
+        <pre class="ch-c" data-lang="ts"><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-ng" data-nm="transform">transform</b></i>(<b class="nm nm-mine" data-nm="value">value</b>: <i class="t-key">string</i>, <b class="nm nm-mine" data-nm="format">format</b>: <i class="t-str">'long'</i> | <i class="t-str">'short'</i> = <i class="t-str">'long'</i>): <i class="t-key">string</i> {</span><span class="v1"><i class="t-fn"><b class="nm nm-ng" data-nm="transform">transform</b></i>(<b class="nm nm-mine" data-nm="value">koshary</b>: <i class="t-key">string</i>, <b class="nm nm-mine" data-nm="format">feteer</b>: <i class="t-str">'long'</i> | <i class="t-str">'short'</i> = <i class="t-str">'long'</i>): <i class="t-key">string</i> {</span></span></pre>
+        <p><span class="l-en">Angular calls <b class="nm nm-ng" data-nm="transform">transform</b>: that name is fixed. What sits left of the <code>|</code> arrives as the first parameter, <code>'short'</code> as the second. They arrive <b>by position</b>, so <b class="nm nm-mine" data-nm="value">value</b> and <b class="nm nm-mine" data-nm="format">format</b> are names you picked.</span><span class="l-ar" dir="auto">أنجولار بينادي <b class="nm nm-ng" data-nm="transform">transform</b>: الاسم ده ثابت. اللي على شمال الـ <code>|</code> بيوصل كأول parameter، و<code>'short'</code> كتاني واحد. بيوصلوا <b>بالترتيب</b>، فـ <b class="nm nm-mine" data-nm="value">value</b> و<b class="nm nm-mine" data-nm="format">format</b> أسماء انت اخترتها.</span></p>
+      </li>
+    </ol><div class="note"><b class="lbl"><span class="l-en">The whole thing in one line</span><span class="l-ar" dir="auto">الحكاية كلها في سطر</span></b><p><span class="l-en">Templates type the <b>selector</b> (<code>appTooltip</code>) and the <b>pipe name</b> (<code>timeAgo</code>). TypeScript types the <b>class names</b> (<code>Tooltip</code>, <code>TimeAgo</code>). Angular owns <code>transform</code>. Never mix the first two sets up.</span><span class="l-ar" dir="auto">التمبلتس بتكتب الـ <b>selector</b> (<code>appTooltip</code>) و<b>اسم الـ pipe</b> (<code>timeAgo</code>). وTypeScript بيكتب <b>أسماء الكلاسات</b> (<code>Tooltip</code>، <code>TimeAgo</code>). وأنجولار صاحب <code>transform</code>. أوعى تخلط أول مجموعتين ببعض.</span></p></div>
+      </section>
+      <section class="sec" id="who">
+        <div class="sec-kick"><span class="l-en">Which name goes where?</span><span class="l-ar" dir="auto">أنهي اسم يروح فين؟</span></div>
+        <h2><span class="l-en">Who writes what, and who picks the name</span><span class="l-ar" dir="auto">مين بيكتب إيه، ومين بيختار الاسم</span></h2>
+        <p class="sec-lead"><span class="l-en">Every piece has exactly one home. Once you see the two sets of names, template names and class names, the “why doesn’t it find my pipe?” confusion goes away.</span><span class="l-ar" dir="auto">كل حتة ليها بيت واحد بس. أول ما تشوف مجموعتين الأسماء، أسماء التمبلت وأسماء الكلاسات، لخبطة «ليه مش لاقي الـ pipe بتاعي؟» بتختفي.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">Piece</span><span class="l-ar" dir="auto">الحتة</span></th><th><span class="l-en">Lives in</span><span class="l-ar" dir="auto">مكانها</span></th><th><span class="l-en">Written by</span><span class="l-ar" dir="auto">مين بيكتبها</span></th><th><span class="l-en">Who picks the name</span><span class="l-ar" dir="auto">مين بيختار الاسم</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en"><code>selector: '[appTooltip]'</code></span><span class="l-ar" dir="auto"><code>selector: '[appTooltip]'</code></span></td><td><span class="l-en">directive <code>.ts</code></span><span class="l-ar" dir="auto"><code>.ts</code> الـ directive</span></td><td><span class="l-en">the directive</span><span class="l-ar" dir="auto">الـ directive</span></td><td><span class="l-en">you pick <b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>; the brackets are CSS’s</span><span class="l-ar" dir="auto">انت بتختار <b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>؛ والأقواس بتاعة CSS</span></td></tr><tr><td><span class="l-en"><code>export class Tooltip</code></span><span class="l-ar" dir="auto"><code>export class Tooltip</code></span></td><td><span class="l-en">directive <code>.ts</code></span><span class="l-ar" dir="auto"><code>.ts</code> الـ directive</span></td><td><span class="l-en">the directive</span><span class="l-ar" dir="auto">الـ directive</span></td><td><span class="l-en">you pick <b class="nm nm-pub" data-nm="Tooltip">Tooltip</b></span><span class="l-ar" dir="auto">انت بتختار <b class="nm nm-pub" data-nm="Tooltip">Tooltip</b></span></td></tr><tr><td><span class="l-en"><code>'(mouseenter)': 'show()'</code></span><span class="l-ar" dir="auto"><code>'(mouseenter)': 'show()'</code></span></td><td><span class="l-en">directive <code>.ts</code>, in <code>host</code></span><span class="l-ar" dir="auto"><code>.ts</code> الـ directive، جوه <code>host</code></span></td><td><span class="l-en">the directive</span><span class="l-ar" dir="auto">الـ directive</span></td><td><span class="l-en"><b class="nm nm-ng" data-nm="mouseenter">mouseenter</b> is the browser’s; you pick <b class="nm nm-mine" data-nm="show">show</b></span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="mouseenter">mouseenter</b> بتاع المتصفح؛ وانت بتختار <b class="nm nm-mine" data-nm="show">show</b></span></td></tr><tr><td><span class="l-en"><code>@Pipe({ name: 'timeAgo' })</code></span><span class="l-ar" dir="auto"><code>@Pipe({ name: 'timeAgo' })</code></span></td><td><span class="l-en">pipe <code>.ts</code></span><span class="l-ar" dir="auto"><code>.ts</code> الـ pipe</span></td><td><span class="l-en">the pipe</span><span class="l-ar" dir="auto">الـ pipe</span></td><td><span class="l-en">you pick <b class="nm nm-pub" data-nm="timeAgo">timeAgo</b></span><span class="l-ar" dir="auto">انت بتختار <b class="nm nm-pub" data-nm="timeAgo">timeAgo</b></span></td></tr><tr><td><span class="l-en"><code>transform(value, format)</code></span><span class="l-ar" dir="auto"><code>transform(value, format)</code></span></td><td><span class="l-en">pipe <code>.ts</code></span><span class="l-ar" dir="auto"><code>.ts</code> الـ pipe</span></td><td><span class="l-en">the pipe</span><span class="l-ar" dir="auto">الـ pipe</span></td><td><span class="l-en"><b class="nm nm-ng" data-nm="transform">transform</b> is Angular’s; you pick <b class="nm nm-mine" data-nm="value">value</b> and <b class="nm nm-mine" data-nm="format">format</b></span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="transform">transform</b> بتاعة أنجولار؛ وانت بتختار <b class="nm nm-mine" data-nm="value">value</b> و<b class="nm nm-mine" data-nm="format">format</b></span></td></tr><tr><td><span class="l-en"><code>imports: [Tooltip, TimeAgo]</code></span><span class="l-ar" dir="auto"><code>imports: [Tooltip, TimeAgo]</code></span></td><td><span class="l-en">component <code>.ts</code></span><span class="l-ar" dir="auto"><code>.ts</code> الـ component</span></td><td><span class="l-en">the component that uses them</span><span class="l-ar" dir="auto">الـ component اللي بيستخدمهم</span></td><td><span class="l-en">copies the <b>class</b> names</span><span class="l-ar" dir="auto">بينسخ أسماء <b>الكلاسات</b></span></td></tr><tr><td><span class="l-en"><code>[appTooltip]="…"</code>, <code>| timeAgo</code></span><span class="l-ar" dir="auto"><code>[appTooltip]="…"</code>، <code>| timeAgo</code></span></td><td><span class="l-en">component <code>.html</code></span><span class="l-ar" dir="auto"><code>.html</code> الـ component</span></td><td><span class="l-en">the component that uses them</span><span class="l-ar" dir="auto">الـ component اللي بيستخدمهم</span></td><td><span class="l-en">copies the <b>selector</b> and the <b>pipe name</b></span><span class="l-ar" dir="auto">بينسخ الـ <b>selector</b> و<b>اسم الـ pipe</b></span></td></tr></tbody>
+    </table></div><ul><li><span class="l-en"><b>HTML never types a class name, TypeScript never types a selector.</b> <code>imports</code> gets <code>TimeAgo</code>; the template gets <code>timeAgo</code>. If you catch yourself writing <code>| TimeAgo</code>, that is the mistake.</span><span class="l-ar" dir="auto"><b>الـ HTML عمره ما بيكتب اسم كلاس، والـ TypeScript عمره ما بيكتب selector.</b> <code>imports</code> بياخد <code>TimeAgo</code>؛ والتمبلت بياخد <code>timeAgo</code>. لو لقيت نفسك بتكتب <code>| TimeAgo</code>، يبقى دي الغلطة.</span></li><li><span class="l-en"><b>A directive never creates the element it sits on.</b> The template that writes <code>&lt;h3 appTooltip&gt;</code> owns the <code>h3</code>. The directive only adds behaviour to it.</span><span class="l-ar" dir="auto"><b>الـ directive عمره ما بيعمل العنصر اللي قاعد عليه.</b> التمبلت اللي كاتب <code>&lt;h3 appTooltip&gt;</code> هو صاحب الـ <code>h3</code>. الـ directive بيضيفله سلوك وبس.</span></li><li><span class="l-en"><b>Strings inside <code>host</code> are template code, run on the directive.</b> <code>'show()'</code> calls the directive’s own method, the same way <code>(click)="save()"</code> in a template calls the component’s.</span><span class="l-ar" dir="auto"><b>النصوص اللي جوه <code>host</code> كود تمبلت، بيتنفّذ على الـ directive.</b> <code>'show()'</code> بتنادي ميثود الـ directive نفسه، بالظبط زي ما <code>(click)="save()"</code> في تمبلت بتنادي ميثود الـ component.</span></li></ul>
+      </section>
+      <section class="sec" id="files">
+        <div class="sec-kick"><span class="l-en">The real files</span><span class="l-ar" dir="auto">الملفات الحقيقية</span></div>
+        <h2><span class="l-en">All seven files, every name coloured</span><span class="l-ar" dir="auto">السبع ملفات، وكل اسم ملوّن</span></h2>
+        <p class="sec-lead"><span class="l-en">The same feed, complete. Hover a coloured name to light up everywhere else it appears. Then press <b>Rename test</b>: every name you own turns into a made-up word, Angular’s words stay put, and the code still works.</span><span class="l-ar" dir="auto">نفس الـ feed، كامل. قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها. وبعدين دوس <b>جرّب تغيّر الأسماء</b>: كل اسم بتاعك هيبقى كلمة عشوائية، وكلمات أنجولار هتفضل مكانها، والكود لسه شغال.</span></p>
+        
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>post.ts<span class="tag"><span class="l-en">the data</span><span class="l-ar" dir="auto">الداتا</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">interface</i> <i class="t-type"><b class="nm nm-pub" data-nm="Post">Post</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">interface</i> <i class="t-type"><b class="nm nm-pub" data-nm="Post">Muffin</b></i> {</span></span><span class="ln"><span class="v0">  <b class="nm nm-pub" data-nm="id">id</b>: <i class="t-key">number</i>;</span><span class="v1">  <b class="nm nm-pub" data-nm="id">taco</b>: <i class="t-key">number</i>;</span></span><span class="ln"><span class="v0">  <b class="nm nm-pub" data-nm="title">title</b>: <i class="t-key">string</i>;</span><span class="v1">  <b class="nm nm-pub" data-nm="title">kiwi</b>: <i class="t-key">string</i>;</span></span><span class="ln"><span class="v0">  <b class="nm nm-pub" data-nm="summary">summary</b>: <i class="t-key">string</i>;</span><span class="v1">  <b class="nm nm-pub" data-nm="summary">donut</b>: <i class="t-key">string</i>;</span></span><span class="ln"><span class="v0">  <b class="nm nm-pub" data-nm="publishedAt">publishedAt</b>: <i class="t-key">string</i>;</span><span class="v1">  <b class="nm nm-pub" data-nm="publishedAt">pepper</b>: <i class="t-key">string</i>;</span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>autofocus.directive.ts<span class="tag"><span class="l-en">directive, no input</span><span class="l-ar" dir="auto">directive، من غير input</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Directive</i>, <i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>, <b class="nm nm-ng" data-nm="afterNextRender">afterNextRender</b>, <b class="nm nm-ng" data-nm="inject">inject</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-dec"><b class="nm nm-ng" data-nm="@Directive">@Directive</b></i>({</span><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'[<b class="nm nm-pub" data-nm="appAutofocus">appAutofocus</b>]'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'[<b class="nm nm-pub" data-nm="appAutofocus">potato</b>]'</i>,</span></span><span class="ln">})</span><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Autofocus">Autofocus</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Autofocus">Waffle</b></i> {</span></span><span class="ln"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="el">el</b> = <b class="nm nm-ng" data-nm="inject">inject</b>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&lt;<i class="t-type">HTMLElement</i>&gt;&gt;(<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="el">falafel</b> = <b class="nm nm-ng" data-nm="inject">inject</b>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&lt;<i class="t-type">HTMLElement</i>&gt;&gt;(<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>);</span></span><span class="ln"> </span><span class="ln">  <i class="t-fn">constructor</i>() {</span><span class="ln"><span class="v0">    <i class="t-fn"><b class="nm nm-ng" data-nm="afterNextRender">afterNextRender</b></i>(() =&gt; <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="el">el</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="focus">focus</b></i>());</span><span class="v1">    <i class="t-fn"><b class="nm nm-ng" data-nm="afterNextRender">afterNextRender</b></i>(() =&gt; <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="el">falafel</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="focus">focus</b></i>());</span></span><span class="ln">  }</span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>tooltip.directive.ts<span class="tag"><span class="l-en">directive, with an input</span><span class="l-ar" dir="auto">directive، بـ input</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Directive</i>, <b class="nm nm-ng" data-nm="input">input</b>, <b class="nm nm-ng" data-nm="signal">signal</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-dec"><b class="nm nm-ng" data-nm="@Directive">@Directive</b></i>({</span><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'[<b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>]'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'[<b class="nm nm-pub" data-nm="appTooltip">banana</b>]'</i>,</span></span><span class="ln">  <b class="nm nm-ng" data-nm="host">host</b>: {</span><span class="ln"><span class="v0">    <i class="t-str">'[<b class="nm nm-ng" data-nm="attr">attr</b>.<b class="nm nm-pub" data-nm="data-tip">data-tip</b>]'</i>: <i class="t-str">'<b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>()'</i>,</span><span class="v1">    <i class="t-str">'[<b class="nm nm-ng" data-nm="attr">attr</b>.<b class="nm nm-pub" data-nm="data-tip">data-turnip</b>]'</i>: <i class="t-str">'<b class="nm nm-pub" data-nm="appTooltip">banana</b>()'</i>,</span></span><span class="ln"><span class="v0">    <i class="t-str">'[<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="tip-open">tip-open</b>]'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="open">open</b>()'</i>,</span><span class="v1">    <i class="t-str">'[<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="tip-open">tip-pumpkin</b>]'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="open">biscuit</b>()'</i>,</span></span><span class="ln"><span class="v0">    <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseenter">mouseenter</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="show">show</b>()'</i>,</span><span class="v1">    <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseenter">mouseenter</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="show">olive</b>()'</i>,</span></span><span class="ln"><span class="v0">    <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseleave">mouseleave</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="hide">hide</b>()'</i>,</span><span class="v1">    <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseleave">mouseleave</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="hide">cookie</b>()'</i>,</span></span><span class="ln">  },</span><span class="ln">})</span><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Tooltip</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Pickle</b></i> {</span></span><span class="ln"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="appTooltip">appTooltip</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;();</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="appTooltip">banana</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;();</span></span><span class="ln"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="open">open</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="open">biscuit</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span></span><span class="ln"> </span><span class="ln"><span class="v0">  <i class="t-fn"><b class="nm nm-mine" data-nm="show">show</b></i>() { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="open">open</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">true</i>); }</span><span class="v1">  <i class="t-fn"><b class="nm nm-mine" data-nm="show">olive</b></i>() { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="open">biscuit</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">true</i>); }</span></span><span class="ln"><span class="v0">  <i class="t-fn"><b class="nm nm-mine" data-nm="hide">hide</b></i>() { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="open">open</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">false</i>); }</span><span class="v1">  <i class="t-fn"><b class="nm nm-mine" data-nm="hide">cookie</b></i>() { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="open">biscuit</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">false</i>); }</span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>time-ago.pipe.ts<span class="tag"><span class="l-en">pipe</span><span class="l-ar" dir="auto">pipe</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Pipe</i>, <i class="t-type"><b class="nm nm-ng" data-nm="PipeTransform">PipeTransform</b></i> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-dec"><b class="nm nm-ng" data-nm="@Pipe">@Pipe</b></i>({ <b class="nm nm-ng" data-nm="name">name</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="timeAgo">timeAgo</b>'</i> })</span><span class="v1"><i class="t-dec"><b class="nm nm-ng" data-nm="@Pipe">@Pipe</b></i>({ <b class="nm nm-ng" data-nm="name">name</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="timeAgo">mango</b>'</i> })</span></span><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="TimeAgo">TimeAgo</b></i> <i class="t-key">implements</i> <i class="t-type"><b class="nm nm-ng" data-nm="PipeTransform">PipeTransform</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="TimeAgo">Noodle</b></i> <i class="t-key">implements</i> <i class="t-type"><b class="nm nm-ng" data-nm="PipeTransform">PipeTransform</b></i> {</span></span><span class="ln"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="transform">transform</b></i>(<b class="nm nm-mine" data-nm="value">value</b>: <i class="t-key">string</i>, <b class="nm nm-mine" data-nm="format">format</b>: <i class="t-str">'long'</i> | <i class="t-str">'short'</i> = <i class="t-str">'long'</i>): <i class="t-key">string</i> {</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="transform">transform</b></i>(<b class="nm nm-mine" data-nm="value">koshary</b>: <i class="t-key">string</i>, <b class="nm nm-mine" data-nm="format">feteer</b>: <i class="t-str">'long'</i> | <i class="t-str">'short'</i> = <i class="t-str">'long'</i>): <i class="t-key">string</i> {</span></span><span class="ln"><span class="v0">    <i class="t-key">const</i> <b class="nm nm-mine" data-nm="mins">mins</b> = <i class="t-type">Math</i>.<i class="t-fn">round</i>((<i class="t-type">Date</i>.<i class="t-fn">now</i>() - <i class="t-key">new</i> <i class="t-fn">Date</i>(<b class="nm nm-mine" data-nm="value">value</b>).<i class="t-fn">getTime</i>()) / <i class="t-num">60000</i>);</span><span class="v1">    <i class="t-key">const</i> <b class="nm nm-mine" data-nm="mins">basbousa</b> = <i class="t-type">Math</i>.<i class="t-fn">round</i>((<i class="t-type">Date</i>.<i class="t-fn">now</i>() - <i class="t-key">new</i> <i class="t-fn">Date</i>(<b class="nm nm-mine" data-nm="value">koshary</b>).<i class="t-fn">getTime</i>()) / <i class="t-num">60000</i>);</span></span><span class="ln"><span class="v0">    <i class="t-key">return</i> <b class="nm nm-mine" data-nm="format">format</b> === <i class="t-str">'short'</i> ? <i class="t-str">`${<b class="nm nm-mine" data-nm="mins">mins</b>}m`</i> : <i class="t-str">`${<b class="nm nm-mine" data-nm="mins">mins</b>} minutes ago`</i>;</span><span class="v1">    <i class="t-key">return</i> <b class="nm nm-mine" data-nm="format">feteer</b> === <i class="t-str">'short'</i> ? <i class="t-str">`${<b class="nm nm-mine" data-nm="mins">basbousa</b>}m`</i> : <i class="t-str">`${<b class="nm nm-mine" data-nm="mins">basbousa</b>} minutes ago`</i>;</span></span><span class="ln">  }</span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>feed.component.ts<span class="tag"><span class="l-en">uses all three</span><span class="l-ar" dir="auto">بيستخدم التلاتة</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Component</i>, <b class="nm nm-ng" data-nm="signal">signal</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"><span class="v0"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="Autofocus">Autofocus</b></i> } <i class="t-key">from</i> <i class="t-str">'./autofocus.directive'</i>;</span><span class="v1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="Autofocus">Waffle</b></i> } <i class="t-key">from</i> <i class="t-str">'./autofocus.directive'</i>;</span></span><span class="ln"><span class="v0"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Tooltip</b></i> } <i class="t-key">from</i> <i class="t-str">'./tooltip.directive'</i>;</span><span class="v1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Pickle</b></i> } <i class="t-key">from</i> <i class="t-str">'./tooltip.directive'</i>;</span></span><span class="ln"><span class="v0"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="TimeAgo">TimeAgo</b></i> } <i class="t-key">from</i> <i class="t-str">'./time-ago.pipe'</i>;</span><span class="v1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="TimeAgo">Noodle</b></i> } <i class="t-key">from</i> <i class="t-str">'./time-ago.pipe'</i>;</span></span><span class="ln"><span class="v0"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="Post">Post</b></i> } <i class="t-key">from</i> <i class="t-str">'./post'</i>;</span><span class="v1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="Post">Muffin</b></i> } <i class="t-key">from</i> <i class="t-str">'./post'</i>;</span></span><span class="ln"> </span><span class="ln"><i class="t-dec"><b class="nm nm-ng" data-nm="@Component">@Component</b></i>({</span><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-feed">app-feed</b>'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-feed">app-lemon</b>'</i>,</span></span><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="imports">imports</b>: [<i class="t-type"><b class="nm nm-pub" data-nm="Autofocus">Autofocus</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Tooltip</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="TimeAgo">TimeAgo</b></i>],</span><span class="v1">  <b class="nm nm-ng" data-nm="imports">imports</b>: [<i class="t-type"><b class="nm nm-pub" data-nm="Autofocus">Waffle</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Pickle</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="TimeAgo">Noodle</b></i>],</span></span><span class="ln">  <b class="nm nm-ng" data-nm="templateUrl">templateUrl</b>: <i class="t-str">'./feed.component.html'</i>,</span><span class="ln">})</span><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Feed">Feed</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Feed">Carrot</b></i> {</span></span><span class="ln"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="posts">posts</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Post">Post</b></i>[]&gt;([</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="posts">banana2</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Post">Muffin</b></i>[]&gt;([</span></span><span class="ln"><span class="v0">    { <b class="nm nm-pub" data-nm="id">id</b>: <i class="t-num">1</i>, <b class="nm nm-pub" data-nm="title">title</b>: <i class="t-str">'Signals in practice'</i>, <b class="nm nm-pub" data-nm="summary">summary</b>: <i class="t-str">'A five-minute tour'</i>, <b class="nm nm-pub" data-nm="publishedAt">publishedAt</b>: <i class="t-str">'2026-09-24T08:00:00Z'</i> },</span><span class="v1">    { <b class="nm nm-pub" data-nm="id">taco</b>: <i class="t-num">1</i>, <b class="nm nm-pub" data-nm="title">kiwi</b>: <i class="t-str">'Signals in practice'</i>, <b class="nm nm-pub" data-nm="summary">donut</b>: <i class="t-str">'A five-minute tour'</i>, <b class="nm nm-pub" data-nm="publishedAt">pepper</b>: <i class="t-str">'2026-09-24T08:00:00Z'</i> },</span></span><span class="ln">  ]);</span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="html">
+        <div class="fc-h"><span class="d"></span>feed.component.html<span class="tag"><span class="l-en">uses all three</span><span class="l-ar" dir="auto">بيستخدم التلاتة</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;input</i> <b class="nm nm-pub" data-nm="appAutofocus">appAutofocus</b> <i class="t-attr">placeholder</i>=<i class="t-str">"Search the feed"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;input</i> <b class="nm nm-pub" data-nm="appAutofocus">potato</b> <i class="t-attr">placeholder</i>=<i class="t-str">"Search the feed"</i><i class="t-tag">&gt;</i></span></span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@for">@for</b></i> (<b class="nm nm-mine" data-nm="post">post</b> of <b class="nm nm-mine" data-nm="posts">posts</b>(); <b class="nm nm-ng" data-nm="track">track</b> <b class="nm nm-mine" data-nm="post">post</b>.<b class="nm nm-pub" data-nm="id">id</b>) {</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@for">@for</b></i> (<b class="nm nm-mine" data-nm="post">potato2</b> of <b class="nm nm-mine" data-nm="posts">banana2</b>(); <b class="nm nm-ng" data-nm="track">track</b> <b class="nm nm-mine" data-nm="post">potato2</b>.<b class="nm nm-pub" data-nm="id">taco</b>) {</span></span><span class="ln">  <i class="t-tag">&lt;article</i><i class="t-tag">&gt;</i></span><span class="ln"><span class="v0">    <i class="t-tag">&lt;h3</i> <i class="t-bind">[<b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="post">post</b>.<b class="nm nm-pub" data-nm="summary">summary</b>"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="post">post</b>.<b class="nm nm-pub" data-nm="title">title</b> }}</i><i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span><span class="v1">    <i class="t-tag">&lt;h3</i> <i class="t-bind">[<b class="nm nm-pub" data-nm="appTooltip">banana</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="post">potato2</b>.<b class="nm nm-pub" data-nm="summary">donut</b>"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="post">potato2</b>.<b class="nm nm-pub" data-nm="title">kiwi</b> }}</i><i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span></span><span class="ln"><span class="v0">    <i class="t-tag">&lt;time</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="post">post</b>.<b class="nm nm-pub" data-nm="publishedAt">publishedAt</b> | <b class="nm nm-pub" data-nm="timeAgo">timeAgo</b> }}</i><i class="t-tag">&lt;/time</i><i class="t-tag">&gt;</i></span><span class="v1">    <i class="t-tag">&lt;time</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="post">potato2</b>.<b class="nm nm-pub" data-nm="publishedAt">pepper</b> | <b class="nm nm-pub" data-nm="timeAgo">mango</b> }}</i><i class="t-tag">&lt;/time</i><i class="t-tag">&gt;</i></span></span><span class="ln"><span class="v0">    <i class="t-tag">&lt;small</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="post">post</b>.<b class="nm nm-pub" data-nm="publishedAt">publishedAt</b> | <b class="nm nm-pub" data-nm="timeAgo">timeAgo</b>:'short' }}</i><i class="t-tag">&lt;/small</i><i class="t-tag">&gt;</i></span><span class="v1">    <i class="t-tag">&lt;small</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="post">potato2</b>.<b class="nm nm-pub" data-nm="publishedAt">pepper</b> | <b class="nm nm-pub" data-nm="timeAgo">mango</b>:'short' }}</i><i class="t-tag">&lt;/small</i><i class="t-tag">&gt;</i></span></span><span class="ln">  <i class="t-tag">&lt;/article</i><i class="t-tag">&gt;</i></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="css">
+        <div class="fc-h"><span class="d"></span>styles.css<span class="tag"><span class="l-en">global styles</span><span class="l-ar" dir="auto">الستايلات العامة</span></span></div>
+        <pre><span class="ln"><span class="v0">.<b class="nm nm-pub" data-nm="tip-open">tip-open</b> { position: relative; }</span><span class="v1">.<b class="nm nm-pub" data-nm="tip-open">tip-pumpkin</b> { position: relative; }</span></span><span class="ln"> </span><span class="ln"><span class="v0">.<b class="nm nm-pub" data-nm="tip-open">tip-open</b>::after {</span><span class="v1">.<b class="nm nm-pub" data-nm="tip-open">tip-pumpkin</b>::after {</span></span><span class="ln"><span class="v0">  content: <i class="t-fn"><b class="nm nm-ng" data-nm="attr">attr</b></i>(<b class="nm nm-pub" data-nm="data-tip">data-tip</b>);</span><span class="v1">  content: <i class="t-fn"><b class="nm nm-ng" data-nm="attr">attr</b></i>(<b class="nm nm-pub" data-nm="data-tip">data-turnip</b>);</span></span><span class="ln">  position: absolute;</span><span class="ln">  top: <i class="t-num">100</i>%;</span><span class="ln">  left: <i class="t-num">0</i>;</span><span class="ln">  padding: <i class="t-num">4px</i> <i class="t-num">8px</i>;</span><span class="ln">  background: #<i class="t-num">222</i>;</span><span class="ln">  color: #fff;</span><span class="ln">}</span></pre>
+      </div>
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">Read the orange rows first. A directive’s selector and a pipe’s <code>name</code> are words you invent, but every template that uses them types them too. The class names are a second, separate set of names that only TypeScript types. Blue words (<code>transform</code>, <code>host</code>, <code>mouseenter</code>) are Angular’s or the browser’s.</span><span class="l-ar" dir="auto">اقرا الصفوف البرتقاني الأول. الـ selector بتاع الـ directive والـ <code>name</code> بتاع الـ pipe كلمات انت بتخترعها، بس أي تمبلت بيستخدمهم بيكتبهم برضه. أسماء الكلاسات مجموعة أسماء تانية منفصلة، وTypeScript بس اللي بيكتبها. والكلمات الزرقا (<code>transform</code>، <code>host</code>، <code>mouseenter</code>) بتاعة أنجولار أو المتصفح.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="appTooltip">
+        <td><b class="nm nm-pub" data-nm="appTooltip">appTooltip</b><span class="nmas">&rarr; <code>banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The attribute you invented. The selector <code>'[appTooltip]'</code>, the input of the same name, the <code>host</code> string and every template that uses it must spell it the same.</span><span class="l-ar" dir="auto">الـ attribute اللي انت اخترعته. الـ selector <code>'[appTooltip]'</code> والـ input اللي بنفس الاسم ونص الـ <code>host</code> وأي تمبلت بيستخدمه لازم يكتبوه زي بعض.</span></td>
+        <td class="nmfiles"><code>feed.component.html</code> <code>tooltip.directive.ts</code> <code>tooltip.directive.ts · with alias</code> <code>tooltip.directive.ts — older style</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="appAutofocus">
+        <td><b class="nm nm-pub" data-nm="appAutofocus">appAutofocus</b><span class="nmas">&rarr; <code>potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The attribute you invented for the autofocus directive. The selector and every template that writes it must match.</span><span class="l-ar" dir="auto">الـ attribute اللي اخترعته للـ directive بتاع الـ autofocus. الـ selector وأي تمبلت بيكتبه لازم يطابقوا.</span></td>
+        <td class="nmfiles"><code>autofocus.directive.ts</code> <code>feed.component.html</code></td>
+      </tr>
+      <tr data-nmrow="timeAgo">
+        <td><b class="nm nm-pub" data-nm="timeAgo">timeAgo</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The pipe’s template name. The <code>name:</code> string and every <code>| timeAgo</code> must match. Templates never type the class name.</span><span class="l-ar" dir="auto">اسم الـ pipe في التمبلت. النص في <code>name:</code> وكل <code>| timeAgo</code> لازم يطابقوا. التمبلتس عمرها ما بتكتب اسم الكلاس.</span></td>
+        <td class="nmfiles"><code>feed.component.html</code> <code>time-ago.pipe.ts</code></td>
+      </tr>
+      <tr data-nmrow="Tooltip">
+        <td><b class="nm nm-pub" data-nm="Tooltip">Tooltip</b><span class="nmas">&rarr; <code>Pickle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The directive’s class. Only TypeScript types it: the <code>import</code> line and <code>imports: [ ]</code>.</span><span class="l-ar" dir="auto">كلاس الـ directive. TypeScript بس اللي بيكتبه: سطر الـ <code>import</code> و<code>imports: [ ]</code>.</span></td>
+        <td class="nmfiles"><code>feed.component.ts</code> <code>tooltip.directive.ts</code> <code>tooltip.directive.ts — older style</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="Autofocus">
+        <td><b class="nm nm-pub" data-nm="Autofocus">Autofocus</b><span class="nmas">&rarr; <code>Waffle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The autofocus directive’s class, imported by the feed.</span><span class="l-ar" dir="auto">كلاس الـ directive بتاع الـ autofocus، والـ feed بيعمله import.</span></td>
+        <td class="nmfiles"><code>feed.component.ts</code> <code>autofocus.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="TimeAgo">
+        <td><b class="nm nm-pub" data-nm="TimeAgo">TimeAgo</b><span class="nmas">&rarr; <code>Noodle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The pipe’s class. Imported and listed in <code>imports</code>, never typed in a template.</span><span class="l-ar" dir="auto">كلاس الـ pipe. بيتعمله import وبيتكتب في <code>imports</code>، وعمره ما بيتكتب في تمبلت.</span></td>
+        <td class="nmfiles"><code>feed.component.ts</code> <code>time-ago.pipe.ts</code></td>
+      </tr>
+      <tr data-nmrow="tip-open">
+        <td><b class="nm nm-pub" data-nm="tip-open">tip-open</b><span class="nmas">&rarr; <code>tip-pumpkin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A CSS class the directive puts on its element. The <code>host</code> string and the stylesheet must spell it the same.</span><span class="l-ar" dir="auto">CSS class الـ directive بيحطها على العنصر بتاعه. نص الـ <code>host</code> والـ stylesheet لازم يكتبوها زي بعض.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code> <code>styles.css</code> <code>tooltip.directive.ts — older style</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="data-tip">
+        <td><b class="nm nm-pub" data-nm="data-tip">data-tip</b><span class="nmas">&rarr; <code>data-turnip</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">An HTML attribute the directive writes and the stylesheet reads with <code>attr()</code>. Both sides change together.</span><span class="l-ar" dir="auto">HTML attribute الـ directive بيكتبه والـ stylesheet بيقراه بـ <code>attr()</code>. الناحيتين بيتغيروا مع بعض.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code> <code>styles.css</code> <code>tooltip.directive.ts · with alias</code> <code>tooltip.directive.ts — older style</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="Post">
+        <td><b class="nm nm-pub" data-nm="Post">Post</b><span class="nmas">&rarr; <code>Muffin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your data type. Every file that imports it follows a rename.</span><span class="l-ar" dir="auto">نوع الداتا بتاعك. أي ملف بيعمله import بيتغير معاه.</span></td>
+        <td class="nmfiles"><code>post.ts</code> <code>feed.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="id">
+        <td><b class="nm nm-pub" data-nm="id">id</b><span class="nmas">&rarr; <code>taco</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field on your data, read by <code>track</code>.</span><span class="l-ar" dir="auto">field في الداتا بتاعتك، و<code>track</code> بيقراه.</span></td>
+        <td class="nmfiles"><code>post.ts</code> <code>feed.component.ts</code> <code>feed.component.html</code></td>
+      </tr>
+      <tr data-nmrow="title">
+        <td><b class="nm nm-pub" data-nm="title">title</b><span class="nmas">&rarr; <code>kiwi</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field on your data, printed by the feed’s template.</span><span class="l-ar" dir="auto">field في الداتا بتاعتك، وتمبلت الـ feed بيطبعه.</span></td>
+        <td class="nmfiles"><code>feed.component.html</code> <code>post.ts</code> <code>feed.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="summary">
+        <td><b class="nm nm-pub" data-nm="summary">summary</b><span class="nmas">&rarr; <code>donut</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field on your data, handed to the tooltip.</span><span class="l-ar" dir="auto">field في الداتا بتاعتك، بيتبعت للـ tooltip.</span></td>
+        <td class="nmfiles"><code>feed.component.html</code> <code>post.ts</code> <code>feed.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="publishedAt">
+        <td><b class="nm nm-pub" data-nm="publishedAt">publishedAt</b><span class="nmas">&rarr; <code>pepper</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field on your data, sent through the pipe.</span><span class="l-ar" dir="auto">field في الداتا بتاعتك، بيعدّي على الـ pipe.</span></td>
+        <td class="nmfiles"><code>feed.component.html</code> <code>post.ts</code> <code>feed.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="app-feed">
+        <td><b class="nm nm-pub" data-nm="app-feed">app-feed</b><span class="nmas">&rarr; <code>app-lemon</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The feed’s selector. Whoever shows the feed types this tag.</span><span class="l-ar" dir="auto">الـ selector بتاع الـ feed. أي حد بيعرض الـ feed بيكتب التاج ده.</span></td>
+        <td class="nmfiles"><code>feed.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="Feed">
+        <td><b class="nm nm-pub" data-nm="Feed">Feed</b><span class="nmas">&rarr; <code>Carrot</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The feed’s class. Whoever uses the feed imports it by this name.</span><span class="l-ar" dir="auto">كلاس الـ feed. أي حد بيستخدمه بيعمله import بالاسم ده.</span></td>
+        <td class="nmfiles"><code>feed.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="open">
+        <td><b class="nm nm-mine" data-nm="open">open</b><span class="nmas">&rarr; <code>biscuit</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The tooltip’s own signal, read only by its own <code>host</code> string.</span><span class="l-ar" dir="auto">الـ signal بتاعة الـ tooltip نفسه، ونص الـ <code>host</code> بتاعه بس اللي بيقراها.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code> <code>tooltip.directive.ts — older style</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="show">
+        <td><b class="nm nm-mine" data-nm="show">show</b><span class="nmas">&rarr; <code>olive</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The tooltip’s own method, called from its own <code>host</code> string.</span><span class="l-ar" dir="auto">ميثود الـ tooltip نفسه، بتتنادى من نص الـ <code>host</code> بتاعه.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code> <code>tooltip.directive.ts — older style</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="hide">
+        <td><b class="nm nm-mine" data-nm="hide">hide</b><span class="nmas">&rarr; <code>cookie</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The tooltip’s own method, called from its own <code>host</code> string.</span><span class="l-ar" dir="auto">ميثود الـ tooltip نفسه، بتتنادى من نص الـ <code>host</code> بتاعه.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code> <code>tooltip.directive.ts — older style</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="tip">
+        <td><b class="nm nm-mine" data-nm="tip">tip</b><span class="nmas">&rarr; <code>melon</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A getter in the older version. Only its own decorator uses it.</span><span class="l-ar" dir="auto">getter في النسخة القديمة. الـ decorator بتاعه بس اللي بيستخدمه.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts — older style</code></td>
+      </tr>
+      <tr data-nmrow="text">
+        <td><b class="nm nm-mine" data-nm="text">text</b><span class="nmas">&rarr; <code>radish</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">With an alias, the class property is private. Outside, the attribute is still <code>appTooltip</code>.</span><span class="l-ar" dir="auto">مع الـ alias، الـ property اللي في الكلاس بتبقى خاصة. برّه، الـ attribute لسه اسمه <code>appTooltip</code>.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts · with alias</code></td>
+      </tr>
+      <tr data-nmrow="el">
+        <td><b class="nm nm-mine" data-nm="el">el</b><span class="nmas">&rarr; <code>falafel</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The autofocus directive’s private field holding its element.</span><span class="l-ar" dir="auto">الـ field الخاص بالـ directive بتاع الـ autofocus، شايل العنصر بتاعه.</span></td>
+        <td class="nmfiles"><code>autofocus.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="value">
+        <td><b class="nm nm-mine" data-nm="value">value</b><span class="nmas">&rarr; <code>koshary</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The first parameter of <code>transform</code>: whatever sits left of <code>|</code>. The name is yours.</span><span class="l-ar" dir="auto">أول parameter في <code>transform</code>: اللي على شمال الـ <code>|</code>. الاسم بتاعك.</span></td>
+        <td class="nmfiles"><code>time-ago.pipe.ts</code></td>
+      </tr>
+      <tr data-nmrow="format">
+        <td><b class="nm nm-mine" data-nm="format">format</b><span class="nmas">&rarr; <code>feteer</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The second parameter: whatever comes after the colon, <code>timeAgo:'short'</code>. It arrives by position, so the name is yours.</span><span class="l-ar" dir="auto">تاني parameter: اللي جاي بعد النقطتين، <code>timeAgo:'short'</code>. بيوصل بالترتيب، فالاسم بتاعك.</span></td>
+        <td class="nmfiles"><code>time-ago.pipe.ts</code></td>
+      </tr>
+      <tr data-nmrow="mins">
+        <td><b class="nm nm-mine" data-nm="mins">mins</b><span class="nmas">&rarr; <code>basbousa</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A local variable inside <code>transform</code>.</span><span class="l-ar" dir="auto">متغير محلي جوه <code>transform</code>.</span></td>
+        <td class="nmfiles"><code>time-ago.pipe.ts</code></td>
+      </tr>
+      <tr data-nmrow="posts">
+        <td><b class="nm nm-mine" data-nm="posts">posts</b><span class="nmas">&rarr; <code>banana2</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The feed’s own signal, read by its own template.</span><span class="l-ar" dir="auto">الـ signal بتاعة الـ feed، والتمبلت بتاعه بيقراها.</span></td>
+        <td class="nmfiles"><code>feed.component.ts</code> <code>feed.component.html</code></td>
+      </tr>
+      <tr data-nmrow="post">
+        <td><b class="nm nm-mine" data-nm="post">post</b><span class="nmas">&rarr; <code>potato2</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The loop variable. Local to the <code>@for</code> block.</span><span class="l-ar" dir="auto">متغير اللوب. محلي جوه بلوك الـ <code>@for</code>.</span></td>
+        <td class="nmfiles"><code>feed.component.html</code></td>
+      </tr>
+      <tr data-nmrow="@Directive">
+        <td><b class="nm nm-ng" data-nm="@Directive">@Directive</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s decorator for a directive.</span><span class="l-ar" dir="auto">الـ decorator بتاع أنجولار للـ directive.</span></td>
+        <td class="nmfiles"><code>autofocus.directive.ts</code> <code>tooltip.directive.ts</code> <code>tooltip.directive.ts — older style</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="@Pipe">
+        <td><b class="nm nm-ng" data-nm="@Pipe">@Pipe</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s decorator for a pipe.</span><span class="l-ar" dir="auto">الـ decorator بتاع أنجولار للـ pipe.</span></td>
+        <td class="nmfiles"><code>time-ago.pipe.ts</code></td>
+      </tr>
+      <tr data-nmrow="@Component">
+        <td><b class="nm nm-ng" data-nm="@Component">@Component</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s decorator for a component.</span><span class="l-ar" dir="auto">الـ decorator بتاع أنجولار للـ component.</span></td>
+        <td class="nmfiles"><code>feed.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="selector">
+        <td><b class="nm nm-ng" data-nm="selector">selector</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key. The string after it is yours, and it is a CSS selector: <code>[x]</code> means “an element with the attribute x”.</span><span class="l-ar" dir="auto">مفتاح إعداد. النص اللي بعده بتاعك، وهو CSS selector: <code>[x]</code> معناها «عنصر عليه الـ attribute اللي اسمه x».</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code> <code>autofocus.directive.ts</code> <code>feed.component.ts</code> <code>tooltip.directive.ts — older style</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="name">
+        <td><b class="nm nm-ng" data-nm="name">name</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key on <code>@Pipe</code>. The string after it is yours.</span><span class="l-ar" dir="auto">مفتاح إعداد في <code>@Pipe</code>. النص اللي بعده بتاعك.</span></td>
+        <td class="nmfiles"><code>time-ago.pipe.ts</code></td>
+      </tr>
+      <tr data-nmrow="host">
+        <td><b class="nm nm-ng" data-nm="host">host</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key: bindings and listeners on the element the directive sits on.</span><span class="l-ar" dir="auto">مفتاح إعداد: bindings وlisteners على العنصر اللي الـ directive قاعد عليه.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code> <code>tooltip.directive.ts · with alias</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="attr">
+        <td><b class="nm nm-ng" data-nm="attr">attr</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s prefix for binding an HTML attribute: <code>[attr.x]</code>. The attribute after the dot is yours.</span><span class="l-ar" dir="auto">البادئة بتاعة أنجولار لربط HTML attribute: <code>[attr.x]</code>. الـ attribute اللي بعد النقطة بتاعك.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code> <code>tooltip.directive.ts · with alias</code> <code>tooltip.directive.ts — older style</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="attr">
+        <td><b class="nm nm-ng" data-nm="attr">attr</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">CSS’s function that reads an attribute from the element.</span><span class="l-ar" dir="auto">الـ function بتاعة CSS اللي بتقرا attribute من العنصر.</span></td>
+        <td class="nmfiles"><code>styles.css</code></td>
+      </tr>
+      <tr data-nmrow="class">
+        <td><b class="nm nm-ng" data-nm="class">class</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s prefix for toggling one CSS class: <code>[class.x]</code>. The class name after the dot is yours.</span><span class="l-ar" dir="auto">البادئة بتاعة أنجولار لتشغيل وقفل CSS class واحدة: <code>[class.x]</code>. اسم الـ class بعد النقطة بتاعك.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code> <code>tooltip.directive.ts — older style</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="mouseenter">
+        <td><b class="nm nm-ng" data-nm="mouseenter">mouseenter</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s own event name. All lowercase.</span><span class="l-ar" dir="auto">اسم الـ event بتاع المتصفح نفسه. كله حروف صغيرة.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code> <code>tooltip.directive.ts — older style</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="mouseleave">
+        <td><b class="nm nm-ng" data-nm="mouseleave">mouseleave</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s own event name. All lowercase.</span><span class="l-ar" dir="auto">اسم الـ event بتاع المتصفح نفسه. كله حروف صغيرة.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code> <code>tooltip.directive.ts — older style</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="PipeTransform">
+        <td><b class="nm nm-ng" data-nm="PipeTransform">PipeTransform</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s interface. It makes TypeScript check that you wrote <code>transform</code>.</span><span class="l-ar" dir="auto">الـ interface بتاع أنجولار. بيخلّي TypeScript يتأكد إنك كتبت <code>transform</code>.</span></td>
+        <td class="nmfiles"><code>time-ago.pipe.ts</code></td>
+      </tr>
+      <tr data-nmrow="transform">
+        <td><b class="nm nm-ng" data-nm="transform">transform</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The method name Angular calls on every pipe. It cannot be renamed.</span><span class="l-ar" dir="auto">اسم الميثود اللي أنجولار بيناديها في أي pipe. مينفعش تتغير.</span></td>
+        <td class="nmfiles"><code>time-ago.pipe.ts</code></td>
+      </tr>
+      <tr data-nmrow="input">
+        <td><b class="nm nm-ng" data-nm="input">input</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that creates an input. The HTML <code>&lt;input&gt;</code> tag is a different thing.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتعمل input. وتاج <code>&lt;input&gt;</code> بتاع HTML حاجة تانية.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code> <code>tooltip.directive.ts · with alias</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="required">
+        <td><b class="nm nm-ng" data-nm="required">required</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Part of Angular’s API: <code>input.required</code>.</span><span class="l-ar" dir="auto">جزء من API أنجولار: <code>input.required</code>.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code> <code>tooltip.directive.ts · with alias</code> <code>tooltip.directive.ts — older style</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="alias">
+        <td><b class="nm nm-ng" data-nm="alias">alias</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key. The string you give it becomes the public name.</span><span class="l-ar" dir="auto">مفتاح إعداد. النص اللي بتديهوله بيبقى الاسم اللي برّه.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts · with alias</code></td>
+      </tr>
+      <tr data-nmrow="signal">
+        <td><b class="nm nm-ng" data-nm="signal">signal</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s writable signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة أنجولار اللي بتتكتب.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code> <code>feed.component.ts</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="set">
+        <td><b class="nm nm-ng" data-nm="set">set</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal method.</span><span class="l-ar" dir="auto">ميثود بتاعة الـ signal.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code> <code>tooltip.directive.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="inject">
+        <td><b class="nm nm-ng" data-nm="inject">inject</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that hands you a dependency.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتديك dependency.</span></td>
+        <td class="nmfiles"><code>autofocus.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="ElementRef">
+        <td><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s wrapper around the element the directive sits on.</span><span class="l-ar" dir="auto">الغلاف بتاع أنجولار حوالين العنصر اللي الـ directive قاعد عليه.</span></td>
+        <td class="nmfiles"><code>autofocus.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="nativeElement">
+        <td><b class="nm nm-ng" data-nm="nativeElement">nativeElement</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The property on <code>ElementRef</code> that holds the real DOM element.</span><span class="l-ar" dir="auto">الـ property في <code>ElementRef</code> اللي شايلة عنصر الـ DOM الحقيقي.</span></td>
+        <td class="nmfiles"><code>autofocus.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="focus">
+        <td><b class="nm nm-ng" data-nm="focus">focus</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The DOM’s own method on every element.</span><span class="l-ar" dir="auto">ميثود الـ DOM نفسه في أي عنصر.</span></td>
+        <td class="nmfiles"><code>autofocus.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="afterNextRender">
+        <td><b class="nm nm-ng" data-nm="afterNextRender">afterNextRender</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function: run once, in the browser, after the next render.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار: شغّل مرة واحدة، في المتصفح، بعد الرسم الجاي.</span></td>
+        <td class="nmfiles"><code>autofocus.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="imports">
+        <td><b class="nm nm-ng" data-nm="imports">imports</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key: every directive, pipe and component this template may use.</span><span class="l-ar" dir="auto">مفتاح إعداد: كل directive وpipe وcomponent التمبلت ده مسموحله يستخدمه.</span></td>
+        <td class="nmfiles"><code>feed.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="templateUrl">
+        <td><b class="nm nm-ng" data-nm="templateUrl">templateUrl</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key. The path after it points at your file.</span><span class="l-ar" dir="auto">مفتاح إعداد. المسار اللي بعده بيشاور على ملفك.</span></td>
+        <td class="nmfiles"><code>feed.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="@for">
+        <td><b class="nm nm-ng" data-nm="@for">@for</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s loop block.</span><span class="l-ar" dir="auto">بلوك اللوب بتاع أنجولار.</span></td>
+        <td class="nmfiles"><code>feed.component.html</code></td>
+      </tr>
+      <tr data-nmrow="track">
+        <td><b class="nm nm-ng" data-nm="track">track</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Part of <code>@for</code>.</span><span class="l-ar" dir="auto">جزء من <code>@for</code>.</span></td>
+        <td class="nmfiles"><code>feed.component.html</code></td>
+      </tr>
+      <tr data-nmrow="@Input">
+        <td><b class="nm nm-ng" data-nm="@Input">@Input</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The older input decorator.</span><span class="l-ar" dir="auto">الـ decorator القديم للـ input.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts — older style</code></td>
+      </tr>
+      <tr data-nmrow="@HostBinding">
+        <td><b class="nm nm-ng" data-nm="@HostBinding">@HostBinding</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The older way to bind on the host element.</span><span class="l-ar" dir="auto">الطريقة القديمة للربط على عنصر الـ host.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts — older style</code></td>
+      </tr>
+      <tr data-nmrow="@HostListener">
+        <td><b class="nm nm-ng" data-nm="@HostListener">@HostListener</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The older way to listen on the host element.</span><span class="l-ar" dir="auto">الطريقة القديمة للسمع على عنصر الـ host.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts — older style</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+      </section>
+      <section class="sec" id="rename">
+        <div class="sec-kick"><span class="l-en">Is it OK to change it?</span><span class="l-ar" dir="auto">ينفع أغيّره؟</span></div>
+        <h2><span class="l-en">What breaks when you rename each name</span><span class="l-ar" dir="auto">إيه اللي بيبوظ لما تغيّر كل اسم</span></h2>
+        <p class="sec-lead"><span class="l-en">Every name you own can be renamed. The question is only <b>where else</b> you have to follow. Most mistakes here give a compile error. Three do not: a directive used as a plain attribute, a class name in a <code>host</code> string, and an attribute read by CSS.</span><span class="l-ar" dir="auto">أي اسم بتاعك ينفع يتغير. السؤال بس <b>فين تاني</b> لازم تغيّر وراه. أغلب الغلطات هنا بتديك compile error. تلاتة لأ: directive مستخدم كـ attribute عادي، واسم class جوه نص في <code>host</code>، وattribute الـ CSS بيقراه.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">If you rename…</span><span class="l-ar" dir="auto">لو غيّرت…</span></th><th><span class="l-en">Also edit…</span><span class="l-ar" dir="auto">غيّر كمان…</span></th><th><span class="l-en">If you forget</span><span class="l-ar" dir="auto">لو نسيت</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="appTooltip">appTooltip</b> (selector)</span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="appTooltip">appTooltip</b> (الـ selector)</span></td><td><span class="l-en">the input of the same name, the <code>host</code> string, and every template</span><span class="l-ar" dir="auto">الـ input اللي بنفس الاسم، ونص الـ <code>host</code>، وكل تمبلت</span></td><td><span class="l-en">Where a template <b>binds</b> it, <code>[appTooltip]="…"</code>: compile error, “Can’t bind to ‘appTooltip’ since it isn’t a known property of ‘h3’”.</span><span class="l-ar" dir="auto">في أي تمبلت <b>بيربطه</b>، <code>[appTooltip]="…"</code>: compile error، «Can’t bind to ‘appTooltip’ since it isn’t a known property of ‘h3’».</span></td></tr><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="appAutofocus">appAutofocus</b> (selector)</span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="appAutofocus">appAutofocus</b> (الـ selector)</span></td><td><span class="l-en">every template that writes the attribute</span><span class="l-ar" dir="auto">كل تمبلت بيكتب الـ attribute</span></td><td><span class="l-en"><b>No error.</b> <code>&lt;input appAutofocus&gt;</code> is now just an unknown HTML attribute. The box silently stops getting focus.</span><span class="l-ar" dir="auto"><b>مفيش error.</b> <code>&lt;input appAutofocus&gt;</code> بقى attribute HTML مش معروف وخلاص. الخانة بتبطل تاخد focus من غير ما حد يقولك.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="timeAgo">timeAgo</b> (pipe name)</span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="timeAgo">timeAgo</b> (اسم الـ pipe)</span></td><td><span class="l-en">every <code>| timeAgo</code> in every template</span><span class="l-ar" dir="auto">كل <code>| timeAgo</code> في كل تمبلت</span></td><td><span class="l-en">Compile error: “No pipe found with name ‘timeAgo’”.</span><span class="l-ar" dir="auto">Compile error: «No pipe found with name ‘timeAgo’».</span></td></tr><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="Tooltip">Tooltip</b>, <b class="nm nm-pub" data-nm="TimeAgo">TimeAgo</b>, <b class="nm nm-pub" data-nm="Autofocus">Autofocus</b> (classes)</span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="Tooltip">Tooltip</b> و<b class="nm nm-pub" data-nm="TimeAgo">TimeAgo</b> و<b class="nm nm-pub" data-nm="Autofocus">Autofocus</b> (الكلاسات)</span></td><td><span class="l-en">the <code>import</code> line and <code>imports: [ ]</code> in every component that uses them</span><span class="l-ar" dir="auto">سطر الـ <code>import</code> و<code>imports: [ ]</code> في كل component بيستخدمهم</span></td><td><span class="l-en">Compile error on the import.</span><span class="l-ar" dir="auto">Compile error في الـ import.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-mine" data-nm="show">show</b>, <b class="nm nm-mine" data-nm="hide">hide</b>, <b class="nm nm-mine" data-nm="open">open</b></span><span class="l-ar" dir="auto"><b class="nm nm-mine" data-nm="show">show</b> و<b class="nm nm-mine" data-nm="hide">hide</b> و<b class="nm nm-mine" data-nm="open">open</b></span></td><td><span class="l-en">the strings inside <code>host</code>, in the same file</span><span class="l-ar" dir="auto">النصوص اللي جوه <code>host</code>، في نفس الملف</span></td><td><span class="l-en">Depends on your setup. Newer Angular versions can type-check <code>host</code> strings and give a compile error. Without that check you get an error in the console the first time the mouse enters.</span><span class="l-ar" dir="auto">حسب الإعداد عندك. نسخ أنجولار الأحدث تقدر تعمل type-check لنصوص الـ <code>host</code> وتديك compile error. من غير الفحص ده هيطلعلك error في الـ console أول ما الماوس يدخل.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="tip-open">tip-open</b>, <b class="nm nm-pub" data-nm="data-tip">data-tip</b></span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="tip-open">tip-open</b> و<b class="nm nm-pub" data-nm="data-tip">data-tip</b></span></td><td><span class="l-en">the stylesheet</span><span class="l-ar" dir="auto">الـ stylesheet</span></td><td><span class="l-en"><b>No error.</b> The class or attribute is still set, but no CSS rule matches it. The tooltip simply never appears.</span><span class="l-ar" dir="auto"><b>مفيش error.</b> الـ class أو الـ attribute لسه بيتحطوا، بس مفيش CSS rule بتطابقهم. الـ tooltip مش هيظهر وخلاص.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-mine" data-nm="value">value</b>, <b class="nm nm-mine" data-nm="format">format</b>, <b class="nm nm-mine" data-nm="mins">mins</b></span><span class="l-ar" dir="auto"><b class="nm nm-mine" data-nm="value">value</b> و<b class="nm nm-mine" data-nm="format">format</b> و<b class="nm nm-mine" data-nm="mins">mins</b></span></td><td><span class="l-en">only the lines inside <code>transform</code></span><span class="l-ar" dir="auto">السطور اللي جوه <code>transform</code> بس</span></td><td><span class="l-en">Compile error inside the method.</span><span class="l-ar" dir="auto">Compile error جوه الميثود.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-ng" data-nm="transform">transform</b>, <b class="nm nm-ng" data-nm="host">host</b>, <b class="nm nm-ng" data-nm="selector">selector</b>, <b class="nm nm-ng" data-nm="mouseenter">mouseenter</b></span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="transform">transform</b> و<b class="nm nm-ng" data-nm="host">host</b> و<b class="nm nm-ng" data-nm="selector">selector</b> و<b class="nm nm-ng" data-nm="mouseenter">mouseenter</b></span></td><td><span class="l-en">nothing: you cannot rename these</span><span class="l-ar" dir="auto">ولا حاجة: دول مينفعش يتغيروا</span></td><td><span class="l-en">They are Angular’s and the browser’s words.</span><span class="l-ar" dir="auto">دي كلمات أنجولار والمتصفح.</span></td></tr></tbody>
+    </table></div><div class="note"><b class="lbl"><span class="l-en">Try it</span><span class="l-ar" dir="auto">جرّبها</span></b><p><span class="l-en">Press <b>Rename test</b> in the bar above the files. Watch <code>appTooltip</code> change in four places at once: the selector, the input, the <code>host</code> string and the template. That is exactly what a correct rename looks like.</span><span class="l-ar" dir="auto">دوس <b>جرّب تغيّر الأسماء</b> في الشريط اللي فوق الملفات. بص على <code>appTooltip</code> وهو بيتغير في أربع أماكن مرة واحدة: الـ selector، والـ input، ونص الـ <code>host</code>، والتمبلت. وده بالظبط شكل التغيير الصح.</span></p></div>
+      </section>
+      <section class="sec" id="fixed">
+        <div class="sec-kick"><span class="l-en">Not yours</span><span class="l-ar" dir="auto">مش بتاعتك</span></div>
+        <h2><span class="l-en">The fixed names, and the two meanings of <code>[ ]</code></span><span class="l-ar" dir="auto">الأسماء الثابتة، والمعنيين بتوع <code>[ ]</code></span></h2>
+        <p class="sec-lead"><span class="l-en">Square brackets appear twice and mean two different things. In the <code>selector</code> string they are a <b>CSS attribute selector</b>. In a template they are a <b>property binding</b>. The same word <code>appTooltip</code> sits inside both.</span><span class="l-ar" dir="auto">الأقواس المربعة بتظهر مرتين وبمعنيين مختلفين. جوه نص الـ <code>selector</code> هي <b>CSS attribute selector</b>. وفي التمبلت هي <b>property binding</b>. ونفس الكلمة <code>appTooltip</code> قاعدة جوه الاتنين.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">You write</span><span class="l-ar" dir="auto">بتكتب</span></th><th><span class="l-en">Where</span><span class="l-ar" dir="auto">فين</span></th><th><span class="l-en">It means</span><span class="l-ar" dir="auto">معناها</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en"><code>'[appTooltip]'</code></span><span class="l-ar" dir="auto"><code>'[appTooltip]'</code></span></td><td><span class="l-en">the directive’s <code>selector</code></span><span class="l-ar" dir="auto">الـ <code>selector</code> بتاع الـ directive</span></td><td><span class="l-en">CSS: “match any element that has this attribute”. No value involved.</span><span class="l-ar" dir="auto">CSS: «طابق أي عنصر عليه الـ attribute ده». مفيش قيمة هنا.</span></td></tr><tr><td><span class="l-en"><code>appTooltip="Hello"</code></span><span class="l-ar" dir="auto"><code>appTooltip="Hello"</code></span></td><td><span class="l-en">a template</span><span class="l-ar" dir="auto">تمبلت</span></td><td><span class="l-en">The attribute is there, so the directive applies, and the input gets the plain text “Hello”.</span><span class="l-ar" dir="auto">الـ attribute موجود، فالـ directive بيتطبق، والـ input بياخد النص «Hello» زي ما هو.</span></td></tr><tr><td><span class="l-en"><code>[appTooltip]="post.summary"</code></span><span class="l-ar" dir="auto"><code>[appTooltip]="post.summary"</code></span></td><td><span class="l-en">a template</span><span class="l-ar" dir="auto">تمبلت</span></td><td><span class="l-en">Still counts as the attribute for matching, and the input gets the <b>value</b> of <code>post.summary</code>.</span><span class="l-ar" dir="auto">لسه بيتحسب إنه الـ attribute في المطابقة، والـ input بياخد <b>قيمة</b> <code>post.summary</code>.</span></td></tr><tr><td><span class="l-en"><code>'[class.tip-open]'</code></span><span class="l-ar" dir="auto"><code>'[class.tip-open]'</code></span></td><td><span class="l-en">the directive’s <code>host</code></span><span class="l-ar" dir="auto">الـ <code>host</code> بتاع الـ directive</span></td><td><span class="l-en">A binding on the host element, exactly like <code>[class.tip-open]</code> in a template.</span><span class="l-ar" dir="auto">binding على عنصر الـ host، بالظبط زي <code>[class.tip-open]</code> في تمبلت.</span></td></tr></tbody>
+    </table></div><p><span class="l-en">The rest of the fixed words, grouped by owner:</span><span class="l-ar" dir="auto">وباقي الكلمات الثابتة، متقسمة حسب صاحبها:</span></p><ul><li><span class="l-en"><b>Angular’s decorators and keys:</b> <b class="nm nm-ng" data-nm="@Directive">@Directive</b>, <b class="nm nm-ng" data-nm="@Pipe">@Pipe</b>, <b class="nm nm-ng" data-nm="selector">selector</b>, <b class="nm nm-ng" data-nm="name">name</b>, <b class="nm nm-ng" data-nm="host">host</b>, <b class="nm nm-ng" data-nm="imports">imports</b>. The <b>values</b> you put in them are yours.</span><span class="l-ar" dir="auto"><b>الـ decorators والمفاتيح بتوع أنجولار:</b> <b class="nm nm-ng" data-nm="@Directive">@Directive</b> و<b class="nm nm-ng" data-nm="@Pipe">@Pipe</b> و<b class="nm nm-ng" data-nm="selector">selector</b> و<b class="nm nm-ng" data-nm="name">name</b> و<b class="nm nm-ng" data-nm="host">host</b> و<b class="nm nm-ng" data-nm="imports">imports</b>. <b>القيم</b> اللي بتحطها فيهم بتاعتك.</span></li><li><span class="l-en"><b>Angular’s pipe contract:</b> <b class="nm nm-ng" data-nm="transform">transform</b> and <b class="nm nm-ng" data-nm="PipeTransform">PipeTransform</b>. Angular looks the method up by that exact name.</span><span class="l-ar" dir="auto"><b>عقد الـ pipe بتاع أنجولار:</b> <b class="nm nm-ng" data-nm="transform">transform</b> و<b class="nm nm-ng" data-nm="PipeTransform">PipeTransform</b>. أنجولار بيدوّر على الميثود بالاسم ده بالظبط.</span></li><li><span class="l-en"><b>Angular’s binding prefixes:</b> <b class="nm nm-ng" data-nm="attr">attr</b> in <code>[attr.x]</code>, <b class="nm nm-ng" data-nm="class">class</b> in <code>[class.x]</code>. What comes after the dot is yours.</span><span class="l-ar" dir="auto"><b>بادئات الربط بتاعة أنجولار:</b> <b class="nm nm-ng" data-nm="attr">attr</b> في <code>[attr.x]</code>، و<b class="nm nm-ng" data-nm="class">class</b> في <code>[class.x]</code>. اللي بعد النقطة بتاعك.</span></li><li><span class="l-en"><b>The browser’s:</b> event names like <b class="nm nm-ng" data-nm="mouseenter">mouseenter</b> and <b class="nm nm-ng" data-nm="mouseleave">mouseleave</b>, and DOM members like <b class="nm nm-ng" data-nm="nativeElement">nativeElement</b> and <b class="nm nm-ng" data-nm="focus">focus</b>. Lowercase, exactly as the browser spells them.</span><span class="l-ar" dir="auto"><b>بتوع المتصفح:</b> أسماء events زي <b class="nm nm-ng" data-nm="mouseenter">mouseenter</b> و<b class="nm nm-ng" data-nm="mouseleave">mouseleave</b>، وحاجات الـ DOM زي <b class="nm nm-ng" data-nm="nativeElement">nativeElement</b> و<b class="nm nm-ng" data-nm="focus">focus</b>. حروف صغيرة، زي ما المتصفح بيكتبها بالظبط.</span></li><li><span class="l-en"><b>Angular’s helpers:</b> <b class="nm nm-ng" data-nm="inject">inject</b>, <b class="nm nm-ng" data-nm="ElementRef">ElementRef</b>, <b class="nm nm-ng" data-nm="afterNextRender">afterNextRender</b>, <b class="nm nm-ng" data-nm="input">input</b>, <b class="nm nm-ng" data-nm="signal">signal</b>.</span><span class="l-ar" dir="auto"><b>أدوات أنجولار:</b> <b class="nm nm-ng" data-nm="inject">inject</b> و<b class="nm nm-ng" data-nm="ElementRef">ElementRef</b> و<b class="nm nm-ng" data-nm="afterNextRender">afterNextRender</b> و<b class="nm nm-ng" data-nm="input">input</b> و<b class="nm nm-ng" data-nm="signal">signal</b>.</span></li></ul>
+      </section>
+      <section class="sec" id="habits">
+        <div class="sec-kick"><span class="l-en">Conventions, not rules</span><span class="l-ar" dir="auto">عادات، مش قواعد</span></div>
+        <h2><span class="l-en">How to pick good names</span><span class="l-ar" dir="auto">تختار أسماء كويسة إزاي</span></h2>
+        <p class="sec-lead"><span class="l-en">Angular accepts almost any selector and any pipe name. These habits keep them from colliding with HTML and with other libraries, and make templates easy to read.</span><span class="l-ar" dir="auto">أنجولار بيقبل أي selector وأي اسم pipe تقريبًا. العادات دي بتمنعهم يتخانقوا مع HTML ومع مكتبات تانية، وبتخلي التمبلتس سهلة في القراية.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">Naming</span><span class="l-ar" dir="auto">بتسمّي</span></th><th><span class="l-en">Good</span><span class="l-ar" dir="auto">كويس</span></th><th><span class="l-en">Avoid</span><span class="l-ar" dir="auto">ابعد عن</span></th><th><span class="l-en">Why</span><span class="l-ar" dir="auto">ليه</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en">a directive selector</span><span class="l-ar" dir="auto">selector الـ directive</span></td><td><span class="l-en"><code>[appTooltip]</code>, <code>[appAutofocus]</code></span><span class="l-ar" dir="auto"><code>[appTooltip]</code>، <code>[appAutofocus]</code></span></td><td><span class="l-en"><code>[tooltip]</code>, <code>[autofocus]</code></span><span class="l-ar" dir="auto"><code>[tooltip]</code>، <code>[autofocus]</code></span></td><td><span class="l-en">A prefix keeps you clear of real HTML attributes. <code>autofocus</code> already <b>is</b> one. The CLI adds your project’s prefix (usually <code>app</code>) for you.</span><span class="l-ar" dir="auto">البادئة بتبعدك عن attributes الـ HTML الحقيقية. <code>autofocus</code> <b>هو فعلًا</b> واحد منهم. الـ CLI بيحط البادئة بتاعة مشروعك (غالبًا <code>app</code>) لوحده.</span></td></tr><tr><td><span class="l-en">a directive selector</span><span class="l-ar" dir="auto">selector الـ directive</span></td><td><span class="l-en">camelCase: <code>appTooltip</code></span><span class="l-ar" dir="auto">camelCase: <code>appTooltip</code></span></td><td><span class="l-en"><code>app-tooltip</code></span><span class="l-ar" dir="auto"><code>app-tooltip</code></span></td><td><span class="l-en">camelCase is the usual Angular habit for attribute selectors, and it matches the input of the same name.</span><span class="l-ar" dir="auto">الـ camelCase هي العادة المعروفة في أنجولار للـ attribute selectors، وبتطابق الـ input اللي بنفس الاسم.</span></td></tr><tr><td><span class="l-en">a pipe name</span><span class="l-ar" dir="auto">اسم الـ pipe</span></td><td><span class="l-en"><code>timeAgo</code>, <code>fileSize</code></span><span class="l-ar" dir="auto"><code>timeAgo</code>، <code>fileSize</code></span></td><td><span class="l-en"><code>TimeAgo</code>, <code>time-ago</code></span><span class="l-ar" dir="auto"><code>TimeAgo</code>، <code>time-ago</code></span></td><td><span class="l-en">camelCase, like the built-in <code>uppercase</code> and <code>currency</code>. A dash cannot work, because the template reads the name like a variable.</span><span class="l-ar" dir="auto">camelCase، زي الـ <code>uppercase</code> والـ <code>currency</code> الجاهزين. الشرطة مش هتنفع، عشان التمبلت بيقرا الاسم كأنه متغير.</span></td></tr><tr><td><span class="l-en">a class</span><span class="l-ar" dir="auto">الكلاس</span></td><td><span class="l-en"><code>Tooltip</code>, <code>TimeAgo</code></span><span class="l-ar" dir="auto"><code>Tooltip</code>، <code>TimeAgo</code></span></td><td><span class="l-en">—</span><span class="l-ar" dir="auto">—</span></td><td><span class="l-en">Older code and many teams add a suffix: <code>TooltipDirective</code>, <code>TimeAgoPipe</code>. Either is fine. Pick one style per project.</span><span class="l-ar" dir="auto">الكود الأقدم وفرق كتير بيضيفوا لاحقة: <code>TooltipDirective</code>، <code>TimeAgoPipe</code>. الاتنين ماشيين. اختار أسلوب واحد للمشروع.</span></td></tr><tr><td><span class="l-en">a <code>host</code> handler</span><span class="l-ar" dir="auto">ميثود في <code>host</code></span></td><td><span class="l-en"><code>show</code>, <code>hide</code>, <code>toggle</code></span><span class="l-ar" dir="auto"><code>show</code>، <code>hide</code>، <code>toggle</code></span></td><td><span class="l-en"><code>mouseenter</code></span><span class="l-ar" dir="auto"><code>mouseenter</code></span></td><td><span class="l-en">Name what it <b>does</b>. Calling the method after the event makes <code>'(mouseenter)': 'mouseenter()'</code>, which reads like a typo.</span><span class="l-ar" dir="auto">سمّي اللي <b>بتعمله</b>. لو سمّيت الميثود على اسم الـ event هتطلع <code>'(mouseenter)': 'mouseenter()'</code>، وده شكله غلطة إملائية.</span></td></tr><tr><td><span class="l-en"><code>transform</code>’s parameters</span><span class="l-ar" dir="auto">الـ parameters بتوع <code>transform</code></span></td><td><span class="l-en"><code>value</code>, then what the argument means: <code>format</code></span><span class="l-ar" dir="auto"><code>value</code>، وبعدين معنى الـ argument: <code>format</code></span></td><td><span class="l-en"><code>a</code>, <code>b</code></span><span class="l-ar" dir="auto"><code>a</code>، <code>b</code></span></td><td><span class="l-en">They arrive by position. A clear name is the only thing telling the reader what <code>'short'</code> is for.</span><span class="l-ar" dir="auto">بيوصلوا بالترتيب. الاسم الواضح هو الحاجة الوحيدة اللي بتقول للي بيقرا <code>'short'</code> دي بتاعة إيه.</span></td></tr></tbody>
+    </table></div>
+      </section>
+      <section class="sec" id="forced">
+        <div class="sec-kick"><span class="l-en">When a rule picks the name</span><span class="l-ar" dir="auto">لما قاعدة هي اللي بتختار الاسم</span></div>
+        <h2><span class="l-en">Three places where the name is not free</span><span class="l-ar" dir="auto">تلات أماكن الاسم فيهم مش براحتك</span></h2>
+        <p class="sec-lead"><span class="l-en">Most names on this page are yours. In these three spots, a rule decides.</span><span class="l-ar" dir="auto">أغلب الأسماء في الصفحة دي بتاعتك. في التلات أماكن دول، فيه قاعدة هي اللي بتقرر.</span></p>
+        <div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">A</span><b><span class="l-en">The input takes the selector’s name, or an alias</span><span class="l-ar" dir="auto">الـ input بياخد اسم الـ selector، أو alias</span></b></div>
+      <p><span class="l-en">For <code>[appTooltip]="post.summary"</code> to reach the directive, the directive needs an input whose public name is exactly <b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>. The simplest way is to call the property that. If you want a nicer name inside the class, give an <b class="nm nm-ng" data-nm="alias">alias</b>:</span><span class="l-ar" dir="auto">عشان <code>[appTooltip]="post.summary"</code> توصل للـ directive، الـ directive محتاج input اسمه اللي برّه هو <b class="nm nm-pub" data-nm="appTooltip">appTooltip</b> بالظبط. أسهل طريقة إنك تسمّي الـ property كده. ولو عايز اسم أحلى جوه الكلاس، ادّيه <b class="nm nm-ng" data-nm="alias">alias</b>:</span></p>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>tooltip.directive.ts · with alias<span class="tag"><span class="l-en">same template, nicer property</span><span class="l-ar" dir="auto">نفس التمبلت، property أحلى</span></span></div>
+        <pre><span class="ln">  <b class="nm nm-ng" data-nm="host">host</b>: {</span><span class="ln"><span class="v0">    <i class="t-str">'[<b class="nm nm-ng" data-nm="attr">attr</b>.<b class="nm nm-pub" data-nm="data-tip">data-tip</b>]'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="text">text</b>()'</i>,</span><span class="v1">    <i class="t-str">'[<b class="nm nm-ng" data-nm="attr">attr</b>.<b class="nm nm-pub" data-nm="data-tip">data-turnip</b>]'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="text">radish</b>()'</i>,</span></span><span class="ln">  },</span><span class="ln">…</span><span class="ln"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="text">text</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;({ <b class="nm nm-ng" data-nm="alias">alias</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>'</i> });</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="text">radish</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;({ <b class="nm nm-ng" data-nm="alias">alias</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="appTooltip">banana</b>'</i> });</span></span></pre>
+      </div><p><span class="l-en">Now <b class="nm nm-mine" data-nm="text">text</b> is private to the directive, and <b class="nm nm-pub" data-nm="appTooltip">appTooltip</b> is still the only word templates type.</span><span class="l-ar" dir="auto">دلوقتي <b class="nm nm-mine" data-nm="text">text</b> بقى خاص بالـ directive، و<b class="nm nm-pub" data-nm="appTooltip">appTooltip</b> لسه هو الكلمة الوحيدة اللي التمبلتس بتكتبها.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">B</span><b><span class="l-en">A pipe’s method is always <code>transform</code></span><span class="l-ar" dir="auto">ميثود الـ pipe دايمًا <code>transform</code></span></b></div>
+      <p><span class="l-en">Angular calls <b class="nm nm-ng" data-nm="transform">transform</b> on every pipe. Call it <code>format</code> or <code>run</code> and Angular cannot find it. Keep <code>implements PipeTransform</code>: with it, a wrong method name becomes a compile error instead of a surprise.</span><span class="l-ar" dir="auto">أنجولار بينادي <b class="nm nm-ng" data-nm="transform">transform</b> في أي pipe. لو سمّيتها <code>format</code> أو <code>run</code> أنجولار مش هيلاقيها. خلّي <code>implements PipeTransform</code>: بيها، اسم الميثود الغلط بيبقى compile error بدل مفاجأة.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">C</span><b><span class="l-en">Event names in <code>host</code> are the browser’s</span><span class="l-ar" dir="auto">أسماء الـ events في <code>host</code> بتاعة المتصفح</span></b></div>
+      <p><span class="l-en">The part inside <code>( )</code> is an event the browser fires: <b class="nm nm-ng" data-nm="mouseenter">mouseenter</b>, <code>focusin</code>, <code>keydown</code>. You cannot invent one, and the spelling is exact and lowercase. Only the method on the right side is yours.</span><span class="l-ar" dir="auto">اللي جوه <code>( )</code> ده event المتصفح بيطلّعه: <b class="nm nm-ng" data-nm="mouseenter">mouseenter</b>، <code>focusin</code>، <code>keydown</code>. مينفعش تخترع واحد، والكتابة لازم تبقى بالظبط وبحروف صغيرة. الميثود اللي على اليمين بس هي اللي بتاعتك.</span></p>
+    </div>
+      </section>
+      <section class="sec" id="old">
+        <div class="sec-kick"><span class="l-en">Older code</span><span class="l-ar" dir="auto">كود أقدم</span></div>
+        <h2><span class="l-en">The decorator version uses the same names</span><span class="l-ar" dir="auto">نسخة الـ decorators بتستخدم نفس الأسماء</span></h2>
+        <p class="sec-lead"><span class="l-en">Tutorials and older projects use <code>@Input</code>, <code>@HostBinding</code> and <code>@HostListener</code> instead of <code>input()</code> and <code>host</code>. The selector, the event names and your method names are the same. Only where you write them moves.</span><span class="l-ar" dir="auto">الشروحات والمشاريع الأقدم بتستخدم <code>@Input</code> و<code>@HostBinding</code> و<code>@HostListener</code> بدل <code>input()</code> و<code>host</code>. الـ selector وأسماء الـ events وأسماء الميثودز بتاعتك زي ما هي. اللي بيتغير بس هو مكان كتابتهم.</span></p>
+        <div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>tooltip.directive.ts — older style<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Directive</i>, <i class="t-type">HostBinding</i>, <i class="t-type">HostListener</i>, <i class="t-type">Input</i> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-dec"><b class="nm nm-ng" data-nm="@Directive">@Directive</b></i>({ <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'[<b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>]'</i> })</span><span class="v1"><i class="t-dec"><b class="nm nm-ng" data-nm="@Directive">@Directive</b></i>({ <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'[<b class="nm nm-pub" data-nm="appTooltip">banana</b>]'</i> })</span></span><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Tooltip</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Pickle</b></i> {</span></span><span class="ln"><span class="v0">  <i class="t-dec"><b class="nm nm-ng" data-nm="@Input">@Input</b></i>({ <b class="nm nm-ng" data-nm="required">required</b>: <i class="t-key">true</i> }) <b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>!: <i class="t-key">string</i>;</span><span class="v1">  <i class="t-dec"><b class="nm nm-ng" data-nm="@Input">@Input</b></i>({ <b class="nm nm-ng" data-nm="required">required</b>: <i class="t-key">true</i> }) <b class="nm nm-pub" data-nm="appTooltip">banana</b>!: <i class="t-key">string</i>;</span></span><span class="ln"> </span><span class="ln"><span class="v0">  <i class="t-dec"><b class="nm nm-ng" data-nm="@HostBinding">@HostBinding</b></i>(<i class="t-str">'<b class="nm nm-ng" data-nm="attr">attr</b>.<b class="nm nm-pub" data-nm="data-tip">data-tip</b>'</i>) <i class="t-key">get</i> <i class="t-fn"><b class="nm nm-mine" data-nm="tip">tip</b></i>() { <i class="t-key">return</i> <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>; }</span><span class="v1">  <i class="t-dec"><b class="nm nm-ng" data-nm="@HostBinding">@HostBinding</b></i>(<i class="t-str">'<b class="nm nm-ng" data-nm="attr">attr</b>.<b class="nm nm-pub" data-nm="data-tip">data-turnip</b>'</i>) <i class="t-key">get</i> <i class="t-fn"><b class="nm nm-mine" data-nm="tip">melon</b></i>() { <i class="t-key">return</i> <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="appTooltip">banana</b>; }</span></span><span class="ln"><span class="v0">  <i class="t-dec"><b class="nm nm-ng" data-nm="@HostBinding">@HostBinding</b></i>(<i class="t-str">'<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="tip-open">tip-open</b>'</i>) <b class="nm nm-mine" data-nm="open">open</b> = <i class="t-key">false</i>;</span><span class="v1">  <i class="t-dec"><b class="nm nm-ng" data-nm="@HostBinding">@HostBinding</b></i>(<i class="t-str">'<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="tip-open">tip-pumpkin</b>'</i>) <b class="nm nm-mine" data-nm="open">biscuit</b> = <i class="t-key">false</i>;</span></span><span class="ln"> </span><span class="ln"><span class="v0">  <i class="t-dec"><b class="nm nm-ng" data-nm="@HostListener">@HostListener</b></i>(<i class="t-str">'<b class="nm nm-ng" data-nm="mouseenter">mouseenter</b>'</i>) <i class="t-fn"><b class="nm nm-mine" data-nm="show">show</b></i>() { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="open">open</b> = <i class="t-key">true</i>; }</span><span class="v1">  <i class="t-dec"><b class="nm nm-ng" data-nm="@HostListener">@HostListener</b></i>(<i class="t-str">'<b class="nm nm-ng" data-nm="mouseenter">mouseenter</b>'</i>) <i class="t-fn"><b class="nm nm-mine" data-nm="show">olive</b></i>() { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="open">biscuit</b> = <i class="t-key">true</i>; }</span></span><span class="ln"><span class="v0">  <i class="t-dec"><b class="nm nm-ng" data-nm="@HostListener">@HostListener</b></i>(<i class="t-str">'<b class="nm nm-ng" data-nm="mouseleave">mouseleave</b>'</i>) <i class="t-fn"><b class="nm nm-mine" data-nm="hide">hide</b></i>() { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="open">open</b> = <i class="t-key">false</i>; }</span><span class="v1">  <i class="t-dec"><b class="nm nm-ng" data-nm="@HostListener">@HostListener</b></i>(<i class="t-str">'<b class="nm nm-ng" data-nm="mouseleave">mouseleave</b>'</i>) <i class="t-fn"><b class="nm nm-mine" data-nm="hide">cookie</b></i>() { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="open">biscuit</b> = <i class="t-key">false</i>; }</span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>tooltip.directive.ts — today<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Directive</i>, <b class="nm nm-ng" data-nm="input">input</b>, <b class="nm nm-ng" data-nm="signal">signal</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"> </span><span class="ln"><i class="t-dec"><b class="nm nm-ng" data-nm="@Directive">@Directive</b></i>({</span><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'[<b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>]'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'[<b class="nm nm-pub" data-nm="appTooltip">banana</b>]'</i>,</span></span><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="host">host</b>: { <i class="t-str">'[<b class="nm nm-ng" data-nm="attr">attr</b>.<b class="nm nm-pub" data-nm="data-tip">data-tip</b>]'</i>: <i class="t-str">'<b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>()'</i>, <i class="t-str">'[<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="tip-open">tip-open</b>]'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="open">open</b>()'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="host">host</b>: { <i class="t-str">'[<b class="nm nm-ng" data-nm="attr">attr</b>.<b class="nm nm-pub" data-nm="data-tip">data-turnip</b>]'</i>: <i class="t-str">'<b class="nm nm-pub" data-nm="appTooltip">banana</b>()'</i>, <i class="t-str">'[<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="tip-open">tip-pumpkin</b>]'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="open">biscuit</b>()'</i>,</span></span><span class="ln"><span class="v0">          <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseenter">mouseenter</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="show">show</b>()'</i>, <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseleave">mouseleave</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="hide">hide</b>()'</i> },</span><span class="v1">          <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseenter">mouseenter</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="show">olive</b>()'</i>, <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseleave">mouseleave</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="hide">cookie</b>()'</i> },</span></span><span class="ln">})</span><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Tooltip</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Pickle</b></i> {</span></span><span class="ln"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="appTooltip">appTooltip</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;();</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="appTooltip">banana</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;();</span></span><span class="ln"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="open">open</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="open">biscuit</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span></span><span class="ln"><span class="v0">  <i class="t-fn"><b class="nm nm-mine" data-nm="show">show</b></i>() { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="open">open</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">true</i>); }</span><span class="v1">  <i class="t-fn"><b class="nm nm-mine" data-nm="show">olive</b></i>() { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="open">biscuit</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">true</i>); }</span></span><span class="ln"><span class="v0">  <i class="t-fn"><b class="nm nm-mine" data-nm="hide">hide</b></i>() { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="open">open</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">false</i>); }</span><span class="v1">  <i class="t-fn"><b class="nm nm-mine" data-nm="hide">cookie</b></i>() { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="open">biscuit</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">false</i>); }</span></span><span class="ln">}</span></pre>
+      </div>
+    </div><p><span class="l-en">Very old code also declares directives and pipes in an NgModule’s <code>declarations</code> instead of a component’s <code>imports</code>. It is the same class name in a different list. The template side, <code>[appTooltip]</code> and <code>| timeAgo</code>, never changed.</span><span class="l-ar" dir="auto">الكود القديم أوي كمان بيعلن الـ directives والـ pipes في <code>declarations</code> بتاعة NgModule بدل <code>imports</code> بتاعة الـ component. نفس اسم الكلاس في ليستة تانية. ناحية التمبلت، <code>[appTooltip]</code> و<code>| timeAgo</code>، عمرها ما اتغيرت.</span></p>
+      </section>
+      <section class="sec" id="silent">
+        <div class="sec-kick"><span class="l-en">It does nothing, and says nothing</span><span class="l-ar" dir="auto">مش بيعمل حاجة، ومش بيقول حاجة</span></div>
+        <h2><span class="l-en">Mistakes that fail silently, or confusingly</span><span class="l-ar" dir="auto">غلطات بتفشل في صمت، أو بشكل ملخبط</span></h2>
+        <p class="sec-lead"><span class="l-en">An unknown attribute on an element is legal HTML, and an unknown class or event is legal too. So when a directive does not match, Angular often has nothing to complain about.</span><span class="l-ar" dir="auto">attribute مش معروف على عنصر ده HTML سليم، وclass أو event مش معروفين سليمين برضه. فلما directive ميطابقش، أنجولار غالبًا مالوش حاجة يشتكي منها.</span></p>
+        <div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">1</span><b><span class="l-en">A selector without brackets</span><span class="l-ar" dir="auto">selector من غير أقواس</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>autofocus.directive.ts<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="appAutofocus">appAutofocus</b>'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="appAutofocus">potato</b>'</i>,</span></span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>autofocus.directive.ts<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'[<b class="nm nm-pub" data-nm="appAutofocus">appAutofocus</b>]'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'[<b class="nm nm-pub" data-nm="appAutofocus">potato</b>]'</i>,</span></span></pre>
+      </div>
+    </div><p><span class="l-en">Without brackets the selector means an <b>element</b> called <code>&lt;appAutofocus&gt;</code>. Your <code>&lt;input appAutofocus&gt;</code> is not that element, so the directive never applies and nothing complains.</span><span class="l-ar" dir="auto">من غير أقواس الـ selector معناه <b>عنصر</b> اسمه <code>&lt;appAutofocus&gt;</code>. والـ <code>&lt;input appAutofocus&gt;</code> بتاعك مش العنصر ده، فالـ directive عمره ما بيتطبق ومحدش بيشتكي.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">2</span><b><span class="l-en">Forgetting to import a directive</span><span class="l-ar" dir="auto">نسيان الـ import بتاع directive</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>feed.component.ts<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="imports">imports</b>: [<i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Tooltip</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="TimeAgo">TimeAgo</b></i>],</span><span class="v1">  <b class="nm nm-ng" data-nm="imports">imports</b>: [<i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Pickle</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="TimeAgo">Noodle</b></i>],</span></span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>feed.component.ts<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="imports">imports</b>: [<i class="t-type"><b class="nm nm-pub" data-nm="Autofocus">Autofocus</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Tooltip</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="TimeAgo">TimeAgo</b></i>],</span><span class="v1">  <b class="nm nm-ng" data-nm="imports">imports</b>: [<i class="t-type"><b class="nm nm-pub" data-nm="Autofocus">Waffle</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Pickle</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="TimeAgo">Noodle</b></i>],</span></span></pre>
+      </div>
+    </div><p><span class="l-en">A missing <b>pipe</b> is a compile error. A missing directive used as a plain attribute, like <code>appAutofocus</code>, is not: the attribute just sits there. (A missing directive whose attribute is <b>bound</b>, like <code>[appTooltip]="…"</code>, does give “Can’t bind to…”.)</span><span class="l-ar" dir="auto">الـ <b>pipe</b> الناقص compile error. لكن الـ directive الناقص اللي مستخدم كـ attribute عادي، زي <code>appAutofocus</code>، لأ: الـ attribute بيفضل قاعد مكانه وخلاص. (أما الـ directive الناقص اللي الـ attribute بتاعه <b>مربوط</b>، زي <code>[appTooltip]="…"</code>، فبيدي «Can’t bind to…».)</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">3</span><b><span class="l-en">A camelCase event name</span><span class="l-ar" dir="auto">اسم event بـ camelCase</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>tooltip.directive.ts<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0">    <i class="t-str">'(mouseEnter)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="show">show</b>()'</i>,</span><span class="v1">    <i class="t-str">'(mouseEnter)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="show">olive</b>()'</i>,</span></span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>tooltip.directive.ts<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0">    <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseenter">mouseenter</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="show">show</b>()'</i>,</span><span class="v1">    <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseenter">mouseenter</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="show">olive</b>()'</i>,</span></span></pre>
+      </div>
+    </div><p><span class="l-en">Angular listens for whatever name you write. The browser fires <code>mouseenter</code>, never <code>mouseEnter</code>, so the listener waits forever. Browser event names are all lowercase.</span><span class="l-ar" dir="auto">أنجولار بيسمع لأي اسم تكتبه. والمتصفح بيطلّع <code>mouseenter</code>، عمره ما بيطلّع <code>mouseEnter</code>، فالـ listener بيفضل مستني على الفاضي. أسماء events المتصفح كلها حروف صغيرة.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">4</span><b><span class="l-en">The class name differs between host and CSS</span><span class="l-ar" dir="auto">اسم الـ class مختلف بين الـ host والـ CSS</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="css">
+        <div class="fc-h"><span class="d"></span>styles.css<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln">.tooltip-open::after {</span></pre>
+      </div>
+      <div class="code good" data-lang="css">
+        <div class="fc-h"><span class="d"></span>styles.css<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0">.<b class="nm nm-pub" data-nm="tip-open">tip-open</b>::after {</span><span class="v1">.<b class="nm nm-pub" data-nm="tip-open">tip-pumpkin</b>::after {</span></span></pre>
+      </div>
+    </div><p><span class="l-en">The directive puts <code>tip-open</code> on the heading; the stylesheet waits for <code>tooltip-open</code>. Both are valid, neither is an error, and the tooltip never shows. Copy class names, do not retype them.</span><span class="l-ar" dir="auto">الـ directive بيحط <code>tip-open</code> على العنوان؛ والـ stylesheet مستني <code>tooltip-open</code>. الاتنين سليمين، ولا واحد فيهم error، والـ tooltip عمره ما هيظهر. انسخ أسماء الـ classes، متكتبهاش من دماغك.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">5</span><b><span class="l-en">The class name in the template</span><span class="l-ar" dir="auto">اسم الكلاس في التمبلت</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="html">
+        <div class="fc-h"><span class="d"></span>feed.component.html<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;time</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="post">post</b>.<b class="nm nm-pub" data-nm="publishedAt">publishedAt</b> | TimeAgo }}</i><i class="t-tag">&lt;/time</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;time</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="post">potato2</b>.<b class="nm nm-pub" data-nm="publishedAt">pepper</b> | TimeAgo }}</i><i class="t-tag">&lt;/time</i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+      <div class="code good" data-lang="html">
+        <div class="fc-h"><span class="d"></span>feed.component.html<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;time</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="post">post</b>.<b class="nm nm-pub" data-nm="publishedAt">publishedAt</b> | <b class="nm nm-pub" data-nm="timeAgo">timeAgo</b> }}</i><i class="t-tag">&lt;/time</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;time</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="post">potato2</b>.<b class="nm nm-pub" data-nm="publishedAt">pepper</b> | <b class="nm nm-pub" data-nm="timeAgo">mango</b> }}</i><i class="t-tag">&lt;/time</i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+    </div><p><span class="l-en">This one does give an error, but it confuses people: “No pipe found with name ‘TimeAgo’”. You <i>did</i> import <code>TimeAgo</code>. The template wants the <code>name:</code> string, not the class.</span><span class="l-ar" dir="auto">دي بتدي error، بس بيلخبط الناس: «No pipe found with name ‘TimeAgo’». انت <i>فعلًا</i> عامل import لـ <code>TimeAgo</code>. التمبلت عايز النص اللي في <code>name:</code>، مش الكلاس.</span></p>
+    </div>
+      </section>
+      <section class="sec" id="check">
+        <div class="sec-kick"><span class="l-en">When it does nothing</span><span class="l-ar" dir="auto">لما مايعملش حاجة</span></div>
+        <h2><span class="l-en">Six questions, in this order</span><span class="l-ar" dir="auto">ست أسئلة، بالترتيب ده</span></h2>
+        <p class="sec-lead"><span class="l-en">Your directive or pipe “does not work”. Ask these before anything else.</span><span class="l-ar" dir="auto">الـ directive أو الـ pipe بتاعك «مش شغال». اسأل الأسئلة دي قبل أي حاجة.</span></p>
+        <div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>1.</b> Is the <b>class</b> in the <code>imports</code> of the component whose template uses it?</span><span class="l-ar" dir="auto"><b>1.</b> <b>الكلاس</b> موجود في <code>imports</code> بتاعة الـ component اللي التمبلت بتاعه بيستخدمه؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>2.</b> Does the selector have square brackets: <code>'[appTooltip]'</code>, not <code>'appTooltip'</code>?</span><span class="l-ar" dir="auto"><b>2.</b> الـ selector فيه أقواس مربعة: <code>'[appTooltip]'</code>، مش <code>'appTooltip'</code>؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>3.</b> Is the attribute in the template spelled exactly like the selector, same capitals?</span><span class="l-ar" dir="auto"><b>3.</b> الـ attribute اللي في التمبلت مكتوب بالظبط زي الـ selector، بنفس الحروف الكبيرة؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>4.</b> For a pipe: does the template use the <code>name:</code> string, not the class name?</span><span class="l-ar" dir="auto"><b>4.</b> لو pipe: التمبلت بيستخدم النص اللي في <code>name:</code>، مش اسم الكلاس؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>5.</b> In <code>host</code>: are the event names real, lowercase browser events, and do the method names match the class?</span><span class="l-ar" dir="auto"><b>5.</b> في <code>host</code>: أسماء الـ events دي events حقيقية بتاعة المتصفح وبحروف صغيرة، وأسماء الميثودز مطابقة للكلاس؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>6.</b> In DevTools, is the class or attribute on the element? If yes, the directive works and the CSS name is wrong.</span><span class="l-ar" dir="auto"><b>6.</b> في الـ DevTools، الـ class أو الـ attribute موجود على العنصر؟ لو آه، يبقى الـ directive شغال واسم الـ CSS هو الغلط.</span></p></div>
+      </section></div>
+  </div>
+
+  <nav class="pager">
+    <a class="pv" href="17-directives-and-pipes.html"><em>&larr; <span class="l-en">Back to the topic</span><span class="l-ar" dir="auto">رجوع للموضوع</span></em><b><span class="l-en">Writing your own directives and pipes</span><span class="l-ar" dir="auto">تكتب directives وpipes بنفسك</span></b></a>
+    <a class="nx" href="../intermediate/18-component-styles.html"><em><span class="l-en">Next topic</span><span class="l-ar" dir="auto">الموضوع اللي بعده</span> &rarr;</em><b><span class="l-en">Why your CSS does not reach the child</span><span class="l-ar" dir="auto">ليه الـ CSS بتاعك مش واصل للابن</span></b></a>
+  </nav>
+</main>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+/* ---------- language + theme, shared by every page ---------- */
+function _g(id){ return document.getElementById(id); }
+function syncUI(){
+  const r = document.documentElement;
+  const l = r.dataset.lang === 'ar' ? 'ar' : 'en';
+  const t = r.dataset.theme === 'dark' ? 'dark' : 'light';
+  const set = (id, on) => { const b = _g(id); if (b) b.setAttribute('aria-pressed', String(on)); };
+  set('b-en', l === 'en'); set('b-ar', l === 'ar');
+  set('b-lt', t === 'light'); set('b-dk', t === 'dark');
+}
+function setLang(l){
+  const r = document.documentElement;
+  r.dataset.lang = l;
+  r.dir  = l === 'ar' ? 'rtl' : 'ltr';
+  r.lang = l === 'ar' ? 'ar-EG' : 'en';
+  try { localStorage.setItem('tas-lang', l); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+function setTheme(t){
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('tas-theme', t); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+_g('b-en').onclick = () => setLang('en');
+_g('b-ar').onclick = () => setLang('ar');
+_g('b-lt').onclick = () => setTheme('light');
+_g('b-dk').onclick = () => setTheme('dark');
+syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
+
+/* highlight the section you are reading.
+   Position-based, not IntersectionObserver: after clicking a link the previous
+   section still overlaps the observation band by a few pixels, and picking the
+   first intersecting one left the rail a step behind until you nudged the page. */
+const links = new Map([...document.querySelectorAll('[data-rail]')].map(a => [a.dataset.rail, a]));
+const secs = [...document.querySelectorAll('.sec')];
+const LINE = 92;                      /* the reading line, just under the sticky bar */
+
+function markActive(id){
+  links.forEach((a, key) => a.classList.toggle('on', key === id));
+}
+function spy(){
+  if (!secs.length) return;
+  let current = secs[0];
+  for (const sec of secs) {
+    if (sec.getBoundingClientRect().top - LINE <= 0) current = sec; else break;
+  }
+  /* the last section is often too short to ever cross the line */
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) current = secs[secs.length - 1];
+  markActive(current.id);
+}
+
+/* a click should light up immediately, not after the scroll settles */
+links.forEach((a, id) => a.addEventListener('click', () => markActive(id)));
+
+let spying = false;
+addEventListener('scroll', () => {
+  if (spying) return;
+  spying = true;
+  requestAnimationFrame(() => { spying = false; spy(); });
+}, { passive: true });
+addEventListener('resize', spy);
+addEventListener('hashchange', () => requestAnimationFrame(spy));
+addEventListener('load', spy);   /* the browser applies #hash after parsing */
+spy();
+</script>
+</body>
+</html>

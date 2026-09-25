@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -656,22 +727,40 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="store" data-lang="ts">
         <div class="fc-h"><span class="d"></span>cart.store.ts<span class="tag"><span class="l-en">writable</span><span class="l-ar" dir="auto">قابل للكتابة</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-dec">@Injectable</i>({ providedIn: <i class="t-str">'root'</i> })</span><span class="ln" data-l="2"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">CartStore</i> {</span><span class="ln" data-l="3">  <i class="t-com">// private + writable: only this class may mutate it</i></span><span class="ln" data-l="4">  <i class="t-key">private</i> <i class="t-key">readonly</i> _items = signal&lt;<i class="t-type">Item</i>[]&gt;([]);</span><span class="ln" data-l="5"> </span><span class="ln" data-l="6">  <i class="t-com">// public + read-only: the shape everybody else sees</i></span><span class="ln" data-l="7">  <i class="t-key">readonly</i> items = <i class="t-key">this</i>._items.<i class="t-fn">asReadonly</i>();</span><span class="ln" data-l="8"> </span><span class="ln" data-l="9">  <i class="t-fn">add</i>(item: <i class="t-type">Item</i>)   { <i class="t-key">this</i>._items.<i class="t-fn">update</i>(l =&gt; [...l, item]); }</span><span class="ln" data-l="10">  <i class="t-fn">remove</i>(id: <i class="t-key">string</i>){ <i class="t-key">this</i>._items.<i class="t-fn">update</i>(l =&gt; l.<i class="t-fn">filter</i>(i =&gt; i.id !== id)); }</span><span class="ln" data-l="11">  <i class="t-fn">clear</i>()           { <i class="t-key">this</i>._items.<i class="t-key">set</i>([]); }</span><span class="ln" data-l="12">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-dec"><b class="nm nm-ng" data-nm="@Injectable">@Injectable</b></i>({ <b class="nm nm-ng" data-nm="providedIn">providedIn</b>: <i class="t-str">'<b class="nm nm-ng" data-nm="root">root</b>'</i> })</span><span class="ln" data-l="2"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="CartStore">CartStore</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="CartStore">Banana</b></i> {</span></span><span class="ln" data-l="3">  <i class="t-com">// private + writable: only this class may mutate it</i></span><span class="ln" data-l="4"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="_items">_items</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Item">Item</b></i>[]&gt;([]);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="_items">potato</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Item">Waffle</b></i>[]&gt;([]);</span></span><span class="ln" data-l="5"> </span><span class="ln" data-l="6">  <i class="t-com">// public + read-only: the shape everybody else sees</i></span><span class="ln" data-l="7"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="items">items</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">_items</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="asReadonly">asReadonly</b></i>();</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="items">mango</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">potato</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="asReadonly">asReadonly</b></i>();</span></span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><span class="v0">  <i class="t-fn"><b class="nm nm-pub" data-nm="add">add</b></i>(item: <i class="t-type"><b class="nm nm-pub" data-nm="Item">Item</b></i>)   { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">_items</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(l =&gt; [...l, item]); }</span><span class="v1">  <i class="t-fn"><b class="nm nm-pub" data-nm="add">pickle</b></i>(item: <i class="t-type"><b class="nm nm-pub" data-nm="Item">Waffle</b></i>)   { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">potato</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(l =&gt; [...l, item]); }</span></span><span class="ln" data-l="10"><span class="v0">  <i class="t-fn">remove</i>(id: <i class="t-key">string</i>){ <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">_items</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(l =&gt; l.<i class="t-fn">filter</i>(i =&gt; i.id !== id)); }</span><span class="v1">  <i class="t-fn">remove</i>(id: <i class="t-key">string</i>){ <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">potato</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(l =&gt; l.<i class="t-fn">filter</i>(i =&gt; i.id !== id)); }</span></span><span class="ln" data-l="11"><span class="v0">  <i class="t-fn">clear</i>()           { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">_items</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>([]); }</span><span class="v1">  <i class="t-fn">clear</i>()           { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_items">potato</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>([]); }</span></span><span class="ln" data-l="12">}</span></pre>
       </div>
       <div class="fc" data-file="cmp" data-lang="ts">
         <div class="fc-h"><span class="d"></span>cart.component.ts<span class="tag"><span class="l-en">derived</span><span class="l-ar" dir="auto">مشتق</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Cart</i> {</span><span class="ln" data-l="2">  <i class="t-key">private</i> <i class="t-key">readonly</i> store = <i class="t-fn">inject</i>(<i class="t-type">CartStore</i>);</span><span class="ln" data-l="3">  <i class="t-key">readonly</i> items = <i class="t-key">this</i>.store.items;</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5">  <i class="t-com">// computed: lazy, cached, and it tracks its own dependencies</i></span><span class="ln" data-l="6">  <i class="t-key">readonly</i> count    = <i class="t-fn">computed</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">items</i>().length);</span><span class="ln" data-l="7">  <i class="t-key">readonly</i> subtotal = <i class="t-fn">computed</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">items</i>().<i class="t-fn">reduce</i>((s, i) =&gt; s + i.price, <i class="t-num">0</i>));</span><span class="ln" data-l="8">  <i class="t-key">readonly</i> vat      = <i class="t-fn">computed</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">subtotal</i>() * <i class="t-num">0.14</i>);</span><span class="ln" data-l="9">  <i class="t-key">readonly</i> total    = <i class="t-fn">computed</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">subtotal</i>() + <i class="t-key">this</i>.<i class="t-fn">vat</i>());</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">  <i class="t-fn">add</i>(i: <i class="t-type">Item</i>) { <i class="t-key">this</i>.store.<i class="t-fn">add</i>(i); }</span><span class="ln" data-l="12">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Cart</i> {</span><span class="ln" data-l="2"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="store">store</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="CartStore">CartStore</b></i>);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="store">noodle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="CartStore">Banana</b></i>);</span></span><span class="ln" data-l="3"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="items">items</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="items">items</b>;</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="items">mango</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="store">noodle</b>.<b class="nm nm-pub" data-nm="items">mango</b>;</span></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5">  <i class="t-com">// computed: lazy, cached, and it tracks its own dependencies</i></span><span class="ln" data-l="6"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="count">count</b>    = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="items">items</b></i>().length);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="count">pumpkin</b>    = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="items">mango</b></i>().length);</span></span><span class="ln" data-l="7"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="subtotal">subtotal</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="items">items</b></i>().<i class="t-fn">reduce</i>((s, i) =&gt; s + i.price, <i class="t-num">0</i>));</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="subtotal">turnip</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="items">mango</b></i>().<i class="t-fn">reduce</i>((s, i) =&gt; s + i.price, <i class="t-num">0</i>));</span></span><span class="ln" data-l="8"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="vat">vat</b>      = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="subtotal">subtotal</b></i>() * <i class="t-num">0.14</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="vat">muffin</b>      = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="subtotal">turnip</b></i>() * <i class="t-num">0.14</i>);</span></span><span class="ln" data-l="9"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="total">total</b>    = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="subtotal">subtotal</b></i>() + <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="vat">vat</b></i>());</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="total">kiwi</b>    = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="subtotal">turnip</b></i>() + <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="vat">muffin</b></i>());</span></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><span class="v0">  <i class="t-fn"><b class="nm nm-pub" data-nm="add">add</b></i>(i: <i class="t-type"><b class="nm nm-pub" data-nm="Item">Item</b></i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="store">store</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="add">add</b></i>(i); }</span><span class="v1">  <i class="t-fn"><b class="nm nm-pub" data-nm="add">pickle</b></i>(i: <i class="t-type"><b class="nm nm-pub" data-nm="Item">Waffle</b></i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="store">noodle</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="add">pickle</b></i>(i); }</span></span><span class="ln" data-l="12">}</span></pre>
       </div>
       <div class="fc" data-file="tpl" data-lang="html">
         <div class="fc-h"><span class="d"></span>cart.component.html<span class="tag"><span class="l-en">the view</span><span class="l-ar" dir="auto">العرض</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;h2</i><i class="t-tag">&gt;</i>Cart (<i class="t-bind">{{ count() }}</i>)<i class="t-tag">&lt;/h2</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-key">@for</i> (i of items(); track i.id) {</span><span class="ln" data-l="4">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ i.title }}</i> — <i class="t-bind">{{ i.price }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5">}</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-tag">&lt;footer</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="8">  <i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i>VAT <i class="t-bind">{{ vat() }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="9">  <i class="t-tag">&lt;strong</i><i class="t-tag">&gt;</i><i class="t-bind">{{ total() }}</i><i class="t-tag">&lt;/strong</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="10"><i class="t-tag">&lt;/footer</i><i class="t-tag">&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-tag">&lt;h2</i><i class="t-tag">&gt;</i>Cart (<i class="t-bind">{{ <b class="nm nm-mine" data-nm="count">count</b>() }}</i>)<i class="t-tag">&lt;/h2</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;h2</i><i class="t-tag">&gt;</i>Cart (<i class="t-bind">{{ <b class="nm nm-mine" data-nm="count">pumpkin</b>() }}</i>)<i class="t-tag">&lt;/h2</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@for">@for</b></i> (i of <b class="nm nm-pub" data-nm="items">items</b>(); <b class="nm nm-ng" data-nm="track">track</b> i.id) {</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@for">@for</b></i> (i of <b class="nm nm-pub" data-nm="items">mango</b>(); <b class="nm nm-ng" data-nm="track">track</b> i.id) {</span></span><span class="ln" data-l="4">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ i.title }}</i> — <i class="t-bind">{{ i.price }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5">}</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-tag">&lt;footer</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="8"><span class="v0">  <i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i>VAT <i class="t-bind">{{ <b class="nm nm-mine" data-nm="vat">vat</b>() }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i>VAT <i class="t-bind">{{ <b class="nm nm-mine" data-nm="vat">muffin</b>() }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="9"><span class="v0">  <i class="t-tag">&lt;strong</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="total">total</b>() }}</i><i class="t-tag">&lt;/strong</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;strong</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="total">kiwi</b>() }}</i><i class="t-tag">&lt;/strong</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="10"><i class="t-tag">&lt;/footer</i><i class="t-tag">&gt;</i></span></pre>
       </div>
       <div class="fc" data-file="bad" data-lang="ts">
         <div class="fc-h"><span class="d"></span>the mistake to avoid<span class="tag"><span class="l-en">do not</span><span class="l-ar" dir="auto">متعملش</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">// two sources of truth that will disagree with each other</i></span><span class="ln" data-l="2"><i class="t-key">readonly</i> items = signal&lt;<i class="t-type">Item</i>[]&gt;([]);</span><span class="ln" data-l="3"><i class="t-key">readonly</i> total = <i class="t-fn">signal</i>(<i class="t-num">0</i>);            <i class="t-com">// ← stored, not derived</i></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><i class="t-fn">addItem</i>(i: <i class="t-type">Item</i>) {</span><span class="ln" data-l="6">  <i class="t-key">this</i>.items.<i class="t-fn">update</i>(l =&gt; [...l, i]);</span><span class="ln" data-l="7">  <i class="t-key">this</i>.total.<i class="t-key">set</i>(<i class="t-key">this</i>.<i class="t-fn">total</i>() + i.price);   <i class="t-com">// and now you must never forget</i></span><span class="ln" data-l="8">}</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10"><i class="t-com">// derived state stored twice is a bug with a delay fuse.</i></span><span class="ln" data-l="11"><i class="t-com">// total = computed(() =&gt; items().reduce(...)) can never drift.</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">// two sources of truth that will disagree with each other</i></span><span class="ln" data-l="2"><span class="v0"><i class="t-key">readonly</i> items = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Item">Item</b></i>[]&gt;([]);</span><span class="v1"><i class="t-key">readonly</i> items = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Item">Waffle</b></i>[]&gt;([]);</span></span><span class="ln" data-l="3"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="total">total</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-num">0</i>);            <i class="t-com">// ← stored, not derived</i></span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="total">kiwi</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-num">0</i>);            <i class="t-com">// ← stored, not derived</i></span></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><span class="v0"><i class="t-fn"><b class="nm nm-mine" data-nm="addItem">addItem</b></i>(i: <i class="t-type"><b class="nm nm-pub" data-nm="Item">Item</b></i>) {</span><span class="v1"><i class="t-fn"><b class="nm nm-mine" data-nm="addItem">taco</b></i>(i: <i class="t-type"><b class="nm nm-pub" data-nm="Item">Waffle</b></i>) {</span></span><span class="ln" data-l="6">  <i class="t-key">this</i>.items.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(l =&gt; [...l, i]);</span><span class="ln" data-l="7"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="total">total</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="total">total</b></i>() + i.price);   <i class="t-com">// and now you must never forget</i></span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="total">kiwi</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="total">kiwi</b></i>() + i.price);   <i class="t-com">// and now you must never forget</i></span></span><span class="ln" data-l="8">}</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10"><i class="t-com">// derived state stored twice is a bug with a delay fuse.</i></span><span class="ln" data-l="11"><i class="t-com">// total = computed(() =&gt; items().reduce(...)) can never drift.</i></span></pre>
       </div></div>
 
   
@@ -684,17 +773,223 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="z1" data-lang="ts">
         <div class="fc-h"><span class="d"></span>filters.store.ts<span class="tag"><span class="l-en">shared</span><span class="l-ar" dir="auto">مشترك</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-dec">@Injectable</i>({ providedIn: <i class="t-str">'root'</i> })</span><span class="ln" data-l="2"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Filters</i> {</span><span class="ln" data-l="3">  <i class="t-key">readonly</i> brand = signal&lt;<i class="t-key">string</i> | <i class="t-key">null</i>&gt;(<i class="t-key">null</i>);</span><span class="ln" data-l="4">  <i class="t-key">readonly</i> maxPrice = <i class="t-fn">signal</i>(<i class="t-num">10_000</i>);</span><span class="ln" data-l="5">  <i class="t-key">readonly</i> inStock = <i class="t-fn">signal</i>(<i class="t-key">false</i>);</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">  <i class="t-key">readonly</i> active = <i class="t-fn">computed</i>(() =&gt;</span><span class="ln" data-l="8">    [<i class="t-key">this</i>.<i class="t-fn">brand</i>() &amp;&amp; <i class="t-str">'brand'</i>, <i class="t-key">this</i>.<i class="t-fn">inStock</i>() &amp;&amp; <i class="t-str">'stock'</i>].<i class="t-fn">filter</i>(<i class="t-type">Boolean</i>).length);</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10">  <i class="t-fn">reset</i>() { <i class="t-key">this</i>.brand.<i class="t-key">set</i>(<i class="t-key">null</i>); <i class="t-key">this</i>.maxPrice.<i class="t-key">set</i>(<i class="t-num">10_000</i>); <i class="t-key">this</i>.inStock.<i class="t-key">set</i>(<i class="t-key">false</i>); }</span><span class="ln" data-l="11">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-dec"><b class="nm nm-ng" data-nm="@Injectable">@Injectable</b></i>({ <b class="nm nm-ng" data-nm="providedIn">providedIn</b>: <i class="t-str">'<b class="nm nm-ng" data-nm="root">root</b>'</i> })</span><span class="ln" data-l="2"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Filters">Filters</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Filters">Donut</b></i> {</span></span><span class="ln" data-l="3"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="brand">brand</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-key">string</i> | <i class="t-key">null</i>&gt;(<i class="t-key">null</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="brand">pepper</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-key">string</i> | <i class="t-key">null</i>&gt;(<i class="t-key">null</i>);</span></span><span class="ln" data-l="4"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="maxPrice">maxPrice</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-num">10_000</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="maxPrice">carrot</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-num">10_000</i>);</span></span><span class="ln" data-l="5"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="inStock">inStock</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="inStock">lemon</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="active">active</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt;</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="active">biscuit</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt;</span></span><span class="ln" data-l="8"><span class="v0">    [<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="brand">brand</b></i>() &amp;&amp; <i class="t-str">'brand'</i>, <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="inStock">inStock</b></i>() &amp;&amp; <i class="t-str">'stock'</i>].<i class="t-fn">filter</i>(<i class="t-type">Boolean</i>).length);</span><span class="v1">    [<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="brand">pepper</b></i>() &amp;&amp; <i class="t-str">'brand'</i>, <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="inStock">lemon</b></i>() &amp;&amp; <i class="t-str">'stock'</i>].<i class="t-fn">filter</i>(<i class="t-type">Boolean</i>).length);</span></span><span class="ln" data-l="9"> </span><span class="ln" data-l="10"><span class="v0">  <i class="t-fn">reset</i>() { <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="brand">brand</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">null</i>); <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="maxPrice">maxPrice</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-num">10_000</i>); <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="inStock">inStock</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">false</i>); }</span><span class="v1">  <i class="t-fn">reset</i>() { <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="brand">pepper</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">null</i>); <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="maxPrice">carrot</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-num">10_000</i>); <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="inStock">lemon</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">false</i>); }</span></span><span class="ln" data-l="11">}</span></pre>
       </div>
       <div class="fc" data-file="z2" data-lang="ts">
         <div class="fc-h"><span class="d"></span>results.component.ts<span class="tag"><span class="l-en">reader</span><span class="l-ar" dir="auto">قارئ</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Results</i> {</span><span class="ln" data-l="2">  <i class="t-key">private</i> <i class="t-key">readonly</i> f = <i class="t-fn">inject</i>(<i class="t-type">Filters</i>);</span><span class="ln" data-l="3">  <i class="t-key">private</i> <i class="t-key">readonly</i> all = <i class="t-fn">inject</i>(<i class="t-type">Catalogue</i>).products;</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5">  <i class="t-key">readonly</i> shown = <i class="t-fn">computed</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">all</i>().<i class="t-fn">filter</i>(p =&gt;</span><span class="ln" data-l="6">    (!<i class="t-key">this</i>.f.<i class="t-fn">brand</i>()   || p.brand === <i class="t-key">this</i>.f.<i class="t-fn">brand</i>()) &amp;&amp;</span><span class="ln" data-l="7">    (!<i class="t-key">this</i>.f.<i class="t-fn">inStock</i>() || p.stock &gt; <i class="t-num">0</i>) &amp;&amp;</span><span class="ln" data-l="8">    p.price &lt;= <i class="t-key">this</i>.f.<i class="t-fn">maxPrice</i>()));</span><span class="ln" data-l="9">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Results</i> {</span><span class="ln" data-l="2"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="f">f</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Filters">Filters</b></i>);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="f">olive</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Filters">Donut</b></i>);</span></span><span class="ln" data-l="3"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> all = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Catalogue">Catalogue</b></i>).<b class="nm nm-pub" data-nm="products">products</b>;</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> all = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Catalogue">Cookie</b></i>).<b class="nm nm-pub" data-nm="products">melon</b>;</span></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="shown">shown</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">all</i>().<i class="t-fn">filter</i>(p =&gt;</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="shown">radish</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">all</i>().<i class="t-fn">filter</i>(p =&gt;</span></span><span class="ln" data-l="6"><span class="v0">    (!<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="f">f</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="brand">brand</b></i>()   || p.brand === <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="f">f</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="brand">brand</b></i>()) &amp;&amp;</span><span class="v1">    (!<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="f">olive</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="brand">pepper</b></i>()   || p.brand === <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="f">olive</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="brand">pepper</b></i>()) &amp;&amp;</span></span><span class="ln" data-l="7"><span class="v0">    (!<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="f">f</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="inStock">inStock</b></i>() || p.stock &gt; <i class="t-num">0</i>) &amp;&amp;</span><span class="v1">    (!<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="f">olive</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="inStock">lemon</b></i>() || p.stock &gt; <i class="t-num">0</i>) &amp;&amp;</span></span><span class="ln" data-l="8"><span class="v0">    p.price &lt;= <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="f">f</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="maxPrice">maxPrice</b></i>()));</span><span class="v1">    p.price &lt;= <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="f">olive</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="maxPrice">carrot</b></i>()));</span></span><span class="ln" data-l="9">}</span></pre>
       </div>
       <div class="fc" data-file="z3" data-lang="html">
         <div class="fc-h"><span class="d"></span>filter-chip.component.html<span class="tag"><span class="l-en">writer</span><span class="l-ar" dir="auto">كاتب</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"f.inStock.set(!f.inStock())"</i> <i class="t-bind">[class.on]</i>=<i class="t-str">"f.inStock()"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="2">  In stock only</span><span class="ln" data-l="3"><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="4"><i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i><i class="t-bind">{{ f.active() }}</i> filters active<i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="f">f</b>.<b class="nm nm-pub" data-nm="inStock">inStock</b>.<b class="nm nm-ng" data-nm="set">set</b>(!<b class="nm nm-mine" data-nm="f">f</b>.<b class="nm nm-pub" data-nm="inStock">inStock</b>())"</i> <i class="t-bind">[class.on]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="f">f</b>.<b class="nm nm-pub" data-nm="inStock">inStock</b>()"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="f">olive</b>.<b class="nm nm-pub" data-nm="inStock">lemon</b>.<b class="nm nm-ng" data-nm="set">set</b>(!<b class="nm nm-mine" data-nm="f">olive</b>.<b class="nm nm-pub" data-nm="inStock">lemon</b>())"</i> <i class="t-bind">[class.on]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="f">olive</b>.<b class="nm nm-pub" data-nm="inStock">lemon</b>()"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="2">  In stock only</span><span class="ln" data-l="3"><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="4"><span class="v0"><i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="f">f</b>.<b class="nm nm-pub" data-nm="active">active</b>() }}</i> filters active<i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="f">olive</b>.<b class="nm nm-pub" data-nm="active">biscuit</b>() }}</i> filters active<i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></span></pre>
       </div></div>
   </div>
+
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">A signal’s name is yours; <code>signal</code>, <code>computed</code>, <code>set</code>, <code>update</code> and <code>asReadonly</code> are Angular’s. A signal kept inside one component is private, but one a store exposes (and components read as <code>store.items</code> or <code>f.inStock</code>) is shared, so a rename reaches every reader.</span><span class="l-ar" dir="auto">اسم الـ signal بتاعك؛ و<code>signal</code> و<code>computed</code> و<code>set</code> و<code>update</code> و<code>asReadonly</code> بتوع أنجولار. الـ signal اللي جوه component واحد خاصة بيه، بس اللي الـ store بيطلّعها (والـ components بتقراها كـ <code>store.items</code> أو <code>f.inStock</code>) متشاركة، فلو غيّرت اسمها لازم تغيّره عند كل اللي بيقروها.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="@Injectable">
+        <td><b class="nm nm-ng" data-nm="@Injectable">@Injectable</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s decorator that makes a class injectable.</span><span class="l-ar" dir="auto">الـ decorator بتاع أنجولار اللي بيخلّي الكلاس ينفع يتعمله inject.</span></td>
+        <td class="nmfiles"><code>cart.store.ts</code> <code>filters.store.ts</code></td>
+      </tr>
+      <tr data-nmrow="providedIn">
+        <td><b class="nm nm-ng" data-nm="providedIn">providedIn</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads: where the one shared copy lives.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه: فين النسخة الواحدة المتشاركة عايشة.</span></td>
+        <td class="nmfiles"><code>cart.store.ts</code> <code>filters.store.ts</code></td>
+      </tr>
+      <tr data-nmrow="root">
+        <td><b class="nm nm-ng" data-nm="root">root</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A value Angular recognises: one copy for the whole app.</span><span class="l-ar" dir="auto">قيمة أنجولار عارفها: نسخة واحدة للتطبيق كله.</span></td>
+        <td class="nmfiles"><code>cart.store.ts</code> <code>filters.store.ts</code></td>
+      </tr>
+      <tr data-nmrow="signal">
+        <td><b class="nm nm-ng" data-nm="signal">signal</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s writable signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة أنجولار اللي بتتكتب.</span></td>
+        <td class="nmfiles"><code>cart.store.ts</code> <code>the mistake to avoid</code> <code>filters.store.ts</code></td>
+      </tr>
+      <tr data-nmrow="computed">
+        <td><b class="nm nm-ng" data-nm="computed">computed</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s derived signal.</span><span class="l-ar" dir="auto">الـ signal المشتقة بتاعة أنجولار.</span></td>
+        <td class="nmfiles"><code>cart.component.ts</code> <code>filters.store.ts</code> <code>results.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="set">
+        <td><b class="nm nm-ng" data-nm="set">set</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal method: replace the value.</span><span class="l-ar" dir="auto">ميثود بتاعة الـ signal: بتستبدل القيمة.</span></td>
+        <td class="nmfiles"><code>cart.store.ts</code> <code>the mistake to avoid</code> <code>filters.store.ts</code> <code>filter-chip.component.html</code></td>
+      </tr>
+      <tr data-nmrow="update">
+        <td><b class="nm nm-ng" data-nm="update">update</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal method: compute the new value from the old one.</span><span class="l-ar" dir="auto">ميثود بتاعة الـ signal: بتحسب القيمة الجديدة من القديمة.</span></td>
+        <td class="nmfiles"><code>cart.store.ts</code> <code>the mistake to avoid</code></td>
+      </tr>
+      <tr data-nmrow="asReadonly">
+        <td><b class="nm nm-ng" data-nm="asReadonly">asReadonly</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal method: hand out a version nobody else can write to.</span><span class="l-ar" dir="auto">ميثود بتاعة الـ signal: بتطلّع نسخة محدش تاني يقدر يكتب فيها.</span></td>
+        <td class="nmfiles"><code>cart.store.ts</code></td>
+      </tr>
+      <tr data-nmrow="inject">
+        <td><b class="nm nm-ng" data-nm="inject">inject</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that hands you a service.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتدّيك الـ service.</span></td>
+        <td class="nmfiles"><code>cart.component.ts</code> <code>results.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="@for">
+        <td><b class="nm nm-ng" data-nm="@for">@for</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s loop in the template.</span><span class="l-ar" dir="auto">الـ loop بتاع أنجولار في التمبلت.</span></td>
+        <td class="nmfiles"><code>cart.component.html</code></td>
+      </tr>
+      <tr data-nmrow="track">
+        <td><b class="nm nm-ng" data-nm="track">track</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s word inside <code>@for</code>. The expression after it is yours.</span><span class="l-ar" dir="auto">كلمة أنجولار جوه <code>@for</code>. اللي بعدها بتاعك.</span></td>
+        <td class="nmfiles"><code>cart.component.html</code></td>
+      </tr>
+      <tr data-nmrow="CartStore">
+        <td><b class="nm nm-pub" data-nm="CartStore">CartStore</b><span class="nmas">&rarr; <code>Banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The store’s class name. <code>inject(CartStore)</code> in the component follows a rename.</span><span class="l-ar" dir="auto">اسم كلاس الـ store. <code>inject(CartStore)</code> في الـ component بيتغير معاه.</span></td>
+        <td class="nmfiles"><code>cart.store.ts</code> <code>cart.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="_items">
+        <td><b class="nm nm-mine" data-nm="_items">_items</b><span class="nmas">&rarr; <code>potato</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The store’s private, writable signal. The underscore is a habit, not a rule. Nobody outside the store can see it.</span><span class="l-ar" dir="auto">الـ signal الخاصة اللي بتتكتب جوه الـ store. الـ underscore عادة مش قاعدة. محدش برّه الـ store شايفها.</span></td>
+        <td class="nmfiles"><code>cart.store.ts</code></td>
+      </tr>
+      <tr data-nmrow="items">
+        <td><b class="nm nm-pub" data-nm="items">items</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The store’s public read-only signal; the component reads it as <code>store.items</code>, so both files change. The component then keeps its own property with the same name for its template, which is a separate, private choice.</span><span class="l-ar" dir="auto">الـ signal العمومية الـ read-only بتاعة الـ store؛ الـ component بيقراها كـ <code>store.items</code>، فالملفين بيتغيروا. وبعدين الـ component بيعمل property بنفس الاسم للتمبلت بتاعه، ودي حاجة تانية خاصة بيه.</span></td>
+        <td class="nmfiles"><code>cart.store.ts</code> <code>cart.component.ts</code> <code>cart.component.html</code></td>
+      </tr>
+      <tr data-nmrow="add">
+        <td><b class="nm nm-pub" data-nm="add">add</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The store’s public method, called by components as <code>store.add()</code>. The component’s own <code>add</code> just happens to share the name.</span><span class="l-ar" dir="auto">الميثود العمومية بتاعة الـ store، والـ components بتناديها كـ <code>store.add()</code>. والـ <code>add</code> اللي في الـ component صدفة ليها نفس الاسم.</span></td>
+        <td class="nmfiles"><code>cart.store.ts</code> <code>cart.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="Item">
+        <td><b class="nm nm-pub" data-nm="Item">Item</b><span class="nmas">&rarr; <code>Waffle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your data type. Every file that imports it follows a rename.</span><span class="l-ar" dir="auto">نوع الداتا بتاعك. أي ملف بيعمله import بيتغير معاه.</span></td>
+        <td class="nmfiles"><code>cart.store.ts</code> <code>cart.component.ts</code> <code>the mistake to avoid</code></td>
+      </tr>
+      <tr data-nmrow="store">
+        <td><b class="nm nm-mine" data-nm="store">store</b><span class="nmas">&rarr; <code>noodle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s private name for the injected <code>CartStore</code>. Any name works.</span><span class="l-ar" dir="auto">الاسم الخاص اللي الـ component مدّيه للـ <code>CartStore</code> اللي اتعمله inject. أي اسم ينفع.</span></td>
+        <td class="nmfiles"><code>cart.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="count">
+        <td><b class="nm nm-mine" data-nm="count">count</b><span class="nmas">&rarr; <code>pumpkin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A computed in the component, read by its own template.</span><span class="l-ar" dir="auto">computed في الـ component، والتمبلت بتاعه بيقراه.</span></td>
+        <td class="nmfiles"><code>cart.component.ts</code> <code>cart.component.html</code></td>
+      </tr>
+      <tr data-nmrow="subtotal">
+        <td><b class="nm nm-mine" data-nm="subtotal">subtotal</b><span class="nmas">&rarr; <code>turnip</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A computed in the component.</span><span class="l-ar" dir="auto">computed في الـ component.</span></td>
+        <td class="nmfiles"><code>cart.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="vat">
+        <td><b class="nm nm-mine" data-nm="vat">vat</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A computed in the component.</span><span class="l-ar" dir="auto">computed في الـ component.</span></td>
+        <td class="nmfiles"><code>cart.component.ts</code> <code>cart.component.html</code></td>
+      </tr>
+      <tr data-nmrow="addItem">
+        <td><b class="nm nm-mine" data-nm="addItem">addItem</b><span class="nmas">&rarr; <code>taco</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own method.</span><span class="l-ar" dir="auto">الميثود بتاعة الـ component.</span></td>
+        <td class="nmfiles"><code>the mistake to avoid</code></td>
+      </tr>
+      <tr data-nmrow="total">
+        <td><b class="nm nm-mine" data-nm="total">total</b><span class="nmas">&rarr; <code>kiwi</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own signal or computed.</span><span class="l-ar" dir="auto">الـ signal أو الـ computed بتاعة الـ component.</span></td>
+        <td class="nmfiles"><code>cart.component.ts</code> <code>cart.component.html</code> <code>the mistake to avoid</code></td>
+      </tr>
+      <tr data-nmrow="Filters">
+        <td><b class="nm nm-pub" data-nm="Filters">Filters</b><span class="nmas">&rarr; <code>Donut</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The filters store’s class name. <code>inject(Filters)</code> follows a rename.</span><span class="l-ar" dir="auto">اسم كلاس الـ store بتاع الفلاتر. <code>inject(Filters)</code> بيتغير معاه.</span></td>
+        <td class="nmfiles"><code>filters.store.ts</code> <code>results.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="brand">
+        <td><b class="nm nm-pub" data-nm="brand">brand</b><span class="nmas">&rarr; <code>pepper</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A public signal on <code>Filters</code>, read in other components as <code>f.brand()</code>. <code>p.brand</code> is a field on your product data, and <code>'brand'</code> is just text.</span><span class="l-ar" dir="auto">signal عمومية في <code>Filters</code>، والـ components التانية بتقراها كـ <code>f.brand()</code>. و<code>p.brand</code> field في داتا المنتج، و<code>'brand'</code> مجرد كلام.</span></td>
+        <td class="nmfiles"><code>filters.store.ts</code> <code>results.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="inStock">
+        <td><b class="nm nm-pub" data-nm="inStock">inStock</b><span class="nmas">&rarr; <code>lemon</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A public signal on <code>Filters</code>, read and set by the results list and the chip.</span><span class="l-ar" dir="auto">signal عمومية في <code>Filters</code>، الـ results والـ chip بيقروها ويغيّروها.</span></td>
+        <td class="nmfiles"><code>filters.store.ts</code> <code>results.component.ts</code> <code>filter-chip.component.html</code></td>
+      </tr>
+      <tr data-nmrow="maxPrice">
+        <td><b class="nm nm-pub" data-nm="maxPrice">maxPrice</b><span class="nmas">&rarr; <code>carrot</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A public signal on <code>Filters</code>.</span><span class="l-ar" dir="auto">signal عمومية في <code>Filters</code>.</span></td>
+        <td class="nmfiles"><code>filters.store.ts</code> <code>results.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="active">
+        <td><b class="nm nm-pub" data-nm="active">active</b><span class="nmas">&rarr; <code>biscuit</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A public computed on <code>Filters</code>, read by the chip as <code>f.active()</code>.</span><span class="l-ar" dir="auto">computed عمومي في <code>Filters</code>، الـ chip بيقراه كـ <code>f.active()</code>.</span></td>
+        <td class="nmfiles"><code>filters.store.ts</code> <code>filter-chip.component.html</code></td>
+      </tr>
+      <tr data-nmrow="f">
+        <td><b class="nm nm-mine" data-nm="f">f</b><span class="nmas">&rarr; <code>olive</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Each component’s private name for the injected <code>Filters</code>. Short, but any name works.</span><span class="l-ar" dir="auto">الاسم الخاص اللي كل component مدّيه للـ <code>Filters</code> اللي اتعمله inject. قصير، بس أي اسم ينفع.</span></td>
+        <td class="nmfiles"><code>results.component.ts</code> <code>filter-chip.component.html</code></td>
+      </tr>
+      <tr data-nmrow="Catalogue">
+        <td><b class="nm nm-pub" data-nm="Catalogue">Catalogue</b><span class="nmas">&rarr; <code>Cookie</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Another store’s class name, injected here.</span><span class="l-ar" dir="auto">اسم كلاس store تاني، متعمله inject هنا.</span></td>
+        <td class="nmfiles"><code>results.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="products">
+        <td><b class="nm nm-pub" data-nm="products">products</b><span class="nmas">&rarr; <code>melon</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A public signal on <code>Catalogue</code>. Renaming it there breaks this line.</span><span class="l-ar" dir="auto">signal عمومية في <code>Catalogue</code>. لو اتغيّر اسمها هناك السطر ده هيبوظ.</span></td>
+        <td class="nmfiles"><code>results.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="shown">
+        <td><b class="nm nm-mine" data-nm="shown">shown</b><span class="nmas">&rarr; <code>radish</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A computed in the results component.</span><span class="l-ar" dir="auto">computed في الـ results component.</span></td>
+        <td class="nmfiles"><code>results.component.ts</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="signals-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en"><code>signal()</code>, name by name</span><span class="l-ar" dir="auto"><code>signal()</code>، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">The page for when signals make you lose track of who owns what. One cart followed through six files, every name coloured: <b>Angular’s</b>, <b>yours</b>, or <b>yours but shared</b>. Then what breaks when you rename each one, and the mistakes that fail without a word.</span><span class="l-ar" dir="auto">الصفحة دي للي بيتوه في الـ signals ومش عارف مين بتاع مين. كارت واحد ماشيين وراه في ست ملفات، وكل اسم ملوّن: <b>بتاع أنجولار</b>، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b>. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد، والغلطات اللي بتفشل من غير ولا كلمة.</span></span>
+  </a>
 
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
@@ -797,8 +1092,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../beginner/05-data-binding.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">Property, attribute, event and two-way binding</span><span class="l-ar" dir="auto">ربط الـ property والـ attribute والحدث والاتجاهين</span></b></a>
-    <a class="nx" href="../beginner/07-control-flow.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">The template finally got a real <code>if</code></span><span class="l-ar" dir="auto">التمبلت أخيراً بقى فيه <code>if</code> حقيقي</span></b></a>
+    <a class="pv" href="../beginner/data-binding-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en"><code>[ ]</code> and <code>( )</code>, name by name</span><span class="l-ar" dir="auto"><code>[ ]</code> و<code>( )</code>، اسم اسم</span></b></a>
+    <a class="nx" href="../beginner/signals-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en"><code>signal()</code>, name by name</span><span class="l-ar" dir="auto"><code>signal()</code>، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -840,6 +1135,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){

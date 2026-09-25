@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -660,18 +731,36 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="int" data-lang="ts">
         <div class="fc-h"><span class="d"></span>error.interceptor.ts<span class="tag"><span class="l-en">one place for all HTTP</span><span class="l-ar" dir="auto">مكان واحد لكل HTTP</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">const</i> errorInterceptor: <i class="t-type">HttpInterceptorFn</i> = (req, next) =&gt; {</span><span class="ln" data-l="2">  <i class="t-key">const</i> toasts = <i class="t-fn">inject</i>(<i class="t-type">Toasts</i>);</span><span class="ln" data-l="3">  <i class="t-key">const</i> session = <i class="t-fn">inject</i>(<i class="t-type">Session</i>);</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5">  <i class="t-key">return</i> <i class="t-fn">next</i>(req).<i class="t-fn">pipe</i>(</span><span class="ln" data-l="6">    <i class="t-com">// retry only what is worth retrying: transient failures.</i></span><span class="ln" data-l="7">    <i class="t-fn">retry</i>({</span><span class="ln" data-l="8">      count: <i class="t-num">2</i>,</span><span class="ln" data-l="9">      delay: (err, n) =&gt; {</span><span class="ln" data-l="10">        <i class="t-key">const</i> retryable = err.status === <i class="t-num">0</i> || err.status &gt;= <i class="t-num">500</i>;</span><span class="ln" data-l="11">        <i class="t-key">if</i> (!retryable) <i class="t-key">throw</i> err;              <i class="t-com">// 400s will never succeed</i></span><span class="ln" data-l="12">        <i class="t-key">return</i> <i class="t-fn">timer</i>(<i class="t-num">500</i> * <i class="t-type">Math</i>.<i class="t-fn">pow</i>(<i class="t-num">2</i>, n));     <i class="t-com">// 500ms, 1s — back off</i></span><span class="ln" data-l="13">      },</span><span class="ln" data-l="14">    }),</span><span class="ln" data-l="15"> </span><span class="ln" data-l="16">    <i class="t-fn">catchError</i>((err: <i class="t-type">HttpErrorResponse</i>) =&gt; {</span><span class="ln" data-l="17">      <i class="t-key">if</i> (err.status === <i class="t-num">401</i>) { session.<i class="t-fn">signOut</i>(); }</span><span class="ln" data-l="18">      <i class="t-key">else</i> <i class="t-key">if</i> (err.status === <i class="t-num">0</i>)   toasts.<i class="t-fn">show</i>(<i class="t-str">'You appear to be offline.'</i>);</span><span class="ln" data-l="19">      <i class="t-key">else</i> <i class="t-key">if</i> (err.status &gt;= <i class="t-num">500</i>)  toasts.<i class="t-fn">show</i>(<i class="t-str">'Our server had a problem. Try again shortly.'</i>);</span><span class="ln" data-l="20">      <i class="t-key">else</i> <i class="t-key">if</i> (err.status === <i class="t-num">404</i>) { <i class="t-com">/* the component will handle this */</i> }</span><span class="ln" data-l="21">      <i class="t-key">else</i> toasts.<i class="t-fn">show</i>(err.error?.message ?? <i class="t-str">'Something went wrong.'</i>);</span><span class="ln" data-l="22"> </span><span class="ln" data-l="23">      <i class="t-key">return</i> <i class="t-fn">throwError</i>(() =&gt; err);   <i class="t-com">// let the caller decide too</i></span><span class="ln" data-l="24">    }),</span><span class="ln" data-l="25">  );</span><span class="ln" data-l="26">};</span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="errorInterceptor">errorInterceptor</b>: <i class="t-type"><b class="nm nm-ng" data-nm="HttpInterceptorFn">HttpInterceptorFn</b></i> = (<b class="nm nm-mine" data-nm="req">req</b>, <b class="nm nm-mine" data-nm="next">next</b>) =&gt; {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="errorInterceptor">banana</b>: <i class="t-type"><b class="nm nm-ng" data-nm="HttpInterceptorFn">HttpInterceptorFn</b></i> = (<b class="nm nm-mine" data-nm="req">potato</b>, <b class="nm nm-mine" data-nm="next">mango</b>) =&gt; {</span></span><span class="ln" data-l="2"><span class="v0">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="toasts">toasts</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Toasts">Toasts</b></i>);</span><span class="v1">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="toasts">noodle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Toasts">Kiwi</b></i>);</span></span><span class="ln" data-l="3"><span class="v0">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="session">session</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Session">Session</b></i>);</span><span class="v1">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="session">pumpkin</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Session">Turnip</b></i>);</span></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><span class="v0">  <i class="t-key">return</i> <i class="t-fn"><b class="nm nm-mine" data-nm="next">next</b></i>(<b class="nm nm-mine" data-nm="req">req</b>).<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(</span><span class="v1">  <i class="t-key">return</i> <i class="t-fn"><b class="nm nm-mine" data-nm="next">mango</b></i>(<b class="nm nm-mine" data-nm="req">potato</b>).<i class="t-fn"><b class="nm nm-ng" data-nm="pipe">pipe</b></i>(</span></span><span class="ln" data-l="6">    <i class="t-com">// retry only what is worth retrying: transient failures.</i></span><span class="ln" data-l="7">    <i class="t-fn"><b class="nm nm-ng" data-nm="retry">retry</b></i>({</span><span class="ln" data-l="8">      <b class="nm nm-ng" data-nm="count">count</b>: <i class="t-num">2</i>,</span><span class="ln" data-l="9"><span class="v0">      <b class="nm nm-ng" data-nm="delay">delay</b>: (<b class="nm nm-mine" data-nm="err">err</b>, n) =&gt; {</span><span class="v1">      <b class="nm nm-ng" data-nm="delay">delay</b>: (<b class="nm nm-mine" data-nm="err">pickle</b>, n) =&gt; {</span></span><span class="ln" data-l="10"><span class="v0">        <i class="t-key">const</i> <b class="nm nm-mine" data-nm="retryable">retryable</b> = <b class="nm nm-mine" data-nm="err">err</b>.<b class="nm nm-ng" data-nm="status">status</b> === <i class="t-num">0</i> || <b class="nm nm-mine" data-nm="err">err</b>.<b class="nm nm-ng" data-nm="status">status</b> &gt;= <i class="t-num">500</i>;</span><span class="v1">        <i class="t-key">const</i> <b class="nm nm-mine" data-nm="retryable">waffle</b> = <b class="nm nm-mine" data-nm="err">pickle</b>.<b class="nm nm-ng" data-nm="status">status</b> === <i class="t-num">0</i> || <b class="nm nm-mine" data-nm="err">pickle</b>.<b class="nm nm-ng" data-nm="status">status</b> &gt;= <i class="t-num">500</i>;</span></span><span class="ln" data-l="11"><span class="v0">        <i class="t-key">if</i> (!<b class="nm nm-mine" data-nm="retryable">retryable</b>) <i class="t-key">throw</i> <b class="nm nm-mine" data-nm="err">err</b>;              <i class="t-com">// 400s will never succeed</i></span><span class="v1">        <i class="t-key">if</i> (!<b class="nm nm-mine" data-nm="retryable">waffle</b>) <i class="t-key">throw</i> <b class="nm nm-mine" data-nm="err">pickle</b>;              <i class="t-com">// 400s will never succeed</i></span></span><span class="ln" data-l="12">        <i class="t-key">return</i> <i class="t-fn"><b class="nm nm-ng" data-nm="timer">timer</b></i>(<i class="t-num">500</i> * <i class="t-type">Math</i>.<i class="t-fn">pow</i>(<i class="t-num">2</i>, n));     <i class="t-com">// 500ms, 1s — back off</i></span><span class="ln" data-l="13">      },</span><span class="ln" data-l="14">    }),</span><span class="ln" data-l="15"> </span><span class="ln" data-l="16"><span class="v0">    <i class="t-fn"><b class="nm nm-ng" data-nm="catchError">catchError</b></i>((<b class="nm nm-mine" data-nm="err">err</b>: <i class="t-type"><b class="nm nm-ng" data-nm="HttpErrorResponse">HttpErrorResponse</b></i>) =&gt; {</span><span class="v1">    <i class="t-fn"><b class="nm nm-ng" data-nm="catchError">catchError</b></i>((<b class="nm nm-mine" data-nm="err">pickle</b>: <i class="t-type"><b class="nm nm-ng" data-nm="HttpErrorResponse">HttpErrorResponse</b></i>) =&gt; {</span></span><span class="ln" data-l="17"><span class="v0">      <i class="t-key">if</i> (<b class="nm nm-mine" data-nm="err">err</b>.<b class="nm nm-ng" data-nm="status">status</b> === <i class="t-num">401</i>) { <b class="nm nm-mine" data-nm="session">session</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="signOut">signOut</b></i>(); }</span><span class="v1">      <i class="t-key">if</i> (<b class="nm nm-mine" data-nm="err">pickle</b>.<b class="nm nm-ng" data-nm="status">status</b> === <i class="t-num">401</i>) { <b class="nm nm-mine" data-nm="session">pumpkin</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="signOut">muffin</b></i>(); }</span></span><span class="ln" data-l="18"><span class="v0">      <i class="t-key">else</i> <i class="t-key">if</i> (<b class="nm nm-mine" data-nm="err">err</b>.<b class="nm nm-ng" data-nm="status">status</b> === <i class="t-num">0</i>)   <b class="nm nm-mine" data-nm="toasts">toasts</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="show">show</b></i>(<i class="t-str">'You appear to be offline.'</i>);</span><span class="v1">      <i class="t-key">else</i> <i class="t-key">if</i> (<b class="nm nm-mine" data-nm="err">pickle</b>.<b class="nm nm-ng" data-nm="status">status</b> === <i class="t-num">0</i>)   <b class="nm nm-mine" data-nm="toasts">noodle</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="show">donut</b></i>(<i class="t-str">'You appear to be offline.'</i>);</span></span><span class="ln" data-l="19"><span class="v0">      <i class="t-key">else</i> <i class="t-key">if</i> (<b class="nm nm-mine" data-nm="err">err</b>.<b class="nm nm-ng" data-nm="status">status</b> &gt;= <i class="t-num">500</i>)  <b class="nm nm-mine" data-nm="toasts">toasts</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="show">show</b></i>(<i class="t-str">'Our server had a problem. Try again shortly.'</i>);</span><span class="v1">      <i class="t-key">else</i> <i class="t-key">if</i> (<b class="nm nm-mine" data-nm="err">pickle</b>.<b class="nm nm-ng" data-nm="status">status</b> &gt;= <i class="t-num">500</i>)  <b class="nm nm-mine" data-nm="toasts">noodle</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="show">donut</b></i>(<i class="t-str">'Our server had a problem. Try again shortly.'</i>);</span></span><span class="ln" data-l="20"><span class="v0">      <i class="t-key">else</i> <i class="t-key">if</i> (<b class="nm nm-mine" data-nm="err">err</b>.<b class="nm nm-ng" data-nm="status">status</b> === <i class="t-num">404</i>) { <i class="t-com">/* the component will handle this */</i> }</span><span class="v1">      <i class="t-key">else</i> <i class="t-key">if</i> (<b class="nm nm-mine" data-nm="err">pickle</b>.<b class="nm nm-ng" data-nm="status">status</b> === <i class="t-num">404</i>) { <i class="t-com">/* the component will handle this */</i> }</span></span><span class="ln" data-l="21"><span class="v0">      <i class="t-key">else</i> <b class="nm nm-mine" data-nm="toasts">toasts</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="show">show</b></i>(<b class="nm nm-mine" data-nm="err">err</b>.<b class="nm nm-ng" data-nm="error">error</b>?.message ?? <i class="t-str">'Something went wrong.'</i>);</span><span class="v1">      <i class="t-key">else</i> <b class="nm nm-mine" data-nm="toasts">noodle</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="show">donut</b></i>(<b class="nm nm-mine" data-nm="err">pickle</b>.<b class="nm nm-ng" data-nm="error">error</b>?.message ?? <i class="t-str">'Something went wrong.'</i>);</span></span><span class="ln" data-l="22"> </span><span class="ln" data-l="23"><span class="v0">      <i class="t-key">return</i> <i class="t-fn"><b class="nm nm-ng" data-nm="throwError">throwError</b></i>(() =&gt; <b class="nm nm-mine" data-nm="err">err</b>);   <i class="t-com">// let the caller decide too</i></span><span class="v1">      <i class="t-key">return</i> <i class="t-fn"><b class="nm nm-ng" data-nm="throwError">throwError</b></i>(() =&gt; <b class="nm nm-mine" data-nm="err">pickle</b>);   <i class="t-com">// let the caller decide too</i></span></span><span class="ln" data-l="24">    }),</span><span class="ln" data-l="25">  );</span><span class="ln" data-l="26">};</span></pre>
       </div>
       <div class="fc" data-file="glob" data-lang="ts">
         <div class="fc-h"><span class="d"></span>global-error.handler.ts<span class="tag"><span class="l-en">the last resort</span><span class="l-ar" dir="auto">الملاذ الأخير</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">ErrorHandler</i>, <i class="t-type">Injectable</i>, inject } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-dec">@Injectable</i>()</span><span class="ln" data-l="4"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">GlobalErrorHandler</i> <i class="t-key">implements</i> <i class="t-type">ErrorHandler</i> {</span><span class="ln" data-l="5">  <i class="t-key">private</i> <i class="t-key">readonly</i> toasts = <i class="t-fn">inject</i>(<i class="t-type">Toasts</i>);</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">  <i class="t-fn">handleError</i>(error: <i class="t-key">unknown</i>) {</span><span class="ln" data-l="8">    <i class="t-com">// this catches what nothing else did: a thrown error in a</i></span><span class="ln" data-l="9">    <i class="t-com">// component, a bad computed, a null dereference in a template.</i></span><span class="ln" data-l="10">    console.<i class="t-fn">error</i>(error);</span><span class="ln" data-l="11">    <i class="t-fn">reportToSentry</i>(error);</span><span class="ln" data-l="12">    <i class="t-key">this</i>.toasts.<i class="t-fn">show</i>(<i class="t-str">'Something unexpected happened.'</i>, <i class="t-str">'error'</i>);</span><span class="ln" data-l="13">  }</span><span class="ln" data-l="14">}</span><span class="ln" data-l="15"> </span><span class="ln" data-l="16"><i class="t-com">// register it:</i></span><span class="ln" data-l="17"><i class="t-com">// providers: [{ provide: ErrorHandler, useClass: GlobalErrorHandler }]</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-ng" data-nm="ErrorHandler">ErrorHandler</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="Injectable">Injectable</b></i>, <b class="nm nm-ng" data-nm="inject">inject</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-dec">@<b class="nm nm-ng" data-nm="Injectable">Injectable</b></i>()</span><span class="ln" data-l="4"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="GlobalErrorHandler">GlobalErrorHandler</b></i> <i class="t-key">implements</i> <i class="t-type"><b class="nm nm-ng" data-nm="ErrorHandler">ErrorHandler</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="GlobalErrorHandler">Taco</b></i> <i class="t-key">implements</i> <i class="t-type"><b class="nm nm-ng" data-nm="ErrorHandler">ErrorHandler</b></i> {</span></span><span class="ln" data-l="5"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="toasts">toasts</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Toasts">Toasts</b></i>);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="toasts">noodle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Toasts">Kiwi</b></i>);</span></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">  <i class="t-fn"><b class="nm nm-ng" data-nm="handleError">handleError</b></i>(error: <i class="t-key">unknown</i>) {</span><span class="ln" data-l="8">    <i class="t-com">// this catches what nothing else did: a thrown error in a</i></span><span class="ln" data-l="9">    <i class="t-com">// component, a bad computed, a null dereference in a template.</i></span><span class="ln" data-l="10">    console.<i class="t-fn"><b class="nm nm-ng" data-nm="error">error</b></i>(error);</span><span class="ln" data-l="11">    <i class="t-fn">reportToSentry</i>(error);</span><span class="ln" data-l="12"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="toasts">toasts</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="show">show</b></i>(<i class="t-str">'Something unexpected happened.'</i>, <i class="t-str">'error'</i>);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="toasts">noodle</b>.<i class="t-fn"><b class="nm nm-pub" data-nm="show">donut</b></i>(<i class="t-str">'Something unexpected happened.'</i>, <i class="t-str">'error'</i>);</span></span><span class="ln" data-l="13">  }</span><span class="ln" data-l="14">}</span><span class="ln" data-l="15"> </span><span class="ln" data-l="16"><i class="t-com">// register it:</i></span><span class="ln" data-l="17"><i class="t-com">// providers: [{ provide: ErrorHandler, useClass: GlobalErrorHandler }]</i></span></pre>
       </div>
       <div class="fc" data-file="cmp" data-lang="html">
         <div class="fc-h"><span class="d"></span>orders.component.html<span class="tag"><span class="l-en">a way out</span><span class="l-ar" dir="auto">مخرج</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">@if</i> (orders.isLoading()) {</span><span class="ln" data-l="2">  <i class="t-tag">&lt;app-skeleton</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="3">} <i class="t-key">@else</i> if (orders.error()) {</span><span class="ln" data-l="4">  <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"error-state"</i> <i class="t-attr">role</i>=<i class="t-str">"alert"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5">    <i class="t-tag">&lt;h3</i><i class="t-tag">&gt;</i>We could not load your orders<i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6">    <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i>This is usually temporary.<i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="7">    <i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"orders.reload()"</i><i class="t-tag">&gt;</i>Try again<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="8">  <i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="9">} <i class="t-key">@else</i> if (!orders.value()?.length) {</span><span class="ln" data-l="10">  <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"empty-state"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="11">    <i class="t-tag">&lt;h3</i><i class="t-tag">&gt;</i>No orders yet<i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="12">    <i class="t-tag">&lt;a</i> <i class="t-attr">routerLink</i>=<i class="t-str">"/shop"</i><i class="t-tag">&gt;</i>Start shopping<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="13">  <i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="14">} <i class="t-key">@else</i> {</span><span class="ln" data-l="15">  <i class="t-key">@for</i> (o of orders.value()!; track o.id) { <i class="t-tag">&lt;app-order-row</i> <i class="t-bind">[order]</i>=<i class="t-str">"o"</i> <i class="t-tag">/&gt;</i> }</span><span class="ln" data-l="16">}</span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@if">@if</b></i> (<b class="nm nm-mine" data-nm="orders">orders</b>.<b class="nm nm-ng" data-nm="isLoading">isLoading</b>()) {</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@if">@if</b></i> (<b class="nm nm-mine" data-nm="orders">olive</b>.<b class="nm nm-ng" data-nm="isLoading">isLoading</b>()) {</span></span><span class="ln" data-l="2">  <i class="t-tag">&lt;app-skeleton</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="3"><span class="v0">} <i class="t-key"><b class="nm nm-ng" data-nm="@else">@else</b></i> if (<b class="nm nm-mine" data-nm="orders">orders</b>.<b class="nm nm-ng" data-nm="error">error</b>()) {</span><span class="v1">} <i class="t-key"><b class="nm nm-ng" data-nm="@else">@else</b></i> if (<b class="nm nm-mine" data-nm="orders">olive</b>.<b class="nm nm-ng" data-nm="error">error</b>()) {</span></span><span class="ln" data-l="4">  <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"error-state"</i> <i class="t-attr">role</i>=<i class="t-str">"alert"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5">    <i class="t-tag">&lt;h3</i><i class="t-tag">&gt;</i>We could not load your orders<i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6">    <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i>This is usually temporary.<i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="7"><span class="v0">    <i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="orders">orders</b>.<b class="nm nm-ng" data-nm="reload">reload</b>()"</i><i class="t-tag">&gt;</i>Try again<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="v1">    <i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="orders">olive</b>.<b class="nm nm-ng" data-nm="reload">reload</b>()"</i><i class="t-tag">&gt;</i>Try again<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="8">  <i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="9"><span class="v0">} <i class="t-key"><b class="nm nm-ng" data-nm="@else">@else</b></i> if (!<b class="nm nm-mine" data-nm="orders">orders</b>.<b class="nm nm-ng" data-nm="value">value</b>()?.length) {</span><span class="v1">} <i class="t-key"><b class="nm nm-ng" data-nm="@else">@else</b></i> if (!<b class="nm nm-mine" data-nm="orders">olive</b>.<b class="nm nm-ng" data-nm="value">value</b>()?.length) {</span></span><span class="ln" data-l="10">  <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"empty-state"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="11">    <i class="t-tag">&lt;h3</i><i class="t-tag">&gt;</i>No orders yet<i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="12">    <i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/shop"</i><i class="t-tag">&gt;</i>Start shopping<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="13">  <i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="14">} <i class="t-key"><b class="nm nm-ng" data-nm="@else">@else</b></i> {</span><span class="ln" data-l="15"><span class="v0">  <i class="t-key">@for</i> (o of <b class="nm nm-mine" data-nm="orders">orders</b>.<b class="nm nm-ng" data-nm="value">value</b>()!; track o.id) { <i class="t-tag">&lt;app-order-row</i> <i class="t-bind">[order]</i>=<i class="t-str">"o"</i> <i class="t-tag">/&gt;</i> }</span><span class="v1">  <i class="t-key">@for</i> (o of <b class="nm nm-mine" data-nm="orders">olive</b>.<b class="nm nm-ng" data-nm="value">value</b>()!; track o.id) { <i class="t-tag">&lt;app-order-row</i> <i class="t-bind">[order]</i>=<i class="t-str">"o"</i> <i class="t-tag">/&gt;</i> }</span></span><span class="ln" data-l="16">}</span></pre>
       </div>
       <div class="fc" data-file="msg" data-lang="ts">
         <div class="fc-h"><span class="d"></span>what to actually say<span class="tag"><span class="l-en">the words matter</span><span class="l-ar" dir="auto">الكلام مهم</span></span></div>
@@ -679,7 +768,7 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
       </div>
       <div class="fc" data-file="toast" data-lang="ts">
         <div class="fc-h"><span class="d"></span>toast.service.ts<span class="tag"><span class="l-en">one place to report</span><span class="l-ar" dir="auto">مكان واحد للإبلاغ</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-dec">@Injectable</i>({ providedIn: <i class="t-str">'root'</i> })</span><span class="ln" data-l="2"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Toasts</i> {</span><span class="ln" data-l="3">  <i class="t-key">private</i> <i class="t-key">readonly</i> _all = signal&lt;<i class="t-type">Toast</i>[]&gt;([]);</span><span class="ln" data-l="4">  <i class="t-key">readonly</i> all = <i class="t-key">this</i>._all.<i class="t-fn">asReadonly</i>();</span><span class="ln" data-l="5"> </span><span class="ln" data-l="6">  <i class="t-fn">show</i>(text: <i class="t-key">string</i>, kind: <i class="t-type">Toast</i>[<i class="t-str">'kind'</i>] = <i class="t-str">'info'</i>, ms = <i class="t-num">5000</i>) {</span><span class="ln" data-l="7">    <i class="t-key">const</i> id = crypto.<i class="t-fn">randomUUID</i>();</span><span class="ln" data-l="8">    <i class="t-key">this</i>._all.<i class="t-fn">update</i>(l =&gt; [...l, { id, text, kind }]);</span><span class="ln" data-l="9">    <i class="t-key">if</i> (ms) <i class="t-fn">setTimeout</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">dismiss</i>(id), ms);</span><span class="ln" data-l="10">  }</span><span class="ln" data-l="11"> </span><span class="ln" data-l="12">  <i class="t-fn">dismiss</i>(id: <i class="t-key">string</i>) { <i class="t-key">this</i>._all.<i class="t-fn">update</i>(l =&gt; l.<i class="t-fn">filter</i>(t =&gt; t.id !== id)); }</span><span class="ln" data-l="13">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-dec">@<b class="nm nm-ng" data-nm="Injectable">Injectable</b></i>({ <b class="nm nm-ng" data-nm="providedIn">providedIn</b>: <i class="t-str">'<b class="nm nm-ng" data-nm="root">root</b>'</i> })</span><span class="ln" data-l="2"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Toasts">Toasts</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Toasts">Kiwi</b></i> {</span></span><span class="ln" data-l="3"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="_all">_all</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Toast">Toast</b></i>[]&gt;([]);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="_all">lemon</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Toast">Biscuit</b></i>[]&gt;([]);</span></span><span class="ln" data-l="4"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="all">all</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_all">_all</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="asReadonly">asReadonly</b></i>();</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="all">carrot</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_all">lemon</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="asReadonly">asReadonly</b></i>();</span></span><span class="ln" data-l="5"> </span><span class="ln" data-l="6"><span class="v0">  <i class="t-fn"><b class="nm nm-pub" data-nm="show">show</b></i>(text: <i class="t-key">string</i>, kind: <i class="t-type"><b class="nm nm-pub" data-nm="Toast">Toast</b></i>[<i class="t-str">'kind'</i>] = <i class="t-str">'info'</i>, ms = <i class="t-num">5000</i>) {</span><span class="v1">  <i class="t-fn"><b class="nm nm-pub" data-nm="show">donut</b></i>(text: <i class="t-key">string</i>, kind: <i class="t-type"><b class="nm nm-pub" data-nm="Toast">Biscuit</b></i>[<i class="t-str">'kind'</i>] = <i class="t-str">'info'</i>, ms = <i class="t-num">5000</i>) {</span></span><span class="ln" data-l="7">    <i class="t-key">const</i> id = crypto.<i class="t-fn">randomUUID</i>();</span><span class="ln" data-l="8"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_all">_all</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(l =&gt; [...l, { id, text, kind }]);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_all">lemon</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(l =&gt; [...l, { id, text, kind }]);</span></span><span class="ln" data-l="9"><span class="v0">    <i class="t-key">if</i> (ms) <i class="t-fn"><b class="nm nm-ng" data-nm="setTimeout">setTimeout</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="dismiss">dismiss</b></i>(id), ms);</span><span class="v1">    <i class="t-key">if</i> (ms) <i class="t-fn"><b class="nm nm-ng" data-nm="setTimeout">setTimeout</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="dismiss">pepper</b></i>(id), ms);</span></span><span class="ln" data-l="10">  }</span><span class="ln" data-l="11"> </span><span class="ln" data-l="12"><span class="v0">  <i class="t-fn"><b class="nm nm-pub" data-nm="dismiss">dismiss</b></i>(id: <i class="t-key">string</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_all">_all</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(l =&gt; l.<i class="t-fn">filter</i>(t =&gt; t.id !== id)); }</span><span class="v1">  <i class="t-fn"><b class="nm nm-pub" data-nm="dismiss">pepper</b></i>(id: <i class="t-key">string</i>) { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="_all">lemon</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(l =&gt; l.<i class="t-fn">filter</i>(t =&gt; t.id !== id)); }</span></span><span class="ln" data-l="13">}</span></pre>
       </div></div>
 
   
@@ -692,9 +781,299 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="st1" data-lang="html">
         <div class="fc-h"><span class="d"></span>the checklist<span class="tag"><span class="l-en">every list screen</span><span class="l-ar" dir="auto">كل شاشة لستة</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">@if</i> (data.isLoading())      { <i class="t-com">&lt;!-- 1. LOADING  — a skeleton, not a spinner --&gt;</i> }</span><span class="ln" data-l="2"><i class="t-key">@else</i> if (data.error())     { <i class="t-com">&lt;!-- 2. ERROR    — what happened + a retry  --&gt;</i> }</span><span class="ln" data-l="3"><i class="t-key">@else</i> if (!data.value()?.length) { <i class="t-com">&lt;!-- 3. EMPTY — why, and what to do   --&gt;</i> }</span><span class="ln" data-l="4"><i class="t-key">@else</i>                       { <i class="t-com">&lt;!-- 4. SUCCESS  — the actual content      --&gt;</i> }</span><span class="ln" data-l="5"> </span><span class="ln" data-l="6">&lt;!-- a skeleton beats a spinner: it holds the layout, so nothing</span><span class="ln" data-l="7">     jumps when the data lands. --<i class="t-tag">&gt;</i></span><span class="ln" data-l="8"> </span><span class="ln" data-l="9">&lt;!-- an EMPTY state is not an error. <i class="t-str">"No orders yet — start shopping"</i></span><span class="ln" data-l="10">     is a different message from <i class="t-str">"We could not load your orders"</i>. --<i class="t-tag">&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@if">@if</b></i> (<b class="nm nm-mine" data-nm="data">data</b>.<b class="nm nm-ng" data-nm="isLoading">isLoading</b>())      { <i class="t-com">&lt;!-- 1. LOADING  — a skeleton, not a spinner --&gt;</i> }</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@if">@if</b></i> (<b class="nm nm-mine" data-nm="data">cookie</b>.<b class="nm nm-ng" data-nm="isLoading">isLoading</b>())      { <i class="t-com">&lt;!-- 1. LOADING  — a skeleton, not a spinner --&gt;</i> }</span></span><span class="ln" data-l="2"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@else">@else</b></i> if (<b class="nm nm-mine" data-nm="data">data</b>.<b class="nm nm-ng" data-nm="error">error</b>())     { <i class="t-com">&lt;!-- 2. ERROR    — what happened + a retry  --&gt;</i> }</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@else">@else</b></i> if (<b class="nm nm-mine" data-nm="data">cookie</b>.<b class="nm nm-ng" data-nm="error">error</b>())     { <i class="t-com">&lt;!-- 2. ERROR    — what happened + a retry  --&gt;</i> }</span></span><span class="ln" data-l="3"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@else">@else</b></i> if (!<b class="nm nm-mine" data-nm="data">data</b>.<b class="nm nm-ng" data-nm="value">value</b>()?.length) { <i class="t-com">&lt;!-- 3. EMPTY — why, and what to do   --&gt;</i> }</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@else">@else</b></i> if (!<b class="nm nm-mine" data-nm="data">cookie</b>.<b class="nm nm-ng" data-nm="value">value</b>()?.length) { <i class="t-com">&lt;!-- 3. EMPTY — why, and what to do   --&gt;</i> }</span></span><span class="ln" data-l="4"><i class="t-key"><b class="nm nm-ng" data-nm="@else">@else</b></i>                       { <i class="t-com">&lt;!-- 4. SUCCESS  — the actual content      --&gt;</i> }</span><span class="ln" data-l="5"> </span><span class="ln" data-l="6">&lt;!-- a skeleton beats a spinner: it holds the layout, so nothing</span><span class="ln" data-l="7">     jumps when the data lands. --<i class="t-tag">&gt;</i></span><span class="ln" data-l="8"> </span><span class="ln" data-l="9">&lt;!-- an EMPTY state is not an error. <i class="t-str">"No orders yet — start shopping"</i></span><span class="ln" data-l="10">     is a different message from <i class="t-str">"We could not load your orders"</i>. --<i class="t-tag">&gt;</i></span></pre>
       </div></div>
   </div>
+
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en"><code>handleError</code> looks like a name you picked, but it is not: <code>ErrorHandler</code> is a contract, and Angular calls exactly that method. The same goes for the keys of <code>retry({ count, delay })</code>. Your service methods like <code>show</code> are yours, but every file that calls them has to follow a rename.</span><span class="l-ar" dir="auto"><code>handleError</code> شكله اسم انت اخترته، بس لأ: <code>ErrorHandler</code> ده عقد، وأنجولار بينادي الميثود دي بالاسم ده بالظبط. ونفس الكلام على مفاتيح <code>retry({ count, delay })</code>. أما ميثودز الـ service بتاعتك زي <code>show</code> فبتاعتك، بس أي ملف بيناديها لازم يتغير معاها.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="HttpInterceptorFn">
+        <td><b class="nm nm-ng" data-nm="HttpInterceptorFn">HttpInterceptorFn</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s type for an interceptor function.</span><span class="l-ar" dir="auto">النوع بتاع أنجولار لـ interceptor function.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="inject">
+        <td><b class="nm nm-ng" data-nm="inject">inject</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that hands you a dependency.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتديك dependency.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code> <code>global-error.handler.ts</code></td>
+      </tr>
+      <tr data-nmrow="pipe">
+        <td><b class="nm nm-ng" data-nm="pipe">pipe</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">RxJS’s method for chaining operators.</span><span class="l-ar" dir="auto">ميثود RxJS لتوصيل الـ operators ورا بعض.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="retry">
+        <td><b class="nm nm-ng" data-nm="retry">retry</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS operator: subscribe again after a failure.</span><span class="l-ar" dir="auto">operator من RxJS: اعمل subscribe تاني بعد ما يفشل.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="count">
+        <td><b class="nm nm-ng" data-nm="count">count</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key <code>retry</code> reads: how many extra tries.</span><span class="l-ar" dir="auto">مفتاح إعداد <code>retry</code> بيقراه: كام محاولة زيادة.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="delay">
+        <td><b class="nm nm-ng" data-nm="delay">delay</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key <code>retry</code> reads: a function that decides when (or whether) to try again.</span><span class="l-ar" dir="auto">مفتاح إعداد <code>retry</code> بيقراه: function بتقرر امتى (أو هل) نجرب تاني.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="timer">
+        <td><b class="nm nm-ng" data-nm="timer">timer</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS function: emit once after a wait.</span><span class="l-ar" dir="auto">function من RxJS: تبعت قيمة واحدة بعد وقت.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="catchError">
+        <td><b class="nm nm-ng" data-nm="catchError">catchError</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS operator that runs when the stream fails.</span><span class="l-ar" dir="auto">operator من RxJS بيشتغل لما الـ stream يفشل.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="throwError">
+        <td><b class="nm nm-ng" data-nm="throwError">throwError</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An RxJS function that makes a failing stream.</span><span class="l-ar" dir="auto">function من RxJS بتعمل stream فاشل.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="HttpErrorResponse">
+        <td><b class="nm nm-ng" data-nm="HttpErrorResponse">HttpErrorResponse</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s type for a failed HTTP response.</span><span class="l-ar" dir="auto">النوع بتاع أنجولار لـ HTTP response فاشل.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="status">
+        <td><b class="nm nm-ng" data-nm="status">status</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A field on <code>HttpErrorResponse</code>: the HTTP status code. <code>0</code> means no network.</span><span class="l-ar" dir="auto">field في <code>HttpErrorResponse</code>: الـ HTTP status code. و<code>0</code> معناها مفيش نت.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="error">
+        <td><b class="nm nm-ng" data-nm="error">error</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Not yours in any of its uses: <code>err.error</code> is the body the server sent, <code>console.error</code> is the browser’s, and <code>.error()</code> is a resource signal.</span><span class="l-ar" dir="auto">مش بتاعك في أي مكان منهم: <code>err.error</code> هو الـ body اللي السيرفر بعته، و<code>console.error</code> بتاع المتصفح، و<code>.error()</code> signal في الـ resource.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code> <code>global-error.handler.ts</code> <code>orders.component.html</code> <code>the checklist</code></td>
+      </tr>
+      <tr data-nmrow="ErrorHandler">
+        <td><b class="nm nm-ng" data-nm="ErrorHandler">ErrorHandler</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s class for the app-wide “last resort” catcher. You replace it with your own.</span><span class="l-ar" dir="auto">الكلاس بتاع أنجولار اللي بيمسك أي error محدش مسكه على مستوى التطبيق. وانت بتحط مكانه واحد بتاعك.</span></td>
+        <td class="nmfiles"><code>global-error.handler.ts</code></td>
+      </tr>
+      <tr data-nmrow="handleError">
+        <td><b class="nm nm-ng" data-nm="handleError">handleError</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Fixed by <code>ErrorHandler</code>: Angular calls exactly this method. Rename it and your handler is never called.</span><span class="l-ar" dir="auto">ثابت بسبب <code>ErrorHandler</code>: أنجولار بينادي الميثود دي بالاسم ده بالظبط. لو غيّرته الـ handler بتاعك عمره ما هيتنادى.</span></td>
+        <td class="nmfiles"><code>global-error.handler.ts</code></td>
+      </tr>
+      <tr data-nmrow="Injectable">
+        <td><b class="nm nm-ng" data-nm="Injectable">Injectable</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s decorator for a service.</span><span class="l-ar" dir="auto">الـ decorator بتاع أنجولار للـ service.</span></td>
+        <td class="nmfiles"><code>global-error.handler.ts</code> <code>toast.service.ts</code></td>
+      </tr>
+      <tr data-nmrow="providedIn">
+        <td><b class="nm nm-ng" data-nm="providedIn">providedIn</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه.</span></td>
+        <td class="nmfiles"><code>toast.service.ts</code></td>
+      </tr>
+      <tr data-nmrow="root">
+        <td><b class="nm nm-ng" data-nm="root">root</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s value for “one shared instance for the whole app”.</span><span class="l-ar" dir="auto">قيمة أنجولار لـ “نسخة واحدة متشاركة للتطبيق كله”.</span></td>
+        <td class="nmfiles"><code>toast.service.ts</code></td>
+      </tr>
+      <tr data-nmrow="signal">
+        <td><b class="nm nm-ng" data-nm="signal">signal</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s writable signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة أنجولار اللي بتتكتب.</span></td>
+        <td class="nmfiles"><code>toast.service.ts</code></td>
+      </tr>
+      <tr data-nmrow="asReadonly">
+        <td><b class="nm nm-ng" data-nm="asReadonly">asReadonly</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal method: a read-only view of it.</span><span class="l-ar" dir="auto">ميثود في الـ signal: نسخة للقراية بس.</span></td>
+        <td class="nmfiles"><code>toast.service.ts</code></td>
+      </tr>
+      <tr data-nmrow="update">
+        <td><b class="nm nm-ng" data-nm="update">update</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal method.</span><span class="l-ar" dir="auto">ميثود بتاعة الـ signal.</span></td>
+        <td class="nmfiles"><code>toast.service.ts</code></td>
+      </tr>
+      <tr data-nmrow="setTimeout">
+        <td><b class="nm nm-ng" data-nm="setTimeout">setTimeout</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s timer.</span><span class="l-ar" dir="auto">التايمر بتاع المتصفح.</span></td>
+        <td class="nmfiles"><code>toast.service.ts</code></td>
+      </tr>
+      <tr data-nmrow="isLoading">
+        <td><b class="nm nm-ng" data-nm="isLoading">isLoading</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal every resource has.</span><span class="l-ar" dir="auto">signal موجودة في أي resource.</span></td>
+        <td class="nmfiles"><code>orders.component.html</code> <code>the checklist</code></td>
+      </tr>
+      <tr data-nmrow="value">
+        <td><b class="nm nm-ng" data-nm="value">value</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal every resource has: the loaded data.</span><span class="l-ar" dir="auto">signal موجودة في أي resource: الداتا اللي اتحمّلت.</span></td>
+        <td class="nmfiles"><code>orders.component.html</code> <code>the checklist</code></td>
+      </tr>
+      <tr data-nmrow="reload">
+        <td><b class="nm nm-ng" data-nm="reload">reload</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A method every resource has.</span><span class="l-ar" dir="auto">ميثود موجودة في أي resource.</span></td>
+        <td class="nmfiles"><code>orders.component.html</code></td>
+      </tr>
+      <tr data-nmrow="routerLink">
+        <td><b class="nm nm-ng" data-nm="routerLink">routerLink</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s link directive. The path in it is yours.</span><span class="l-ar" dir="auto">الـ directive بتاع أنجولار للينكات. الـ path اللي فيه بتاعك.</span></td>
+        <td class="nmfiles"><code>orders.component.html</code></td>
+      </tr>
+      <tr data-nmrow="@if">
+        <td><b class="nm nm-ng" data-nm="@if">@if</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s template control flow.</span><span class="l-ar" dir="auto">الـ control flow بتاع أنجولار في التمبلت.</span></td>
+        <td class="nmfiles"><code>orders.component.html</code> <code>the checklist</code></td>
+      </tr>
+      <tr data-nmrow="@else">
+        <td><b class="nm nm-ng" data-nm="@else">@else</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s template control flow.</span><span class="l-ar" dir="auto">الـ control flow بتاع أنجولار في التمبلت.</span></td>
+        <td class="nmfiles"><code>orders.component.html</code> <code>the checklist</code></td>
+      </tr>
+      <tr data-nmrow="errorInterceptor">
+        <td><b class="nm nm-pub" data-nm="errorInterceptor">errorInterceptor</b><span class="nmas">&rarr; <code>banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your interceptor, exported and listed in <code>withInterceptors</code> in the app config.</span><span class="l-ar" dir="auto">الـ interceptor بتاعك، متعمله export ومكتوب في <code>withInterceptors</code> في الـ app config.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="req">
+        <td><b class="nm nm-mine" data-nm="req">req</b><span class="nmas">&rarr; <code>potato</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The interceptor’s first parameter. Angular passes it by position, so the name is yours.</span><span class="l-ar" dir="auto">أول parameter في الـ interceptor. أنجولار بيبعته بالترتيب، فالاسم بتاعك.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="next">
+        <td><b class="nm nm-mine" data-nm="next">next</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The interceptor’s second parameter. A convention, not a rule.</span><span class="l-ar" dir="auto">تاني parameter في الـ interceptor. ده عُرف مش قاعدة.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="err">
+        <td><b class="nm nm-mine" data-nm="err">err</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A callback parameter (two separate ones, actually). RxJS passes it by position, so the name is yours.</span><span class="l-ar" dir="auto">parameter في callback (هما اتنين منفصلين في الحقيقة). RxJS بيبعته بالترتيب، فالاسم بتاعك.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="retryable">
+        <td><b class="nm nm-mine" data-nm="retryable">retryable</b><span class="nmas">&rarr; <code>waffle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A local variable.</span><span class="l-ar" dir="auto">variable محلي.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="toasts">
+        <td><b class="nm nm-mine" data-nm="toasts">toasts</b><span class="nmas">&rarr; <code>noodle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A local name for the injected <code>Toasts</code> service, in each file separately.</span><span class="l-ar" dir="auto">اسم محلي للـ service <code>Toasts</code> المتعملها inject، في كل ملف لوحده.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code> <code>global-error.handler.ts</code></td>
+      </tr>
+      <tr data-nmrow="session">
+        <td><b class="nm nm-mine" data-nm="session">session</b><span class="nmas">&rarr; <code>pumpkin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A local name for the injected service.</span><span class="l-ar" dir="auto">اسم محلي للـ service المتعملها inject.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="Session">
+        <td><b class="nm nm-pub" data-nm="Session">Session</b><span class="nmas">&rarr; <code>Turnip</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your service class.</span><span class="l-ar" dir="auto">كلاس الـ service بتاعك.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="signOut">
+        <td><b class="nm nm-pub" data-nm="signOut">signOut</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A method on your <code>Session</code> service, so the service changes with it.</span><span class="l-ar" dir="auto">ميثود في الـ service <code>Session</code> بتاعتك، فالـ service بتتغير معاها.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code></td>
+      </tr>
+      <tr data-nmrow="GlobalErrorHandler">
+        <td><b class="nm nm-pub" data-nm="GlobalErrorHandler">GlobalErrorHandler</b><span class="nmas">&rarr; <code>Taco</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your class. The app config registers it with <code>useClass: GlobalErrorHandler</code>.</span><span class="l-ar" dir="auto">الكلاس بتاعك. الـ app config بيسجّله بـ <code>useClass: GlobalErrorHandler</code>.</span></td>
+        <td class="nmfiles"><code>global-error.handler.ts</code></td>
+      </tr>
+      <tr data-nmrow="Toasts">
+        <td><b class="nm nm-pub" data-nm="Toasts">Toasts</b><span class="nmas">&rarr; <code>Kiwi</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your service class, injected in two other files here.</span><span class="l-ar" dir="auto">كلاس الـ service بتاعك، متعمله inject في ملفين تانيين هنا.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code> <code>global-error.handler.ts</code> <code>toast.service.ts</code></td>
+      </tr>
+      <tr data-nmrow="show">
+        <td><b class="nm nm-pub" data-nm="show">show</b><span class="nmas">&rarr; <code>donut</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your service method. The interceptor and the error handler both call it, so all three files change together.</span><span class="l-ar" dir="auto">ميثود الـ service بتاعتك. الـ interceptor والـ error handler الاتنين بينادوها، فالتلات ملفات بيتغيروا مع بعض.</span></td>
+        <td class="nmfiles"><code>error.interceptor.ts</code> <code>global-error.handler.ts</code> <code>toast.service.ts</code></td>
+      </tr>
+      <tr data-nmrow="dismiss">
+        <td><b class="nm nm-pub" data-nm="dismiss">dismiss</b><span class="nmas">&rarr; <code>pepper</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A public service method. The toast component’s close button would call it too.</span><span class="l-ar" dir="auto">ميثود public في الـ service. زرار الإغلاق في الـ toast component هينادي عليها برضه.</span></td>
+        <td class="nmfiles"><code>toast.service.ts</code></td>
+      </tr>
+      <tr data-nmrow="_all">
+        <td><b class="nm nm-mine" data-nm="_all">_all</b><span class="nmas">&rarr; <code>lemon</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The service’s private signal. Only it can write.</span><span class="l-ar" dir="auto">الـ signal الخاصة بالـ service. هي بس اللي تقدر تكتب فيها.</span></td>
+        <td class="nmfiles"><code>toast.service.ts</code></td>
+      </tr>
+      <tr data-nmrow="all">
+        <td><b class="nm nm-pub" data-nm="all">all</b><span class="nmas">&rarr; <code>carrot</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The read-only list other components display.</span><span class="l-ar" dir="auto">القايمة اللي للقراية بس، والـ components التانية بتعرضها.</span></td>
+        <td class="nmfiles"><code>toast.service.ts</code></td>
+      </tr>
+      <tr data-nmrow="Toast">
+        <td><b class="nm nm-pub" data-nm="Toast">Toast</b><span class="nmas">&rarr; <code>Biscuit</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your data type.</span><span class="l-ar" dir="auto">نوع الداتا بتاعك.</span></td>
+        <td class="nmfiles"><code>toast.service.ts</code></td>
+      </tr>
+      <tr data-nmrow="orders">
+        <td><b class="nm nm-mine" data-nm="orders">orders</b><span class="nmas">&rarr; <code>olive</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own resource.</span><span class="l-ar" dir="auto">الـ resource بتاع الـ component نفسه.</span></td>
+        <td class="nmfiles"><code>orders.component.html</code></td>
+      </tr>
+      <tr data-nmrow="data">
+        <td><b class="nm nm-mine" data-nm="data">data</b><span class="nmas">&rarr; <code>cookie</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own resource.</span><span class="l-ar" dir="auto">الـ resource بتاع الـ component نفسه.</span></td>
+        <td class="nmfiles"><code>the checklist</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="error-handling-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en">Error handling, name by name</span><span class="l-ar" dir="auto">التعامل مع الأخطاء، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">One failed request followed through the interceptor, the toast service and the page, plus the global handler for everything else. Every name coloured, including the word <code>error</code>, which means four different things. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">request واحد فشل، ماشيين وراه في الـ interceptor والـ toast service والصفحة، وكمان الـ handler العام لأي حاجة تانية. كل اسم ملوّن، ومنهم كلمة <code>error</code> اللي ليها أربع معاني مختلفة. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+  </a>
 
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
@@ -794,8 +1173,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../intermediate/22-http.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">HTTP without the <code>subscribe</code></span><span class="l-ar" dir="auto">HTTP من غير <code>subscribe</code></span></b></a>
-    <a class="nx" href="../intermediate/24-rxjs-fundamentals.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Observable, Subject, BehaviorSubject</span><span class="l-ar" dir="auto">Observable و Subject و BehaviorSubject</span></b></a>
+    <a class="pv" href="../intermediate/http-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">HTTP and interceptors, name by name</span><span class="l-ar" dir="auto">الـ HTTP والـ interceptors، اسم اسم</span></b></a>
+    <a class="nx" href="../intermediate/error-handling-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Error handling, name by name</span><span class="l-ar" dir="auto">التعامل مع الأخطاء، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -837,6 +1216,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){

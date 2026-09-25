@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -656,22 +727,40 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="order" data-lang="html">
         <div class="fc-h"><span class="d"></span>the order to try things in<span class="tag"><span class="l-en">read this first</span><span class="l-ar" dir="auto">اقرا دي الأول</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">&lt;!-- 1. A BINDING. always try this first. --&gt;</i></span><span class="ln" data-l="2"><i class="t-tag">&lt;div</i> <i class="t-bind">[class.open]</i>=<i class="t-str">"isOpen()"</i> <i class="t-bind">[style.height.px]</i>=<i class="t-str">"h()"</i> <i class="t-bind">[attr.aria-expanded]</i>=<i class="t-str">"isOpen()"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-com">&lt;!-- 2. A DIRECTIVE with host bindings — declarative, still no DOM code --&gt;</i></span><span class="ln" data-l="5">@Directive({</span><span class="ln" data-l="6">  selector: <i class="t-str">'[appHighlight]'</i>,</span><span class="ln" data-l="7">  host: { <i class="t-str">'[style.background]'</i>: <i class="t-str">'colour()'</i>, <i class="t-str">'(mouseenter)'</i>: <i class="t-str">'on()'</i> },</span><span class="ln" data-l="8">})</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10"><i class="t-com">&lt;!-- 3. Renderer2 — when you must create or move real nodes --&gt;</i></span><span class="ln" data-l="11">&lt;!-- 4. nativeElement — only for read-only measurement, and only</span><span class="ln" data-l="12">        inside afterNextRender where you know you are in a browser --<i class="t-tag">&gt;</i></span><span class="ln" data-l="13"> </span><span class="ln" data-l="14">&lt;!-- if you find yourself at 3 or 4 often, the usual cause is</span><span class="ln" data-l="15">     fighting the framework rather than a real requirement. --<i class="t-tag">&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">&lt;!-- 1. A BINDING. always try this first. --&gt;</i></span><span class="ln" data-l="2"><span class="v0"><i class="t-tag">&lt;div</i> <i class="t-bind">[class.open]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="isOpen">isOpen</b>()"</i> <i class="t-bind">[style.height.px]</i>=<i class="t-str">"h()"</i> <i class="t-bind">[attr.aria-expanded]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="isOpen">isOpen</b>()"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;div</i> <i class="t-bind">[class.open]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="isOpen">taco</b>()"</i> <i class="t-bind">[style.height.px]</i>=<i class="t-str">"h()"</i> <i class="t-bind">[attr.aria-expanded]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="isOpen">taco</b>()"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-com">&lt;!-- 2. A DIRECTIVE with host bindings — declarative, still no DOM code --&gt;</i></span><span class="ln" data-l="5"><b class="nm nm-ng" data-nm="@Directive">@Directive</b>({</span><span class="ln" data-l="6"><span class="v0">  selector: <i class="t-str">'[<b class="nm nm-pub" data-nm="appHighlight">appHighlight</b>]'</i>,</span><span class="v1">  selector: <i class="t-str">'[<b class="nm nm-pub" data-nm="appHighlight">turnip</b>]'</i>,</span></span><span class="ln" data-l="7"><span class="v0">  <b class="nm nm-ng" data-nm="host:">host</b>: { <i class="t-str">'[style.background]'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="colour">colour</b>()'</i>, <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseenter">mouseenter</b>)'</i>: <i class="t-str">'on()'</i> },</span><span class="v1">  <b class="nm nm-ng" data-nm="host:">host</b>: { <i class="t-str">'[style.background]'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="colour">muffin</b>()'</i>, <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseenter">mouseenter</b>)'</i>: <i class="t-str">'on()'</i> },</span></span><span class="ln" data-l="8">})</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10"><i class="t-com">&lt;!-- 3. Renderer2 — when you must create or move real nodes --&gt;</i></span><span class="ln" data-l="11">&lt;!-- 4. nativeElement — only for read-only measurement, and only</span><span class="ln" data-l="12">        inside afterNextRender where you know you are in a browser --<i class="t-tag">&gt;</i></span><span class="ln" data-l="13"> </span><span class="ln" data-l="14">&lt;!-- if you find yourself at 3 or 4 often, the usual cause is</span><span class="ln" data-l="15">     fighting the framework rather than a real requirement. --<i class="t-tag">&gt;</i></span></pre>
       </div>
       <div class="fc" data-file="r2" data-lang="ts">
         <div class="fc-h"><span class="d"></span>ripple.directive.ts<span class="tag"><span class="l-en">the full API</span><span class="l-ar" dir="auto">الواجهة كاملة</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Directive</i>, <i class="t-type">Renderer2</i>, <i class="t-type">ElementRef</i>, inject, afterNextRender } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-dec">@Directive</i>({ selector: <i class="t-str">'[appRipple]'</i>, host: { <i class="t-str">'(click)'</i>: <i class="t-str">'ripple($event)'</i> } })</span><span class="ln" data-l="4"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Ripple</i> {</span><span class="ln" data-l="5">  <i class="t-key">private</i> <i class="t-key">readonly</i> r = <i class="t-fn">inject</i>(<i class="t-type">Renderer2</i>);</span><span class="ln" data-l="6">  <i class="t-key">private</i> <i class="t-key">readonly</i> host = <i class="t-fn">inject</i>(<i class="t-type">ElementRef</i>&lt;<i class="t-type">HTMLElement</i>&gt;);</span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-fn">ripple</i>(e: <i class="t-type">MouseEvent</i>) {</span><span class="ln" data-l="9">    <i class="t-key">const</i> span = <i class="t-key">this</i>.r.<i class="t-fn">createElement</i>(<i class="t-str">'span'</i>);</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">    <i class="t-key">this</i>.r.<i class="t-fn">addClass</i>(span, <i class="t-str">'ripple'</i>);</span><span class="ln" data-l="12">    <i class="t-key">this</i>.r.<i class="t-fn">setStyle</i>(span, <i class="t-str">'left'</i>, e.offsetX + <i class="t-str">'px'</i>);</span><span class="ln" data-l="13">    <i class="t-key">this</i>.r.<i class="t-fn">setStyle</i>(span, <i class="t-str">'top'</i>, e.offsetY + <i class="t-str">'px'</i>);</span><span class="ln" data-l="14">    <i class="t-key">this</i>.r.<i class="t-fn">setAttribute</i>(span, <i class="t-str">'aria-hidden'</i>, <i class="t-str">'true'</i>);</span><span class="ln" data-l="15"> </span><span class="ln" data-l="16">    <i class="t-key">this</i>.r.<i class="t-fn">appendChild</i>(<i class="t-key">this</i>.host.nativeElement, span);</span><span class="ln" data-l="17"> </span><span class="ln" data-l="18">    <i class="t-com">// listen() returns its own unlisten function</i></span><span class="ln" data-l="19">    <i class="t-key">const</i> off = <i class="t-key">this</i>.r.<i class="t-fn">listen</i>(span, <i class="t-str">'animationend'</i>, () =&gt; {</span><span class="ln" data-l="20">      <i class="t-key">this</i>.r.<i class="t-fn">removeChild</i>(<i class="t-key">this</i>.host.nativeElement, span);</span><span class="ln" data-l="21">      <i class="t-fn">off</i>();</span><span class="ln" data-l="22">    });</span><span class="ln" data-l="23">  }</span><span class="ln" data-l="24">}</span><span class="ln" data-l="25"> </span><span class="ln" data-l="26"><i class="t-com">// createElement  createText   appendChild  insertBefore  removeChild</i></span><span class="ln" data-l="27"><i class="t-com">// setAttribute   removeAttribute   addClass   removeClass</i></span><span class="ln" data-l="28"><i class="t-com">// setStyle       removeStyle       setProperty   listen</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Directive</i>, <i class="t-type"><b class="nm nm-ng" data-nm="Renderer2">Renderer2</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>, <b class="nm nm-ng" data-nm="inject">inject</b>, <b class="nm nm-ng" data-nm="afterNextRender">afterNextRender</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><span class="v0"><i class="t-dec"><b class="nm nm-ng" data-nm="@Directive">@Directive</b></i>({ selector: <i class="t-str">'[<b class="nm nm-pub" data-nm="appRipple">appRipple</b>]'</i>, <b class="nm nm-ng" data-nm="host:">host</b>: { <i class="t-str">'(<b class="nm nm-ng" data-nm="click">click</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="ripple">ripple</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)'</i> } })</span><span class="v1"><i class="t-dec"><b class="nm nm-ng" data-nm="@Directive">@Directive</b></i>({ selector: <i class="t-str">'[<b class="nm nm-pub" data-nm="appRipple">banana</b>]'</i>, <b class="nm nm-ng" data-nm="host:">host</b>: { <i class="t-str">'(<b class="nm nm-ng" data-nm="click">click</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="ripple">mango</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)'</i> } })</span></span><span class="ln" data-l="4"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Ripple">Ripple</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Ripple">Potato</b></i> {</span></span><span class="ln" data-l="5"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="r">r</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="Renderer2">Renderer2</b></i>);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="r">pickle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="Renderer2">Renderer2</b></i>);</span></span><span class="ln" data-l="6"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="host">host</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="HTMLElement">HTMLElement</b></i>&gt;);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="host">waffle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="HTMLElement">HTMLElement</b></i>&gt;);</span></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8"><span class="v0">  <i class="t-fn"><b class="nm nm-mine" data-nm="ripple">ripple</b></i>(e: <i class="t-type"><b class="nm nm-ng" data-nm="MouseEvent">MouseEvent</b></i>) {</span><span class="v1">  <i class="t-fn"><b class="nm nm-mine" data-nm="ripple">mango</b></i>(e: <i class="t-type"><b class="nm nm-ng" data-nm="MouseEvent">MouseEvent</b></i>) {</span></span><span class="ln" data-l="9"><span class="v0">    <i class="t-key">const</i> <b class="nm nm-mine" data-nm="span">span</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">r</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="createElement">createElement</b></i>(<i class="t-str">'span'</i>);</span><span class="v1">    <i class="t-key">const</i> <b class="nm nm-mine" data-nm="span">noodle</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">pickle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="createElement">createElement</b></i>(<i class="t-str">'span'</i>);</span></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">r</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="addClass">addClass</b></i>(<b class="nm nm-mine" data-nm="span">span</b>, <i class="t-str">'ripple'</i>);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">pickle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="addClass">addClass</b></i>(<b class="nm nm-mine" data-nm="span">noodle</b>, <i class="t-str">'ripple'</i>);</span></span><span class="ln" data-l="12"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">r</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setStyle">setStyle</b></i>(<b class="nm nm-mine" data-nm="span">span</b>, <i class="t-str">'left'</i>, e.offsetX + <i class="t-str">'px'</i>);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">pickle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setStyle">setStyle</b></i>(<b class="nm nm-mine" data-nm="span">noodle</b>, <i class="t-str">'left'</i>, e.offsetX + <i class="t-str">'px'</i>);</span></span><span class="ln" data-l="13"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">r</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setStyle">setStyle</b></i>(<b class="nm nm-mine" data-nm="span">span</b>, <i class="t-str">'top'</i>, e.offsetY + <i class="t-str">'px'</i>);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">pickle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setStyle">setStyle</b></i>(<b class="nm nm-mine" data-nm="span">noodle</b>, <i class="t-str">'top'</i>, e.offsetY + <i class="t-str">'px'</i>);</span></span><span class="ln" data-l="14"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">r</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setAttribute">setAttribute</b></i>(<b class="nm nm-mine" data-nm="span">span</b>, <i class="t-str">'aria-hidden'</i>, <i class="t-str">'true'</i>);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">pickle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setAttribute">setAttribute</b></i>(<b class="nm nm-mine" data-nm="span">noodle</b>, <i class="t-str">'aria-hidden'</i>, <i class="t-str">'true'</i>);</span></span><span class="ln" data-l="15"> </span><span class="ln" data-l="16"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">r</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="appendChild">appendChild</b></i>(<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="host">host</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>, <b class="nm nm-mine" data-nm="span">span</b>);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">pickle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="appendChild">appendChild</b></i>(<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="host">waffle</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>, <b class="nm nm-mine" data-nm="span">noodle</b>);</span></span><span class="ln" data-l="17"> </span><span class="ln" data-l="18">    <i class="t-com">// listen() returns its own unlisten function</i></span><span class="ln" data-l="19"><span class="v0">    <i class="t-key">const</i> <b class="nm nm-mine" data-nm="off">off</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">r</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="listen">listen</b></i>(<b class="nm nm-mine" data-nm="span">span</b>, <i class="t-str">'<b class="nm nm-ng" data-nm="animationend">animationend</b>'</i>, () =&gt; {</span><span class="v1">    <i class="t-key">const</i> <b class="nm nm-mine" data-nm="off">pumpkin</b> = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">pickle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="listen">listen</b></i>(<b class="nm nm-mine" data-nm="span">noodle</b>, <i class="t-str">'<b class="nm nm-ng" data-nm="animationend">animationend</b>'</i>, () =&gt; {</span></span><span class="ln" data-l="20"><span class="v0">      <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">r</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="removeChild">removeChild</b></i>(<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="host">host</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>, <b class="nm nm-mine" data-nm="span">span</b>);</span><span class="v1">      <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">pickle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="removeChild">removeChild</b></i>(<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="host">waffle</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>, <b class="nm nm-mine" data-nm="span">noodle</b>);</span></span><span class="ln" data-l="21"><span class="v0">      <i class="t-fn"><b class="nm nm-mine" data-nm="off">off</b></i>();</span><span class="v1">      <i class="t-fn"><b class="nm nm-mine" data-nm="off">pumpkin</b></i>();</span></span><span class="ln" data-l="22">    });</span><span class="ln" data-l="23">  }</span><span class="ln" data-l="24">}</span><span class="ln" data-l="25"> </span><span class="ln" data-l="26"><i class="t-com">// createElement  createText   appendChild  insertBefore  removeChild</i></span><span class="ln" data-l="27"><i class="t-com">// setAttribute   removeAttribute   addClass   removeClass</i></span><span class="ln" data-l="28"><i class="t-com">// setStyle       removeStyle       setProperty   listen</i></span></pre>
       </div>
       <div class="fc" data-file="why" data-lang="ts">
         <div class="fc-h"><span class="d"></span>why not just use document?<span class="tag"><span class="l-en">the reason</span><span class="l-ar" dir="auto">السبب</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">// ✗ this crashes during SSR — there is no document on a server</i></span><span class="ln" data-l="2">document.<i class="t-fn">querySelector</i>(<i class="t-str">'.thing'</i>)!.classList.<i class="t-fn">add</i>(<i class="t-str">'open'</i>);</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-com">// ✗ this works in a browser and nowhere else</i></span><span class="ln" data-l="5"><i class="t-key">this</i>.el.nativeElement.innerHTML = html;   <i class="t-com">// and skips the sanitizer</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">// ✓ Renderer2 is an ABSTRACTION. Angular swaps the implementation:</i></span><span class="ln" data-l="8"><i class="t-com">//     in a browser  → real DOM calls</i></span><span class="ln" data-l="9"><i class="t-com">//     during SSR    → builds the HTML string on the server</i></span><span class="ln" data-l="10"><i class="t-com">//     in a worker   → messages to the main thread</i></span><span class="ln" data-l="11"><i class="t-com">//</i></span><span class="ln" data-l="12"><i class="t-com">// your directive does not change. that is the whole point.</i></span><span class="ln" data-l="13"> </span><span class="ln" data-l="14"><i class="t-com">// ✓ and when you genuinely need to READ the DOM (measure a box),</i></span><span class="ln" data-l="15"><i class="t-com">//   nativeElement is fine — inside afterNextRender, which never</i></span><span class="ln" data-l="16"><i class="t-com">//   runs on the server:</i></span><span class="ln" data-l="17"><i class="t-fn">afterNextRender</i>(() =&gt; {</span><span class="ln" data-l="18">  <i class="t-key">const</i> { width } = <i class="t-key">this</i>.host.nativeElement.<i class="t-fn">getBoundingClientRect</i>();</span><span class="ln" data-l="19">  <i class="t-key">this</i>.width.<i class="t-key">set</i>(width);</span><span class="ln" data-l="20">});</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">// ✗ this crashes during SSR — there is no document on a server</i></span><span class="ln" data-l="2"><b class="nm nm-ng" data-nm="document">document</b>.<i class="t-fn">querySelector</i>(<i class="t-str">'.thing'</i>)!.classList.<i class="t-fn">add</i>(<i class="t-str">'open'</i>);</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-com">// ✗ this works in a browser and nowhere else</i></span><span class="ln" data-l="5"><i class="t-key">this</i>.el.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<b class="nm nm-ng" data-nm="innerHTML">innerHTML</b> = html;   <i class="t-com">// and skips the sanitizer</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">// ✓ Renderer2 is an ABSTRACTION. Angular swaps the implementation:</i></span><span class="ln" data-l="8"><i class="t-com">//     in a browser  → real DOM calls</i></span><span class="ln" data-l="9"><i class="t-com">//     during SSR    → builds the HTML string on the server</i></span><span class="ln" data-l="10"><i class="t-com">//     in a worker   → messages to the main thread</i></span><span class="ln" data-l="11"><i class="t-com">//</i></span><span class="ln" data-l="12"><i class="t-com">// your directive does not change. that is the whole point.</i></span><span class="ln" data-l="13"> </span><span class="ln" data-l="14"><i class="t-com">// ✓ and when you genuinely need to READ the DOM (measure a box),</i></span><span class="ln" data-l="15"><i class="t-com">//   nativeElement is fine — inside afterNextRender, which never</i></span><span class="ln" data-l="16"><i class="t-com">//   runs on the server:</i></span><span class="ln" data-l="17"><i class="t-fn"><b class="nm nm-ng" data-nm="afterNextRender">afterNextRender</b></i>(() =&gt; {</span><span class="ln" data-l="18"><span class="v0">  <i class="t-key">const</i> { width } = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="host">host</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="getBoundingClientRect">getBoundingClientRect</b></i>();</span><span class="v1">  <i class="t-key">const</i> { width } = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="host">waffle</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="getBoundingClientRect">getBoundingClientRect</b></i>();</span></span><span class="ln" data-l="19">  <i class="t-key">this</i>.width.<i class="t-key">set</i>(width);</span><span class="ln" data-l="20">});</span></pre>
       </div>
       <div class="fc" data-file="raw" data-lang="ts">
         <div class="fc-h"><span class="d"></span>when nativeElement is the right answer<span class="tag"><span class="l-en">reading, not writing</span><span class="l-ar" dir="auto">قراية مش كتابة</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">// Renderer2 has no read API — no getBoundingClientRect, no scrollTop.</i></span><span class="ln" data-l="2"><i class="t-com">// for MEASUREMENT, nativeElement is correct and unavoidable.</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">StickyHeader</i> {</span><span class="ln" data-l="5">  <i class="t-key">private</i> <i class="t-key">readonly</i> host = <i class="t-fn">inject</i>(<i class="t-type">ElementRef</i>&lt;<i class="t-type">HTMLElement</i>&gt;);</span><span class="ln" data-l="6">  <i class="t-key">readonly</i> stuck = <i class="t-fn">signal</i>(<i class="t-key">false</i>);</span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-fn">constructor</i>() {</span><span class="ln" data-l="9">    <i class="t-fn">afterNextRender</i>(() =&gt; {</span><span class="ln" data-l="10">      <i class="t-key">const</i> io = <i class="t-key">new</i> <i class="t-fn">IntersectionObserver</i>(</span><span class="ln" data-l="11">        ([e]) =&gt; <i class="t-key">this</i>.stuck.<i class="t-key">set</i>(!e.isIntersecting),</span><span class="ln" data-l="12">        { threshold: [<i class="t-num">1</i>] },</span><span class="ln" data-l="13">      );</span><span class="ln" data-l="14">      io.<i class="t-fn">observe</i>(<i class="t-key">this</i>.host.nativeElement);</span><span class="ln" data-l="15">      <i class="t-fn">inject</i>(<i class="t-type">DestroyRef</i>).<i class="t-fn">onDestroy</i>(() =&gt; io.<i class="t-fn">disconnect</i>());</span><span class="ln" data-l="16">    });</span><span class="ln" data-l="17">  }</span><span class="ln" data-l="18">}</span><span class="ln" data-l="19"> </span><span class="ln" data-l="20"><i class="t-com">// note: an IntersectionObserver or ResizeObserver is almost always</i></span><span class="ln" data-l="21"><i class="t-com">// better than reading layout on scroll — it does not force reflow.</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">// Renderer2 has no read API — no getBoundingClientRect, no scrollTop.</i></span><span class="ln" data-l="2"><i class="t-com">// for MEASUREMENT, nativeElement is correct and unavoidable.</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="StickyHeader">StickyHeader</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="StickyHeader">Kiwi</b></i> {</span></span><span class="ln" data-l="5"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="host">host</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="HTMLElement">HTMLElement</b></i>&gt;);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="host">waffle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="HTMLElement">HTMLElement</b></i>&gt;);</span></span><span class="ln" data-l="6"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="stuck">stuck</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="stuck">donut</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-fn">constructor</i>() {</span><span class="ln" data-l="9">    <i class="t-fn"><b class="nm nm-ng" data-nm="afterNextRender">afterNextRender</b></i>(() =&gt; {</span><span class="ln" data-l="10"><span class="v0">      <i class="t-key">const</i> <b class="nm nm-mine" data-nm="io">io</b> = <i class="t-key">new</i> <i class="t-fn"><b class="nm nm-ng" data-nm="IntersectionObserver">IntersectionObserver</b></i>(</span><span class="v1">      <i class="t-key">const</i> <b class="nm nm-mine" data-nm="io">pepper</b> = <i class="t-key">new</i> <i class="t-fn"><b class="nm nm-ng" data-nm="IntersectionObserver">IntersectionObserver</b></i>(</span></span><span class="ln" data-l="11"><span class="v0">        ([e]) =&gt; <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="stuck">stuck</b>.<i class="t-key">set</i>(!e.<b class="nm nm-ng" data-nm="isIntersecting">isIntersecting</b>),</span><span class="v1">        ([e]) =&gt; <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="stuck">donut</b>.<i class="t-key">set</i>(!e.<b class="nm nm-ng" data-nm="isIntersecting">isIntersecting</b>),</span></span><span class="ln" data-l="12">        { threshold: [<i class="t-num">1</i>] },</span><span class="ln" data-l="13">      );</span><span class="ln" data-l="14"><span class="v0">      <b class="nm nm-mine" data-nm="io">io</b>.<i class="t-fn">observe</i>(<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="host">host</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>);</span><span class="v1">      <b class="nm nm-mine" data-nm="io">pepper</b>.<i class="t-fn">observe</i>(<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="host">waffle</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>);</span></span><span class="ln" data-l="15"><span class="v0">      <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="DestroyRef">DestroyRef</b></i>).<i class="t-fn"><b class="nm nm-ng" data-nm="onDestroy">onDestroy</b></i>(() =&gt; <b class="nm nm-mine" data-nm="io">io</b>.<i class="t-fn">disconnect</i>());</span><span class="v1">      <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="DestroyRef">DestroyRef</b></i>).<i class="t-fn"><b class="nm nm-ng" data-nm="onDestroy">onDestroy</b></i>(() =&gt; <b class="nm nm-mine" data-nm="io">pepper</b>.<i class="t-fn">disconnect</i>());</span></span><span class="ln" data-l="16">    });</span><span class="ln" data-l="17">  }</span><span class="ln" data-l="18">}</span><span class="ln" data-l="19"> </span><span class="ln" data-l="20"><i class="t-com">// note: an IntersectionObserver or ResizeObserver is almost always</i></span><span class="ln" data-l="21"><i class="t-com">// better than reading layout on scroll — it does not force reflow.</i></span></pre>
       </div></div>
 
   
@@ -684,9 +773,335 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="tt1" data-lang="ts">
         <div class="fc-h"><span class="d"></span>tooltip.directive.ts<span class="tag"><span class="l-en">portable</span><span class="l-ar" dir="auto">قابل للنقل</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-dec">@Directive</i>({</span><span class="ln" data-l="2">  selector: <i class="t-str">'[appTooltip]'</i>,</span><span class="ln" data-l="3">  host: { <i class="t-str">'(mouseenter)'</i>: <i class="t-str">'show()'</i>, <i class="t-str">'(mouseleave)'</i>: <i class="t-str">'hide()'</i>,</span><span class="ln" data-l="4">          <i class="t-str">'(focus)'</i>: <i class="t-str">'show()'</i>, <i class="t-str">'(blur)'</i>: <i class="t-str">'hide()'</i> },</span><span class="ln" data-l="5">})</span><span class="ln" data-l="6"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Tooltip</i> {</span><span class="ln" data-l="7">  <i class="t-key">readonly</i> appTooltip = input.required&lt;<i class="t-key">string</i>&gt;();</span><span class="ln" data-l="8">  <i class="t-key">private</i> <i class="t-key">readonly</i> r = <i class="t-fn">inject</i>(<i class="t-type">Renderer2</i>);</span><span class="ln" data-l="9">  <i class="t-key">private</i> <i class="t-key">readonly</i> host = <i class="t-fn">inject</i>(<i class="t-type">ElementRef</i>&lt;<i class="t-type">HTMLElement</i>&gt;);</span><span class="ln" data-l="10">  <i class="t-key">private</i> node: <i class="t-type">HTMLElement</i> | <i class="t-key">null</i> = <i class="t-key">null</i>;</span><span class="ln" data-l="11"> </span><span class="ln" data-l="12">  <i class="t-fn">show</i>() {</span><span class="ln" data-l="13">    <i class="t-key">if</i> (<i class="t-key">this</i>.node) <i class="t-key">return</i>;</span><span class="ln" data-l="14">    <i class="t-key">const</i> n = <i class="t-key">this</i>.r.<i class="t-fn">createElement</i>(<i class="t-str">'div'</i>);</span><span class="ln" data-l="15">    <i class="t-key">this</i>.r.<i class="t-fn">addClass</i>(n, <i class="t-str">'tooltip'</i>);</span><span class="ln" data-l="16">    <i class="t-key">this</i>.r.<i class="t-fn">setAttribute</i>(n, <i class="t-str">'role'</i>, <i class="t-str">'tooltip'</i>);</span><span class="ln" data-l="17">    <i class="t-key">this</i>.r.<i class="t-fn">appendChild</i>(n, <i class="t-key">this</i>.r.<i class="t-fn">createText</i>(<i class="t-key">this</i>.<i class="t-fn">appTooltip</i>()));</span><span class="ln" data-l="18">    <i class="t-key">this</i>.r.<i class="t-fn">appendChild</i>(<i class="t-key">this</i>.host.nativeElement, n);</span><span class="ln" data-l="19">    <i class="t-key">this</i>.node = n;</span><span class="ln" data-l="20">  }</span><span class="ln" data-l="21"> </span><span class="ln" data-l="22">  <i class="t-fn">hide</i>() {</span><span class="ln" data-l="23">    <i class="t-key">if</i> (!<i class="t-key">this</i>.node) <i class="t-key">return</i>;</span><span class="ln" data-l="24">    <i class="t-key">this</i>.r.<i class="t-fn">removeChild</i>(<i class="t-key">this</i>.host.nativeElement, <i class="t-key">this</i>.node);</span><span class="ln" data-l="25">    <i class="t-key">this</i>.node = <i class="t-key">null</i>;</span><span class="ln" data-l="26">  }</span><span class="ln" data-l="27"> </span><span class="ln" data-l="28">  <i class="t-fn">constructor</i>() { <i class="t-fn">inject</i>(<i class="t-type">DestroyRef</i>).<i class="t-fn">onDestroy</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">hide</i>()); }</span><span class="ln" data-l="29">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-dec"><b class="nm nm-ng" data-nm="@Directive">@Directive</b></i>({</span><span class="ln" data-l="2"><span class="v0">  selector: <i class="t-str">'[<b class="nm nm-pub" data-nm="appTooltip">appTooltip</b>]'</i>,</span><span class="v1">  selector: <i class="t-str">'[<b class="nm nm-pub" data-nm="appTooltip">lemon</b>]'</i>,</span></span><span class="ln" data-l="3"><span class="v0">  <b class="nm nm-ng" data-nm="host:">host</b>: { <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseenter">mouseenter</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="show">show</b>()'</i>, <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseleave">mouseleave</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="hide">hide</b>()'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="host:">host</b>: { <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseenter">mouseenter</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="show">olive</b>()'</i>, <i class="t-str">'(<b class="nm nm-ng" data-nm="mouseleave">mouseleave</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="hide">cookie</b>()'</i>,</span></span><span class="ln" data-l="4"><span class="v0">          <i class="t-str">'(<b class="nm nm-ng" data-nm="focus">focus</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="show">show</b>()'</i>, <i class="t-str">'(<b class="nm nm-ng" data-nm="blur">blur</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="hide">hide</b>()'</i> },</span><span class="v1">          <i class="t-str">'(<b class="nm nm-ng" data-nm="focus">focus</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="show">olive</b>()'</i>, <i class="t-str">'(<b class="nm nm-ng" data-nm="blur">blur</b>)'</i>: <i class="t-str">'<b class="nm nm-mine" data-nm="hide">cookie</b>()'</i> },</span></span><span class="ln" data-l="5">})</span><span class="ln" data-l="6"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Tooltip</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Tooltip">Carrot</b></i> {</span></span><span class="ln" data-l="7"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="appTooltip">appTooltip</b> = <b class="nm nm-ng" data-nm="input">input</b>.required&lt;<i class="t-key">string</i>&gt;();</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="appTooltip">lemon</b> = <b class="nm nm-ng" data-nm="input">input</b>.required&lt;<i class="t-key">string</i>&gt;();</span></span><span class="ln" data-l="8"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="r">r</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="Renderer2">Renderer2</b></i>);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="r">pickle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="Renderer2">Renderer2</b></i>);</span></span><span class="ln" data-l="9"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="host">host</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="HTMLElement">HTMLElement</b></i>&gt;);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="host">waffle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="HTMLElement">HTMLElement</b></i>&gt;);</span></span><span class="ln" data-l="10"><span class="v0">  <i class="t-key">private</i> <b class="nm nm-mine" data-nm="node">node</b>: <i class="t-type"><b class="nm nm-ng" data-nm="HTMLElement">HTMLElement</b></i> | <i class="t-key">null</i> = <i class="t-key">null</i>;</span><span class="v1">  <i class="t-key">private</i> <b class="nm nm-mine" data-nm="node">biscuit</b>: <i class="t-type"><b class="nm nm-ng" data-nm="HTMLElement">HTMLElement</b></i> | <i class="t-key">null</i> = <i class="t-key">null</i>;</span></span><span class="ln" data-l="11"> </span><span class="ln" data-l="12"><span class="v0">  <i class="t-fn"><b class="nm nm-mine" data-nm="show">show</b></i>() {</span><span class="v1">  <i class="t-fn"><b class="nm nm-mine" data-nm="show">olive</b></i>() {</span></span><span class="ln" data-l="13"><span class="v0">    <i class="t-key">if</i> (<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="node">node</b>) <i class="t-key">return</i>;</span><span class="v1">    <i class="t-key">if</i> (<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="node">biscuit</b>) <i class="t-key">return</i>;</span></span><span class="ln" data-l="14"><span class="v0">    <i class="t-key">const</i> n = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">r</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="createElement">createElement</b></i>(<i class="t-str">'div'</i>);</span><span class="v1">    <i class="t-key">const</i> n = <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">pickle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="createElement">createElement</b></i>(<i class="t-str">'div'</i>);</span></span><span class="ln" data-l="15"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">r</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="addClass">addClass</b></i>(n, <i class="t-str">'tooltip'</i>);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">pickle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="addClass">addClass</b></i>(n, <i class="t-str">'tooltip'</i>);</span></span><span class="ln" data-l="16"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">r</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setAttribute">setAttribute</b></i>(n, <i class="t-str">'role'</i>, <i class="t-str">'tooltip'</i>);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">pickle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setAttribute">setAttribute</b></i>(n, <i class="t-str">'role'</i>, <i class="t-str">'tooltip'</i>);</span></span><span class="ln" data-l="17"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">r</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="appendChild">appendChild</b></i>(n, <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">r</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="createText">createText</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="appTooltip">appTooltip</b></i>()));</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">pickle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="appendChild">appendChild</b></i>(n, <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">pickle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="createText">createText</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="appTooltip">lemon</b></i>()));</span></span><span class="ln" data-l="18"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">r</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="appendChild">appendChild</b></i>(<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="host">host</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>, n);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">pickle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="appendChild">appendChild</b></i>(<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="host">waffle</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>, n);</span></span><span class="ln" data-l="19"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="node">node</b> = n;</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="node">biscuit</b> = n;</span></span><span class="ln" data-l="20">  }</span><span class="ln" data-l="21"> </span><span class="ln" data-l="22"><span class="v0">  <i class="t-fn"><b class="nm nm-mine" data-nm="hide">hide</b></i>() {</span><span class="v1">  <i class="t-fn"><b class="nm nm-mine" data-nm="hide">cookie</b></i>() {</span></span><span class="ln" data-l="23"><span class="v0">    <i class="t-key">if</i> (!<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="node">node</b>) <i class="t-key">return</i>;</span><span class="v1">    <i class="t-key">if</i> (!<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="node">biscuit</b>) <i class="t-key">return</i>;</span></span><span class="ln" data-l="24"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">r</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="removeChild">removeChild</b></i>(<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="host">host</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>, <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="node">node</b>);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="r">pickle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="removeChild">removeChild</b></i>(<i class="t-key">this</i>.<b class="nm nm-mine" data-nm="host">waffle</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>, <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="node">biscuit</b>);</span></span><span class="ln" data-l="25"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="node">node</b> = <i class="t-key">null</i>;</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="node">biscuit</b> = <i class="t-key">null</i>;</span></span><span class="ln" data-l="26">  }</span><span class="ln" data-l="27"> </span><span class="ln" data-l="28"><span class="v0">  <i class="t-fn">constructor</i>() { <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="DestroyRef">DestroyRef</b></i>).<i class="t-fn"><b class="nm nm-ng" data-nm="onDestroy">onDestroy</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="hide">hide</b></i>()); }</span><span class="v1">  <i class="t-fn">constructor</i>() { <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="DestroyRef">DestroyRef</b></i>).<i class="t-fn"><b class="nm nm-ng" data-nm="onDestroy">onDestroy</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="hide">cookie</b></i>()); }</span></span><span class="ln" data-l="29">}</span></pre>
       </div></div>
   </div>
+
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">Every method you call on the renderer (<code>createElement</code>, <code>addClass</code>, <code>listen</code>…) is Angular’s, and every quoted event, tag or attribute name you pass it is the browser’s. What is yours: the field names you store things in, and the directive’s selector.</span><span class="l-ar" dir="auto">كل ميثود بتناديها على الـ renderer (<code>createElement</code> و<code>addClass</code> و<code>listen</code>…) بتاعة أنجولار، وكل اسم event أو تاج أو attribute بين علامات تنصيص بتديهوله ده بتاع المتصفح. اللي بتاعك: أسماء الـ fields اللي بتحفظ فيها الحاجات، والـ selector بتاع الـ directive.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="@Directive">
+        <td><b class="nm nm-ng" data-nm="@Directive">@Directive</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s decorator that turns a class into a directive: behaviour you attach to an existing element.</span><span class="l-ar" dir="auto">الـ decorator بتاع أنجولار اللي بيحوّل الكلاس لـ directive: سلوك بتركّبه على element موجود.</span></td>
+        <td class="nmfiles"><code>the order to try things in</code> <code>ripple.directive.ts</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="host:">
+        <td><b class="nm nm-ng" data-nm="host:">host:</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s metadata key for bindings and listeners on the element the directive sits on.</span><span class="l-ar" dir="auto">مفتاح الـ metadata بتاع أنجولار للـ bindings والـ listeners على الـ element اللي الـ directive قاعد عليه.</span></td>
+        <td class="nmfiles"><code>the order to try things in</code> <code>ripple.directive.ts</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="Renderer2">
+        <td><b class="nm nm-ng" data-nm="Renderer2">Renderer2</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s class for changing the DOM in a way that also works on the server.</span><span class="l-ar" dir="auto">الكلاس بتاع أنجولار اللي بتعدّل بيه الـ DOM بطريقة بتشتغل على السيرفر كمان.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="ElementRef">
+        <td><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s wrapper around the element this directive is on.</span><span class="l-ar" dir="auto">الـ wrapper بتاع أنجولار حوالين الـ element اللي الـ directive ده عليه.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code> <code>when nativeElement is the right answer</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="nativeElement">
+        <td><b class="nm nm-ng" data-nm="nativeElement">nativeElement</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en"><code>ElementRef</code>’s property: the real DOM element inside.</span><span class="l-ar" dir="auto">property في الـ <code>ElementRef</code>: الـ DOM element الحقيقي اللي جواه.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code> <code>why not just use document?</code> <code>when nativeElement is the right answer</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="inject">
+        <td><b class="nm nm-ng" data-nm="inject">inject</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that hands you a service.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتجيبلك service.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code> <code>when nativeElement is the right answer</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="afterNextRender">
+        <td><b class="nm nm-ng" data-nm="afterNextRender">afterNextRender</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s hook that runs once in the browser after rendering, and never on the server.</span><span class="l-ar" dir="auto">الـ hook بتاع أنجولار اللي بيشتغل مرة في المتصفح بعد الرسم، وعمره ما بيشتغل على السيرفر.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code> <code>why not just use document?</code> <code>when nativeElement is the right answer</code></td>
+      </tr>
+      <tr data-nmrow="createElement">
+        <td><b class="nm nm-ng" data-nm="createElement">createElement</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A <code>Renderer2</code> method. The tag name you pass is HTML’s.</span><span class="l-ar" dir="auto">ميثود في <code>Renderer2</code>. اسم التاج اللي بتديهوله بتاع HTML.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="createText">
+        <td><b class="nm nm-ng" data-nm="createText">createText</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A <code>Renderer2</code> method.</span><span class="l-ar" dir="auto">ميثود في <code>Renderer2</code>.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="addClass">
+        <td><b class="nm nm-ng" data-nm="addClass">addClass</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A <code>Renderer2</code> method. The class name you pass is yours, from your stylesheet.</span><span class="l-ar" dir="auto">ميثود في <code>Renderer2</code>. اسم الكلاس اللي بتديهوله بتاعك، من ملف الـ CSS بتاعك.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="setStyle">
+        <td><b class="nm nm-ng" data-nm="setStyle">setStyle</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A <code>Renderer2</code> method. <code>'left'</code> and <code>'top'</code> are CSS’s own property names.</span><span class="l-ar" dir="auto">ميثود في <code>Renderer2</code>. <code>'left'</code> و<code>'top'</code> أسماء properties الـ CSS نفسها.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="setAttribute">
+        <td><b class="nm nm-ng" data-nm="setAttribute">setAttribute</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A <code>Renderer2</code> method. The attribute name you pass is HTML’s.</span><span class="l-ar" dir="auto">ميثود في <code>Renderer2</code>. اسم الـ attribute اللي بتديهوله بتاع HTML.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="appendChild">
+        <td><b class="nm nm-ng" data-nm="appendChild">appendChild</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A <code>Renderer2</code> method.</span><span class="l-ar" dir="auto">ميثود في <code>Renderer2</code>.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="removeChild">
+        <td><b class="nm nm-ng" data-nm="removeChild">removeChild</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A <code>Renderer2</code> method.</span><span class="l-ar" dir="auto">ميثود في <code>Renderer2</code>.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="listen">
+        <td><b class="nm nm-ng" data-nm="listen">listen</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A <code>Renderer2</code> method. It returns the function that stops listening.</span><span class="l-ar" dir="auto">ميثود في <code>Renderer2</code>. بترجّع الـ function اللي بتوقّف الاستماع.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="animationend">
+        <td><b class="nm nm-ng" data-nm="animationend">animationend</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s own event name for “a CSS animation finished”.</span><span class="l-ar" dir="auto">اسم الـ event بتاع المتصفح لما “animation في الـ CSS تخلص”.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="click">
+        <td><b class="nm nm-ng" data-nm="click">click</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s own event name.</span><span class="l-ar" dir="auto">اسم الـ event بتاع المتصفح نفسه.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="mouseenter">
+        <td><b class="nm nm-ng" data-nm="mouseenter">mouseenter</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s own event name.</span><span class="l-ar" dir="auto">اسم الـ event بتاع المتصفح نفسه.</span></td>
+        <td class="nmfiles"><code>the order to try things in</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="mouseleave">
+        <td><b class="nm nm-ng" data-nm="mouseleave">mouseleave</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s own event name.</span><span class="l-ar" dir="auto">اسم الـ event بتاع المتصفح نفسه.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="focus">
+        <td><b class="nm nm-ng" data-nm="focus">focus</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s own event name.</span><span class="l-ar" dir="auto">اسم الـ event بتاع المتصفح نفسه.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="blur">
+        <td><b class="nm nm-ng" data-nm="blur">blur</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s own event name.</span><span class="l-ar" dir="auto">اسم الـ event بتاع المتصفح نفسه.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="$event">
+        <td><b class="nm nm-ng" data-nm="$event">$event</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s fixed name, inside a listener, for the browser’s event object.</span><span class="l-ar" dir="auto">اسم ثابت من أنجولار، جوه الـ listener، لأوبجكت الـ event بتاع المتصفح.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="MouseEvent">
+        <td><b class="nm nm-ng" data-nm="MouseEvent">MouseEvent</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s type for a mouse event.</span><span class="l-ar" dir="auto">النوع بتاع المتصفح لـ event الماوس.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="HTMLElement">
+        <td><b class="nm nm-ng" data-nm="HTMLElement">HTMLElement</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s type for any HTML element.</span><span class="l-ar" dir="auto">النوع بتاع المتصفح لأي element في HTML.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code> <code>when nativeElement is the right answer</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="document">
+        <td><b class="nm nm-ng" data-nm="document">document</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s global page object. It does not exist on the server.</span><span class="l-ar" dir="auto">أوبجكت الصفحة العام بتاع المتصفح. مش موجود على السيرفر.</span></td>
+        <td class="nmfiles"><code>why not just use document?</code></td>
+      </tr>
+      <tr data-nmrow="innerHTML">
+        <td><b class="nm nm-ng" data-nm="innerHTML">innerHTML</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A DOM property. Writing to it by hand skips Angular’s sanitizer.</span><span class="l-ar" dir="auto">property في الـ DOM. لو كتبت فيه بإيدك بتعدّي من غير الـ sanitizer بتاع أنجولار.</span></td>
+        <td class="nmfiles"><code>why not just use document?</code></td>
+      </tr>
+      <tr data-nmrow="getBoundingClientRect">
+        <td><b class="nm nm-ng" data-nm="getBoundingClientRect">getBoundingClientRect</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A DOM method that measures an element. <code>width</code> is one of the fixed names it returns.</span><span class="l-ar" dir="auto">ميثود في الـ DOM بتقيس الـ element. و<code>width</code> من الأسماء الثابتة اللي بترجّعها.</span></td>
+        <td class="nmfiles"><code>why not just use document?</code></td>
+      </tr>
+      <tr data-nmrow="IntersectionObserver">
+        <td><b class="nm nm-ng" data-nm="IntersectionObserver">IntersectionObserver</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s class that tells you when an element enters or leaves view.</span><span class="l-ar" dir="auto">الكلاس بتاع المتصفح اللي بيقولك إمتى الـ element دخل أو خرج من الشاشة.</span></td>
+        <td class="nmfiles"><code>when nativeElement is the right answer</code></td>
+      </tr>
+      <tr data-nmrow="isIntersecting">
+        <td><b class="nm nm-ng" data-nm="isIntersecting">isIntersecting</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A property on each entry the observer reports.</span><span class="l-ar" dir="auto">property في كل entry الـ observer بيبلّغ عنه.</span></td>
+        <td class="nmfiles"><code>when nativeElement is the right answer</code></td>
+      </tr>
+      <tr data-nmrow="DestroyRef">
+        <td><b class="nm nm-ng" data-nm="DestroyRef">DestroyRef</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s handle for “run this when I am destroyed”.</span><span class="l-ar" dir="auto">الـ handle بتاع أنجولار لـ “شغّل ده لما أتشال”.</span></td>
+        <td class="nmfiles"><code>when nativeElement is the right answer</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="onDestroy">
+        <td><b class="nm nm-ng" data-nm="onDestroy">onDestroy</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en"><code>DestroyRef</code>’s method that registers the cleanup.</span><span class="l-ar" dir="auto">ميثود في <code>DestroyRef</code> بتسجّل التنضيف.</span></td>
+        <td class="nmfiles"><code>when nativeElement is the right answer</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="signal">
+        <td><b class="nm nm-ng" data-nm="signal">signal</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s writable signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة أنجولار اللي بتتكتب.</span></td>
+        <td class="nmfiles"><code>when nativeElement is the right answer</code></td>
+      </tr>
+      <tr data-nmrow="input">
+        <td><b class="nm nm-ng" data-nm="input">input</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that creates an input.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتعمل input.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="appRipple">
+        <td><b class="nm nm-pub" data-nm="appRipple">appRipple</b><span class="nmas">&rarr; <code>banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The directive’s selector. Every element that wants a ripple types <code>appRipple</code>, so a rename reaches every template.</span><span class="l-ar" dir="auto">الـ selector بتاع الـ directive. أي element عايز ripple بيكتب <code>appRipple</code>، فأي تغيير بيوصل لكل التمبلتس.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="Ripple">
+        <td><b class="nm nm-pub" data-nm="Ripple">Ripple</b><span class="nmas">&rarr; <code>Potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The directive’s class name, listed in <code>imports</code> by whoever uses it.</span><span class="l-ar" dir="auto">اسم كلاس الـ directive، بيتكتب في <code>imports</code> عند أي حد بيستخدمه.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="ripple">
+        <td><b class="nm nm-mine" data-nm="ripple">ripple</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your method, named in the <code>host</code> string. The <code>'ripple'</code> CSS class next to it is a separate name from your stylesheet.</span><span class="l-ar" dir="auto">الميثود بتاعتك، مكتوبة في نص الـ <code>host</code>. وكلاس الـ CSS <code>'ripple'</code> اللي جنبها اسم تاني من ملف الـ CSS بتاعك.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="r">
+        <td><b class="nm nm-mine" data-nm="r">r</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your short field name for the renderer.</span><span class="l-ar" dir="auto">اسم الـ field القصير بتاعك للـ renderer.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="host">
+        <td><b class="nm nm-mine" data-nm="host">host</b><span class="nmas">&rarr; <code>waffle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your field name for the <code>ElementRef</code>. The <code>host:</code> key in the decorator is Angular’s and stays.</span><span class="l-ar" dir="auto">اسم الـ field بتاعك للـ <code>ElementRef</code>. والمفتاح <code>host:</code> اللي في الـ decorator بتاع أنجولار وبيفضل زي ما هو.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code> <code>why not just use document?</code> <code>when nativeElement is the right answer</code> <code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="span">
+        <td><b class="nm nm-mine" data-nm="span">span</b><span class="nmas">&rarr; <code>noodle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your local variable. The quoted <code>'span'</code> is the HTML tag name.</span><span class="l-ar" dir="auto">المتغير المحلي بتاعك. و<code>'span'</code> اللي بين علامات التنصيص ده اسم التاج في HTML.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="off">
+        <td><b class="nm nm-mine" data-nm="off">off</b><span class="nmas">&rarr; <code>pumpkin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your name for the stop-listening function <code>listen()</code> returned.</span><span class="l-ar" dir="auto">الاسم بتاعك للـ function اللي <code>listen()</code> رجّعها عشان توقّف الاستماع.</span></td>
+        <td class="nmfiles"><code>ripple.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="appHighlight">
+        <td><b class="nm nm-pub" data-nm="appHighlight">appHighlight</b><span class="nmas">&rarr; <code>turnip</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A directive selector: every template that uses it types it.</span><span class="l-ar" dir="auto">selector بتاع directive: أي تمبلت بيستخدمه بيكتبه.</span></td>
+        <td class="nmfiles"><code>the order to try things in</code></td>
+      </tr>
+      <tr data-nmrow="colour">
+        <td><b class="nm nm-mine" data-nm="colour">colour</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The directive’s own signal, named in its <code>host</code> bindings.</span><span class="l-ar" dir="auto">الـ signal بتاعة الـ directive نفسه، مكتوبة في الـ <code>host</code> bindings بتاعته.</span></td>
+        <td class="nmfiles"><code>the order to try things in</code></td>
+      </tr>
+      <tr data-nmrow="isOpen">
+        <td><b class="nm nm-mine" data-nm="isOpen">isOpen</b><span class="nmas">&rarr; <code>taco</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة الـ component نفسه.</span></td>
+        <td class="nmfiles"><code>the order to try things in</code></td>
+      </tr>
+      <tr data-nmrow="StickyHeader">
+        <td><b class="nm nm-pub" data-nm="StickyHeader">StickyHeader</b><span class="nmas">&rarr; <code>Kiwi</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The class name, imported by whoever uses it.</span><span class="l-ar" dir="auto">اسم الكلاس، بيتعمله import عند أي حد بيستخدمه.</span></td>
+        <td class="nmfiles"><code>when nativeElement is the right answer</code></td>
+      </tr>
+      <tr data-nmrow="stuck">
+        <td><b class="nm nm-mine" data-nm="stuck">stuck</b><span class="nmas">&rarr; <code>donut</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The class’s own signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة الكلاس نفسه.</span></td>
+        <td class="nmfiles"><code>when nativeElement is the right answer</code></td>
+      </tr>
+      <tr data-nmrow="io">
+        <td><b class="nm nm-mine" data-nm="io">io</b><span class="nmas">&rarr; <code>pepper</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your local name for the observer.</span><span class="l-ar" dir="auto">الاسم المحلي بتاعك للـ observer.</span></td>
+        <td class="nmfiles"><code>when nativeElement is the right answer</code></td>
+      </tr>
+      <tr data-nmrow="appTooltip">
+        <td><b class="nm nm-pub" data-nm="appTooltip">appTooltip</b><span class="nmas">&rarr; <code>lemon</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Both the selector and the input, on purpose: <code>appTooltip="Save"</code> sets the text. Rename the selector, the input and every template together.</span><span class="l-ar" dir="auto">هو الـ selector والـ input في نفس الوقت، بالقصد: <code>appTooltip="Save"</code> بيحط النص. غيّر الـ selector والـ input وكل التمبلتس مع بعض.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="Tooltip">
+        <td><b class="nm nm-pub" data-nm="Tooltip">Tooltip</b><span class="nmas">&rarr; <code>Carrot</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The directive’s class name.</span><span class="l-ar" dir="auto">اسم كلاس الـ directive.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="node">
+        <td><b class="nm nm-mine" data-nm="node">node</b><span class="nmas">&rarr; <code>biscuit</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your field holding the tooltip element.</span><span class="l-ar" dir="auto">الـ field بتاعك اللي شايل الـ element بتاع الـ tooltip.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="show">
+        <td><b class="nm nm-mine" data-nm="show">show</b><span class="nmas">&rarr; <code>olive</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your method, named in the <code>host</code> listeners.</span><span class="l-ar" dir="auto">الميثود بتاعتك، مكتوبة في الـ <code>host</code> listeners.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code></td>
+      </tr>
+      <tr data-nmrow="hide">
+        <td><b class="nm nm-mine" data-nm="hide">hide</b><span class="nmas">&rarr; <code>cookie</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your method, named in the <code>host</code> listeners.</span><span class="l-ar" dir="auto">الميثود بتاعتك، مكتوبة في الـ <code>host</code> listeners.</span></td>
+        <td class="nmfiles"><code>tooltip.directive.ts</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="renderer2-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en"><code>Renderer2</code>, name by name</span><span class="l-ar" dir="auto"><code>Renderer2</code>، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">One tooltip directive followed from the button that uses it to the element it creates. Every name coloured by who owns it: <b>Angular’s</b> (or the browser’s), <b>yours</b>, or <b>yours but shared</b> with a template or a stylesheet. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">directive واحد بتاع tooltip ماشيين وراه من الزرار اللي بيستخدمه لحد الـ element اللي بيعمله. كل اسم ملوّن حسب صاحبه: <b>بتاع أنجولار</b> (أو المتصفح)، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b> مع تمبلت أو ملف CSS. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+  </a>
 
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
@@ -786,8 +1201,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../advanced/36-control-value-accessor.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en"><code>ControlValueAccessor</code></span><span class="l-ar" dir="auto"><code>ControlValueAccessor</code></span></b></a>
-    <a class="nx" href="../advanced/38-lazy-loading.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Lazy loading and preloading strategies</span><span class="l-ar" dir="auto">التحميل الكسلان واستراتيجيات التحميل المسبق</span></b></a>
+    <a class="pv" href="../advanced/control-value-accessor-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en"><code>ControlValueAccessor</code>, name by name</span><span class="l-ar" dir="auto"><code>ControlValueAccessor</code>، اسم اسم</span></b></a>
+    <a class="nx" href="../advanced/renderer2-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en"><code>Renderer2</code>, name by name</span><span class="l-ar" dir="auto"><code>Renderer2</code>، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -829,6 +1244,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){

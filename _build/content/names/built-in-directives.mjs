@@ -1,0 +1,72 @@
+/* names for the built-in-directives topic.
+   n: the name exactly as typed in the code.   k: ng | mine | pub.
+   w: what it is, and what has to change with it.   { en, ar }
+   re / only / as: see _build/names.mjs.                                  */
+export default {
+'built-in-directives': {
+  note: {
+    en: 'In <code>[class.sold-out]="stock() === 0"</code> there are three owners: <code>class</code> is the browser’s, <code>sold-out</code> is a CSS class name you share with your stylesheet, and <code>stock</code> is your component’s. The <code>ng…</code> directive names are all Angular’s.',
+    ar: 'في <code>[class.sold-out]="stock() === 0"</code> فيه تلات أصحاب: <code>class</code> بتاعة المتصفح، و<code>sold-out</code> اسم CSS class متشارك بينك وبين الـ stylesheet بتاعك، و<code>stock</code> بتاعة الـ component بتاعك. وأسماء الـ directives اللي بتبدأ بـ <code>ng…</code> كلها بتاعة أنجولار.'
+  },
+  names: [
+    { n:'class', k:'ng', only:['html'], re:'(?<![\\w$-])class(?=[.=]|\\]=)',
+      w:{ en:'The browser’s <code>class</code> attribute. <code>[class]</code> and <code>[class.x]</code> are Angular’s way to bind it.',
+          ar:'الـ attribute <code>class</code> بتاع المتصفح. و<code>[class]</code> و<code>[class.x]</code> طريقة أنجولار إنها تربطه.' } },
+    { n:'style', k:'ng', only:['html'], re:'(?<![\\w$-])style(?=[.=]|\\]=)',
+      w:{ en:'The browser’s <code>style</code> attribute. The CSS property after the dot (<code>width</code>, <code>color</code>) is the browser’s too.',
+          ar:'الـ attribute <code>style</code> بتاع المتصفح. والـ CSS property اللي بعد النقطة (<code>width</code> و<code>color</code>) بتاعة المتصفح برضه.' } },
+    { n:'ngClass', k:'ng',
+      w:{ en:'Angular’s older class directive. Needs <code>NgClass</code> in <code>imports</code>.', ar:'الـ directive القديم بتاع أنجولار للـ classes. محتاج <code>NgClass</code> في <code>imports</code>.' } },
+    { n:'ngStyle', k:'ng',
+      w:{ en:'Angular’s older style directive. Needs <code>NgStyle</code> in <code>imports</code>.', ar:'الـ directive القديم بتاع أنجولار للـ styles. محتاج <code>NgStyle</code> في <code>imports</code>.' } },
+    { n:'ngSrc', k:'ng',
+      w:{ en:'<code>NgOptimizedImage</code>’s attribute, used instead of <code>src</code>.', ar:'الـ attribute بتاع <code>NgOptimizedImage</code>، بيتكتب بدل <code>src</code>.' } },
+    { n:'ng-container', k:'ng',
+      w:{ en:'Angular’s invisible tag: it holds a directive without adding an element to the page.',
+          ar:'تاج أنجولار اللي مش بيظهر: بيشيل directive من غير ما يزوّد عنصر في الصفحة.' } },
+    { n:'ngTemplateOutlet', k:'ng',
+      w:{ en:'Angular’s directive that renders a template you captured.', ar:'الـ directive بتاع أنجولار اللي بيعرض template انت مسكته قبل كده.' } },
+    { n:'$implicit', k:'ng',
+      w:{ en:'Angular’s fixed key for the default value handed to the template.', ar:'مفتاح ثابت من أنجولار للقيمة الافتراضية اللي بتتبعت للـ template.' } },
+    { n:'ngComponentOutlet', k:'ng',
+      w:{ en:'Angular’s directive that renders a component chosen at runtime.', ar:'الـ directive بتاع أنجولار اللي بيعرض component بيتختار وقت التشغيل.' } },
+    { n:'routerLink', k:'ng', w:{ en:'Angular’s link directive.', ar:'الـ directive بتاع أنجولار للينكات.' } },
+    { n:'routerLinkActive', k:'ng',
+      w:{ en:'Angular’s directive that adds a CSS class while the link’s route is active. The class name you give it is yours.',
+          ar:'الـ directive بتاع أنجولار اللي بيزوّد CSS class طول ما الـ route بتاع اللينك شغال. اسم الـ class اللي بتدّيهوله بتاعك.' } },
+    { n:'input', k:'ng',
+      w:{ en:'Angular’s function that creates an input.', ar:'الـ function بتاعة أنجولار اللي بتعمل input.' } },
+    { n:'computed', k:'ng', w:{ en:'Angular’s derived signal.', ar:'الـ signal المشتقة بتاعة أنجولار.' } },
+
+    { n:'sold-out', k:'pub',
+      w:{ en:'Your CSS class name. The template and the stylesheet must spell it the same.', ar:'اسم الـ CSS class بتاعك. التمبلت والـ stylesheet لازم يكتبوه زي بعض.' } },
+    { n:'featured', k:'pub', re:'(?<![\\w$.-])featured(?![\\w$-])',
+      w:{ en:'Your CSS class name, shared with the stylesheet. <code>.featured</code> in the class is a separate thing: a field on your product data.',
+          ar:'اسم الـ CSS class بتاعك، متشارك مع الـ stylesheet. و<code>.featured</code> اللي في الكلاس حاجة تانية: field في داتا المنتج.' } },
+    { n:'badge', k:'pub',
+      w:{ en:'Your CSS class name, shared with the stylesheet.', ar:'اسم الـ CSS class بتاعك، متشارك مع الـ stylesheet.' } },
+    { n:'pulse', k:'pub',
+      w:{ en:'Your CSS class name, shared with the stylesheet.', ar:'اسم الـ CSS class بتاعك، متشارك مع الـ stylesheet.' } },
+    { n:'active', k:'pub',
+      w:{ en:'Your CSS class name. <code>routerLinkActive</code> adds it; your stylesheet styles it.', ar:'اسم الـ CSS class بتاعك. <code>routerLinkActive</code> بيزوّده، والـ stylesheet بتاعك بيدّيه الشكل.' } },
+    { n:'stock', k:'mine', re:'(?<![\\w$.-])stock(?![\\w$-])',
+      w:{ en:'A computed in the component. <code>.stock</code> after <code>product()</code> is your data field, not this.',
+          ar:'computed في الـ component. و<code>.stock</code> اللي بعد <code>product()</code> هو الـ field بتاع الداتا، مش ده.' } },
+    { n:'isFeatured', k:'mine', w:{ en:'A computed in the component.', ar:'computed في الـ component.' } },
+    { n:'isNew', k:'mine', w:{ en:'A computed in the component.', ar:'computed في الـ component.' } },
+    { n:'kind', k:'mine', w:{ en:'A computed in the component.', ar:'computed في الـ component.' } },
+    { n:'percent', k:'mine',
+      w:{ en:'The component’s own signal. The <code>%</code> unit sits in the binding, not in the value.', ar:'الـ signal بتاعة الـ component. وحدة الـ <code>%</code> مكتوبة في الـ binding، مش في القيمة.' } },
+    { n:'rowTpl', k:'mine',
+      w:{ en:'A template reference (<code>#rowTpl</code>) captured earlier in the same template.', ar:'template reference (<code>#rowTpl</code>) اتمسك قبل كده في نفس التمبلت.' } },
+    { n:'product', k:'pub',
+      w:{ en:'The badge’s input: the parent sets it with <code>[product]</code>.', ar:'الـ input بتاع البادج: الأب بيحطه بـ <code>[product]</code>.' } },
+    { n:'status', k:'pub',
+      w:{ en:'The pill’s input: the parent sets it with <code>[status]</code>.', ar:'الـ input بتاع الـ pill: الأب بيحطه بـ <code>[status]</code>.' } },
+    { n:'Kind', k:'mine',
+      w:{ en:'Your type, not exported, so only this file uses it.', ar:'الـ type بتاعك، مش معمول له export، فالملف ده بس اللي بيستخدمه.' } },
+    { n:'label', k:'mine', w:{ en:'A computed in the component.', ar:'computed في الـ component.' } },
+    { n:'needsAttention', k:'mine', w:{ en:'A computed in the component.', ar:'computed في الـ component.' } },
+  ]
+}
+};

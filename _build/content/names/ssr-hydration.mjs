@@ -1,0 +1,73 @@
+/* names for the SSR and hydration topic.
+   n: the name exactly as typed in the code.   k: ng | mine | pub.
+   w: what it is, and what has to change with it.   { en, ar }
+   re / only / as: see _build/names.mjs.                                  */
+export default {
+'ssr-hydration': {
+  note: {
+    en: 'SSR adds almost no names of your own: the <code>provide…</code> and <code>with…</code> functions, <code>RenderMode</code>, <code>getPrerenderParams</code> and the server engine are all Angular’s. The one name to watch is a route parameter: <code>:slug</code> in the path and the <code>slug</code> key you return from <code>getPrerenderParams</code> must be spelled the same.',
+    ar: 'الـ SSR تقريباً مش بيضيف أسماء من عندك: الـ functions بتاعة <code>provide…</code> و<code>with…</code> و<code>RenderMode</code> و<code>getPrerenderParams</code> والـ engine بتاع السيرفر كلهم بتوع أنجولار. الاسم الوحيد اللي تاخد بالك منه هو الـ route parameter: <code>:slug</code> اللي في المسار والمفتاح <code>slug</code> اللي بترجّعه من <code>getPrerenderParams</code> لازم يتكتبوا زي بعض.'
+  },
+  names: [
+    { n:'provideClientHydration', k:'ng', w:{ en:'Angular’s provider that reuses the server’s HTML instead of redrawing it in the browser.', ar:'الـ provider بتاع أنجولار اللي بيعيد استخدام الـ HTML اللي جه من السيرفر بدل ما يرسمه تاني في المتصفح.' } },
+    { n:'withEventReplay', k:'ng', w:{ en:'Angular’s hydration feature: clicks made before the app woke up are replayed afterwards.', ar:'ميزة hydration من أنجولار: الضغطات اللي حصلت قبل ما التطبيق يصحى بتتعاد بعدها.' } },
+    { n:'withIncrementalHydration', k:'ng', w:{ en:'Angular’s hydration feature that enables <code>@defer (hydrate …)</code>.', ar:'ميزة hydration من أنجولار بتشغّل <code>@defer (hydrate …)</code>.' } },
+    { n:'providers', k:'ng', w:{ en:'An option key Angular reads.', ar:'مفتاح إعداد أنجولار بيقراه.' } },
+    { n:'provideHttpClient', k:'ng', w:{ en:'Angular’s provider for the HTTP client.', ar:'الـ provider بتاع أنجولار للـ HTTP client.' } },
+    { n:'withFetch', k:'ng', w:{ en:'Angular’s HTTP feature that uses the <code>fetch</code> API, which the server has.', ar:'ميزة HTTP من أنجولار بتستخدم الـ <code>fetch</code> API، اللي موجودة على السيرفر.' } },
+    { n:'input', k:'ng', re:'(?<![\\w$<(-])input(?=[.(<,])', w:{ en:'Angular’s function that creates an input.', ar:'الـ function بتاعة أنجولار اللي بتعمل input.' } },
+    { n:'httpResource', k:'ng', w:{ en:'Angular’s signal-based HTTP request. On the server its result is sent along with the HTML.', ar:'طلب HTTP بتاع أنجولار مبني على الـ signals. على السيرفر نتيجته بتتبعت مع الـ HTML.' } },
+    { n:'inject', k:'ng', w:{ en:'Angular’s function that hands you a service or token.', ar:'الـ function بتاعة أنجولار اللي بتجيبلك service أو token.' } },
+    { n:'PLATFORM_ID', k:'ng', w:{ en:'Angular’s token that says where the code is running.', ar:'الـ token بتاع أنجولار اللي بيقول الكود شغال فين.' } },
+    { n:'isPlatformBrowser', k:'ng', w:{ en:'Angular’s helper: <code>true</code> in the browser, <code>false</code> on the server.', ar:'helper من أنجولار: <code>true</code> في المتصفح، و<code>false</code> على السيرفر.' } },
+    { n:'afterNextRender', k:'ng', w:{ en:'Angular’s hook that only ever runs in the browser, after rendering.', ar:'الـ hook بتاع أنجولار اللي بيشتغل في المتصفح بس، بعد الرسم.' } },
+    { n:'window', k:'ng', w:{ en:'The browser’s global object. It does not exist on the server.', ar:'الأوبجكت العام بتاع المتصفح. مش موجود على السيرفر.' } },
+    { n:'innerWidth', k:'ng', w:{ en:'A <code>window</code> property.', ar:'property في <code>window</code>.' } },
+    { n:'SomeDomLibrary', k:'ng', w:{ en:'A third-party library’s class. Its name is whatever that library chose.', ar:'كلاس من مكتبة خارجية. اسمه اللي المكتبة اختارته.' } },
+    { n:'AngularNodeAppEngine', k:'ng', w:{ en:'Angular’s engine that renders pages inside a Node server.', ar:'الـ engine بتاع أنجولار اللي بيرسم الصفحات جوه سيرفر Node.' } },
+    { n:'handle', k:'ng', w:{ en:'The engine’s method: render the page for this request.', ar:'ميثود الـ engine: ارسم الصفحة للطلب ده.' } },
+    { n:'writeResponseToNodeResponse', k:'ng', w:{ en:'Angular’s helper that sends the rendered page back through Node.', ar:'helper من أنجولار بيبعت الصفحة المرسومة من خلال Node.' } },
+    { n:'use', k:'ng', w:{ en:'Express’s method for adding a request handler.', ar:'ميثود Express لإضافة handler للطلبات.' } },
+    { n:'innerHTML', k:'ng', w:{ en:'A DOM property. Angular sanitizes what you bind to it.', ar:'property في الـ DOM. أنجولار بينضّف اللي بتربطه بيه.' } },
+    { n:'@defer', k:'ng', w:{ en:'Angular’s block for loading part of the page later.', ar:'البلوك بتاع أنجولار لتحميل جزء من الصفحة بعدين.' } },
+    { n:'hydrate', k:'ng', only:['b1'], w:{ en:'Angular’s keyword: the server draws it, and this says when the browser wakes it up.', ar:'كلمة أنجولار: السيرفر بيرسمه، ودي بتقول إمتى المتصفح يصحّيه.' } },
+    { n:'on', k:'ng', only:['b1'], re:'(?<=hydrate )on(?= )', w:{ en:'Angular’s keyword that introduces a trigger.', ar:'الكلمة بتاعة أنجولار اللي بتبدأ بيها الـ trigger.' } },
+    { n:'never', k:'ng', re:'(?<=hydrate )never(?![\\w$-])', w:{ en:'With <code>hydrate</code>: never load this part’s JavaScript.', ar:'مع <code>hydrate</code>: متحمّلش الـ JavaScript بتاع الجزء ده أبداً.' } },
+    { n:'interaction', k:'ng', re:'(?<=hydrate on )interaction(?![\\w$-])', w:{ en:'A trigger: the first click or key press.', ar:'trigger: أول ضغطة أو زرار كيبورد.' } },
+    { n:'@placeholder', k:'ng', w:{ en:'Angular’s block shown before the deferred part is ready.', ar:'البلوك بتاع أنجولار اللي بيظهر قبل ما الجزء المتأجل يجهز.' } },
+    { n:'ServerRoute', k:'ng', w:{ en:'Angular’s type for one server-side route rule.', ar:'النوع بتاع أنجولار لقاعدة route واحدة على السيرفر.' } },
+    { n:'path', k:'ng', w:{ en:'A route key. The URL text is yours, and must match your client routes.', ar:'مفتاح route. نص الـ URL بتاعك، ولازم يطابق الـ routes بتاعة المتصفح.' } },
+    { n:'renderMode', k:'ng', w:{ en:'A server-route key: how this route is rendered.', ar:'مفتاح في الـ server route: الـ route ده بيترسم إزاي.' } },
+    { n:'RenderMode', k:'ng', w:{ en:'Angular’s enum: <code>Prerender</code>, <code>Server</code> or <code>Client</code>.', ar:'الـ enum بتاع أنجولار: <code>Prerender</code> أو <code>Server</code> أو <code>Client</code>.' } },
+    { n:'Prerender', k:'ng', w:{ en:'Render once at build time into a static file.', ar:'ارسمه مرة وقت الـ build في ملف ثابت.' } },
+    { n:'Server', k:'ng', w:{ en:'Render on the server for every request.', ar:'ارسمه على السيرفر مع كل طلب.' } },
+    { n:'Client', k:'ng', w:{ en:'Render in the browser only.', ar:'ارسمه في المتصفح بس.' } },
+    { n:'getPrerenderParams', k:'ng', w:{ en:'The method name Angular calls at build time to list every value of the route’s parameters.', ar:'اسم الميثود اللي أنجولار بيناديها وقت الـ build عشان يعرف كل قيم الـ parameters بتاعة الـ route.' } },
+    { n:'fetch', k:'ng', w:{ en:'The standard web function for HTTP requests.', ar:'الـ function القياسية في الويب لطلبات HTTP.' } },
+
+    { n:'ProductPage', k:'pub', w:{ en:'The page’s class name, used in the routes file.', ar:'اسم كلاس الصفحة، مستخدم في ملف الـ routes.' } },
+    { n:'id', k:'pub', only:['cmp'], w:{ en:'An input, usually filled from <code>:id</code> in the route. The route parameter and the input must share the name.', ar:'input، غالباً بيتملي من <code>:id</code> في الـ route. الـ route parameter والـ input لازم ليهم نفس الاسم.' } },
+    { n:'product', k:'mine', w:{ en:'The page’s own resource, read by its own template.', ar:'الـ resource بتاع الصفحة نفسها، والتمبلت بتاعها بيقراه.' } },
+    { n:'Product', k:'pub', w:{ en:'Your data type.', ar:'نوع الداتا بتاعك.' } },
+    { n:'isBrowser', k:'pub', w:{ en:'Your exported helper. Every file that imports it follows a rename.', ar:'الـ helper بتاعك اللي بيتعمله export. أي ملف بيعمله import بيتغير معاه.' } },
+    { n:'Widget', k:'pub', w:{ en:'The class name.', ar:'اسم الكلاس.' } },
+    { n:'angularApp', k:'mine', w:{ en:'The generated file’s local name for the engine. Rename it freely.', ar:'الاسم المحلي للـ engine في الملف المتولّد. غيّره براحتك.' } },
+    { n:'app', k:'mine', w:{ en:'The Express app’s local name.', ar:'الاسم المحلي لتطبيق الـ Express.' } },
+    { n:'req', k:'mine', w:{ en:'The request parameter. Express passes it by position, so the name is yours.', ar:'الـ parameter بتاع الطلب. Express بيبعته حسب مكانه، فالاسم بتاعك.' } },
+    { n:'res', k:'mine', w:{ en:'The response parameter.', ar:'الـ parameter بتاع الرد.' } },
+    { n:'next', k:'mine', w:{ en:'Express’s “pass it on” callback, received by position.', ar:'الـ callback بتاع Express “عدّيها للي بعده”، بيوصل حسب مكانه.' } },
+    { n:'response', k:'mine', w:{ en:'A local name for the rendered page.', ar:'اسم محلي للصفحة المرسومة.' } },
+    { n:'post', k:'mine', w:{ en:'The page’s own signal.', ar:'الـ signal بتاعة الصفحة نفسها.' } },
+    { n:'tags', k:'pub', re:'(?<=\\[)tags(?=\\])', w:{ en:'The related-posts component’s input. <code>.tags</code> on the right is a field on your data.', ar:'الـ input بتاع component المقالات المرتبطة. و<code>.tags</code> اللي على اليمين field في الداتا بتاعتك.' } },
+    { n:'app-related-posts', k:'pub', w:{ en:'A child component’s selector.', ar:'الـ selector بتاع component ابن.' } },
+    { n:'app-comment-form', k:'pub', w:{ en:'A child component’s selector.', ar:'الـ selector بتاع component ابن.' } },
+    { n:'postId', k:'pub', w:{ en:'The comment form’s input.', ar:'الـ input بتاع فورم الكومنتات.' } },
+    { n:'serverRoutes', k:'pub', w:{ en:'Your exported server route list, imported by the server config.', ar:'ليستة الـ server routes بتاعتك، بيتعملها import في إعدادات السيرفر.' } },
+    { n:'slug', k:'pub', re:'(?<![\\w$.-])slug(?![\\w$-])',
+      w:{ en:'The route parameter. <code>:slug</code> in the path, the <code>slug:</code> key you return, and the page’s input must all match. <code>p.slug</code> is a field on your CMS data.',
+          ar:'الـ route parameter. <code>:slug</code> اللي في المسار، والمفتاح <code>slug:</code> اللي بترجّعه، والـ input بتاع الصفحة لازم كلهم يطابقوا بعض. و<code>p.slug</code> field في داتا الـ CMS بتاعتك.' } },
+    { n:'posts', k:'mine', re:'(?<![\\w$/.-])posts(?![\\w$-])', w:{ en:'A local name.', ar:'اسم محلي.' } },
+    { n:'Post', k:'pub', w:{ en:'Your data type.', ar:'نوع الداتا بتاعك.' } },
+  ]
+}
+};

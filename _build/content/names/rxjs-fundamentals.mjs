@@ -1,0 +1,76 @@
+/* names for the RxJS fundamentals topic.
+   n: the name exactly as typed in the code.   k: ng | mine | pub.
+   w: what it is, and what has to change with it.   { en, ar }
+   re / only / as: see _build/names.mjs.                                  */
+export default {
+'rxjs-fundamentals': {
+  note: {
+    en: 'The <code>$</code> at the end of <code>clock$</code> is a convention, not syntax: the name is still yours. <code>next</code>, <code>error</code> and <code>complete</code> are the opposite: they look like ordinary words but RxJS calls them by exactly those names.',
+    ar: 'الـ <code>$</code> اللي في آخر <code>clock$</code> ده عُرف مش جزء من اللغة: الاسم لسه بتاعك. أما <code>next</code> و<code>error</code> و<code>complete</code> فالعكس: شكلهم كلمات عادية بس RxJS بينادي عليهم بالأسامي دي بالظبط.'
+  },
+  names: [
+    { n:'Observable', k:'ng', w:{ en:'RxJS’s stream type.', ar:'نوع الـ stream بتاع RxJS.' } },
+    { n:'subscribe', k:'ng', w:{ en:'The RxJS method that starts listening (and, for a cold stream, starts the work).', ar:'ميثود RxJS اللي بتبدأ تسمع (وفي الـ cold stream بتبدأ الشغل كمان).' } },
+    { n:'unsubscribe', k:'ng', w:{ en:'The RxJS method that stops listening and runs the teardown.', ar:'ميثود RxJS اللي بتوقف السمع وبتشغّل الـ teardown.' } },
+    { n:'next', k:'ng',
+      w:{ en:'RxJS’s fixed name for “here is a value”: a method on the observer and on a Subject, and a key in the subscribe object.',
+          ar:'الاسم الثابت في RxJS لـ “خد قيمة”: ميثود في الـ observer وفي الـ Subject، ومفتاح في الـ object بتاع subscribe.' } },
+    { n:'error', k:'ng',
+      w:{ en:'RxJS’s key for the failure callback. (<code>console.error</code> is the browser’s.)',
+          ar:'مفتاح RxJS للـ callback بتاع الفشل. (و<code>console.error</code> بتاع المتصفح.)' } },
+    { n:'complete', k:'ng', w:{ en:'RxJS’s key for the “finished” callback.', ar:'مفتاح RxJS للـ callback بتاع “خلصت”.' } },
+    { n:'setInterval', k:'ng', w:{ en:'The browser’s repeating timer.', ar:'التايمر المتكرر بتاع المتصفح.' } },
+    { n:'clearInterval', k:'ng', w:{ en:'The browser’s way to stop that timer.', ar:'طريقة المتصفح لإيقاف التايمر ده.' } },
+    { n:'Subject', k:'ng', w:{ en:'RxJS’s hot stream with no memory.', ar:'الـ stream الـ hot بتاع RxJS اللي ملوش ذاكرة.' } },
+    { n:'BehaviorSubject', k:'ng', w:{ en:'RxJS’s Subject that holds a current value.', ar:'الـ Subject بتاع RxJS اللي شايل قيمة حالية.' } },
+    { n:'ReplaySubject', k:'ng', w:{ en:'RxJS’s Subject that remembers the last N values.', ar:'الـ Subject بتاع RxJS اللي بيفتكر آخر N قيم.' } },
+    { n:'value', k:'ng', re:'(?<=\\.)value(?![\\w$-])',
+      w:{ en:'The current value of a <code>BehaviorSubject</code>, read directly.', ar:'القيمة الحالية في الـ <code>BehaviorSubject</code>، بتقراها على طول.' } },
+    { n:'pipe', k:'ng', w:{ en:'RxJS’s method for chaining operators.', ar:'ميثود RxJS لتوصيل الـ operators ورا بعض.' } },
+    { n:'shareReplay', k:'ng', w:{ en:'An RxJS operator that turns a cold stream into a shared one.', ar:'operator من RxJS بيحوّل الـ cold stream لواحد متشارك.' } },
+    { n:'bufferSize', k:'ng', w:{ en:'An option key <code>shareReplay</code> reads.', ar:'مفتاح إعداد <code>shareReplay</code> بيقراه.' } },
+    { n:'refCount', k:'ng', w:{ en:'An option key <code>shareReplay</code> reads.', ar:'مفتاح إعداد <code>shareReplay</code> بيقراه.' } },
+    { n:'map', k:'ng', re:'(?<![\\w$.-])map(?![\\w$-])',
+      w:{ en:'The RxJS operator that transforms each value.', ar:'الـ operator بتاع RxJS اللي بيحوّل كل قيمة.' } },
+    { n:'asObservable', k:'ng', w:{ en:'A Subject method: a read-only view of it.', ar:'ميثود في الـ Subject: نسخة للقراية بس.' } },
+    { n:'valueChanges', k:'ng', w:{ en:'Angular’s form Observable.', ar:'الـ Observable بتاع الفورم في أنجولار.' } },
+    { n:'events', k:'ng', w:{ en:'Angular’s router Observable.', ar:'الـ Observable بتاع الـ router في أنجولار.' } },
+    { n:'fromEvent', k:'ng', w:{ en:'An RxJS function that turns a DOM event into an Observable.', ar:'function من RxJS بتحوّل DOM event لـ Observable.' } },
+    { n:'resize', k:'ng', w:{ en:'The browser’s own event name.', ar:'اسم الـ event بتاع المتصفح نفسه.' } },
+    { n:'takeUntilDestroyed', k:'ng', w:{ en:'Angular’s operator: unsubscribe when the component goes away.', ar:'operator من أنجولار: اعمل unsubscribe لما الـ component يتشال.' } },
+    { n:'toSignal', k:'ng', w:{ en:'Angular’s bridge from an Observable to a signal.', ar:'الكوبري بتاع أنجولار من Observable لـ signal.' } },
+    { n:'initialValue', k:'ng', w:{ en:'An option key <code>toSignal</code> reads.', ar:'مفتاح إعداد <code>toSignal</code> بيقراه.' } },
+    { n:'signal', k:'ng', w:{ en:'Angular’s writable signal.', ar:'الـ signal بتاعة أنجولار اللي بتتكتب.' } },
+    { n:'asReadonly', k:'ng', w:{ en:'A signal method: a read-only view of it.', ar:'ميثود في الـ signal: نسخة للقراية بس.' } },
+    { n:'update', k:'ng', w:{ en:'A signal method.', ar:'ميثود بتاعة الـ signal.' } },
+    { n:'computed', k:'ng', w:{ en:'Angular’s derived signal.', ar:'الـ signal المشتقة بتاعة أنجولار.' } },
+
+    { n:'observer', k:'mine',
+      w:{ en:'The callback’s parameter. RxJS passes it by position, so the name is yours; the <code>next</code> on it is not.',
+          ar:'الـ parameter بتاع الـ callback. RxJS بيبعته بالترتيب، فالاسم بتاعك؛ بس الـ <code>next</code> اللي عليه لأ.' } },
+    { n:'clock$', k:'mine', as:'kofta$', w:{ en:'Your variable. The <code>$</code> is only a convention.', ar:'الـ variable بتاعك. والـ <code>$</code> مجرد عُرف.' } },
+    { n:'sub', k:'mine', w:{ en:'Your variable holding the subscription.', ar:'الـ variable بتاعك اللي شايل الـ subscription.' } },
+    { n:'request$', k:'mine', as:'tahini$', w:{ en:'Your variable.', ar:'الـ variable بتاعك.' } },
+    { n:'clicks$', k:'mine', as:'hummus$', w:{ en:'Your variable.', ar:'الـ variable بتاعك.' } },
+    { n:'events$', k:'mine', as:'zaatar$',
+      w:{ en:'Your variable. Not the same as the router’s <code>events</code>.', ar:'الـ variable بتاعك. مش هو <code>events</code> بتاع الـ router.' } },
+    { n:'user$', k:'mine', as:'molokhia$', w:{ en:'Your variable.', ar:'الـ variable بتاعك.' } },
+    { n:'http', k:'mine', re:'(?<=this\\.)http(?![\\w$-])',
+      w:{ en:'Your property holding the injected <code>HttpClient</code>.', ar:'الـ property بتاعتك اللي شايلة الـ <code>HttpClient</code> المتعمله inject.' } },
+    { n:'form', k:'mine', w:{ en:'Your property holding the form.', ar:'الـ property بتاعتك اللي شايلة الفورم.' } },
+    { n:'router', k:'mine', w:{ en:'Your property holding the injected <code>Router</code>.', ar:'الـ property بتاعتك اللي شايلة الـ <code>Router</code> المتعمله inject.' } },
+    { n:'autosave', k:'mine', w:{ en:'The component’s own method.', ar:'ميثود الـ component نفسه.' } },
+
+    { n:'CartStore', k:'pub', w:{ en:'Your service class. Every component that injects it follows a rename.', ar:'كلاس الـ service بتاعك. أي component بيعمله inject بيتغير معاه.' } },
+    { n:'_items', k:'mine', w:{ en:'The store’s private source. Only the store writes to it.', ar:'المصدر الخاص بالـ store. الـ store بس اللي بيكتب فيه.' } },
+    { n:'items$', k:'pub', as:'fattah$', w:{ en:'Public stream that components read.', ar:'stream public والـ components بتقراه.' } },
+    { n:'count$', k:'pub', as:'konafa$', w:{ en:'Public stream a template reads with <code>| async</code>.', ar:'stream public التمبلت بيقراه بـ <code>| async</code>.' } },
+    { n:'total$', k:'pub', as:'mahshi$', w:{ en:'Public stream components read.', ar:'stream public والـ components بتقراه.' } },
+    { n:'items', k:'pub', w:{ en:'Public read-only signal components read.', ar:'signal public للقراية بس والـ components بتقراها.' } },
+    { n:'count', k:'pub', w:{ en:'Public computed a template reads as <code>count()</code>.', ar:'computed public التمبلت بيقراه كـ <code>count()</code>.' } },
+    { n:'total', k:'pub', w:{ en:'Public computed components read.', ar:'computed public والـ components بتقراه.' } },
+    { n:'add', k:'pub', w:{ en:'Public store method components call.', ar:'ميثود public في الـ store والـ components بتناديها.' } },
+    { n:'Item', k:'pub', w:{ en:'Your data type.', ar:'نوع الداتا بتاعك.' } },
+  ]
+}
+};

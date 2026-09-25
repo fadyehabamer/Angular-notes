@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -660,22 +731,40 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="cfg" data-lang="ts">
         <div class="fc-h"><span class="d"></span>app.routes.ts<span class="tag"><span class="l-en">the map</span><span class="l-ar" dir="auto">الخريطة</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Routes</i> } <i class="t-key">from</i> <i class="t-str">'@angular/router'</i>;</span><span class="ln" data-l="2"><i class="t-key">import</i> { authGuard, adminMatch } <i class="t-key">from</i> <i class="t-str">'./auth.guard'</i>;</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-key">export</i> <i class="t-key">const</i> routes: <i class="t-type">Routes</i> = [</span><span class="ln" data-l="5">  { path: <i class="t-str">''</i>, pathMatch: <i class="t-str">'full'</i>, redirectTo: <i class="t-str">'orders'</i> },</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">  {</span><span class="ln" data-l="8">    path: <i class="t-str">'orders/:id'</i>,</span><span class="ln" data-l="9">    title: <i class="t-str">'Order details'</i>,</span><span class="ln" data-l="10">    loadComponent: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./orders/order-page.component'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type">OrderPage</i>),</span><span class="ln" data-l="11">    canActivate: [authGuard],</span><span class="ln" data-l="12">    data: { section: <i class="t-str">'sales'</i> },</span><span class="ln" data-l="13">  },</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15">  {</span><span class="ln" data-l="16">    path: <i class="t-str">'admin'</i>,</span><span class="ln" data-l="17">    canMatch: [adminMatch],        <i class="t-com">// checked BEFORE the chunk downloads</i></span><span class="ln" data-l="18">    loadChildren: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./admin/admin.routes'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type">ADMIN_ROUTES</i>),</span><span class="ln" data-l="19">  },</span><span class="ln" data-l="20"> </span><span class="ln" data-l="21">  { path: <i class="t-str">'**'</i>, loadComponent: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./not-found.component'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type">NotFound</i>) },</span><span class="ln" data-l="22">];</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-ng" data-nm="Routes">Routes</b></i> } <i class="t-key">from</i> <i class="t-str">'@angular/router'</i>;</span><span class="ln" data-l="2"><span class="v0"><i class="t-key">import</i> { <b class="nm nm-pub" data-nm="authGuard">authGuard</b>, <b class="nm nm-pub" data-nm="adminMatch">adminMatch</b> } <i class="t-key">from</i> <i class="t-str">'./auth.guard'</i>;</span><span class="v1"><i class="t-key">import</i> { <b class="nm nm-pub" data-nm="authGuard">turnip</b>, <b class="nm nm-pub" data-nm="adminMatch">muffin</b> } <i class="t-key">from</i> <i class="t-str">'./auth.guard'</i>;</span></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><span class="v0"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="routes">routes</b>: <i class="t-type"><b class="nm nm-ng" data-nm="Routes">Routes</b></i> = [</span><span class="v1"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="routes">banana</b>: <i class="t-type"><b class="nm nm-ng" data-nm="Routes">Routes</b></i> = [</span></span><span class="ln" data-l="5"><span class="v0">  { <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">''</i>, <b class="nm nm-ng" data-nm="pathMatch">pathMatch</b>: <i class="t-str">'full'</i>, <b class="nm nm-ng" data-nm="redirectTo">redirectTo</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="orders">orders</b>'</i> },</span><span class="v1">  { <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">''</i>, <b class="nm nm-ng" data-nm="pathMatch">pathMatch</b>: <i class="t-str">'full'</i>, <b class="nm nm-ng" data-nm="redirectTo">redirectTo</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="orders">potato</b>'</i> },</span></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">  {</span><span class="ln" data-l="8"><span class="v0">    <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="orders">orders</b>/:<b class="nm nm-pub" data-nm="id">id</b>'</i>,</span><span class="v1">    <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="orders">potato</b>/:<b class="nm nm-pub" data-nm="id">mango</b>'</i>,</span></span><span class="ln" data-l="9">    <b class="nm nm-ng" data-nm="title">title</b>: <i class="t-str">'Order details'</i>,</span><span class="ln" data-l="10"><span class="v0">    <b class="nm nm-ng" data-nm="loadComponent">loadComponent</b>: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./orders/order-page.component'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type"><b class="nm nm-pub" data-nm="OrderPage">OrderPage</b></i>),</span><span class="v1">    <b class="nm nm-ng" data-nm="loadComponent">loadComponent</b>: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./orders/order-page.component'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type"><b class="nm nm-pub" data-nm="OrderPage">Noodle</b></i>),</span></span><span class="ln" data-l="11"><span class="v0">    <b class="nm nm-ng" data-nm="canActivate">canActivate</b>: [<b class="nm nm-pub" data-nm="authGuard">authGuard</b>],</span><span class="v1">    <b class="nm nm-ng" data-nm="canActivate">canActivate</b>: [<b class="nm nm-pub" data-nm="authGuard">turnip</b>],</span></span><span class="ln" data-l="12"><span class="v0">    <b class="nm nm-ng" data-nm="data">data</b>: { <b class="nm nm-pub" data-nm="section">section</b>: <i class="t-str">'sales'</i> },</span><span class="v1">    <b class="nm nm-ng" data-nm="data">data</b>: { <b class="nm nm-pub" data-nm="section">pickle</b>: <i class="t-str">'sales'</i> },</span></span><span class="ln" data-l="13">  },</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15">  {</span><span class="ln" data-l="16">    <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">'admin'</i>,</span><span class="ln" data-l="17"><span class="v0">    <b class="nm nm-ng" data-nm="canMatch">canMatch</b>: [<b class="nm nm-pub" data-nm="adminMatch">adminMatch</b>],        <i class="t-com">// checked BEFORE the chunk downloads</i></span><span class="v1">    <b class="nm nm-ng" data-nm="canMatch">canMatch</b>: [<b class="nm nm-pub" data-nm="adminMatch">muffin</b>],        <i class="t-com">// checked BEFORE the chunk downloads</i></span></span><span class="ln" data-l="18"><span class="v0">    <b class="nm nm-ng" data-nm="loadChildren">loadChildren</b>: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./admin/admin.routes'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type"><b class="nm nm-pub" data-nm="ADMIN_ROUTES">ADMIN_ROUTES</b></i>),</span><span class="v1">    <b class="nm nm-ng" data-nm="loadChildren">loadChildren</b>: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./admin/admin.routes'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type"><b class="nm nm-pub" data-nm="ADMIN_ROUTES">Pumpkin</b></i>),</span></span><span class="ln" data-l="19">  },</span><span class="ln" data-l="20"> </span><span class="ln" data-l="21">  { <b class="nm nm-ng" data-nm="path">path</b>: <i class="t-str">'<b class="nm nm-ng" data-nm="**">**</b>'</i>, <b class="nm nm-ng" data-nm="loadComponent">loadComponent</b>: () =&gt; <i class="t-key">import</i>(<i class="t-str">'./not-found.component'</i>).<i class="t-fn">then</i>(m =&gt; m.<i class="t-type">NotFound</i>) },</span><span class="ln" data-l="22">];</span></pre>
       </div>
       <div class="fc" data-file="guard" data-lang="ts">
         <div class="fc-h"><span class="d"></span>auth.guard.ts<span class="tag"><span class="l-en">plain functions</span><span class="l-ar" dir="auto">functions عادية</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { inject } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"><i class="t-key">import</i> { <i class="t-type">CanActivateFn</i>, <i class="t-type">CanMatchFn</i>, <i class="t-type">Router</i> } <i class="t-key">from</i> <i class="t-str">'@angular/router'</i>;</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-key">export</i> <i class="t-key">const</i> authGuard: <i class="t-type">CanActivateFn</i> = (route, state) =&gt; {</span><span class="ln" data-l="5">  <i class="t-key">const</i> session = <i class="t-fn">inject</i>(<i class="t-type">Session</i>);</span><span class="ln" data-l="6">  <i class="t-key">if</i> (session.<i class="t-fn">isSignedIn</i>()) <i class="t-key">return</i> <i class="t-key">true</i>;</span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-com">// a UrlTree redirects instead of merely blocking</i></span><span class="ln" data-l="9">  <i class="t-key">return</i> <i class="t-fn">inject</i>(<i class="t-type">Router</i>).<i class="t-fn">createUrlTree</i>([<i class="t-str">'/sign-in'</i>], {</span><span class="ln" data-l="10">    queryParams: { next: state.url },</span><span class="ln" data-l="11">  });</span><span class="ln" data-l="12">};</span><span class="ln" data-l="13"> </span><span class="ln" data-l="14"><i class="t-com">// false here makes the router skip the route and keep matching —</i></span><span class="ln" data-l="15"><i class="t-com">// the lazy chunk is never requested at all</i></span><span class="ln" data-l="16"><i class="t-key">export</i> <i class="t-key">const</i> adminMatch: <i class="t-type">CanMatchFn</i> = () =&gt; <i class="t-fn">inject</i>(<i class="t-type">Session</i>).<i class="t-fn">isAdmin</i>();</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <b class="nm nm-ng" data-nm="inject">inject</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-ng" data-nm="CanActivateFn">CanActivateFn</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="CanMatchFn">CanMatchFn</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="Router">Router</b></i> } <i class="t-key">from</i> <i class="t-str">'@angular/router'</i>;</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><span class="v0"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="authGuard">authGuard</b>: <i class="t-type"><b class="nm nm-ng" data-nm="CanActivateFn">CanActivateFn</b></i> = (<b class="nm nm-mine" data-nm="route">route</b>, <b class="nm nm-mine" data-nm="state">state</b>) =&gt; {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="authGuard">turnip</b>: <i class="t-type"><b class="nm nm-ng" data-nm="CanActivateFn">CanActivateFn</b></i> = (<b class="nm nm-mine" data-nm="route">pepper</b>, <b class="nm nm-mine" data-nm="state">lemon</b>) =&gt; {</span></span><span class="ln" data-l="5"><span class="v0">  <i class="t-key">const</i> session = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Session">Session</b></i>);</span><span class="v1">  <i class="t-key">const</i> session = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Session">Taco</b></i>);</span></span><span class="ln" data-l="6">  <i class="t-key">if</i> (session.<i class="t-fn">isSignedIn</i>()) <i class="t-key">return</i> <i class="t-key">true</i>;</span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-com">// a UrlTree redirects instead of merely blocking</i></span><span class="ln" data-l="9"><span class="v0">  <i class="t-key">return</i> <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="Router">Router</b></i>).<i class="t-fn"><b class="nm nm-ng" data-nm="createUrlTree">createUrlTree</b></i>([<i class="t-str">'/<b class="nm nm-pub" data-nm="sign-in">sign-in</b>'</i>], {</span><span class="v1">  <i class="t-key">return</i> <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="Router">Router</b></i>).<i class="t-fn"><b class="nm nm-ng" data-nm="createUrlTree">createUrlTree</b></i>([<i class="t-str">'/<b class="nm nm-pub" data-nm="sign-in">sign-kiwi</b>'</i>], {</span></span><span class="ln" data-l="10"><span class="v0">    <b class="nm nm-ng" data-nm="queryParams">queryParams</b>: { <b class="nm nm-pub" data-nm="next">next</b>: <b class="nm nm-mine" data-nm="state">state</b>.url },</span><span class="v1">    <b class="nm nm-ng" data-nm="queryParams">queryParams</b>: { <b class="nm nm-pub" data-nm="next">donut</b>: <b class="nm nm-mine" data-nm="state">lemon</b>.url },</span></span><span class="ln" data-l="11">  });</span><span class="ln" data-l="12">};</span><span class="ln" data-l="13"> </span><span class="ln" data-l="14"><i class="t-com">// false here makes the router skip the route and keep matching —</i></span><span class="ln" data-l="15"><i class="t-com">// the lazy chunk is never requested at all</i></span><span class="ln" data-l="16"><span class="v0"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="adminMatch">adminMatch</b>: <i class="t-type"><b class="nm nm-ng" data-nm="CanMatchFn">CanMatchFn</b></i> = () =&gt; <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Session">Session</b></i>).<i class="t-fn">isAdmin</i>();</span><span class="v1"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="adminMatch">muffin</b>: <i class="t-type"><b class="nm nm-ng" data-nm="CanMatchFn">CanMatchFn</b></i> = () =&gt; <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Session">Taco</b></i>).<i class="t-fn">isAdmin</i>();</span></span></pre>
       </div>
       <div class="fc" data-file="chunk" data-lang="ts">
         <div class="fc-h"><span class="d"></span>order-page.component.ts<span class="tag"><span class="l-en">the page</span><span class="l-ar" dir="auto">الصفحة</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">OrderPage</i> {</span><span class="ln" data-l="2">  <i class="t-com">// withComponentInputBinding() fills these from the URL</i></span><span class="ln" data-l="3">  <i class="t-key">readonly</i> id  = input.required&lt;<i class="t-key">string</i>&gt;();   <i class="t-com">// :id</i></span><span class="ln" data-l="4">  <i class="t-key">readonly</i> tab = <i class="t-fn">input</i>(<i class="t-str">'items'</i>);             <i class="t-com">// ?tab=</i></span><span class="ln" data-l="5">  <i class="t-key">readonly</i> section = <i class="t-fn">input</i>(<i class="t-str">''</i>);              <i class="t-com">// data: { section }</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">  <i class="t-com">// no ActivatedRoute, no snapshot, no paramMap subscription.</i></span><span class="ln" data-l="8">  <i class="t-com">// navigating /orders/1 → /orders/2 reuses the component and</i></span><span class="ln" data-l="9">  <i class="t-com">// id() simply becomes '2'.</i></span><span class="ln" data-l="10">  <i class="t-key">readonly</i> order = httpResource&lt;<i class="t-type">Order</i>&gt;(() =&gt; <i class="t-str">`/api/orders/${this.id()}`</i>);</span><span class="ln" data-l="11">}</span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="OrderPage">OrderPage</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="OrderPage">Noodle</b></i> {</span></span><span class="ln" data-l="2">  <i class="t-com">// withComponentInputBinding() fills these from the URL</i></span><span class="ln" data-l="3"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="id">id</b>  = <b class="nm nm-ng" data-nm="input">input</b>.required&lt;<i class="t-key">string</i>&gt;();   <i class="t-com">// :id</i></span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="id">mango</b>  = <b class="nm nm-ng" data-nm="input">input</b>.required&lt;<i class="t-key">string</i>&gt;();   <i class="t-com">// :id</i></span></span><span class="ln" data-l="4"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="tab">tab</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-str">'items'</i>);             <i class="t-com">// ?tab=</i></span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="tab">waffle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-str">'items'</i>);             <i class="t-com">// ?tab=</i></span></span><span class="ln" data-l="5"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="section">section</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-str">''</i>);              <i class="t-com">// data: { section }</i></span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="section">pickle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-str">''</i>);              <i class="t-com">// data: { section }</i></span></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">  <i class="t-com">// no ActivatedRoute, no snapshot, no paramMap subscription.</i></span><span class="ln" data-l="8">  <i class="t-com">// navigating /orders/1 → /orders/2 reuses the component and</i></span><span class="ln" data-l="9">  <i class="t-com">// id() simply becomes '2'.</i></span><span class="ln" data-l="10"><span class="v0">  <i class="t-key">readonly</i> order = <b class="nm nm-ng" data-nm="httpResource">httpResource</b>&lt;<i class="t-type">Order</i>&gt;(() =&gt; <i class="t-str">`/api/orders/${this.<b class="nm nm-pub" data-nm="id">id</b>()}`</i>);</span><span class="v1">  <i class="t-key">readonly</i> order = <b class="nm nm-ng" data-nm="httpResource">httpResource</b>&lt;<i class="t-type">Order</i>&gt;(() =&gt; <i class="t-str">`/api/orders/${this.<b class="nm nm-pub" data-nm="id">mango</b>()}`</i>);</span></span><span class="ln" data-l="11">}</span></pre>
       </div>
       <div class="fc" data-file="boot" data-lang="ts">
         <div class="fc-h"><span class="d"></span>app.config.ts<span class="tag"><span class="l-en">wiring</span><span class="l-ar" dir="auto">التوصيل</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { provideRouter, withComponentInputBinding,</span><span class="ln" data-l="2">         withInMemoryScrolling, withPreloading, <i class="t-type">PreloadAllModules</i> } <i class="t-key">from</i> <i class="t-str">'@angular/router'</i>;</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-key">export</i> <i class="t-key">const</i> appConfig: <i class="t-type">ApplicationConfig</i> = {</span><span class="ln" data-l="5">  providers: [</span><span class="ln" data-l="6">    <i class="t-fn">provideRouter</i>(</span><span class="ln" data-l="7">      routes,</span><span class="ln" data-l="8">      <i class="t-fn">withComponentInputBinding</i>(),</span><span class="ln" data-l="9">      <i class="t-fn">withInMemoryScrolling</i>({ scrollPositionRestoration: <i class="t-str">'enabled'</i>, anchorScrolling: <i class="t-str">'enabled'</i> }),</span><span class="ln" data-l="10">      <i class="t-fn">withPreloading</i>(<i class="t-type">PreloadAllModules</i>),   <i class="t-com">// fetch lazy chunks once idle</i></span><span class="ln" data-l="11">    ),</span><span class="ln" data-l="12">  ],</span><span class="ln" data-l="13">};</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <b class="nm nm-ng" data-nm="provideRouter">provideRouter</b>, <b class="nm nm-ng" data-nm="withComponentInputBinding">withComponentInputBinding</b>,</span><span class="ln" data-l="2">         withInMemoryScrolling, <b class="nm nm-ng" data-nm="withPreloading">withPreloading</b>, <i class="t-type">PreloadAllModules</i> } <i class="t-key">from</i> <i class="t-str">'@angular/router'</i>;</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><span class="v0"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="appConfig">appConfig</b>: <i class="t-type">ApplicationConfig</i> = {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="appConfig">melon</b>: <i class="t-type">ApplicationConfig</i> = {</span></span><span class="ln" data-l="5">  providers: [</span><span class="ln" data-l="6">    <i class="t-fn"><b class="nm nm-ng" data-nm="provideRouter">provideRouter</b></i>(</span><span class="ln" data-l="7"><span class="v0">      <b class="nm nm-pub" data-nm="routes">routes</b>,</span><span class="v1">      <b class="nm nm-pub" data-nm="routes">banana</b>,</span></span><span class="ln" data-l="8">      <i class="t-fn"><b class="nm nm-ng" data-nm="withComponentInputBinding">withComponentInputBinding</b></i>(),</span><span class="ln" data-l="9">      <i class="t-fn">withInMemoryScrolling</i>({ scrollPositionRestoration: <i class="t-str">'enabled'</i>, anchorScrolling: <i class="t-str">'enabled'</i> }),</span><span class="ln" data-l="10">      <i class="t-fn"><b class="nm nm-ng" data-nm="withPreloading">withPreloading</b></i>(<i class="t-type">PreloadAllModules</i>),   <i class="t-com">// fetch lazy chunks once idle</i></span><span class="ln" data-l="11">    ),</span><span class="ln" data-l="12">  ],</span><span class="ln" data-l="13">};</span></pre>
       </div></div>
 
   
@@ -688,13 +777,309 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="r1" data-lang="ts">
         <div class="fc-h"><span class="d"></span>orders-list.component.ts<span class="tag"><span class="l-en">reads the URL</span><span class="l-ar" dir="auto">بيقرا الـ URL</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">OrdersList</i> {</span><span class="ln" data-l="2">  <i class="t-key">private</i> <i class="t-key">readonly</i> router = <i class="t-fn">inject</i>(<i class="t-type">Router</i>);</span><span class="ln" data-l="3">  <i class="t-key">private</i> <i class="t-key">readonly</i> route = <i class="t-fn">inject</i>(<i class="t-type">ActivatedRoute</i>);</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5">  <i class="t-key">readonly</i> status = input&lt;<i class="t-str">'all'</i> | <i class="t-str">'paid'</i> | <i class="t-str">'failed'</i>&gt;(<i class="t-str">'all'</i>);   <i class="t-com">// ?status=</i></span><span class="ln" data-l="6">  <i class="t-key">readonly</i> page = <i class="t-fn">input</i>(<i class="t-num">1</i>, { transform: numberAttribute });     <i class="t-com">// ?page=</i></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-key">readonly</i> data = httpResource&lt;<i class="t-type">Page</i>&lt;<i class="t-type">Order</i>&gt;&gt;(() =&gt;</span><span class="ln" data-l="9">    <i class="t-str">`/api/orders?status=${this.status()}&amp;page=${this.page()}`</i>);</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">  <i class="t-fn">setStatus</i>(status: <i class="t-key">string</i>) {</span><span class="ln" data-l="12">    <i class="t-com">// change the URL — the inputs follow, the resource refetches</i></span><span class="ln" data-l="13">    <i class="t-key">this</i>.router.<i class="t-fn">navigate</i>([], {</span><span class="ln" data-l="14">      relativeTo: <i class="t-key">this</i>.route,</span><span class="ln" data-l="15">      queryParams: { status, page: <i class="t-num">1</i> },</span><span class="ln" data-l="16">      queryParamsHandling: <i class="t-str">'merge'</i>,</span><span class="ln" data-l="17">    });</span><span class="ln" data-l="18">  }</span><span class="ln" data-l="19">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">OrdersList</i> {</span><span class="ln" data-l="2"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="router">router</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="Router">Router</b></i>);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="router">carrot</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="Router">Router</b></i>);</span></span><span class="ln" data-l="3"><span class="v0">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="route">route</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="ActivatedRoute">ActivatedRoute</b></i>);</span><span class="v1">  <i class="t-key">private</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="route">pepper</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="ActivatedRoute">ActivatedRoute</b></i>);</span></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="status">status</b> = <b class="nm nm-ng" data-nm="input">input</b>&lt;<i class="t-str">'all'</i> | <i class="t-str">'paid'</i> | <i class="t-str">'failed'</i>&gt;(<i class="t-str">'all'</i>);   <i class="t-com">// ?status=</i></span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="status">biscuit</b> = <b class="nm nm-ng" data-nm="input">input</b>&lt;<i class="t-str">'all'</i> | <i class="t-str">'paid'</i> | <i class="t-str">'failed'</i>&gt;(<i class="t-str">'all'</i>);   <i class="t-com">// ?status=</i></span></span><span class="ln" data-l="6"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="page">page</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-num">1</i>, { transform: <b class="nm nm-ng" data-nm="numberAttribute">numberAttribute</b> });     <i class="t-com">// ?page=</i></span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="page">olive</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-num">1</i>, { transform: <b class="nm nm-ng" data-nm="numberAttribute">numberAttribute</b> });     <i class="t-com">// ?page=</i></span></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-key">readonly</i> data = <b class="nm nm-ng" data-nm="httpResource">httpResource</b>&lt;<i class="t-type">Page</i>&lt;<i class="t-type">Order</i>&gt;&gt;(() =&gt;</span><span class="ln" data-l="9"><span class="v0">    <i class="t-str">`/api/orders?status=${this.<b class="nm nm-pub" data-nm="status">status</b>()}&amp;page=${this.<b class="nm nm-pub" data-nm="page">page</b>()}`</i>);</span><span class="v1">    <i class="t-str">`/api/orders?status=${this.<b class="nm nm-pub" data-nm="status">biscuit</b>()}&amp;page=${this.<b class="nm nm-pub" data-nm="page">olive</b>()}`</i>);</span></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><span class="v0">  <i class="t-fn"><b class="nm nm-mine" data-nm="setStatus">setStatus</b></i>(<b class="nm nm-pub" data-nm="status">status</b>: <i class="t-key">string</i>) {</span><span class="v1">  <i class="t-fn"><b class="nm nm-mine" data-nm="setStatus">cookie</b></i>(<b class="nm nm-pub" data-nm="status">biscuit</b>: <i class="t-key">string</i>) {</span></span><span class="ln" data-l="12">    <i class="t-com">// change the URL — the inputs follow, the resource refetches</i></span><span class="ln" data-l="13"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="router">router</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="navigate">navigate</b></i>([], {</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="router">carrot</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="navigate">navigate</b></i>([], {</span></span><span class="ln" data-l="14"><span class="v0">      <b class="nm nm-ng" data-nm="relativeTo">relativeTo</b>: <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="route">route</b>,</span><span class="v1">      <b class="nm nm-ng" data-nm="relativeTo">relativeTo</b>: <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="route">pepper</b>,</span></span><span class="ln" data-l="15"><span class="v0">      <b class="nm nm-ng" data-nm="queryParams">queryParams</b>: { <b class="nm nm-pub" data-nm="status">status</b>, <b class="nm nm-pub" data-nm="page">page</b>: <i class="t-num">1</i> },</span><span class="v1">      <b class="nm nm-ng" data-nm="queryParams">queryParams</b>: { <b class="nm nm-pub" data-nm="status">biscuit</b>, <b class="nm nm-pub" data-nm="page">olive</b>: <i class="t-num">1</i> },</span></span><span class="ln" data-l="16">      <b class="nm nm-ng" data-nm="queryParamsHandling">queryParamsHandling</b>: <i class="t-str">'merge'</i>,</span><span class="ln" data-l="17">    });</span><span class="ln" data-l="18">  }</span><span class="ln" data-l="19">}</span></pre>
       </div>
       <div class="fc" data-file="r2" data-lang="html">
         <div class="fc-h"><span class="d"></span>orders-list.component.html<span class="tag"><span class="l-en">the controls</span><span class="l-ar" dir="auto">التحكم</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">@for</i> (s of [<i class="t-str">'all'</i>, <i class="t-str">'paid'</i>, <i class="t-str">'failed'</i>]; track s) {</span><span class="ln" data-l="2">  <i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"setStatus(s)"</i> <i class="t-bind">[class.on]</i>=<i class="t-str">"status() === s"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ s }}</i><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="3">}</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><i class="t-key">@if</i> (data.isLoading()) { <i class="t-tag">&lt;app-skeleton</i> <i class="t-tag">/&gt;</i> }</span><span class="ln" data-l="6"><i class="t-key">@else</i> { <i class="t-key">@for</i> (o of data.value()?.items ?? []; track o.id) { <i class="t-tag">&lt;app-order-row</i> <i class="t-bind">[order]</i>=<i class="t-str">"o"</i> <i class="t-tag">/&gt;</i> } }</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">@for</i> (s of [<i class="t-str">'all'</i>, <i class="t-str">'paid'</i>, <i class="t-str">'failed'</i>]; track s) {</span><span class="ln" data-l="2"><span class="v0">  <i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="setStatus">setStatus</b>(s)"</i> <i class="t-bind">[class.on]</i>=<i class="t-str">"<b class="nm nm-pub" data-nm="status">status</b>() === s"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ s }}</i><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="setStatus">cookie</b>(s)"</i> <i class="t-bind">[class.on]</i>=<i class="t-str">"<b class="nm nm-pub" data-nm="status">biscuit</b>() === s"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ s }}</i><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="3">}</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><i class="t-key">@if</i> (data.isLoading()) { <i class="t-tag">&lt;app-skeleton</i> <i class="t-tag">/&gt;</i> }</span><span class="ln" data-l="6"><i class="t-key">@else</i> { <i class="t-key">@for</i> (o of data.value()?.items ?? []; track o.id) { <i class="t-tag">&lt;app-order-row</i> <i class="t-bind">[order]</i>=<i class="t-str">"o"</i> <i class="t-tag">/&gt;</i> } }</span></pre>
       </div></div>
   </div>
+
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">Every key in a route object (<code>path</code>, <code>loadComponent</code>, <code>canActivate</code>…) is Angular’s. The <em>values</em> are yours, and many of them are promises: with <code>withComponentInputBinding()</code>, <code>:id</code>, <code>?status=</code> and <code>data: { section }</code> must be spelled exactly like the inputs they fill.</span><span class="l-ar" dir="auto">كل مفتاح في الـ route object (<code>path</code>، <code>loadComponent</code>، <code>canActivate</code>…) بتاع أنجولار. أما <em>القيم</em> فبتاعتك، وكتير منها وعود: مع <code>withComponentInputBinding()</code>، الـ <code>:id</code> والـ <code>?status=</code> والـ <code>data: { section }</code> لازم يتكتبوا بالظبط زي الـ inputs اللي بيملوها.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="Routes">
+        <td><b class="nm nm-ng" data-nm="Routes">Routes</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s type for a list of routes.</span><span class="l-ar" dir="auto">النوع بتاع أنجولار لقايمة routes.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="path">
+        <td><b class="nm nm-ng" data-nm="path">path</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route key Angular reads. The URL text you put in it is yours.</span><span class="l-ar" dir="auto">مفتاح route أنجولار بيقراه. نص الـ URL اللي بتحطه فيه بتاعك.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="pathMatch">
+        <td><b class="nm nm-ng" data-nm="pathMatch">pathMatch</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route key: <code>'full'</code> means the whole URL must match, not just the start.</span><span class="l-ar" dir="auto">مفتاح route: <code>'full'</code> معناها إن الـ URL كله لازم يطابق، مش أوله بس.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="redirectTo">
+        <td><b class="nm nm-ng" data-nm="redirectTo">redirectTo</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route key Angular reads.</span><span class="l-ar" dir="auto">مفتاح route أنجولار بيقراه.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="title">
+        <td><b class="nm nm-ng" data-nm="title">title</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route key: Angular puts this text in the browser tab.</span><span class="l-ar" dir="auto">مفتاح route: أنجولار بيحط النص ده في تاب المتصفح.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="loadComponent">
+        <td><b class="nm nm-ng" data-nm="loadComponent">loadComponent</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route key: download this component’s code only when the route is visited.</span><span class="l-ar" dir="auto">مفتاح route: نزّل كود الـ component ده بس لما حد يروح للـ route.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="loadChildren">
+        <td><b class="nm nm-ng" data-nm="loadChildren">loadChildren</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route key: download a whole list of child routes lazily.</span><span class="l-ar" dir="auto">مفتاح route: نزّل قايمة routes فرعية كاملة وقت الحاجة.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="canActivate">
+        <td><b class="nm nm-ng" data-nm="canActivate">canActivate</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route key for guards that run before entering.</span><span class="l-ar" dir="auto">مفتاح route للـ guards اللي بتشتغل قبل الدخول.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="canMatch">
+        <td><b class="nm nm-ng" data-nm="canMatch">canMatch</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route key for guards that decide if this route counts at all.</span><span class="l-ar" dir="auto">مفتاح route للـ guards اللي بتقرر الـ route ده يتحسب أصلاً ولا لأ.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="data">
+        <td><b class="nm nm-ng" data-nm="data">data</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A route key for static data. The keys inside it are yours.</span><span class="l-ar" dir="auto">مفتاح route لداتا ثابتة. المفاتيح اللي جواه بتاعتك.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="**">
+        <td><b class="nm nm-ng" data-nm="**">**</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s wildcard path: “anything nothing else matched”. It must come last.</span><span class="l-ar" dir="auto">الـ wildcard path بتاع أنجولار: “أي حاجة محدش تاني طابقها”. لازم يبقى في الآخر.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="CanActivateFn">
+        <td><b class="nm nm-ng" data-nm="CanActivateFn">CanActivateFn</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s type for a guard function.</span><span class="l-ar" dir="auto">النوع بتاع أنجولار لـ guard function.</span></td>
+        <td class="nmfiles"><code>auth.guard.ts</code></td>
+      </tr>
+      <tr data-nmrow="CanMatchFn">
+        <td><b class="nm nm-ng" data-nm="CanMatchFn">CanMatchFn</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s type for a match guard.</span><span class="l-ar" dir="auto">النوع بتاع أنجولار لـ match guard.</span></td>
+        <td class="nmfiles"><code>auth.guard.ts</code></td>
+      </tr>
+      <tr data-nmrow="inject">
+        <td><b class="nm nm-ng" data-nm="inject">inject</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that hands you a dependency.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتديك dependency.</span></td>
+        <td class="nmfiles"><code>auth.guard.ts</code> <code>orders-list.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="Router">
+        <td><b class="nm nm-ng" data-nm="Router">Router</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s navigation service.</span><span class="l-ar" dir="auto">الـ service بتاعة أنجولار للتنقل.</span></td>
+        <td class="nmfiles"><code>auth.guard.ts</code> <code>orders-list.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="ActivatedRoute">
+        <td><b class="nm nm-ng" data-nm="ActivatedRoute">ActivatedRoute</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s service describing the route this component is on.</span><span class="l-ar" dir="auto">الـ service بتاعة أنجولار اللي بتوصف الـ route اللي الـ component ده عليه.</span></td>
+        <td class="nmfiles"><code>orders-list.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="createUrlTree">
+        <td><b class="nm nm-ng" data-nm="createUrlTree">createUrlTree</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A <code>Router</code> method.</span><span class="l-ar" dir="auto">ميثود في الـ <code>Router</code>.</span></td>
+        <td class="nmfiles"><code>auth.guard.ts</code></td>
+      </tr>
+      <tr data-nmrow="navigate">
+        <td><b class="nm nm-ng" data-nm="navigate">navigate</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A <code>Router</code> method.</span><span class="l-ar" dir="auto">ميثود في الـ <code>Router</code>.</span></td>
+        <td class="nmfiles"><code>orders-list.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="queryParams">
+        <td><b class="nm nm-ng" data-nm="queryParams">queryParams</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads. The keys inside it become <code>?key=</code> in the URL.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه. المفاتيح اللي جواه بتبقى <code>?key=</code> في الـ URL.</span></td>
+        <td class="nmfiles"><code>auth.guard.ts</code> <code>orders-list.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="relativeTo">
+        <td><b class="nm nm-ng" data-nm="relativeTo">relativeTo</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه.</span></td>
+        <td class="nmfiles"><code>orders-list.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="queryParamsHandling">
+        <td><b class="nm nm-ng" data-nm="queryParamsHandling">queryParamsHandling</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key: <code>'merge'</code> keeps the other query params.</span><span class="l-ar" dir="auto">مفتاح إعداد: <code>'merge'</code> بيحافظ على باقي الـ query params.</span></td>
+        <td class="nmfiles"><code>orders-list.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="provideRouter">
+        <td><b class="nm nm-ng" data-nm="provideRouter">provideRouter</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that switches the router on.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتشغّل الـ router.</span></td>
+        <td class="nmfiles"><code>app.config.ts</code></td>
+      </tr>
+      <tr data-nmrow="withComponentInputBinding">
+        <td><b class="nm nm-ng" data-nm="withComponentInputBinding">withComponentInputBinding</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s feature that fills inputs from the URL by matching names.</span><span class="l-ar" dir="auto">الـ feature بتاعة أنجولار اللي بتملا الـ inputs من الـ URL لو الأسامي زي بعض.</span></td>
+        <td class="nmfiles"><code>app.config.ts</code></td>
+      </tr>
+      <tr data-nmrow="withPreloading">
+        <td><b class="nm nm-ng" data-nm="withPreloading">withPreloading</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s router feature.</span><span class="l-ar" dir="auto">feature في الـ router بتاع أنجولار.</span></td>
+        <td class="nmfiles"><code>app.config.ts</code></td>
+      </tr>
+      <tr data-nmrow="input">
+        <td><b class="nm nm-ng" data-nm="input">input</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that creates an input.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتعمل input.</span></td>
+        <td class="nmfiles"><code>order-page.component.ts</code> <code>orders-list.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="numberAttribute">
+        <td><b class="nm nm-ng" data-nm="numberAttribute">numberAttribute</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A ready-made function from Angular that turns the URL’s text <code>"2"</code> into the number <code>2</code>.</span><span class="l-ar" dir="auto">function جاهزة من أنجولار بتحوّل النص <code>"2"</code> اللي في الـ URL لرقم <code>2</code>.</span></td>
+        <td class="nmfiles"><code>orders-list.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="httpResource">
+        <td><b class="nm nm-ng" data-nm="httpResource">httpResource</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s signal-based HTTP fetch.</span><span class="l-ar" dir="auto">الـ HTTP fetch بتاع أنجولار اللي مبني على signals.</span></td>
+        <td class="nmfiles"><code>order-page.component.ts</code> <code>orders-list.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="routes">
+        <td><b class="nm nm-pub" data-nm="routes">routes</b><span class="nmas">&rarr; <code>banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your exported array. <code>app.config.ts</code> imports it by this name.</span><span class="l-ar" dir="auto">الـ array اللي انت عامله export. <code>app.config.ts</code> بيعمله import بالاسم ده.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code> <code>app.config.ts</code></td>
+      </tr>
+      <tr data-nmrow="orders">
+        <td><b class="nm nm-pub" data-nm="orders">orders</b><span class="nmas">&rarr; <code>potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A URL segment. Every <code>routerLink</code> and <code>redirectTo</code> that points here must use the same text.</span><span class="l-ar" dir="auto">جزء من الـ URL. أي <code>routerLink</code> أو <code>redirectTo</code> بيشاور هنا لازم يستخدم نفس النص.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="id">
+        <td><b class="nm nm-pub" data-nm="id">id</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The <code>:id</code> in the path and the <code>id</code> input must be spelled the same, or the input stays empty.</span><span class="l-ar" dir="auto">الـ <code>:id</code> اللي في الـ path والـ input اللي اسمه <code>id</code> لازم يتكتبوا زي بعض، وإلا الـ input هيفضل فاضي.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code> <code>order-page.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="section">
+        <td><b class="nm nm-pub" data-nm="section">section</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A key inside route <code>data</code>, and the input that receives it. Same name on both sides.</span><span class="l-ar" dir="auto">مفتاح جوه <code>data</code> بتاعة الـ route، والـ input اللي بيستقبله. نفس الاسم في الناحيتين.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code> <code>order-page.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="tab">
+        <td><b class="nm nm-pub" data-nm="tab">tab</b><span class="nmas">&rarr; <code>waffle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Filled from <code>?tab=</code>, so every link that sets it uses this name.</span><span class="l-ar" dir="auto">بيتملي من <code>?tab=</code>، فأي لينك بيحطه بيستخدم الاسم ده.</span></td>
+        <td class="nmfiles"><code>order-page.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="OrderPage">
+        <td><b class="nm nm-pub" data-nm="OrderPage">OrderPage</b><span class="nmas">&rarr; <code>Noodle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The class name the lazy import picks out of the file.</span><span class="l-ar" dir="auto">اسم الكلاس اللي الـ lazy import بيطلّعه من الملف.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code> <code>order-page.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="ADMIN_ROUTES">
+        <td><b class="nm nm-pub" data-nm="ADMIN_ROUTES">ADMIN_ROUTES</b><span class="nmas">&rarr; <code>Pumpkin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The array exported by <code>admin.routes.ts</code>.</span><span class="l-ar" dir="auto">الـ array اللي <code>admin.routes.ts</code> عامله export.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code></td>
+      </tr>
+      <tr data-nmrow="authGuard">
+        <td><b class="nm nm-pub" data-nm="authGuard">authGuard</b><span class="nmas">&rarr; <code>turnip</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your guard, exported from one file and listed in the routes.</span><span class="l-ar" dir="auto">الـ guard بتاعك، متعمله export من ملف ومكتوب في الـ routes.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code> <code>auth.guard.ts</code></td>
+      </tr>
+      <tr data-nmrow="adminMatch">
+        <td><b class="nm nm-pub" data-nm="adminMatch">adminMatch</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your match guard, exported and listed in the routes.</span><span class="l-ar" dir="auto">الـ match guard بتاعك، متعمله export ومكتوب في الـ routes.</span></td>
+        <td class="nmfiles"><code>app.routes.ts</code> <code>auth.guard.ts</code></td>
+      </tr>
+      <tr data-nmrow="Session">
+        <td><b class="nm nm-pub" data-nm="Session">Session</b><span class="nmas">&rarr; <code>Taco</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your service class.</span><span class="l-ar" dir="auto">كلاس الـ service بتاعك.</span></td>
+        <td class="nmfiles"><code>auth.guard.ts</code></td>
+      </tr>
+      <tr data-nmrow="sign-in">
+        <td><b class="nm nm-pub" data-nm="sign-in">sign-in</b><span class="nmas">&rarr; <code>sign-kiwi</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The path of another route. It must match that route’s <code>path</code>.</span><span class="l-ar" dir="auto">الـ path بتاع route تاني. لازم يطابق الـ <code>path</code> بتاعه.</span></td>
+        <td class="nmfiles"><code>auth.guard.ts</code></td>
+      </tr>
+      <tr data-nmrow="next">
+        <td><b class="nm nm-pub" data-nm="next">next</b><span class="nmas">&rarr; <code>donut</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A query param name you chose. The sign-in page reads <code>?next=</code>, so both use the same word.</span><span class="l-ar" dir="auto">اسم query param انت اختاره. صفحة الـ sign-in بتقرا <code>?next=</code>، فالاتنين بيستخدموا نفس الكلمة.</span></td>
+        <td class="nmfiles"><code>auth.guard.ts</code></td>
+      </tr>
+      <tr data-nmrow="route">
+        <td><b class="nm nm-mine" data-nm="route">route</b><span class="nmas">&rarr; <code>pepper</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Two unrelated names: the guard’s first parameter, and the list’s injected <code>ActivatedRoute</code>. Both are yours to rename.</span><span class="l-ar" dir="auto">اسمين ملهمش علاقة ببعض: أول parameter في الـ guard، والـ <code>ActivatedRoute</code> اللي الليستة عاملاله inject. الاتنين بتوعك وتقدر تغيّرهم.</span></td>
+        <td class="nmfiles"><code>auth.guard.ts</code> <code>orders-list.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="state">
+        <td><b class="nm nm-mine" data-nm="state">state</b><span class="nmas">&rarr; <code>lemon</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The guard’s second parameter. Angular passes it by position, so the name is yours.</span><span class="l-ar" dir="auto">تاني parameter في الـ guard. أنجولار بيبعته بالترتيب، فالاسم بتاعك.</span></td>
+        <td class="nmfiles"><code>auth.guard.ts</code></td>
+      </tr>
+      <tr data-nmrow="router">
+        <td><b class="nm nm-mine" data-nm="router">router</b><span class="nmas">&rarr; <code>carrot</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your property holding the <code>Router</code>.</span><span class="l-ar" dir="auto">الـ property بتاعتك اللي شايلة الـ <code>Router</code>.</span></td>
+        <td class="nmfiles"><code>orders-list.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="status">
+        <td><b class="nm nm-pub" data-nm="status">status</b><span class="nmas">&rarr; <code>biscuit</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">An input filled from <code>?status=</code>. <code>setStatus</code> writes the same key into <code>queryParams</code>, so they must match.</span><span class="l-ar" dir="auto">input بيتملي من <code>?status=</code>. و<code>setStatus</code> بيكتب نفس المفتاح في <code>queryParams</code>، فلازم يبقوا زي بعض.</span></td>
+        <td class="nmfiles"><code>orders-list.component.ts</code> <code>orders-list.component.html</code></td>
+      </tr>
+      <tr data-nmrow="page">
+        <td><b class="nm nm-pub" data-nm="page">page</b><span class="nmas">&rarr; <code>olive</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">An input filled from <code>?page=</code>. Same rule as <code>status</code>.</span><span class="l-ar" dir="auto">input بيتملي من <code>?page=</code>. نفس قاعدة <code>status</code>.</span></td>
+        <td class="nmfiles"><code>orders-list.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="setStatus">
+        <td><b class="nm nm-mine" data-nm="setStatus">setStatus</b><span class="nmas">&rarr; <code>cookie</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own method, called from its own template.</span><span class="l-ar" dir="auto">ميثود الـ component نفسه، بيناديها من التمبلت بتاعه.</span></td>
+        <td class="nmfiles"><code>orders-list.component.ts</code> <code>orders-list.component.html</code></td>
+      </tr>
+      <tr data-nmrow="appConfig">
+        <td><b class="nm nm-pub" data-nm="appConfig">appConfig</b><span class="nmas">&rarr; <code>melon</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your config object. <code>main.ts</code> imports it by this name.</span><span class="l-ar" dir="auto">الـ config object بتاعك. <code>main.ts</code> بيعمله import بالاسم ده.</span></td>
+        <td class="nmfiles"><code>app.config.ts</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="routing-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en">Routing, name by name</span><span class="l-ar" dir="auto">الـ routing، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">The page for when <code>:id</code>, <code>id()</code>, <code>?tab=</code> and <code>queryParams</code> stop making sense. One click on an order followed through the routes, the guard and the pages, every name coloured by who owns it. Then which renames fail loudly and which ones fail in total silence.</span><span class="l-ar" dir="auto">الصفحة دي لما <code>:id</code> و<code>id()</code> و<code>?tab=</code> و<code>queryParams</code> يبطلوا يبقى ليهم معنى. كليك واحدة على أوردر ماشيين وراها في الـ routes والـ guard والصفحات، وكل اسم ملوّن حسب صاحبه. وبعدين أنهي تغييرات بتفشل بصوت عالي وأنهي بتفشل في صمت تام.</span></span>
+  </a>
 
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
@@ -794,8 +1179,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../intermediate/20-queries.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en"><code>viewChild</code> and <code>contentChild</code></span><span class="l-ar" dir="auto"><code>viewChild</code> و <code>contentChild</code></span></b></a>
-    <a class="nx" href="../intermediate/22-http.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">HTTP without the <code>subscribe</code></span><span class="l-ar" dir="auto">HTTP من غير <code>subscribe</code></span></b></a>
+    <a class="pv" href="../intermediate/queries-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en"><code>viewChild</code> and <code>contentChild</code>, name by name</span><span class="l-ar" dir="auto"><code>viewChild</code> و<code>contentChild</code>، اسم اسم</span></b></a>
+    <a class="nx" href="../intermediate/routing-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Routing, name by name</span><span class="l-ar" dir="auto">الـ routing، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -837,6 +1222,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){

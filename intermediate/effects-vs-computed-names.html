@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>computed() and effect(), name by name — The Angular Signal</title>
+<meta name="description" content="The idea is simple: a computed gives you a value back; an effect does something and gives nothing back. The confusing part is the names. A computed gets a name because someone read">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Cairo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--c:var(--int)}
+/* ============================================================
+   Two skins, one set of names. Light is the default; the top-bar
+   switch stamps data-theme="dark" on the root element, and only the
+   below change. Never hard-code a colour outside these blocks.
+   ============================================================ */
+:root{
+  color-scheme:light;
+  /* surfaces */
+  --bg:#f3f4fb; --bg2:#eaecf7; --card:#ffffff; --card2:#f7f8fd; --code:#fbfbff;
+  --line:rgba(23,27,64,.14); --line2:rgba(23,27,64,.08);
+  --sunk:rgba(23,27,64,.03); --sunk2:rgba(23,27,64,.05); --hover:rgba(23,27,64,.05);
+  --chip:rgba(23,27,64,.065); --chipink:#3a3f70;
+  --topbg:rgba(248,249,254,.84);
+  --wire:rgba(23,27,64,.24); --dotbg:rgba(23,27,64,.17);
+  --nodesh:0 12px 26px -20px rgba(23,27,64,.55), inset 0 1px 0 #fff;
+  --glow1:9%; --glow2:5%;
+  /* ink */
+  --ink:#12142c; --mut:#4d5480; --dim:#767d9f; --onc:#ffffff;
+  --ok:#0a8f5b; --no:#c62348;   /* quiz: right / wrong */
+  /* track accents — darkened so they carry on paper */
+  --beg:#0c9280;    /* track 1 */
+  --int:#5b3ad4;    /* track 2 */
+  --adv:#c60059;    /* track 3 */
+  --ts:#1566cc; --js:#9a6410; --html:#c04d1a; --svc:#8a5f00; --cfg:#5b3ad4;
+  /* syntax */
+  --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
+  --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
+  --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
+  --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0b0d1c; --bg2:#101430; --card:#141935; --card2:#171d3d; --code:transparent;
+  --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.055);
+  --sunk:rgba(255,255,255,.03); --sunk2:rgba(255,255,255,.05); --hover:rgba(255,255,255,.04);
+  --chip:rgba(255,255,255,.07); --chipink:#cfd6ff;
+  --topbg:rgba(8,10,22,.72);
+  --wire:rgba(255,255,255,.13); --dotbg:rgba(255,255,255,.16);
+  --nodesh:0 10px 26px -18px #000, inset 0 1px 0 rgba(255,255,255,.05);
+  --glow1:16%; --glow2:8%;
+  --ink:#eceefb; --mut:#98a0c8; --dim:#69719e; --onc:#0b0d1c;
+  --ok:#3ddc97; --no:#ff5470;
+  --beg:#2ee6c5; --int:#8b6cff; --adv:#ff2e88;
+  --ts:#4a9eff; --js:#ffc857; --html:#ff7a45; --svc:#ffb020; --cfg:#8b6cff;
+  --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
+  --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
+  --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:
+    radial-gradient(1100px 700px at 78% -10%,color-mix(in srgb,var(--c) var(--glow1),transparent),transparent 62%),
+    radial-gradient(900px 600px at 4% 108%,color-mix(in srgb,var(--adv) var(--glow2),transparent),transparent 62%),
+    var(--bg);
+  color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--c);color:var(--onc)}
+:focus-visible{outline:2px solid var(--c);outline-offset:3px;border-radius:6px}
+a{color:var(--c)}
+code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+
+/* ---------- language ---------- */
+:root[data-lang="en"] .l-ar{display:none !important}
+:root[data-lang="ar"] .l-en{display:none !important}
+:root[dir="rtl"]{
+  --disp:'Cairo','IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+}
+:root[dir="rtl"] h1.title{line-height:1.32;letter-spacing:0}
+:root[dir="rtl"] .lead{font-size:15px;line-height:1.75}
+:root[dir="rtl"] .num,:root[dir="rtl"] .badge{letter-spacing:.04em}
+/* keep neighbouring runs from reordering each other in RTL */
+.kick span,.cover-top span{unicode-bidi:isolate}
+/* diagrams and code always read left-to-right */
+.stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
+
+/* ---------- top bar ---------- */
+.top{
+  position:sticky;top:0;z-index:40;background:var(--topbg);
+  backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);
+  border-bottom:1px solid var(--line2);
+}
+.top-in{
+  max-width:1220px;margin:0 auto;padding:9px clamp(16px,3.4vw,40px);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.home{
+  display:inline-flex;align-items:baseline;gap:9px;text-decoration:none;white-space:nowrap;
+}
+.home b{
+  font-family:var(--disp);font-weight:800;font-size:15.5px;letter-spacing:-.02em;
+  background:linear-gradient(92deg,#e40035,#f20089 45%,#9717e2);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.home span{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase}
+.tracknav{display:flex;gap:4px;flex-wrap:wrap;margin-inline-start:6px}
+.tracknav a{
+  font-size:12.5px;font-weight:600;text-decoration:none;color:var(--dim);
+  padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.tracknav a i{width:7px;height:7px;border-radius:99px;background:currentColor;display:block;flex:none}
+.tracknav a:hover{color:var(--mut);background:var(--hover)}
+.tracknav a[aria-current="page"]{color:var(--onc);background:var(--c)}
+.top-right{display:flex;align-items:center;gap:8px;margin-inline-start:auto}
+.seg{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:var(--hover)}
+.seg button{
+  appearance:none;border:0;background:none;cursor:pointer;padding:5px 12px;
+  font-family:var(--body);font-size:12.5px;font-weight:600;color:var(--dim);line-height:1.5;
+}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--c);color:var(--onc)}
+
+/* ---------- article shell ---------- */
+.page{max-width:1220px;margin:0 auto;padding:clamp(24px,3.6vw,44px) clamp(16px,3.4vw,40px) 0}
+.eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.num{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.16em}
+/* a numeric counter must not be reordered by the bidi algorithm */
+.num.seq{direction:ltr;unicode-bidi:isolate}
+:root[dir="rtl"] .num:not(.seq){font-family:var(--body);letter-spacing:0;font-size:12.5px}
+.badge{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;border:1px solid currentColor;color:var(--c);
+  background:color-mix(in srgb,var(--c) 12%,transparent);
+}
+:root[dir="rtl"] .badge{font-family:var(--body);font-weight:600;text-transform:none;font-size:11.5px}
+h1.title{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.03em;line-height:1.02;
+  font-size:clamp(28px,4vw,46px);margin:0 0 10px;text-wrap:balance;
+}
+h1.title code{font-family:var(--mono);font-size:.82em;font-weight:600;color:var(--c);letter-spacing:0}
+.lead{color:var(--mut);max-width:74ch;margin:0 0 22px;font-size:15.5px;text-wrap:pretty}
+.lead b{color:var(--ink);font-weight:600}
+
+/* ---------- stage / diagram ---------- */
+.stage{position:relative;margin:6px 0 4px;padding:26px 8px;display:flex;flex-direction:column;gap:74px}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.row{display:flex;justify-content:center;gap:clamp(92px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
+.node{
+  background:linear-gradient(180deg,var(--card2),var(--card));
+  border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:172px;
+  box-shadow:var(--nodesh);
+  transition:border-color .3s,box-shadow .3s,transform .3s;
+}
+.node .role{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:3px;font-family:var(--mono)}
+:root[dir="rtl"] .node .role{font-family:var(--body);font-size:11px;letter-spacing:0;text-transform:none}
+:root[dir="rtl"] .home span{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .fc-h .tag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .pager a em{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .stepbar .cap span.n{direction:ltr;unicode-bidi:isolate}
+.node .file{font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--ink);white-space:nowrap;display:block}
+.node[data-kind="ts"] .file b{color:var(--ts)}
+.node[data-kind="html"] .file b{color:var(--html)}
+.node[data-kind="svc"] .file b{color:var(--svc)}
+.node[data-kind="cfg"] .file b{color:var(--cfg)}
+.node.active{border-color:color-mix(in srgb,var(--c) 65%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent),0 0 34px -8px var(--c);transform:translateY(-2px)}
+.edge path.wire{fill:none;stroke:var(--wire);stroke-width:1.6}
+.edge path.head{fill:var(--wire);stroke:none}
+.edge.lit path.head{fill:var(--c)}
+.edge path.flow{fill:none;stroke:var(--c);stroke-width:2.2;stroke-dasharray:5 9;opacity:0;stroke-linecap:round}
+.edge.lit path.wire{stroke:color-mix(in srgb,var(--c) 40%,transparent)}
+.edge.lit path.flow{opacity:1;animation:march 1s linear infinite}
+@keyframes march{to{stroke-dashoffset:-28}}
+.edge text{font-family:var(--mono);font-size:10.5px;fill:var(--dim);paint-order:stroke;stroke:var(--bg);stroke-width:5px;stroke-linejoin:round}
+.edge.lit text{fill:var(--c)}
+.packet{opacity:0}
+.packet rect{fill:var(--c)}
+.packet text{font-family:var(--mono);font-size:11px;font-weight:600;fill:var(--onc);stroke:none}
+
+/* ---------- step bar ---------- */
+.stepbar{
+  display:flex;align-items:center;gap:14px;margin:8px 0 22px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk);
+}
+.stepbar .dots{display:flex;gap:6px;flex-shrink:0}
+.stepbar .dot{width:7px;height:7px;border-radius:99px;background:var(--dotbg);cursor:pointer;border:0;padding:0;transition:.2s}
+.stepbar .dot.on{background:var(--c);box-shadow:0 0 10px -1px var(--c);transform:scale(1.25)}
+.stepbar .cap{flex:1;min-width:0;font-size:14px;color:var(--ink);text-wrap:pretty}
+.stepbar .cap span.n{color:var(--dim);font-family:var(--mono);font-size:11px;margin-inline-end:8px}
+.iconbtn{
+  background:var(--sunk2);border:1px solid var(--line);color:var(--mut);
+  border-radius:8px;padding:5px 11px;font-family:var(--mono);font-size:11px;cursor:pointer;white-space:nowrap;
+}
+.iconbtn:hover{color:var(--ink);border-color:color-mix(in srgb,var(--c) 55%,transparent)}
+
+/* ---------- code cards ---------- */
+.sechead{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:28px 0 12px}
+:root[dir="rtl"] .sechead{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.files{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:14px}
+.fc{background:var(--card);border:1px solid var(--line2);border-radius:12px;overflow:hidden;transition:border-color .3s;min-width:0}
+.fc.active{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.fc-h{
+  display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid var(--line2);
+  background:var(--sunk);font-family:var(--mono);font-size:11.5px;color:var(--mut);
+}
+.fc-h .d{width:7px;height:7px;border-radius:99px;flex-shrink:0}
+.fc[data-lang="ts"] .d{background:var(--ts)}
+.fc[data-lang="html"] .d{background:var(--html)}
+.fc[data-lang="json"] .d{background:var(--svc)}
+.fc[data-lang="bash"] .d{background:var(--beg)}
+.fc-h .tag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:var(--mono);font-size:12.2px;line-height:1.72;scrollbar-width:thin}
+.ln{display:block;padding:0 15px;white-space:pre;border-left:2px solid transparent;transition:background .25s,border-color .25s}
+.ln.hl{background:color-mix(in srgb,var(--c) 13%,transparent);border-left-color:var(--c)}
+.t-key{color:var(--t-key)}.t-str{color:var(--t-str)}.t-com{color:var(--t-com);font-style:italic}
+.t-dec{color:var(--t-dec)}.t-tag{color:var(--t-tag)}.t-bind{color:var(--t-bind)}.t-num{color:var(--t-num)}
+.t-fn{color:var(--t-fn)}.t-type{color:var(--t-type)}.t-attr{color:var(--t-attr)}.t-punc{color:var(--t-punc)}
+
+/* ---------- real example ---------- */
+.example{margin-top:26px;padding-top:18px;border-top:1px solid var(--line2)}
+.exhead{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:7px}
+.extag{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);border:1px solid currentColor;border-radius:99px;padding:3px 9px;
+  background:color-mix(in srgb,var(--c) 12%,transparent);white-space:nowrap;
+}
+:root[dir="rtl"] .extag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+.exhead b{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--ink)}
+.exlead{margin:0 0 14px;color:var(--mut);font-size:14px;max-width:82ch;text-wrap:pretty}
+
+/* ---------- gotchas ---------- */
+.gotchas{margin-top:22px;border-top:1px solid var(--line2);padding-top:16px}
+.gotchas h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 10px;font-weight:500}
+:root[dir="rtl"] .gotchas h4{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.gotchas ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:9px 22px}
+.gotchas li{position:relative;padding-inline-start:20px;font-size:13.6px;color:var(--mut);text-wrap:pretty}
+.gotchas li::before{content:"!";position:absolute;inset-inline-start:0;top:0;font-family:var(--mono);font-size:11px;color:var(--c);font-weight:700}
+.gotchas li b{color:var(--ink);font-weight:600}
+
+/* ---------- pager ---------- */
+.pager{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin:34px 0 0;padding:22px 0 46px;border-top:1px solid var(--line2);
+}
+.pager a{
+  display:flex;flex-direction:column;gap:4px;text-decoration:none;padding:14px 16px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--card);transition:.22s;min-width:0;
+}
+.pager a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.pager a em{font-family:var(--mono);font-style:normal;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.pager a b{font-size:14.5px;color:var(--ink);font-weight:600;line-height:1.35;text-wrap:pretty}
+.pager a.nx{text-align:end;align-items:flex-end}
+.pager .void{border:1px dashed var(--line2);border-radius:12px;opacity:.35}
+@media (max-width:600px){.pager{grid-template-columns:1fr}.pager a.nx{text-align:start;align-items:flex-start}}
+
+@media (max-width:900px){
+  .row{gap:16px}
+  .node{min-width:0;flex:1 1 auto}
+  .stage{gap:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+
+/* ================= reference-document layout (TypeScript page) ============ */
+.doc{display:grid;grid-template-columns:212px minmax(0,1fr);gap:clamp(20px,3.4vw,54px);align-items:start}
+@media (max-width:940px){.doc{grid-template-columns:1fr}}
+.doc-rail{position:sticky;top:70px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;scrollbar-width:thin}
+@media (max-width:940px){.doc-rail{position:static;max-height:none;border-bottom:1px solid var(--line2);padding-bottom:14px}}
+.doc-rail b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;font-weight:500}
+:root[dir="rtl"] .doc-rail b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.doc-rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.doc-rail a{
+  display:grid;grid-template-columns:1.6rem 1fr;gap:8px;align-items:baseline;
+  text-decoration:none;color:var(--dim);font-size:13px;line-height:1.35;
+  padding:6px 9px;border-radius:7px;transition:.16s;
+}
+.doc-rail a em{font-family:var(--mono);font-style:normal;font-size:10.5px;opacity:.7}
+.doc-rail a:hover{color:var(--ink);background:var(--hover)}
+.doc-rail a.on{color:var(--onc);background:var(--c)}
+.doc-rail a.on em{opacity:.75}
+
+.sec{padding-block:clamp(26px,3.6vw,44px);border-top:1px solid var(--line2);scroll-margin-top:74px}
+.sec:first-child{border-top:0;padding-top:6px}
+.sec-kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--c);margin-bottom:8px}
+:root[dir="rtl"] .sec-kick{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.sec h2{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.028em;line-height:1.08;
+  font-size:clamp(23px,3vw,33px);margin:0 0 10px;text-wrap:balance;
+}
+:root[dir="rtl"] .sec h2{letter-spacing:0;line-height:1.4}
+.sec h2 code{font-family:var(--mono);font-size:.8em;font-weight:600;color:var(--c);letter-spacing:0}
+.sec > .sec-lead{color:var(--mut);max-width:74ch;margin:0 0 4px;font-size:15px;text-wrap:pretty}
+.sec > .sec-lead b{color:var(--ink);font-weight:600}
+.sec p{max-width:74ch;text-wrap:pretty;color:var(--mut)}
+.sec p b{color:var(--ink);font-weight:600}
+.sec > p{margin:18px 0 0}
+.sec .code{margin-top:18px}
+.sec ul{margin:16px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;max-width:74ch}
+.sec ul li{padding-inline-start:20px;position:relative;color:var(--mut);text-wrap:pretty}
+.sec ul li::before{content:"";position:absolute;inset-inline-start:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--c);opacity:.6}
+
+.code{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--card);min-width:0}
+.code .fc-h{background:var(--sunk)}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;margin-top:18px}
+.code.bad{border-color:color-mix(in srgb,var(--adv) 42%,transparent)}
+.code.bad .fc-h{background:color-mix(in srgb,var(--adv) 10%,transparent)}
+.code.bad .fc-h .d{background:var(--adv)}
+.code.good{border-color:color-mix(in srgb,var(--beg) 42%,transparent)}
+.code.good .fc-h{background:color-mix(in srgb,var(--beg) 10%,transparent)}
+.code.good .fc-h .d{background:var(--beg)}
+.code .flag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.code.bad .flag{color:var(--adv)}
+.code.good .flag{color:var(--beg)}
+:root[dir="rtl"] .code .flag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+
+.note{
+  margin-top:20px;max-width:76ch;background:color-mix(in srgb,var(--c) 8%,transparent);
+  border-inline-start:3px solid var(--c);border-radius:0 9px 9px 0;padding:13px 16px;
+}
+:root[dir="rtl"] .note{border-radius:9px 0 0 9px}
+.note b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .note b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.note p{margin:0;font-size:14.2px;color:var(--mut)}
+
+.dtbl-wrap{overflow-x:auto;border:1px solid var(--line2);border-radius:12px;margin-top:18px;background:var(--card)}
+.dtbl{width:100%;border-collapse:collapse;font-size:13.6px;min-width:640px}
+.dtbl th{
+  text-align:start;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);font-weight:500;padding:10px 14px;border-bottom:1px solid var(--line);
+  background:var(--sunk);white-space:nowrap;
+}
+:root[dir="rtl"] .dtbl th{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px;font-weight:600}
+.dtbl td{padding:11px 14px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--mut);line-height:1.55}
+.dtbl tr:last-child td{border-bottom:0}
+.dtbl td:first-child{color:var(--ink);font-family:var(--mono);font-size:12px}
+
+/* ========================= roadmap page ========================= */
+.verdict{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin:26px 0 8px}
+.verdict div{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.verdict b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:8px;font-weight:600}
+:root[dir="rtl"] .verdict b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.verdict p{margin:0;color:var(--mut);font-size:14.2px;line-height:1.6;text-wrap:pretty}
+
+.phase{position:relative;padding:0 0 0 clamp(22px,3vw,42px);margin-top:clamp(24px,3.4vw,38px)}
+:root[dir="rtl"] .phase{padding:0 clamp(22px,3vw,42px) 0 0}
+.phase::before{content:"";position:absolute;inset-inline-start:0;top:6px;bottom:0;width:2px;background:linear-gradient(180deg,var(--c),transparent)}
+.phase-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.phase-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 8px;font-weight:600;direction:ltr}
+.phase-h h3{margin:0;font-family:var(--disp);font-weight:800;font-size:clamp(20px,2.6vw,27px);letter-spacing:-.02em;color:var(--ink)}
+:root[dir="rtl"] .phase-h h3{letter-spacing:0;line-height:1.4}
+.phase-when{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em;direction:ltr;unicode-bidi:isolate}
+.phase-goal{margin:0 0 14px;color:var(--mut);max-width:72ch;font-size:14.6px;text-wrap:pretty}
+.phase-list{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:14px}
+.phase-list a{
+  display:grid;grid-template-columns:1.8rem 1fr;gap:9px;align-items:baseline;text-decoration:none;
+  padding:8px 11px;border-radius:8px;border:1px solid var(--line2);background:var(--card);transition:.18s;min-width:0;
+}
+.phase-list a em{font-family:var(--mono);font-style:normal;font-size:10.5px;color:var(--dim)}
+.phase-list a span{font-size:13.6px;color:var(--ink);line-height:1.35;text-wrap:pretty}
+.phase-list a span code{font-family:var(--mono);font-size:.86em;color:var(--c)}
+.phase-list a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.phase-build{
+  border-inline-start:3px solid var(--c);background:color-mix(in srgb,var(--c) 7%,transparent);
+  border-radius:0 9px 9px 0;padding:12px 15px;max-width:72ch;
+}
+:root[dir="rtl"] .phase-build{border-radius:9px 0 0 9px}
+.phase-build b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .phase-build b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.phase-build p{margin:0;color:var(--mut);font-size:14px;line-height:1.6;text-wrap:pretty}
+
+.gap{margin-top:16px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.gap section{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.gap h4{margin:0 0 10px;font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.3;text-wrap:pretty}
+.gap ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.gap li{padding-inline-start:19px;position:relative;font-size:13.4px;color:var(--mut);line-height:1.5;text-wrap:pretty}
+.gap li::before{content:"○";position:absolute;inset-inline-start:0;top:0;font-size:10px;color:var(--c);opacity:.7}
+.gap li code{font-family:var(--mono);font-size:.88em;background:var(--chip);padding:1px 4px;border-radius:3px;color:var(--chipink)}
+
+.advice{margin-top:16px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.advice div{border-top:2px solid var(--c);padding-top:12px;min-width:0}
+.advice b{display:block;font-family:var(--disp);font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px;letter-spacing:-.015em}
+:root[dir="rtl"] .advice b{letter-spacing:0}
+.advice p{margin:0;color:var(--mut);font-size:13.8px;line-height:1.6;text-wrap:pretty}
+
+/* ---------- theme switch (icon segment) ---------- */
+.seg.ico button{padding:5px 10px;display:grid;place-items:center}
+.seg.ico svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block}
+@media (max-width:820px){.seg.ico{order:2}}
+
+/* ================= beginner scaffolding on every topic ================= */
+/* three plain-language cards that sit above the technical diagram */
+.plain{display:grid;gap:12px;grid-template-columns:1.4fr 1fr 1fr;margin:2px 0 26px}
+@media (max-width:900px){.plain{grid-template-columns:1fr}}
+.pc{
+  border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);
+  min-width:0;display:flex;flex-direction:column;gap:9px;
+}
+.pc.say{background:color-mix(in srgb,var(--c) 7%,var(--card));border-color:color-mix(in srgb,var(--c) 26%,transparent)}
+.pc .ph{display:flex;align-items:center;gap:8px}
+.pc .ph svg{width:16px;height:16px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pc .ph b{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);font-weight:600}
+:root[dir="rtl"] .pc .ph b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.pc p{margin:0;font-size:14.2px;color:var(--mut);line-height:1.62;text-wrap:pretty}
+.pc p b{color:var(--ink);font-weight:600}
+.pc p code{font-family:var(--mono);font-size:.87em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+.pc.say p{font-size:16px;color:var(--ink)}
+
+/* the idea, as a strip of pictures */
+.strip{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(188px,1fr));margin:2px 0 4px}
+.sp{position:relative;border:1px solid var(--line2);border-radius:14px;padding:15px 16px 14px;background:var(--card);min-width:0}
+.sp .plate{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:11px;
+  background:color-mix(in srgb,var(--c) 13%,transparent);border:1px solid color-mix(in srgb,var(--c) 20%,transparent);
+}
+.sp .plate svg{width:21px;height:21px;stroke:var(--c);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sp b{display:block;font-size:14.5px;color:var(--ink);font-weight:600;margin-bottom:4px;line-height:1.32;text-wrap:pretty}
+.sp p{margin:0;font-size:13.3px;color:var(--mut);line-height:1.55;text-wrap:pretty}
+.sp p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+.sp::after{
+  content:"";position:absolute;top:30px;right:-15px;width:11px;height:11px;
+  border-top:1.6px solid var(--line);border-right:1.6px solid var(--line);
+  transform:rotate(45deg);z-index:2;
+}
+:root[dir="rtl"] .sp::after{right:auto;left:-15px;transform:rotate(-135deg)}
+.sp:last-child::after{display:none}
+@media (max-width:760px){.sp::after{display:none}}
+
+/* the single sentence worth memorising */
+.oneline{
+  margin-top:26px;display:flex;gap:14px;align-items:flex-start;border-radius:14px;padding:16px 19px;
+  border:1px solid color-mix(in srgb,var(--c) 30%,transparent);
+  background:color-mix(in srgb,var(--c) 8%,transparent);
+}
+.oneline > svg{width:22px;height:22px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin-top:3px}
+.oneline b.lbl{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .oneline b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.oneline p{margin:0;font-size:15px;color:var(--ink);line-height:1.62;text-wrap:pretty;max-width:78ch}
+.oneline p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+/* ============================================================
+   Check yourself — the quiz block, same shape on every topic page
+   ============================================================ */
+.edge text.plain{font-size:9.5px;fill:var(--mut);letter-spacing:.01em;opacity:.85}
+.edge.lit text.plain{opacity:1}
+/* Arabic is cursive: the mono face and any letter-spacing break the joins,
+   so the wire words switch to the Arabic text face in RTL */
+:root[dir="rtl"] .edge text.plain{font-family:var(--body);letter-spacing:0;font-size:10.5px}
+
+.quiz{display:grid;gap:13px;margin-top:4px}
+.qbar{
+  display:flex;align-items:center;gap:13px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--sunk);
+}
+.qbar .qtxt{font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap}
+.qbar .qtxt b{color:var(--ink);font-weight:600}
+.qbar .qtxt em{font-style:normal;color:var(--ok);font-weight:600}
+.qmeter{flex:1;min-width:50px;height:4px;border-radius:99px;background:var(--dotbg);overflow:hidden}
+.qmeter i{display:block;height:100%;width:0;background:var(--c);transition:width .35s cubic-bezier(.2,.7,.3,1)}
+
+.qcard{border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);transition:border-color .3s}
+.qcard.right{border-color:color-mix(in srgb,var(--ok) 48%,transparent)}
+.qcard.wrong{border-color:color-mix(in srgb,var(--no) 48%,transparent)}
+.qhead{display:flex;gap:12px;align-items:baseline;margin-bottom:12px}
+.qnum{font-family:var(--mono);font-size:11px;color:var(--c);flex:none}
+.qask{font-size:14.8px;line-height:1.5;color:var(--ink);font-weight:600;text-wrap:pretty}
+.qask code{font-family:var(--mono);font-size:.87em;color:var(--c);font-weight:500}
+.qcode{border:1px solid var(--line2);border-radius:11px;overflow:hidden;margin-bottom:12px;background:var(--code)}
+.qcode .qcf{padding:7px 13px;border-bottom:1px solid var(--line2);background:var(--sunk);
+            font-family:var(--mono);font-size:11px;color:var(--dim)}
+.qcode pre{font-size:12px;padding:10px 0;margin:0;overflow-x:auto}
+
+.opts{display:grid;gap:8px}
+.opt{
+  display:flex;gap:11px;align-items:flex-start;width:100%;text-align:start;cursor:pointer;
+  background:var(--sunk);border:1px solid var(--line2);border-radius:10px;padding:10px 13px;
+  color:var(--mut);font-family:var(--body);font-size:13.8px;line-height:1.5;transition:.18s;
+}
+.opt .k{font-family:var(--mono);font-size:11px;color:var(--dim);border:1px solid var(--line);
+        border-radius:6px;padding:0 6px;flex:none;line-height:1.6}
+.opt .ot{flex:1;min-width:0;text-wrap:pretty}
+.opt .ot code{font-family:var(--mono);font-size:.87em}
+.opt .mark{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;flex:none;line-height:2}
+.opt:hover{color:var(--ink);background:var(--hover);border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.qcard.done .opt,.qcard.done .opt:hover{cursor:default;background:var(--sunk);border-color:var(--line2);color:var(--mut)}
+.qcard.done .opt.ok{color:var(--ink);border-color:color-mix(in srgb,var(--ok) 55%,transparent);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.qcard.done .opt.ok .k{color:var(--ok);border-color:currentColor}
+.qcard.done .opt.ok .mark{color:var(--ok)}
+.qcard.done .opt.no{color:var(--ink);border-color:color-mix(in srgb,var(--no) 55%,transparent);background:color-mix(in srgb,var(--no) 9%,transparent)}
+.qcard.done .opt.no .k{color:var(--no);border-color:currentColor}
+.qcard.done .opt.no .mark{color:var(--no)}
+
+.why{
+  display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:12px 15px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk2);
+}
+.why[hidden]{display:none}
+.why .wt{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);flex:none;padding-top:3px}
+.why p{margin:0;flex:1;min-width:0;font-size:13.6px;line-height:1.68;color:var(--mut);text-wrap:pretty}
+.why p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+.qend{border:1px solid var(--line2);border-radius:14px;padding:19px;text-align:center;background:var(--card2)}
+.qend .sc{display:block;font-family:var(--disp);font-weight:800;font-size:29px;letter-spacing:-.03em;color:var(--ink)}
+.qend p{margin:6px 0 13px;color:var(--mut);font-size:13.6px}
+
+:root[dir="rtl"] .qnum,:root[dir="rtl"] .qbar .qtxt{font-family:var(--body);letter-spacing:0}
+:root[dir="rtl"] .opt .mark,:root[dir="rtl"] .why .wt{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .qask,:root[dir="rtl"] .opt,:root[dir="rtl"] .why p{line-height:1.8}
+@media (max-width:900px){
+  .qbar{flex-wrap:wrap;gap:10px}
+  .qmeter{order:3;flex-basis:100%}
+  .qcard{padding:14px 15px}
+}
+
+/* ================= build-project tutorials (step-by-step) ============ */
+.pstep{margin-top:26px;border-top:1px solid var(--line2);padding-top:18px}
+.sec .pstep:first-child{margin-top:12px}
+.pstep-h{display:flex;align-items:center;gap:11px;margin-bottom:2px}
+.pstep-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 9px;font-weight:600;direction:ltr;flex:none}
+.pstep-h b{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:-.015em;color:var(--ink);line-height:1.3;text-wrap:pretty}
+:root[dir="rtl"] .pstep-h b{letter-spacing:0}
+.pstep > p{margin:13px 0 0}
+
+.chk{
+  margin-top:16px;max-width:76ch;background:color-mix(in srgb,var(--beg) 9%,transparent);
+  border-inline-start:3px solid var(--beg);border-radius:0 9px 9px 0;padding:12px 16px;
+}
+:root[dir="rtl"] .chk{border-radius:9px 0 0 9px}
+.chk b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--beg);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .chk b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.chk p{margin:0;font-size:14.2px;color:var(--mut)}
+.chk p code{font-family:var(--mono);font-size:.87em}
+
+.build-link{
+  display:inline-flex;align-items:center;gap:7px;margin-top:12px;text-decoration:none;
+  font-size:13.6px;font-weight:600;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);
+  border-radius:9px;padding:7px 13px;background:var(--card);transition:.18s;
+}
+.build-link:hover{background:color-mix(in srgb,var(--c) 12%,transparent)}
+
+/* the roadmap's build-projects index */
+.blds{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:16px}
+.blds-track{border:1px solid var(--line2);border-top:2px solid var(--c);border-radius:12px;padding:15px 18px;background:var(--card);min-width:0;display:flex;flex-direction:column;gap:11px}
+.blds-track > b{font-family:var(--disp);font-weight:700;font-size:16.5px;letter-spacing:-.015em;color:var(--ink)}
+:root[dir="rtl"] .blds-track > b{letter-spacing:0}
+.blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
+.blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
+</style>
+<script>
+(function(){var r=document.documentElement;try{
+if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
+r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
+</script>
+</head>
+<body>
+<header class="top"><div class="top-in">
+    <a class="home" href="../index.html"><b>The Angular Signal</b><span class="l-en">contents</span><span class="l-ar">المحتويات</span></a>
+    <nav class="tracknav"><a href="../roadmap.html" style="--c:var(--beg)"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="../beginner/index.html" style="--c:var(--beg)"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="../intermediate/index.html" style="--c:var(--int)" aria-current="page"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="../advanced/index.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="../javascript-for-angular.html" style="--c:var(--js)"><i></i><span class="l-en">JavaScript</span><span class="l-ar">JavaScript</span></a><a href="../typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
+    <div class="top-right">
+      <div class="seg" role="group" aria-label="Language">
+        <button id="b-en" aria-pressed="true">EN</button>
+        <button id="b-ar" aria-pressed="false" lang="ar">مصري</button>
+      </div>
+      <div class="seg ico" role="group" aria-label="Theme">
+        <button id="b-lt" aria-pressed="true" title="Light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.2v2.3M12 19.5v2.3M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.2 12h2.3M19.5 12h2.3M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button>
+        <button id="b-dk" aria-pressed="false" title="Dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.7 6.7 0 0 0 11.1 11.1z"/></svg></button>
+      </div>
+    </div>
+  </div></header>
+<main class="page" id="page">
+  <div class="eyebrow">
+    <span class="num seq">25+</span>
+    <span class="badge"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <span class="num"><span class="l-en">Right after topic 25</span><span class="l-ar" dir="auto">بعد موضوع 25 على طول</span></span>
+  </div>
+  <h1 class="title"><span class="l-en"><code>computed()</code> and <code>effect()</code>, name by name</span><span class="l-ar" dir="auto"><code>computed()</code> و<code>effect()</code>، اسم اسم</span></h1>
+  <p class="lead"><span class="l-en">The idea is simple: <b>a <code>computed</code> gives you a value back; an <code>effect</code> does something and gives nothing back.</b> The confusing part is the names. A computed gets a name because someone reads it; an effect usually has none. <code>onCleanup</code> looks like Angular’s and is yours. And <code>'draft'</code> the string is not <code>draft</code> the signal. This page sorts every one of them.</span><span class="l-ar" dir="auto">الفكرة بسيطة: <b>الـ <code>computed</code> بيرجّعلك قيمة؛ والـ <code>effect</code> بيعمل حاجة ومبيرجّعش حاجة.</b> اللي بيلخبط هو الأسماء. الـ computed بياخد اسم عشان فيه حد بيقراه؛ والـ effect غالبًا ملوش اسم. و<code>onCleanup</code> شكله بتاع أنجولار وهو بتاعك. و<code>'draft'</code> النص مش هو <code>draft</code> الـ signal. الصفحة دي بترتّب كل واحد فيهم.</span></p>
+
+  <div class="doc">
+    <nav class="doc-rail">
+      <b><span class="l-en">On this page</span><span class="l-ar">في الصفحة دي</span></b>
+      <ol><li><a href="#trip" data-rail="trip"><em>01</em><span><span class="l-en">One keystroke, six stops</span><span class="l-ar" dir="auto">حرف واحد، ست محطات</span></span></a></li><li><a href="#who" data-rail="who"><em>02</em><span><span class="l-en">Who writes what, and who picks the name</span><span class="l-ar" dir="auto">مين بيكتب إيه، ومين بيختار الاسم</span></span></a></li><li><a href="#files" data-rail="files"><em>03</em><span><span class="l-en">All six files, every name coloured</span><span class="l-ar" dir="auto">الست ملفات، وكل اسم ملوّن</span></span></a></li><li><a href="#rename" data-rail="rename"><em>04</em><span><span class="l-en">What breaks when you rename each name</span><span class="l-ar" dir="auto">إيه اللي بيبوظ لما تغيّر كل اسم</span></span></a></li><li><a href="#fixed" data-rail="fixed"><em>05</em><span><span class="l-en">Angular’s words, and one that only looks like Angular’s</span><span class="l-ar" dir="auto">كلمات أنجولار، وواحدة شكلها بس بتاعة أنجولار</span></span></a></li><li><a href="#habits" data-rail="habits"><em>06</em><span><span class="l-en">How to pick good names</span><span class="l-ar" dir="auto">تختار أسماء كويسة إزاي</span></span></a></li><li><a href="#forced" data-rail="forced"><em>07</em><span><span class="l-en">Two names TypeScript cannot see</span><span class="l-ar" dir="auto">اسمين TypeScript مش شايفهم</span></span></a></li><li><a href="#old" data-rail="old"><em>08</em><span><span class="l-en">Getters did this job before, with the same names</span><span class="l-ar" dir="auto">الـ getters كانت بتعمل الشغلانة دي قبل كده، بنفس الأسماء</span></span></a></li><li><a href="#silent" data-rail="silent"><em>09</em><span><span class="l-en">Mistakes that fail silently</span><span class="l-ar" dir="auto">غلطات بتفشل في صمت</span></span></a></li><li><a href="#check" data-rail="check"><em>10</em><span><span class="l-en">Six questions, in this order</span><span class="l-ar" dir="auto">ست أسئلة، بالترتيب ده</span></span></a></li></ol>
+    </nav>
+    <div>
+      <section class="sec" id="trip">
+        <div class="sec-kick"><span class="l-en">Start here</span><span class="l-ar" dir="auto">ابدأ من هنا</span></div>
+        <h2><span class="l-en">One keystroke, six stops</span><span class="l-ar" dir="auto">حرف واحد، ست محطات</span></h2>
+        <p class="sec-lead"><span class="l-en">A draft editor. You type a title; a status bar says “Unsaved changes” and enables <b>Save</b>; and the draft is kept in the browser’s storage so a reload does not lose it. Follow one keystroke:</span><span class="l-ar" dir="auto">محرر draft. بتكتب عنوان؛ والـ status bar بيقول «Unsaved changes» وبيفتح زرار <b>Save</b>؛ والـ draft بيتحفظ في تخزين المتصفح عشان الـ reload ميضيّعوش. امشي ورا حرف واحد:</span></p>
+        
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div><ol class="chain">
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">1</span><span class="ch-f">draft-editor.ts</span><span class="ch-w"><span class="l-en">editor · the keystroke</span><span class="l-ar" dir="auto">الـ editor · الحرف</span></span></div>
+        <pre class="ch-c" data-lang="html"><span class="ln"><span class="v0"><i class="t-tag">&lt;input</i> <i class="t-bind">#<b class="nm nm-mine" data-nm="box">box</b></i> <i class="t-bind">[<b class="nm nm-ng" data-nm="value">value</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="draft">draft</b>().<b class="nm nm-pub" data-nm="title">title</b>"</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="input">input</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="setTitle">setTitle</b>(<b class="nm nm-mine" data-nm="box">box</b>.<b class="nm nm-ng" data-nm="value">value</b>)"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;input</i> <i class="t-bind">#<b class="nm nm-mine" data-nm="box">cookie</b></i> <i class="t-bind">[<b class="nm nm-ng" data-nm="value">value</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="store">olive</b>.<b class="nm nm-pub" data-nm="draft">waffle</b>().<b class="nm nm-pub" data-nm="title">mango</b>"</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="input">input</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="store">olive</b>.<b class="nm nm-pub" data-nm="setTitle">taco</b>(<b class="nm nm-mine" data-nm="box">cookie</b>.<b class="nm nm-ng" data-nm="value">value</b>)"</i> <i class="t-tag">/&gt;</i></span></span></pre>
+        <p><span class="l-en"><b class="nm nm-ng" data-nm="input">input</b> is the browser’s event and <b class="nm nm-ng" data-nm="value">value</b> the element’s own property. <b class="nm nm-mine" data-nm="box">box</b> is your name for the element. <b class="nm nm-mine" data-nm="store">store</b> is this component’s name for the injected store, and <b class="nm nm-pub" data-nm="setTitle">setTitle</b> is the store’s method.</span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="input">input</b> event بتاع المتصفح و<b class="nm nm-ng" data-nm="value">value</b> الـ property بتاعة العنصر نفسه. و<b class="nm nm-mine" data-nm="box">box</b> اسمك انت للعنصر. و<b class="nm nm-mine" data-nm="store">store</b> اسم الـ component ده للـ store المتعمله inject، و<b class="nm nm-pub" data-nm="setTitle">setTitle</b> ميثود الـ store.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">2</span><span class="ch-f">draft-store.ts</span><span class="ch-w"><span class="l-en">store · writes the signal</span><span class="l-ar" dir="auto">الـ store · بيكتب في الـ signal</span></span></div>
+        <pre class="ch-c" data-lang="ts"><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-pub" data-nm="setTitle">setTitle</b></i>(<b class="nm nm-mine" data-nm="text">text</b>: <i class="t-key">string</i>) {</span><span class="v1"><i class="t-fn"><b class="nm nm-pub" data-nm="setTitle">taco</b></i>(<b class="nm nm-mine" data-nm="text">melon</b>: <i class="t-key">string</i>) {</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="draft">draft</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(<b class="nm nm-mine" data-nm="d">d</b> =&gt; ({ ...<b class="nm nm-mine" data-nm="d">d</b>, <b class="nm nm-pub" data-nm="title">title</b>: <b class="nm nm-mine" data-nm="text">text</b> }));</span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="draft">waffle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(<b class="nm nm-mine" data-nm="d">radish</b> =&gt; ({ ...<b class="nm nm-mine" data-nm="d">radish</b>, <b class="nm nm-pub" data-nm="title">mango</b>: <b class="nm nm-mine" data-nm="text">melon</b> }));</span></span><span class="ln">}</span></pre>
+        <p><span class="l-en">The only write. <b class="nm nm-ng" data-nm="update">update</b> is Angular’s. <b class="nm nm-pub" data-nm="draft">draft</b> is your signal, <b class="nm nm-mine" data-nm="text">text</b> and <b class="nm nm-mine" data-nm="d">d</b> are parameters, and <b class="nm nm-pub" data-nm="title">title</b> is a field of your <b class="nm nm-pub" data-nm="Draft">Draft</b> type. The <code>{ ...d }</code> makes a <b>new</b> object, which is how the signal knows something changed.</span><span class="l-ar" dir="auto">الكتابة الوحيدة. <b class="nm nm-ng" data-nm="update">update</b> بتاعة أنجولار. و<b class="nm nm-pub" data-nm="draft">draft</b> الـ signal بتاعتك، و<b class="nm nm-mine" data-nm="text">text</b> و<b class="nm nm-mine" data-nm="d">d</b> parameters، و<b class="nm nm-pub" data-nm="title">title</b> field في النوع <b class="nm nm-pub" data-nm="Draft">Draft</b> بتاعك. و<code>{ ...d }</code> بتعمل object <b>جديد</b>، وده اللي بيخلي الـ signal تعرف إن حاجة اتغيرت.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">3</span><span class="ch-f">draft-store.ts</span><span class="ch-w"><span class="l-en">store · derives a value</span><span class="l-ar" dir="auto">الـ store · بيشتق قيمة</span></span></div>
+        <pre class="ch-c" data-lang="ts"><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="dirty">dirty</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt;</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="dirty">pumpkin</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt;</span></span><span class="ln"><span class="v0">  <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>()) !== <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="saved">saved</b></i>()));</span><span class="v1">  <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>()) !== <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="saved">noodle</b></i>()));</span></span></pre>
+        <p><span class="l-en"><b class="nm nm-ng" data-nm="computed">computed</b> is Angular’s; <b class="nm nm-pub" data-nm="dirty">dirty</b> is your name for the result. It reads <b class="nm nm-pub" data-nm="draft">draft</b> and <b class="nm nm-pub" data-nm="saved">saved</b>, and that reading is the whole dependency list: nothing to declare. It gives a <b>value</b> back, so it gets a name.</span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="computed">computed</b> بتاعة أنجولار؛ و<b class="nm nm-pub" data-nm="dirty">dirty</b> اسمك انت للنتيجة. بيقرا <b class="nm nm-pub" data-nm="draft">draft</b> و<b class="nm nm-pub" data-nm="saved">saved</b>، والقراية دي هي قايمة الـ dependencies كلها: مفيش حاجة تعلنها. بيرجّع <b>قيمة</b>، فبياخد اسم.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">4</span><span class="ch-f">draft-store.ts</span><span class="ch-w"><span class="l-en">store · derives from a derived</span><span class="l-ar" dir="auto">الـ store · بيشتق من حاجة مشتقة</span></span></div>
+        <pre class="ch-c" data-lang="ts"><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="status">status</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; (<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="dirty">dirty</b></i>() ? <i class="t-str">'Unsaved changes'</i> : <i class="t-str">'All changes saved'</i>));</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="status">muffin</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; (<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="dirty">pumpkin</b></i>() ? <i class="t-str">'Unsaved changes'</i> : <i class="t-str">'All changes saved'</i>));</span></span></pre>
+        <p><span class="l-en">A computed can read another computed. <b class="nm nm-pub" data-nm="status">status</b> depends on <b class="nm nm-pub" data-nm="dirty">dirty</b>, which depends on <b class="nm nm-pub" data-nm="draft">draft</b>. You never wire this up; the names you call inside are the wiring.</span><span class="l-ar" dir="auto">الـ computed ممكن يقرا computed تاني. <b class="nm nm-pub" data-nm="status">status</b> معتمد على <b class="nm nm-pub" data-nm="dirty">dirty</b>، اللي معتمد على <b class="nm nm-pub" data-nm="draft">draft</b>. انت عمرك ما بتوصّل ده؛ الأسماء اللي بتناديها جوه هي التوصيل.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">5</span><span class="ch-f">draft-bar.html</span><span class="ch-w"><span class="l-en">bar · reads</span><span class="l-ar" dir="auto">الـ bar · بيقرا</span></span></div>
+        <pre class="ch-c" data-lang="html"><span class="ln"><span class="v0"><i class="t-tag">&lt;span</i> <i class="t-attr">class</i>=<i class="t-str">"bar-text"</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="unsaved">unsaved</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="dirty">dirty</b>()"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="status">status</b>() }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;span</i> <i class="t-attr">class</i>=<i class="t-str">"bar-text"</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="unsaved">donut</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="store">olive</b>.<b class="nm nm-pub" data-nm="dirty">pumpkin</b>()"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="store">olive</b>.<b class="nm nm-pub" data-nm="status">muffin</b>() }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></span></pre>
+        <p><span class="l-en">The template reads by calling: <b class="nm nm-pub" data-nm="status">status</b> with brackets. <b class="nm nm-ng" data-nm="class">class</b> with a dot is Angular’s class binding; <b class="nm nm-pub" data-nm="unsaved">unsaved</b> after the dot is a CSS class name, shared with the CSS file.</span><span class="l-ar" dir="auto">التمبلت بيقرا بالنداء: <b class="nm nm-pub" data-nm="status">status</b> بالقوسين. و<b class="nm nm-ng" data-nm="class">class</b> بنقطة ده ربط الـ class بتاع أنجولار؛ و<b class="nm nm-pub" data-nm="unsaved">unsaved</b> اللي بعد النقطة اسم CSS class، متشارك مع ملف الـ CSS.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">6</span><span class="ch-f">draft-store.ts</span><span class="ch-w"><span class="l-en">store · the one effect</span><span class="l-ar" dir="auto">الـ store · الـ effect الوحيد</span></span></div>
+        <pre class="ch-c" data-lang="ts"><span class="ln"><i class="t-fn"><b class="nm nm-ng" data-nm="effect">effect</b></i>(() =&gt; {</span><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setItem">setItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'draft'</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>()));</span><span class="v1">  <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setItem">setItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'bamia'</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>()));</span></span><span class="ln">});</span></pre>
+        <p><span class="l-en">The only job the signals cannot do: write to the browser’s storage. <b class="nm nm-ng" data-nm="effect">effect</b> returns nothing useful here, so it has <b>no name</b>. <b class="nm nm-pub" data-nm="'draft'">'draft'</b> is a storage key, a plain string: it is <b>not</b> the signal <b class="nm nm-pub" data-nm="draft">draft</b>.</span><span class="l-ar" dir="auto">الشغلانة الوحيدة اللي الـ signals متقدرش تعملها: الكتابة في تخزين المتصفح. <b class="nm nm-ng" data-nm="effect">effect</b> مش بيرجّع حاجة مفيدة هنا، فـ<b>ملوش اسم</b>. و<b class="nm nm-pub" data-nm="'draft'">'draft'</b> مفتاح تخزين، نص عادي: <b>مش</b> هو الـ signal <b class="nm nm-pub" data-nm="draft">draft</b>.</span></p>
+      </li>
+    </ol><div class="note"><b class="lbl"><span class="l-en">The whole thing in one line</span><span class="l-ar" dir="auto">الحكاية كلها في سطر</span></b><p><span class="l-en">Write: <code>draft.update(…)</code>. Derive: <code>dirty</code>, <code>canSave</code>, <code>status</code>, each a <code>computed</code> with a name. Leave the signal world: one nameless <code>effect</code>. Read: <code>store.status()</code>. If you want a value at the end, it is a computed.</span><span class="l-ar" dir="auto">اكتب: <code>draft.update(…)</code>. اشتق: <code>dirty</code> و<code>canSave</code> و<code>status</code>، كل واحد <code>computed</code> ليه اسم. اخرج من عالم الـ signals: <code>effect</code> واحد من غير اسم. اقرا: <code>store.status()</code>. لو عايز قيمة في الآخر، يبقى computed.</span></p></div>
+      </section>
+      <section class="sec" id="who">
+        <div class="sec-kick"><span class="l-en">Value or action?</span><span class="l-ar" dir="auto">قيمة ولا فعل؟</span></div>
+        <h2><span class="l-en">Who writes what, and who picks the name</span><span class="l-ar" dir="auto">مين بيكتب إيه، ومين بيختار الاسم</span></h2>
+        <p class="sec-lead"><span class="l-en">Everything here lives in the store except the reading. The only real question is which of the three Angular functions a line uses.</span><span class="l-ar" dir="auto">كل حاجة هنا عايشة في الـ store ما عدا القراية. السؤال الحقيقي الوحيد هو السطر ده بيستخدم أنهي function من التلاتة بتوع أنجولار.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">Piece</span><span class="l-ar" dir="auto">الحتة</span></th><th><span class="l-en">Lives in</span><span class="l-ar" dir="auto">مكانها</span></th><th><span class="l-en">Written by</span><span class="l-ar" dir="auto">مين بيكتبها</span></th><th><span class="l-en">Who picks the name</span><span class="l-ar" dir="auto">مين بيختار الاسم</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en"><code>readonly draft = signal&lt;Draft&gt;(…)</code></span><span class="l-ar" dir="auto"><code>readonly draft = signal&lt;Draft&gt;(…)</code></span></td><td><span class="l-en"><code>draft-store.ts</code></span><span class="l-ar" dir="auto"><code>draft-store.ts</code></span></td><td><span class="l-en">the store</span><span class="l-ar" dir="auto">الـ store</span></td><td><span class="l-en">you pick <b class="nm nm-pub" data-nm="draft">draft</b>; readers type it</span><span class="l-ar" dir="auto">انت بتختار <b class="nm nm-pub" data-nm="draft">draft</b>؛ واللي بيقروا بيكتبوه</span></td></tr><tr><td><span class="l-en"><code>readonly dirty = computed(() =&gt; …)</code></span><span class="l-ar" dir="auto"><code>readonly dirty = computed(() =&gt; …)</code></span></td><td><span class="l-en"><code>draft-store.ts</code></span><span class="l-ar" dir="auto"><code>draft-store.ts</code></span></td><td><span class="l-en">the store</span><span class="l-ar" dir="auto">الـ store</span></td><td><span class="l-en">you pick <b class="nm nm-pub" data-nm="dirty">dirty</b>, <b class="nm nm-pub" data-nm="canSave">canSave</b>, <b class="nm nm-pub" data-nm="status">status</b>; templates type them</span><span class="l-ar" dir="auto">انت بتختار <b class="nm nm-pub" data-nm="dirty">dirty</b> و<b class="nm nm-pub" data-nm="canSave">canSave</b> و<b class="nm nm-pub" data-nm="status">status</b>؛ والتمبلتس بتكتبهم</span></td></tr><tr><td><span class="l-en"><code>effect(() =&gt; …)</code></span><span class="l-ar" dir="auto"><code>effect(() =&gt; …)</code></span></td><td><span class="l-en"><code>draft-store.ts</code>, in the constructor</span><span class="l-ar" dir="auto"><code>draft-store.ts</code>، جوه الـ constructor</span></td><td><span class="l-en">the store</span><span class="l-ar" dir="auto">الـ store</span></td><td><span class="l-en">nobody: an effect usually has no name</span><span class="l-ar" dir="auto">محدش: الـ effect غالبًا ملوش اسم</span></td></tr><tr><td><span class="l-en"><code>setTitle(text)</code>, <code>save()</code></span><span class="l-ar" dir="auto"><code>setTitle(text)</code>، <code>save()</code></span></td><td><span class="l-en"><code>draft-store.ts</code></span><span class="l-ar" dir="auto"><code>draft-store.ts</code></span></td><td><span class="l-en">the store</span><span class="l-ar" dir="auto">الـ store</span></td><td><span class="l-en">you pick <b class="nm nm-pub" data-nm="setTitle">setTitle</b> and <b class="nm nm-pub" data-nm="save">save</b>; components call them</span><span class="l-ar" dir="auto">انت بتختار <b class="nm nm-pub" data-nm="setTitle">setTitle</b> و<b class="nm nm-pub" data-nm="save">save</b>؛ والـ components بتناديهم</span></td></tr><tr><td><span class="l-en"><code>store.status()</code>, <code>store.canSave()</code></span><span class="l-ar" dir="auto"><code>store.status()</code>، <code>store.canSave()</code></span></td><td><span class="l-en"><code>draft-bar.html</code></span><span class="l-ar" dir="auto"><code>draft-bar.html</code></span></td><td><span class="l-en">any reader</span><span class="l-ar" dir="auto">أي حد بيقرا</span></td><td><span class="l-en"><b class="nm nm-mine" data-nm="store">store</b> is yours; the rest copies the store</span><span class="l-ar" dir="auto"><b class="nm nm-mine" data-nm="store">store</b> بتاعك؛ والباقي بينسخ الـ store</span></td></tr><tr><td><span class="l-en"><code>'draft'</code> in <code>getItem</code> / <code>setItem</code></span><span class="l-ar" dir="auto"><code>'draft'</code> في <code>getItem</code> / <code>setItem</code></span></td><td><span class="l-en"><code>draft-store.ts</code></span><span class="l-ar" dir="auto"><code>draft-store.ts</code></span></td><td><span class="l-en">the store</span><span class="l-ar" dir="auto">الـ store</span></td><td><span class="l-en">you pick <b class="nm nm-pub" data-nm="'draft'">'draft'</b>; it must match itself</span><span class="l-ar" dir="auto">انت بتختار <b class="nm nm-pub" data-nm="'draft'">'draft'</b>؛ ولازم يطابق نفسه</span></td></tr></tbody>
+    </table></div><ul><li><span class="l-en"><b>A computed has a name because someone reads it.</b> An effect usually has none, because nothing reads it: it only makes something happen.</span><span class="l-ar" dir="auto"><b>الـ computed ليه اسم عشان فيه حد بيقراه.</b> والـ effect غالبًا ملوش، عشان محدش بيقراه: هو بس بيخلي حاجة تحصل.</span></li><li><span class="l-en"><b>Templates read, methods write.</b> Templates call signals with <code>()</code>. Only the store’s methods call <code>set</code> or <code>update</code>.</span><span class="l-ar" dir="auto"><b>التمبلتس بتقرا، والميثودز بتكتب.</b> التمبلتس بتنادي الـ signals بـ <code>()</code>. وميثودز الـ store بس هي اللي بتنادي <code>set</code> أو <code>update</code>.</span></li><li><span class="l-en"><b>Ask: do I want a value at the end?</b> Yes: <code>computed</code>. No, I want something to happen outside Angular (storage, a log, a chart library): <code>effect</code>.</span><span class="l-ar" dir="auto"><b>اسأل: أنا عايز قيمة في الآخر؟</b> آه: <code>computed</code>. لأ، عايز حاجة تحصل برّه أنجولار (تخزين، log، مكتبة رسوم): <code>effect</code>.</span></li></ul>
+      </section>
+      <section class="sec" id="files">
+        <div class="sec-kick"><span class="l-en">The real files</span><span class="l-ar" dir="auto">الملفات الحقيقية</span></div>
+        <h2><span class="l-en">All six files, every name coloured</span><span class="l-ar" dir="auto">الست ملفات، وكل اسم ملوّن</span></h2>
+        <p class="sec-lead"><span class="l-en">The same example, complete. Hover a coloured name to light up everywhere else it appears. Then press <b>Rename test</b>: every name you own turns into a made-up word, including the CSS class and the storage key, and the code still works.</span><span class="l-ar" dir="auto">نفس المثال، كامل. قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها. وبعدين دوس <b>جرّب تغيّر الأسماء</b>: كل اسم بتاعك هيبقى كلمة عشوائية، ومنهم الـ CSS class ومفتاح التخزين، والكود لسه شغال.</span></p>
+        
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft.ts<span class="tag"><span class="l-en">the data</span><span class="l-ar" dir="auto">الداتا</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">interface</i> <i class="t-type"><b class="nm nm-pub" data-nm="Draft">Draft</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">interface</i> <i class="t-type"><b class="nm nm-pub" data-nm="Draft">Potato</b></i> {</span></span><span class="ln"><span class="v0">  <b class="nm nm-pub" data-nm="title">title</b>: <i class="t-key">string</i>;</span><span class="v1">  <b class="nm nm-pub" data-nm="title">mango</b>: <i class="t-key">string</i>;</span></span><span class="ln"><span class="v0">  <b class="nm nm-pub" data-nm="body">body</b>: <i class="t-key">string</i>;</span><span class="v1">  <b class="nm nm-pub" data-nm="body">pickle</b>: <i class="t-key">string</i>;</span></span><span class="ln">}</span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">const</i> <i class="t-type"><b class="nm nm-pub" data-nm="EMPTY_DRAFT">EMPTY_DRAFT</b></i>: <i class="t-type"><b class="nm nm-pub" data-nm="Draft">Draft</b></i> = { <b class="nm nm-pub" data-nm="title">title</b>: <i class="t-str">''</i>, <b class="nm nm-pub" data-nm="body">body</b>: <i class="t-str">''</i> };</span><span class="v1"><i class="t-key">export</i> <i class="t-key">const</i> <i class="t-type"><b class="nm nm-pub" data-nm="EMPTY_DRAFT">BLANK_PITA</b></i>: <i class="t-type"><b class="nm nm-pub" data-nm="Draft">Potato</b></i> = { <b class="nm nm-pub" data-nm="title">mango</b>: <i class="t-str">''</i>, <b class="nm nm-pub" data-nm="body">pickle</b>: <i class="t-str">''</i> };</span></span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-store.ts<span class="tag"><span class="l-en">signals, computeds, one effect</span><span class="l-ar" dir="auto">signals وcomputeds وeffect واحد</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Injectable</i>, <b class="nm nm-ng" data-nm="computed">computed</b>, <b class="nm nm-ng" data-nm="effect">effect</b>, <b class="nm nm-ng" data-nm="signal">signal</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"><span class="v0"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="Draft">Draft</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="EMPTY_DRAFT">EMPTY_DRAFT</b></i> } <i class="t-key">from</i> <i class="t-str">'./draft'</i>;</span><span class="v1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="Draft">Potato</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="EMPTY_DRAFT">BLANK_PITA</b></i> } <i class="t-key">from</i> <i class="t-str">'./draft'</i>;</span></span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-key">function</i> <i class="t-fn"><b class="nm nm-mine" data-nm="loadDraft">loadDraft</b></i>(): <i class="t-type"><b class="nm nm-pub" data-nm="Draft">Draft</b></i> {</span><span class="v1"><i class="t-key">function</i> <i class="t-fn"><b class="nm nm-mine" data-nm="loadDraft">koshary</b></i>(): <i class="t-type"><b class="nm nm-pub" data-nm="Draft">Potato</b></i> {</span></span><span class="ln"><span class="v0">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="raw">raw</b> = <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="getItem">getItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'draft'</b></i>);</span><span class="v1">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="raw">falafel</b> = <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="getItem">getItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'bamia'</b></i>);</span></span><span class="ln"><span class="v0">  <i class="t-key">return</i> <b class="nm nm-mine" data-nm="raw">raw</b> ? <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">parse</i>(<b class="nm nm-mine" data-nm="raw">raw</b>) : <i class="t-type"><b class="nm nm-pub" data-nm="EMPTY_DRAFT">EMPTY_DRAFT</b></i>;</span><span class="v1">  <i class="t-key">return</i> <b class="nm nm-mine" data-nm="raw">falafel</b> ? <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">parse</i>(<b class="nm nm-mine" data-nm="raw">falafel</b>) : <i class="t-type"><b class="nm nm-pub" data-nm="EMPTY_DRAFT">BLANK_PITA</b></i>;</span></span><span class="ln">}</span><span class="ln"> </span><span class="ln"><i class="t-dec"><b class="nm nm-ng" data-nm="@Injectable">@Injectable</b></i>({ <b class="nm nm-ng" data-nm="providedIn">providedIn</b>: <i class="t-str">'root'</i> })</span><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="DraftStore">DraftStore</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="DraftStore">Banana</b></i> {</span></span><span class="ln"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="draft">draft</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Draft">Draft</b></i>&gt;(<i class="t-fn"><b class="nm nm-mine" data-nm="loadDraft">loadDraft</b></i>());</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="draft">waffle</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Draft">Potato</b></i>&gt;(<i class="t-fn"><b class="nm nm-mine" data-nm="loadDraft">koshary</b></i>());</span></span><span class="ln"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="saved">saved</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Draft">Draft</b></i>&gt;(<i class="t-type"><b class="nm nm-pub" data-nm="EMPTY_DRAFT">EMPTY_DRAFT</b></i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="saved">noodle</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Draft">Potato</b></i>&gt;(<i class="t-type"><b class="nm nm-pub" data-nm="EMPTY_DRAFT">BLANK_PITA</b></i>);</span></span><span class="ln"> </span><span class="ln">  <i class="t-com">// derived: never stored, never out of date</i></span><span class="ln"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="dirty">dirty</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt;</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="dirty">pumpkin</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt;</span></span><span class="ln"><span class="v0">    <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>()) !== <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="saved">saved</b></i>()));</span><span class="v1">    <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>()) !== <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="saved">noodle</b></i>()));</span></span><span class="ln"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="canSave">canSave</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="dirty">dirty</b></i>() &amp;&amp; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>().<b class="nm nm-pub" data-nm="title">title</b>.length &gt; <i class="t-num">0</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="canSave">turnip</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="dirty">pumpkin</b></i>() &amp;&amp; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>().<b class="nm nm-pub" data-nm="title">mango</b>.length &gt; <i class="t-num">0</i>);</span></span><span class="ln"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="status">status</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; (<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="dirty">dirty</b></i>() ? <i class="t-str">'Unsaved changes'</i> : <i class="t-str">'All changes saved'</i>));</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="status">muffin</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; (<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="dirty">pumpkin</b></i>() ? <i class="t-str">'Unsaved changes'</i> : <i class="t-str">'All changes saved'</i>));</span></span><span class="ln"> </span><span class="ln">  <i class="t-fn">constructor</i>() {</span><span class="ln">    <i class="t-com">// the ONE effect: storage is outside the signal world</i></span><span class="ln">    <i class="t-fn"><b class="nm nm-ng" data-nm="effect">effect</b></i>(() =&gt; {</span><span class="ln"><span class="v0">      <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setItem">setItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'draft'</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>()));</span><span class="v1">      <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setItem">setItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'bamia'</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>()));</span></span><span class="ln">    });</span><span class="ln">  }</span><span class="ln"> </span><span class="ln"><span class="v0">  <i class="t-fn"><b class="nm nm-pub" data-nm="setTitle">setTitle</b></i>(<b class="nm nm-mine" data-nm="text">text</b>: <i class="t-key">string</i>) {</span><span class="v1">  <i class="t-fn"><b class="nm nm-pub" data-nm="setTitle">taco</b></i>(<b class="nm nm-mine" data-nm="text">melon</b>: <i class="t-key">string</i>) {</span></span><span class="ln"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="draft">draft</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(<b class="nm nm-mine" data-nm="d">d</b> =&gt; ({ ...<b class="nm nm-mine" data-nm="d">d</b>, <b class="nm nm-pub" data-nm="title">title</b>: <b class="nm nm-mine" data-nm="text">text</b> }));</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="draft">waffle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(<b class="nm nm-mine" data-nm="d">radish</b> =&gt; ({ ...<b class="nm nm-mine" data-nm="d">radish</b>, <b class="nm nm-pub" data-nm="title">mango</b>: <b class="nm nm-mine" data-nm="text">melon</b> }));</span></span><span class="ln">  }</span><span class="ln"> </span><span class="ln"><span class="v0">  <i class="t-fn"><b class="nm nm-pub" data-nm="save">save</b></i>() {</span><span class="v1">  <i class="t-fn"><b class="nm nm-pub" data-nm="save">kiwi</b></i>() {</span></span><span class="ln"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="saved">saved</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>());</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="saved">noodle</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>());</span></span><span class="ln">  }</span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-editor.ts<span class="tag"><span class="l-en">writes through the store</span><span class="l-ar" dir="auto">بيكتب عن طريق الـ store</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Component</i>, <b class="nm nm-ng" data-nm="inject">inject</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"><span class="v0"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="DraftStore">DraftStore</b></i> } <i class="t-key">from</i> <i class="t-str">'./draft-store'</i>;</span><span class="v1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="DraftStore">Banana</b></i> } <i class="t-key">from</i> <i class="t-str">'./draft-store'</i>;</span></span><span class="ln"> </span><span class="ln"><i class="t-dec"><b class="nm nm-ng" data-nm="@Component">@Component</b></i>({</span><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-draft-editor">app-draft-editor</b>'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-draft-editor">app-lemon</b>'</i>,</span></span><span class="ln">  <b class="nm nm-ng" data-nm="template">template</b>: <i class="t-str">`</i></span><span class="ln"><span class="v0">    <i class="t-tag">&lt;input</i> <i class="t-bind">#<b class="nm nm-mine" data-nm="box">box</b></i> <i class="t-bind">[<b class="nm nm-ng" data-nm="value">value</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="draft">draft</b>().<b class="nm nm-pub" data-nm="title">title</b>"</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="input">input</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="setTitle">setTitle</b>(<b class="nm nm-mine" data-nm="box">box</b>.<b class="nm nm-ng" data-nm="value">value</b>)"</i> <i class="t-tag">/&gt;</i></span><span class="v1">    <i class="t-tag">&lt;input</i> <i class="t-bind">#<b class="nm nm-mine" data-nm="box">cookie</b></i> <i class="t-bind">[<b class="nm nm-ng" data-nm="value">value</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="store">olive</b>.<b class="nm nm-pub" data-nm="draft">waffle</b>().<b class="nm nm-pub" data-nm="title">mango</b>"</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="input">input</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="store">olive</b>.<b class="nm nm-pub" data-nm="setTitle">taco</b>(<b class="nm nm-mine" data-nm="box">cookie</b>.<b class="nm nm-ng" data-nm="value">value</b>)"</i> <i class="t-tag">/&gt;</i></span></span><span class="ln">  <i class="t-str">`</i>,</span><span class="ln">})</span><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="DraftEditor">DraftEditor</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="DraftEditor">Pepper</b></i> {</span></span><span class="ln"><span class="v0">  <i class="t-key">protected</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="store">store</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="DraftStore">DraftStore</b></i>);</span><span class="v1">  <i class="t-key">protected</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="store">olive</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="DraftStore">Banana</b></i>);</span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-bar.ts<span class="tag"><span class="l-en">reads only</span><span class="l-ar" dir="auto">بيقرا بس</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Component</i>, <b class="nm nm-ng" data-nm="inject">inject</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"><span class="v0"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="DraftStore">DraftStore</b></i> } <i class="t-key">from</i> <i class="t-str">'./draft-store'</i>;</span><span class="v1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="DraftStore">Banana</b></i> } <i class="t-key">from</i> <i class="t-str">'./draft-store'</i>;</span></span><span class="ln"> </span><span class="ln"><i class="t-dec"><b class="nm nm-ng" data-nm="@Component">@Component</b></i>({</span><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-draft-bar">app-draft-bar</b>'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-draft-bar">app-biscuit</b>'</i>,</span></span><span class="ln">  <b class="nm nm-ng" data-nm="templateUrl">templateUrl</b>: <i class="t-str">'./draft-bar.html'</i>,</span><span class="ln">  <b class="nm nm-ng" data-nm="styleUrl">styleUrl</b>: <i class="t-str">'./draft-bar.css'</i>,</span><span class="ln">})</span><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="DraftBar">DraftBar</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="DraftBar">Carrot</b></i> {</span></span><span class="ln"><span class="v0">  <i class="t-key">protected</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="store">store</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="DraftStore">DraftStore</b></i>);</span><span class="v1">  <i class="t-key">protected</i> <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="store">olive</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="DraftStore">Banana</b></i>);</span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="html">
+        <div class="fc-h"><span class="d"></span>draft-bar.html<span class="tag"><span class="l-en">reads by calling</span><span class="l-ar" dir="auto">بيقرا بالنداء</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;span</i> <i class="t-attr">class</i>=<i class="t-str">"bar-text"</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="unsaved">unsaved</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="dirty">dirty</b>()"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="status">status</b>() }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;span</i> <i class="t-attr">class</i>=<i class="t-str">"bar-text"</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="unsaved">donut</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="store">olive</b>.<b class="nm nm-pub" data-nm="dirty">pumpkin</b>()"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="store">olive</b>.<b class="nm nm-pub" data-nm="status">muffin</b>() }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></span><span class="ln"><span class="v0"><i class="t-tag">&lt;button</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="disabled">disabled</b>]</i>=<i class="t-str">"!<b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="canSave">canSave</b>()"</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="click">click</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="save">save</b>()"</i><i class="t-tag">&gt;</i>Save<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;button</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="disabled">disabled</b>]</i>=<i class="t-str">"!<b class="nm nm-mine" data-nm="store">olive</b>.<b class="nm nm-pub" data-nm="canSave">turnip</b>()"</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="click">click</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="store">olive</b>.<b class="nm nm-pub" data-nm="save">kiwi</b>()"</i><i class="t-tag">&gt;</i>Save<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+      <div class="code" data-lang="css">
+        <div class="fc-h"><span class="d"></span>draft-bar.css<span class="tag"><span class="l-en">shares one name</span><span class="l-ar" dir="auto">متشارك في اسم واحد</span></span></div>
+        <pre><span class="ln"><span class="v0">.<b class="nm nm-pub" data-nm="unsaved">unsaved</b> {</span><span class="v1">.<b class="nm nm-pub" data-nm="unsaved">donut</b> {</span></span><span class="ln">  color: crimson;</span><span class="ln">}</span></pre>
+      </div>
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en"><code>signal</code>, <code>computed</code> and <code>effect</code> are Angular’s; the name on the left of each is yours. Two orange names are not TypeScript at all: <code>unsaved</code> is shared with the CSS file, and the storage key <code>'draft'</code> is a plain string that TypeScript never checks.</span><span class="l-ar" dir="auto"><code>signal</code> و<code>computed</code> و<code>effect</code> بتوع أنجولار؛ والاسم اللي على شمال كل واحد بتاعك. فيه اسمين برتقاني مش TypeScript أصلًا: <code>unsaved</code> متشارك مع ملف الـ CSS، ومفتاح التخزين <code>'draft'</code> نص عادي TypeScript عمره ما بيراجعه.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="DraftStore">
+        <td><b class="nm nm-pub" data-nm="DraftStore">DraftStore</b><span class="nmas">&rarr; <code>Banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your service class, injected by the editor and the bar.</span><span class="l-ar" dir="auto">كلاس الـ service بتاعك، والـ editor والـ bar بيعملوه inject.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code> <code>draft-editor.ts</code> <code>draft-bar.ts</code></td>
+      </tr>
+      <tr data-nmrow="Draft">
+        <td><b class="nm nm-pub" data-nm="Draft">Draft</b><span class="nmas">&rarr; <code>Potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your data type.</span><span class="l-ar" dir="auto">نوع الداتا بتاعك.</span></td>
+        <td class="nmfiles"><code>draft.ts</code> <code>draft-store.ts</code> <code>draft-store.ts — before signals</code> <code>draft-store.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="EMPTY_DRAFT">
+        <td><b class="nm nm-pub" data-nm="EMPTY_DRAFT">EMPTY_DRAFT</b><span class="nmas">&rarr; <code>BLANK_PITA</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your constant for a blank draft, imported by the store.</span><span class="l-ar" dir="auto">الـ constant بتاعك لـ draft فاضي، والـ store بيعمله import.</span></td>
+        <td class="nmfiles"><code>draft.ts</code> <code>draft-store.ts</code> <code>draft-store.ts — before signals</code> <code>draft-store.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="title">
+        <td><b class="nm nm-pub" data-nm="title">title</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field of <code>Draft</code>, read and written in three files. Drafts already in storage still use the old name after a rename.</span><span class="l-ar" dir="auto">field في <code>Draft</code>، بيتقري ويتكتب في تلات ملفات. والـ drafts اللي متخزنة فعلًا هتفضل بالاسم القديم بعد التغيير.</span></td>
+        <td class="nmfiles"><code>draft-editor.ts</code> <code>draft-store.ts</code> <code>draft.ts</code> <code>draft-store.ts · untracked</code></td>
+      </tr>
+      <tr data-nmrow="body">
+        <td><b class="nm nm-pub" data-nm="body">body</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field of <code>Draft</code>.</span><span class="l-ar" dir="auto">field في <code>Draft</code>.</span></td>
+        <td class="nmfiles"><code>draft.ts</code></td>
+      </tr>
+      <tr data-nmrow="draft">
+        <td><b class="nm nm-pub" data-nm="draft">draft</b><span class="nmas">&rarr; <code>waffle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The store’s writable signal. The editor reads it. (The <code>'draft'</code> string is the storage key, a different name.)</span><span class="l-ar" dir="auto">الـ signal اللي بتتكتب في الـ store. الـ editor بيقراها. (والنص <code>'draft'</code> ده مفتاح التخزين، اسم تاني.)</span></td>
+        <td class="nmfiles"><code>draft-editor.ts</code> <code>draft-store.ts</code> <code>draft-store.ts · wait before saving</code> <code>draft-store.ts · untracked</code> <code>draft-store.ts — before signals</code> <code>draft-store.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="saved">
+        <td><b class="nm nm-pub" data-nm="saved">saved</b><span class="nmas">&rarr; <code>noodle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The store’s signal for the last saved version.</span><span class="l-ar" dir="auto">الـ signal بتاعة الـ store لآخر نسخة اتحفظت.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code> <code>draft-store.ts · untracked</code> <code>draft-store.ts — before signals</code> <code>draft-store.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="dirty">
+        <td><b class="nm nm-pub" data-nm="dirty">dirty</b><span class="nmas">&rarr; <code>pumpkin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A computed the bar reads.</span><span class="l-ar" dir="auto">computed الـ bar بيقراه.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code> <code>draft-bar.html</code> <code>draft-store.ts — before signals</code> <code>draft-store.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="canSave">
+        <td><b class="nm nm-pub" data-nm="canSave">canSave</b><span class="nmas">&rarr; <code>turnip</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A computed the bar reads.</span><span class="l-ar" dir="auto">computed الـ bar بيقراه.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code> <code>draft-bar.html</code></td>
+      </tr>
+      <tr data-nmrow="status">
+        <td><b class="nm nm-pub" data-nm="status">status</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A computed the bar reads.</span><span class="l-ar" dir="auto">computed الـ bar بيقراه.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code> <code>draft-bar.html</code></td>
+      </tr>
+      <tr data-nmrow="setTitle">
+        <td><b class="nm nm-pub" data-nm="setTitle">setTitle</b><span class="nmas">&rarr; <code>taco</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The store’s method, called by the editor.</span><span class="l-ar" dir="auto">ميثود الـ store، والـ editor بيناديها.</span></td>
+        <td class="nmfiles"><code>draft-editor.ts</code> <code>draft-store.ts</code></td>
+      </tr>
+      <tr data-nmrow="save">
+        <td><b class="nm nm-pub" data-nm="save">save</b><span class="nmas">&rarr; <code>kiwi</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The store’s method, called by the bar’s button.</span><span class="l-ar" dir="auto">ميثود الـ store، وزرار الـ bar بيناديها.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code> <code>draft-bar.html</code></td>
+      </tr>
+      <tr data-nmrow="unsaved">
+        <td><b class="nm nm-pub" data-nm="unsaved">unsaved</b><span class="nmas">&rarr; <code>donut</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A CSS class. The template’s <code>[class.unsaved]</code> and the CSS file’s <code>.unsaved</code> must match; TypeScript checks neither.</span><span class="l-ar" dir="auto">CSS class. <code>[class.unsaved]</code> في التمبلت و<code>.unsaved</code> في ملف الـ CSS لازم يتطابقوا؛ وTypeScript مش بيراجع ولا واحد فيهم.</span></td>
+        <td class="nmfiles"><code>draft-bar.html</code> <code>draft-bar.css</code></td>
+      </tr>
+      <tr data-nmrow="'draft'">
+        <td><b class="nm nm-pub" data-nm="'draft'">'draft'</b><span class="nmas">&rarr; <code>'bamia'</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The storage key. A string, so the compiler never checks that <code>getItem</code> and <code>setItem</code> spell it the same.</span><span class="l-ar" dir="auto">مفتاح التخزين. نص، فالـ compiler عمره ما بيراجع إن <code>getItem</code> و<code>setItem</code> كاتبينه زي بعض.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code> <code>draft-store.ts · wait before saving</code></td>
+      </tr>
+      <tr data-nmrow="DraftEditor">
+        <td><b class="nm nm-pub" data-nm="DraftEditor">DraftEditor</b><span class="nmas">&rarr; <code>Pepper</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your component class.</span><span class="l-ar" dir="auto">كلاس الـ component بتاعك.</span></td>
+        <td class="nmfiles"><code>draft-editor.ts</code></td>
+      </tr>
+      <tr data-nmrow="app-draft-editor">
+        <td><b class="nm nm-pub" data-nm="app-draft-editor">app-draft-editor</b><span class="nmas">&rarr; <code>app-lemon</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Its selector, typed by the page that shows it.</span><span class="l-ar" dir="auto">الـ selector بتاعه، والصفحة اللي بتعرضه بتكتبه.</span></td>
+        <td class="nmfiles"><code>draft-editor.ts</code></td>
+      </tr>
+      <tr data-nmrow="DraftBar">
+        <td><b class="nm nm-pub" data-nm="DraftBar">DraftBar</b><span class="nmas">&rarr; <code>Carrot</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your component class.</span><span class="l-ar" dir="auto">كلاس الـ component بتاعك.</span></td>
+        <td class="nmfiles"><code>draft-bar.ts</code></td>
+      </tr>
+      <tr data-nmrow="app-draft-bar">
+        <td><b class="nm nm-pub" data-nm="app-draft-bar">app-draft-bar</b><span class="nmas">&rarr; <code>app-biscuit</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Its selector, typed by the page that shows it.</span><span class="l-ar" dir="auto">الـ selector بتاعه، والصفحة اللي بتعرضه بتكتبه.</span></td>
+        <td class="nmfiles"><code>draft-bar.ts</code></td>
+      </tr>
+      <tr data-nmrow="store">
+        <td><b class="nm nm-mine" data-nm="store">store</b><span class="nmas">&rarr; <code>olive</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The name each component gives the injected store, private to that component and its template.</span><span class="l-ar" dir="auto">الاسم اللي كل component بيدّيه للـ store المتعمله inject، خاص بالـ component ده والتمبلت بتاعه.</span></td>
+        <td class="nmfiles"><code>draft-editor.ts</code> <code>draft-bar.html</code> <code>draft-bar.ts</code></td>
+      </tr>
+      <tr data-nmrow="box">
+        <td><b class="nm nm-mine" data-nm="box">box</b><span class="nmas">&rarr; <code>cookie</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A template reference (<code>#box</code>) to the input element. Only this template sees it.</span><span class="l-ar" dir="auto">template reference (<code>#box</code>) لعنصر الـ input. التمبلت ده بس اللي شايفه.</span></td>
+        <td class="nmfiles"><code>draft-editor.ts</code></td>
+      </tr>
+      <tr data-nmrow="text">
+        <td><b class="nm nm-mine" data-nm="text">text</b><span class="nmas">&rarr; <code>melon</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The parameter of <code>setTitle</code>.</span><span class="l-ar" dir="auto">الـ parameter بتاع <code>setTitle</code>.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code></td>
+      </tr>
+      <tr data-nmrow="d">
+        <td><b class="nm nm-mine" data-nm="d">d</b><span class="nmas">&rarr; <code>radish</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">An arrow function’s parameter: the current draft.</span><span class="l-ar" dir="auto">parameter في arrow function: الـ draft الحالي.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code> <code>draft-store.ts · wait before saving</code></td>
+      </tr>
+      <tr data-nmrow="raw">
+        <td><b class="nm nm-mine" data-nm="raw">raw</b><span class="nmas">&rarr; <code>falafel</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A local variable.</span><span class="l-ar" dir="auto">variable محلي.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code></td>
+      </tr>
+      <tr data-nmrow="loadDraft">
+        <td><b class="nm nm-mine" data-nm="loadDraft">loadDraft</b><span class="nmas">&rarr; <code>koshary</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A helper function in the store’s file.</span><span class="l-ar" dir="auto">function مساعدة في ملف الـ store.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code> <code>draft-store.ts — before signals</code> <code>draft-store.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="onCleanup">
+        <td><b class="nm nm-mine" data-nm="onCleanup">onCleanup</b><span class="nmas">&rarr; <code>feteer</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The name Angular’s docs use, but it is only a parameter. Angular passes the cleanup function by position.</span><span class="l-ar" dir="auto">الاسم اللي في docs أنجولار، بس هو مجرد parameter. أنجولار بيبعت الـ cleanup function بالترتيب.</span></td>
+        <td class="nmfiles"><code>draft-store.ts · wait before saving</code></td>
+      </tr>
+      <tr data-nmrow="timerId">
+        <td><b class="nm nm-mine" data-nm="timerId">timerId</b><span class="nmas">&rarr; <code>basbousa</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A local variable.</span><span class="l-ar" dir="auto">variable محلي.</span></td>
+        <td class="nmfiles"><code>draft-store.ts · wait before saving</code></td>
+      </tr>
+      <tr data-nmrow="current">
+        <td><b class="nm nm-mine" data-nm="current">current</b><span class="nmas">&rarr; <code>banana2</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A local variable.</span><span class="l-ar" dir="auto">variable محلي.</span></td>
+        <td class="nmfiles"><code>draft-store.ts · untracked</code></td>
+      </tr>
+      <tr data-nmrow="lastSaved">
+        <td><b class="nm nm-mine" data-nm="lastSaved">lastSaved</b><span class="nmas">&rarr; <code>potato2</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A local variable.</span><span class="l-ar" dir="auto">variable محلي.</span></td>
+        <td class="nmfiles"><code>draft-store.ts · untracked</code></td>
+      </tr>
+      <tr data-nmrow="signal">
+        <td><b class="nm nm-ng" data-nm="signal">signal</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s writable signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة أنجولار اللي بتتكتب.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code> <code>draft-store.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="computed">
+        <td><b class="nm nm-ng" data-nm="computed">computed</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s derived signal: lazy, cached, read-only.</span><span class="l-ar" dir="auto">الـ signal المشتقة بتاعة أنجولار: lazy، ومتخزنة، وللقراية بس.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code> <code>draft-store.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="effect">
+        <td><b class="nm nm-ng" data-nm="effect">effect</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function for side effects: code that reaches outside the signals.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار للـ side effects: كود بيوصل لبرّه الـ signals.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code> <code>draft-store.ts · wait before saving</code> <code>draft-store.ts · untracked</code></td>
+      </tr>
+      <tr data-nmrow="untracked">
+        <td><b class="nm nm-ng" data-nm="untracked">untracked</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function: read a signal without depending on it.</span><span class="l-ar" dir="auto">function من أنجولار: اقرا signal من غير ما تعتمد عليها.</span></td>
+        <td class="nmfiles"><code>draft-store.ts · untracked</code></td>
+      </tr>
+      <tr data-nmrow="set">
+        <td><b class="nm nm-ng" data-nm="set">set</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A writable signal’s method: replace the value.</span><span class="l-ar" dir="auto">ميثود في الـ signal اللي بتتكتب: بدّل القيمة.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code></td>
+      </tr>
+      <tr data-nmrow="update">
+        <td><b class="nm nm-ng" data-nm="update">update</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A writable signal’s method: new value from the old one.</span><span class="l-ar" dir="auto">ميثود في الـ signal اللي بتتكتب: قيمة جديدة من القديمة.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code></td>
+      </tr>
+      <tr data-nmrow="@Injectable">
+        <td><b class="nm nm-ng" data-nm="@Injectable">@Injectable</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s decorator for a service.</span><span class="l-ar" dir="auto">الـ decorator بتاع أنجولار للـ service.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code></td>
+      </tr>
+      <tr data-nmrow="providedIn">
+        <td><b class="nm nm-ng" data-nm="providedIn">providedIn</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code></td>
+      </tr>
+      <tr data-nmrow="inject">
+        <td><b class="nm nm-ng" data-nm="inject">inject</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that hands you a dependency.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتديك dependency.</span></td>
+        <td class="nmfiles"><code>draft-editor.ts</code> <code>draft-bar.ts</code></td>
+      </tr>
+      <tr data-nmrow="@Component">
+        <td><b class="nm nm-ng" data-nm="@Component">@Component</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s decorator.</span><span class="l-ar" dir="auto">الـ decorator بتاع أنجولار.</span></td>
+        <td class="nmfiles"><code>draft-editor.ts</code> <code>draft-bar.ts</code></td>
+      </tr>
+      <tr data-nmrow="selector">
+        <td><b class="nm nm-ng" data-nm="selector">selector</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key. The string after it is yours.</span><span class="l-ar" dir="auto">مفتاح إعداد. النص اللي بعده بتاعك.</span></td>
+        <td class="nmfiles"><code>draft-editor.ts</code> <code>draft-bar.ts</code></td>
+      </tr>
+      <tr data-nmrow="template">
+        <td><b class="nm nm-ng" data-nm="template">template</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key.</span><span class="l-ar" dir="auto">مفتاح إعداد.</span></td>
+        <td class="nmfiles"><code>draft-editor.ts</code></td>
+      </tr>
+      <tr data-nmrow="templateUrl">
+        <td><b class="nm nm-ng" data-nm="templateUrl">templateUrl</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key.</span><span class="l-ar" dir="auto">مفتاح إعداد.</span></td>
+        <td class="nmfiles"><code>draft-bar.ts</code></td>
+      </tr>
+      <tr data-nmrow="styleUrl">
+        <td><b class="nm nm-ng" data-nm="styleUrl">styleUrl</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key: this component’s CSS file.</span><span class="l-ar" dir="auto">مفتاح إعداد: ملف الـ CSS بتاع الـ component ده.</span></td>
+        <td class="nmfiles"><code>draft-bar.ts</code></td>
+      </tr>
+      <tr data-nmrow="localStorage">
+        <td><b class="nm nm-ng" data-nm="localStorage">localStorage</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s storage.</span><span class="l-ar" dir="auto">التخزين بتاع المتصفح.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code> <code>draft-store.ts · wait before saving</code></td>
+      </tr>
+      <tr data-nmrow="getItem">
+        <td><b class="nm nm-ng" data-nm="getItem">getItem</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A <code>localStorage</code> method.</span><span class="l-ar" dir="auto">ميثود في <code>localStorage</code>.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code></td>
+      </tr>
+      <tr data-nmrow="setItem">
+        <td><b class="nm nm-ng" data-nm="setItem">setItem</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A <code>localStorage</code> method.</span><span class="l-ar" dir="auto">ميثود في <code>localStorage</code>.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code> <code>draft-store.ts · wait before saving</code></td>
+      </tr>
+      <tr data-nmrow="JSON">
+        <td><b class="nm nm-ng" data-nm="JSON">JSON</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">JavaScript’s built-in for turning objects into text and back.</span><span class="l-ar" dir="auto">حاجة جاهزة في JavaScript بتحوّل الـ objects لنص وبالعكس.</span></td>
+        <td class="nmfiles"><code>draft-store.ts</code> <code>draft-store.ts · wait before saving</code> <code>draft-store.ts — before signals</code> <code>draft-store.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="setTimeout">
+        <td><b class="nm nm-ng" data-nm="setTimeout">setTimeout</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s timer.</span><span class="l-ar" dir="auto">التايمر بتاع المتصفح.</span></td>
+        <td class="nmfiles"><code>draft-store.ts · wait before saving</code></td>
+      </tr>
+      <tr data-nmrow="clearTimeout">
+        <td><b class="nm nm-ng" data-nm="clearTimeout">clearTimeout</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s way to cancel it.</span><span class="l-ar" dir="auto">طريقة المتصفح لإلغائه.</span></td>
+        <td class="nmfiles"><code>draft-store.ts · wait before saving</code></td>
+      </tr>
+      <tr data-nmrow="value">
+        <td><b class="nm nm-ng" data-nm="value">value</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The input element’s own property: its current text.</span><span class="l-ar" dir="auto">الـ property بتاعة عنصر الـ input نفسه: النص اللي فيه دلوقتي.</span></td>
+        <td class="nmfiles"><code>draft-editor.ts</code></td>
+      </tr>
+      <tr data-nmrow="input">
+        <td><b class="nm nm-ng" data-nm="input">input</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s event: fires on every keystroke.</span><span class="l-ar" dir="auto">event بتاع المتصفح: بيشتغل مع كل حرف.</span></td>
+        <td class="nmfiles"><code>draft-editor.ts</code></td>
+      </tr>
+      <tr data-nmrow="class">
+        <td><b class="nm nm-ng" data-nm="class">class</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s class binding: <code>[class.name]</code> adds the class when the value is true.</span><span class="l-ar" dir="auto">ربط الـ class في أنجولار: <code>[class.name]</code> بيضيف الـ class لما القيمة تبقى true.</span></td>
+        <td class="nmfiles"><code>draft-bar.html</code></td>
+      </tr>
+      <tr data-nmrow="disabled">
+        <td><b class="nm nm-ng" data-nm="disabled">disabled</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The button’s own property.</span><span class="l-ar" dir="auto">الـ property بتاعة الزرار نفسه.</span></td>
+        <td class="nmfiles"><code>draft-bar.html</code></td>
+      </tr>
+      <tr data-nmrow="click">
+        <td><b class="nm nm-ng" data-nm="click">click</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s event name.</span><span class="l-ar" dir="auto">اسم الـ event بتاع المتصفح.</span></td>
+        <td class="nmfiles"><code>draft-bar.html</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+      </section>
+      <section class="sec" id="rename">
+        <div class="sec-kick"><span class="l-en">Is it OK to change it?</span><span class="l-ar" dir="auto">ينفع أغيّره؟</span></div>
+        <h2><span class="l-en">What breaks when you rename each name</span><span class="l-ar" dir="auto">إيه اللي بيبوظ لما تغيّر كل اسم</span></h2>
+        <p class="sec-lead"><span class="l-en">Every TypeScript name you own is checked for you. The two names that live in strings and CSS are not, and both fail silently.</span><span class="l-ar" dir="auto">أي اسم TypeScript بتاعك بيتراجع عشانك. أما الاسمين اللي عايشين في نصوص وفي CSS فلأ، والاتنين بيفشلوا في صمت.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">If you rename…</span><span class="l-ar" dir="auto">لو غيّرت…</span></th><th><span class="l-en">Also edit…</span><span class="l-ar" dir="auto">غيّر كمان…</span></th><th><span class="l-en">If you forget</span><span class="l-ar" dir="auto">لو نسيت</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="draft">draft</b>, <b class="nm nm-pub" data-nm="saved">saved</b></span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="draft">draft</b> و<b class="nm nm-pub" data-nm="saved">saved</b></span></td><td><span class="l-en">every <code>this.draft()</code> in the store and <code>store.draft()</code> in templates</span><span class="l-ar" dir="auto">كل <code>this.draft()</code> في الـ store و<code>store.draft()</code> في التمبلتس</span></td><td><span class="l-en">Compile error.</span><span class="l-ar" dir="auto">Compile error.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="dirty">dirty</b>, <b class="nm nm-pub" data-nm="canSave">canSave</b>, <b class="nm nm-pub" data-nm="status">status</b></span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="dirty">dirty</b> و<b class="nm nm-pub" data-nm="canSave">canSave</b> و<b class="nm nm-pub" data-nm="status">status</b></span></td><td><span class="l-en">the other computeds that read them, and the bar’s template</span><span class="l-ar" dir="auto">الـ computeds التانية اللي بتقراهم، وتمبلت الـ bar</span></td><td><span class="l-en">Compile error.</span><span class="l-ar" dir="auto">Compile error.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="setTitle">setTitle</b>, <b class="nm nm-pub" data-nm="save">save</b></span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="setTitle">setTitle</b> و<b class="nm nm-pub" data-nm="save">save</b></span></td><td><span class="l-en">the templates that call them</span><span class="l-ar" dir="auto">التمبلتس اللي بتناديهم</span></td><td><span class="l-en">Compile error in the template.</span><span class="l-ar" dir="auto">Compile error في التمبلت.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="'draft'">'draft'</b> (the storage key)</span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="'draft'">'draft'</b> (مفتاح التخزين)</span></td><td><span class="l-en">the other string: <code>getItem</code> or <code>setItem</code></span><span class="l-ar" dir="auto">النص التاني: <code>getItem</code> أو <code>setItem</code></span></td><td><span class="l-en"><b>No error.</b> The draft is saved under one key and looked for under another, so every reload starts blank.</span><span class="l-ar" dir="auto"><b>مفيش error.</b> الـ draft بيتحفظ بمفتاح وبيتدوّر عليه بمفتاح تاني، فكل reload بيبدأ فاضي.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="unsaved">unsaved</b> (the CSS class)</span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="unsaved">unsaved</b> (الـ CSS class)</span></td><td><span class="l-en">the <code>.unsaved</code> rule in <code>draft-bar.css</code></span><span class="l-ar" dir="auto">الـ rule <code>.unsaved</code> في <code>draft-bar.css</code></span></td><td><span class="l-en"><b>No error.</b> The class is added, but no rule matches it, so nothing turns red.</span><span class="l-ar" dir="auto"><b>مفيش error.</b> الـ class بيتضاف، بس مفيش rule مطابقة، فمفيش حاجة بتبقى حمرا.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="Draft">Draft</b>, <b class="nm nm-pub" data-nm="title">title</b>, <b class="nm nm-pub" data-nm="body">body</b></span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="Draft">Draft</b> و<b class="nm nm-pub" data-nm="title">title</b> و<b class="nm nm-pub" data-nm="body">body</b></span></td><td><span class="l-en">every file that uses them</span><span class="l-ar" dir="auto">كل ملف بيستخدمهم</span></td><td><span class="l-en">Compile error. But drafts already in the browser’s storage still carry the old field name.</span><span class="l-ar" dir="auto">Compile error. بس الـ drafts اللي متخزنة فعلًا في المتصفح لسه شايلة اسم الـ field القديم.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="DraftStore">DraftStore</b></span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="DraftStore">DraftStore</b></span></td><td><span class="l-en">every import and <code>inject(DraftStore)</code></span><span class="l-ar" dir="auto">كل import و<code>inject(DraftStore)</code></span></td><td><span class="l-en">Compile error on the import.</span><span class="l-ar" dir="auto">Compile error في الـ import.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-mine" data-nm="store">store</b>, <b class="nm nm-mine" data-nm="box">box</b></span><span class="l-ar" dir="auto"><b class="nm nm-mine" data-nm="store">store</b> و<b class="nm nm-mine" data-nm="box">box</b></span></td><td><span class="l-en">that one component and its template</span><span class="l-ar" dir="auto">الـ component ده والتمبلت بتاعه</span></td><td><span class="l-en">Compile error in the template.</span><span class="l-ar" dir="auto">Compile error في التمبلت.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-mine" data-nm="text">text</b>, <b class="nm nm-mine" data-nm="d">d</b>, <b class="nm nm-mine" data-nm="raw">raw</b>, <b class="nm nm-mine" data-nm="onCleanup">onCleanup</b></span><span class="l-ar" dir="auto"><b class="nm nm-mine" data-nm="text">text</b> و<b class="nm nm-mine" data-nm="d">d</b> و<b class="nm nm-mine" data-nm="raw">raw</b> و<b class="nm nm-mine" data-nm="onCleanup">onCleanup</b></span></td><td><span class="l-en">only inside that function</span><span class="l-ar" dir="auto">جوه الـ function دي بس</span></td><td><span class="l-en">Compile error inside it.</span><span class="l-ar" dir="auto">Compile error جواها.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-ng" data-nm="signal">signal</b>, <b class="nm nm-ng" data-nm="computed">computed</b>, <b class="nm nm-ng" data-nm="effect">effect</b>, <b class="nm nm-ng" data-nm="set">set</b>, <b class="nm nm-ng" data-nm="update">update</b></span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="signal">signal</b> و<b class="nm nm-ng" data-nm="computed">computed</b> و<b class="nm nm-ng" data-nm="effect">effect</b> و<b class="nm nm-ng" data-nm="set">set</b> و<b class="nm nm-ng" data-nm="update">update</b></span></td><td><span class="l-en">nothing: they are Angular’s</span><span class="l-ar" dir="auto">ولا حاجة: دول بتوع أنجولار</span></td><td><span class="l-en">They are Angular’s words.</span><span class="l-ar" dir="auto">دي كلمات أنجولار.</span></td></tr></tbody>
+    </table></div><div class="note"><b class="lbl"><span class="l-en">Try it</span><span class="l-ar" dir="auto">جرّبها</span></b><p><span class="l-en">Press <b>Rename test</b> above the files. Watch the two <code>'draft'</code> strings change together, and <code>unsaved</code> change in the HTML and the CSS together. Those are the renames nobody checks but you.</span><span class="l-ar" dir="auto">دوس <b>جرّب تغيّر الأسماء</b> فوق الملفات. بص على النصين <code>'draft'</code> وهما بيتغيروا مع بعض، و<code>unsaved</code> بيتغير في الـ HTML والـ CSS مع بعض. دول التغييرات اللي محدش بيراجعها غيرك.</span></p></div>
+      </section>
+      <section class="sec" id="fixed">
+        <div class="sec-kick"><span class="l-en">Not yours</span><span class="l-ar" dir="auto">مش بتاعتك</span></div>
+        <h2><span class="l-en">Angular’s words, and one that only looks like Angular’s</span><span class="l-ar" dir="auto">كلمات أنجولار، وواحدة شكلها بس بتاعة أنجولار</span></h2>
+        <p class="sec-lead"><span class="l-en">The signal API is small: a handful of blue words, and you type them exactly. Around them sit the browser’s words. And one name from Angular’s docs is really just a parameter.</span><span class="l-ar" dir="auto">الـ API بتاع الـ signals صغير: شوية كلمات زرقا، وبتكتبهم زي ما هما. وحواليهم كلمات المتصفح. وفيه اسم من docs أنجولار هو في الحقيقة مجرد parameter.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">Owner</span><span class="l-ar" dir="auto">صاحبها</span></th><th><span class="l-en">Names</span><span class="l-ar" dir="auto">الأسماء</span></th><th><span class="l-en">What they are</span><span class="l-ar" dir="auto">هي إيه</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en">Angular signals</span><span class="l-ar" dir="auto">الـ signals بتاعة أنجولار</span></td><td><span class="l-en"><b class="nm nm-ng" data-nm="signal">signal</b>, <b class="nm nm-ng" data-nm="computed">computed</b>, <b class="nm nm-ng" data-nm="effect">effect</b>, <b class="nm nm-ng" data-nm="untracked">untracked</b></span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="signal">signal</b> و<b class="nm nm-ng" data-nm="computed">computed</b> و<b class="nm nm-ng" data-nm="effect">effect</b> و<b class="nm nm-ng" data-nm="untracked">untracked</b></span></td><td><span class="l-en">Make a value; derive a value; do something; read without depending.</span><span class="l-ar" dir="auto">اعمل قيمة؛ اشتق قيمة؛ اعمل حاجة؛ اقرا من غير اعتماد.</span></td></tr><tr><td><span class="l-en">Writable signal methods</span><span class="l-ar" dir="auto">ميثودز الـ signal اللي بتتكتب</span></td><td><span class="l-en"><b class="nm nm-ng" data-nm="set">set</b>, <b class="nm nm-ng" data-nm="update">update</b></span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="set">set</b> و<b class="nm nm-ng" data-nm="update">update</b></span></td><td><span class="l-en">Only a <code>signal()</code> has them. A <code>computed</code> has neither.</span><span class="l-ar" dir="auto"><code>signal()</code> بس اللي فيها دول. الـ <code>computed</code> مفيهوش ولا واحدة.</span></td></tr><tr><td><span class="l-en">Angular template</span><span class="l-ar" dir="auto">تمبلت أنجولار</span></td><td><span class="l-en"><b class="nm nm-ng" data-nm="class">class</b> in <code>[class.unsaved]</code></span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="class">class</b> في <code>[class.unsaved]</code></span></td><td><span class="l-en">The binding is Angular’s; the class name after the dot is yours.</span><span class="l-ar" dir="auto">الربط بتاع أنجولار؛ واسم الـ class اللي بعد النقطة بتاعك.</span></td></tr><tr><td><span class="l-en">The browser</span><span class="l-ar" dir="auto">المتصفح</span></td><td><span class="l-en"><b class="nm nm-ng" data-nm="localStorage">localStorage</b>, <b class="nm nm-ng" data-nm="getItem">getItem</b>, <b class="nm nm-ng" data-nm="setItem">setItem</b>, <b class="nm nm-ng" data-nm="JSON">JSON</b>, <b class="nm nm-ng" data-nm="input">input</b>, <b class="nm nm-ng" data-nm="value">value</b>, <b class="nm nm-ng" data-nm="disabled">disabled</b></span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="localStorage">localStorage</b> و<b class="nm nm-ng" data-nm="getItem">getItem</b> و<b class="nm nm-ng" data-nm="setItem">setItem</b> و<b class="nm nm-ng" data-nm="JSON">JSON</b> و<b class="nm nm-ng" data-nm="input">input</b> و<b class="nm nm-ng" data-nm="value">value</b> و<b class="nm nm-ng" data-nm="disabled">disabled</b></span></td><td><span class="l-en">Storage, JSON, the input event and element properties.</span><span class="l-ar" dir="auto">التخزين، والـ JSON، وevent الـ input، وproperties العناصر.</span></td></tr></tbody>
+    </table></div><p><span class="l-en">Now the one that fools people. When an effect needs to undo something before it runs again, Angular passes it a cleanup function as its first argument. The docs call that parameter <b class="nm nm-mine" data-nm="onCleanup">onCleanup</b>, so it looks official. It is not: Angular passes it by position, and you may call it anything.</span><span class="l-ar" dir="auto">ودلوقتي اللي بيضحك على الناس. لما effect يبقى محتاج يلغي حاجة قبل ما يشتغل تاني، أنجولار بيدّيله cleanup function كأول argument. الـ docs بتسمّي الـ parameter ده <b class="nm nm-mine" data-nm="onCleanup">onCleanup</b>، فشكله رسمي. بس هو مش كده: أنجولار بيبعته بالترتيب، وتقدر تسمّيه أي حاجة.</span></p>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-store.ts · wait before saving<span class="tag"><span class="l-en">onCleanup</span><span class="l-ar" dir="auto">onCleanup</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-ng" data-nm="effect">effect</b></i>(<b class="nm nm-mine" data-nm="onCleanup">onCleanup</b> =&gt; {</span><span class="v1"><i class="t-fn"><b class="nm nm-ng" data-nm="effect">effect</b></i>(<b class="nm nm-mine" data-nm="onCleanup">feteer</b> =&gt; {</span></span><span class="ln"><span class="v0">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="d">d</b> = <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>();</span><span class="v1">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="d">radish</b> = <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>();</span></span><span class="ln"><span class="v0">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="timerId">timerId</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="setTimeout">setTimeout</b></i>(() =&gt; <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setItem">setItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'draft'</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<b class="nm nm-mine" data-nm="d">d</b>)), <i class="t-num">500</i>);</span><span class="v1">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="timerId">basbousa</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="setTimeout">setTimeout</b></i>(() =&gt; <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setItem">setItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'bamia'</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<b class="nm nm-mine" data-nm="d">radish</b>)), <i class="t-num">500</i>);</span></span><span class="ln"><span class="v0">  <i class="t-fn"><b class="nm nm-mine" data-nm="onCleanup">onCleanup</b></i>(() =&gt; <i class="t-fn"><b class="nm nm-ng" data-nm="clearTimeout">clearTimeout</b></i>(<b class="nm nm-mine" data-nm="timerId">timerId</b>));   <i class="t-com">// typed again? cancel the old save</i></span><span class="v1">  <i class="t-fn"><b class="nm nm-mine" data-nm="onCleanup">feteer</b></i>(() =&gt; <i class="t-fn"><b class="nm nm-ng" data-nm="clearTimeout">clearTimeout</b></i>(<b class="nm nm-mine" data-nm="timerId">basbousa</b>));   <i class="t-com">// typed again? cancel the old save</i></span></span><span class="ln">});</span></pre>
+      </div><p><span class="l-en">The same goes for reading without depending. <b class="nm nm-ng" data-nm="untracked">untracked</b> is Angular’s; the variables around it are yours.</span><span class="l-ar" dir="auto">ونفس الكلام للقراية من غير اعتماد. <b class="nm nm-ng" data-nm="untracked">untracked</b> بتاعة أنجولار؛ والـ variables اللي حواليها بتاعتك.</span></p>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-store.ts · untracked<span class="tag"><span class="l-en">read, but do not re-run for it</span><span class="l-ar" dir="auto">اقرا، بس متشتغلش تاني عشانه</span></span></div>
+        <pre><span class="ln"><i class="t-fn"><b class="nm nm-ng" data-nm="effect">effect</b></i>(() =&gt; {</span><span class="ln"><span class="v0">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="current">current</b> = <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>().<b class="nm nm-pub" data-nm="title">title</b>;                     <i class="t-com">// re-runs when this changes</i></span><span class="v1">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="current">banana2</b> = <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>().<b class="nm nm-pub" data-nm="title">mango</b>;                     <i class="t-com">// re-runs when this changes</i></span></span><span class="ln"><span class="v0">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="lastSaved">lastSaved</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="untracked">untracked</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="saved">saved</b></i>().<b class="nm nm-pub" data-nm="title">title</b>);  <i class="t-com">// read only, no re-run</i></span><span class="v1">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="lastSaved">potato2</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="untracked">untracked</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="saved">noodle</b></i>().<b class="nm nm-pub" data-nm="title">mango</b>);  <i class="t-com">// read only, no re-run</i></span></span><span class="ln"><span class="v0">  console.<i class="t-fn">log</i>(<i class="t-str">`editing "${<b class="nm nm-mine" data-nm="current">current</b>}", last saved "${<b class="nm nm-mine" data-nm="lastSaved">lastSaved</b>}"`</i>);</span><span class="v1">  console.<i class="t-fn">log</i>(<i class="t-str">`editing "${<b class="nm nm-mine" data-nm="current">banana2</b>}", last saved "${<b class="nm nm-mine" data-nm="lastSaved">potato2</b>}"`</i>);</span></span><span class="ln">});</span></pre>
+      </div>
+      </section>
+      <section class="sec" id="habits">
+        <div class="sec-kick"><span class="l-en">Conventions, not rules</span><span class="l-ar" dir="auto">عادات، مش قواعد</span></div>
+        <h2><span class="l-en">How to pick good names</span><span class="l-ar" dir="auto">تختار أسماء كويسة إزاي</span></h2>
+        <p class="sec-lead"><span class="l-en">Angular accepts any name on the left of <code>=</code>. Good names make templates read like sentences, and one habit protects you from the storage-key bug.</span><span class="l-ar" dir="auto">أنجولار بيقبل أي اسم على شمال الـ <code>=</code>. الأسماء الكويسة بتخلي التمبلتس تتقري زي جمل، وفيه عادة بتحميك من bug مفتاح التخزين.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">Naming</span><span class="l-ar" dir="auto">بتسمّي</span></th><th><span class="l-en">Good</span><span class="l-ar" dir="auto">كويس</span></th><th><span class="l-en">Avoid</span><span class="l-ar" dir="auto">ابعد عن</span></th><th><span class="l-en">Why</span><span class="l-ar" dir="auto">ليه</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en">a computed</span><span class="l-ar" dir="auto">computed</span></td><td><span class="l-en"><code>dirty</code>, <code>total</code>, <code>status</code></span><span class="l-ar" dir="auto"><code>dirty</code>، <code>total</code>، <code>status</code></span></td><td><span class="l-en"><code>getDirty</code>, <code>computeTotal</code>, <code>dirtySignal</code></span><span class="l-ar" dir="auto"><code>getDirty</code>، <code>computeTotal</code>، <code>dirtySignal</code></span></td><td><span class="l-en">Name the value, not the work. <code>store.total()</code> already says “read it”.</span><span class="l-ar" dir="auto">سمّي القيمة، مش الشغل. <code>store.total()</code> أصلًا بتقول «اقراها».</span></td></tr><tr><td><span class="l-en">a yes/no computed</span><span class="l-ar" dir="auto">computed آه/لأ</span></td><td><span class="l-en"><code>canSave</code>, <code>isDirty</code>, <code>hasItems</code></span><span class="l-ar" dir="auto"><code>canSave</code>، <code>isDirty</code>، <code>hasItems</code></span></td><td><span class="l-en"><code>saveFlag</code>, <code>check</code></span><span class="l-ar" dir="auto"><code>saveFlag</code>، <code>check</code></span></td><td><span class="l-en"><code>[disabled]="!store.canSave()"</code> reads as English.</span><span class="l-ar" dir="auto"><code>[disabled]="!store.canSave()"</code> بتتقري زي جملة إنجليزي.</span></td></tr><tr><td><span class="l-en">an effect</span><span class="l-ar" dir="auto">effect</span></td><td><span class="l-en">usually nothing; if you keep it, what it does: <code>autosave</code></span><span class="l-ar" dir="auto">غالبًا ولا حاجة؛ ولو احتفظت بيه، سمّي اللي بيعمله: <code>autosave</code></span></td><td><span class="l-en"><code>effect1</code>, <code>myEffect</code></span><span class="l-ar" dir="auto"><code>effect1</code>، <code>myEffect</code></span></td><td><span class="l-en">You only keep the result if you need to <code>destroy()</code> it early.</span><span class="l-ar" dir="auto">بتحتفظ بالنتيجة بس لو محتاج تعمل لها <code>destroy()</code> بدري.</span></td></tr><tr><td><span class="l-en">the cleanup parameter</span><span class="l-ar" dir="auto">parameter الـ cleanup</span></td><td><span class="l-en"><code>onCleanup</code></span><span class="l-ar" dir="auto"><code>onCleanup</code></span></td><td><span class="l-en">anything else</span><span class="l-ar" dir="auto">أي حاجة تانية</span></td><td><span class="l-en">Not a rule, but it is what every reader expects.</span><span class="l-ar" dir="auto">مش قاعدة، بس هو اللي أي حد بيقرا مستنيه.</span></td></tr><tr><td><span class="l-en">the storage key</span><span class="l-ar" dir="auto">مفتاح التخزين</span></td><td><span class="l-en">one constant: <code>const DRAFT_KEY = 'draft'</code></span><span class="l-ar" dir="auto">constant واحد: <code>const DRAFT_KEY = 'draft'</code></span></td><td><span class="l-en">typing <code>'draft'</code> in two places</span><span class="l-ar" dir="auto">إنك تكتب <code>'draft'</code> في مكانين</span></td><td><span class="l-en">A constant is a TypeScript name, so a typo becomes a compile error instead of a blank page.</span><span class="l-ar" dir="auto">الـ constant اسم TypeScript، فالغلطة الإملائية بتبقى compile error بدل صفحة فاضية.</span></td></tr></tbody>
+    </table></div>
+      </section>
+      <section class="sec" id="forced">
+        <div class="sec-kick"><span class="l-en">When a rule picks the name</span><span class="l-ar" dir="auto">لما قاعدة هي اللي بتختار الاسم</span></div>
+        <h2><span class="l-en">Two names TypeScript cannot see</span><span class="l-ar" dir="auto">اسمين TypeScript مش شايفهم</span></h2>
+        <p class="sec-lead"><span class="l-en">You pick both of these names freely. But once picked, each must be repeated exactly somewhere TypeScript does not look.</span><span class="l-ar" dir="auto">انت بتختار الاسمين دول براحتك. بس أول ما تختارهم، كل واحد لازم يتكرر بالظبط في مكان TypeScript مش بيبص فيه.</span></p>
+        <div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">A</span><b><span class="l-en">The class name after <code>[class.</code> must match the CSS</span><span class="l-ar" dir="auto">اسم الـ class اللي بعد <code>[class.</code> لازم يطابق الـ CSS</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="css">
+        <div class="fc-h"><span class="d"></span>draft-bar.css<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln">.not-saved {</span><span class="ln">  color: crimson;</span><span class="ln">}</span></pre>
+      </div>
+      <div class="code good" data-lang="css">
+        <div class="fc-h"><span class="d"></span>draft-bar.css<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0">.<b class="nm nm-pub" data-nm="unsaved">unsaved</b> {</span><span class="v1">.<b class="nm nm-pub" data-nm="unsaved">donut</b> {</span></span><span class="ln">  color: crimson;</span><span class="ln">}</span></pre>
+      </div>
+    </div><p><span class="l-en">The template adds a class called <b class="nm nm-pub" data-nm="unsaved">unsaved</b>. The CSS on the left styles a class nobody adds. Both files are valid, so nothing complains; the text just never turns red.</span><span class="l-ar" dir="auto">التمبلت بيضيف class اسمه <b class="nm nm-pub" data-nm="unsaved">unsaved</b>. والـ CSS اللي على الشمال بيلوّن class محدش بيضيفه. الملفين صح، فمحدش بيشتكي؛ الكلام بس عمره ما بيبقى أحمر.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">B</span><b><span class="l-en">The storage key must match itself</span><span class="l-ar" dir="auto">مفتاح التخزين لازم يطابق نفسه</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-store.ts<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="raw">raw</b> = <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="getItem">getItem</b></i>(<i class="t-str">'drafts'</i>);</span><span class="v1"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="raw">falafel</b> = <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="getItem">getItem</b></i>(<i class="t-str">'drafts'</i>);</span></span><span class="ln"><i class="t-com">// …</i></span><span class="ln"><span class="v0"><b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setItem">setItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'draft'</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>()));</span><span class="v1"><b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setItem">setItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'bamia'</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>()));</span></span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-store.ts<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="raw">raw</b> = <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="getItem">getItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'draft'</b></i>);</span><span class="v1"><i class="t-key">const</i> <b class="nm nm-mine" data-nm="raw">falafel</b> = <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="getItem">getItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'bamia'</b></i>);</span></span><span class="ln"><i class="t-com">// …</i></span><span class="ln"><span class="v0"><b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setItem">setItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'draft'</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>()));</span><span class="v1"><b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setItem">setItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'bamia'</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>()));</span></span></pre>
+      </div>
+    </div><p><span class="l-en">One letter apart. The effect saves under <code>'draft'</code>, the loader looks under <code>'drafts'</code>, finds nothing, and starts blank. The fix that lasts is the constant from the habits table.</span><span class="l-ar" dir="auto">فرق حرف واحد. الـ effect بيحفظ تحت <code>'draft'</code>، والـ loader بيدوّر تحت <code>'drafts'</code>، مش بيلاقي حاجة، وبيبدأ فاضي. والحل اللي بيدوم هو الـ constant اللي في جدول العادات.</span></p>
+    </div>
+      </section>
+      <section class="sec" id="old">
+        <div class="sec-kick"><span class="l-en">Older code</span><span class="l-ar" dir="auto">كود أقدم</span></div>
+        <h2><span class="l-en">Getters did this job before, with the same names</span><span class="l-ar" dir="auto">الـ getters كانت بتعمل الشغلانة دي قبل كده، بنفس الأسماء</span></h2>
+        <p class="sec-lead"><span class="l-en">Before signals, a derived value was usually a getter. The names are identical. The difference is the brackets, and how often the work runs.</span><span class="l-ar" dir="auto">قبل الـ signals، القيمة المشتقة كانت غالبًا getter. الأسماء هي هي. الفرق في القوسين، وفي الشغل بيتعمل كام مرة.</span></p>
+        <div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-store.ts — before signals<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><b class="nm nm-pub" data-nm="draft">draft</b>: <i class="t-type"><b class="nm nm-pub" data-nm="Draft">Draft</b></i> = <i class="t-fn"><b class="nm nm-mine" data-nm="loadDraft">loadDraft</b></i>();</span><span class="v1"><b class="nm nm-pub" data-nm="draft">waffle</b>: <i class="t-type"><b class="nm nm-pub" data-nm="Draft">Potato</b></i> = <i class="t-fn"><b class="nm nm-mine" data-nm="loadDraft">koshary</b></i>();</span></span><span class="ln"><span class="v0"><b class="nm nm-pub" data-nm="saved">saved</b>: <i class="t-type"><b class="nm nm-pub" data-nm="Draft">Draft</b></i> = <i class="t-type"><b class="nm nm-pub" data-nm="EMPTY_DRAFT">EMPTY_DRAFT</b></i>;</span><span class="v1"><b class="nm nm-pub" data-nm="saved">noodle</b>: <i class="t-type"><b class="nm nm-pub" data-nm="Draft">Potato</b></i> = <i class="t-type"><b class="nm nm-pub" data-nm="EMPTY_DRAFT">BLANK_PITA</b></i>;</span></span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-key">get</i> <i class="t-fn"><b class="nm nm-pub" data-nm="dirty">dirty</b></i>() {</span><span class="v1"><i class="t-key">get</i> <i class="t-fn"><b class="nm nm-pub" data-nm="dirty">pumpkin</b></i>() {</span></span><span class="ln"><span class="v0">  <i class="t-key">return</i> <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<b class="nm nm-pub" data-nm="draft">draft</b>) !== <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<b class="nm nm-pub" data-nm="saved">saved</b>);</span><span class="v1">  <i class="t-key">return</i> <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<b class="nm nm-pub" data-nm="draft">waffle</b>) !== <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<b class="nm nm-pub" data-nm="saved">noodle</b>);</span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-store.ts — today<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="draft">draft</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Draft">Draft</b></i>&gt;(<i class="t-fn"><b class="nm nm-mine" data-nm="loadDraft">loadDraft</b></i>());</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="draft">waffle</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Draft">Potato</b></i>&gt;(<i class="t-fn"><b class="nm nm-mine" data-nm="loadDraft">koshary</b></i>());</span></span><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="saved">saved</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Draft">Draft</b></i>&gt;(<i class="t-type"><b class="nm nm-pub" data-nm="EMPTY_DRAFT">EMPTY_DRAFT</b></i>);</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="saved">noodle</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Draft">Potato</b></i>&gt;(<i class="t-type"><b class="nm nm-pub" data-nm="EMPTY_DRAFT">BLANK_PITA</b></i>);</span></span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="dirty">dirty</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt;</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="dirty">pumpkin</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt;</span></span><span class="ln"><span class="v0">  <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>()) !== <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="saved">saved</b></i>()));</span><span class="v1">  <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>()) !== <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="saved">noodle</b></i>()));</span></span><span class="ln"> </span></pre>
+      </div>
+    </div><p><span class="l-en">Same <b class="nm nm-pub" data-nm="draft">draft</b>, <b class="nm nm-pub" data-nm="saved">saved</b> and <b class="nm nm-pub" data-nm="dirty">dirty</b>. With a getter the template writes <code>store.dirty</code> with no brackets, and the getter runs again every time Angular checks the template. A <b class="nm nm-ng" data-nm="computed">computed</b> is read as <code>store.dirty()</code> and only recalculates when <b class="nm nm-pub" data-nm="draft">draft</b> or <b class="nm nm-pub" data-nm="saved">saved</b> changed.</span><span class="l-ar" dir="auto">نفس <b class="nm nm-pub" data-nm="draft">draft</b> و<b class="nm nm-pub" data-nm="saved">saved</b> و<b class="nm nm-pub" data-nm="dirty">dirty</b>. مع الـ getter التمبلت بيكتب <code>store.dirty</code> من غير قوسين، والـ getter بيشتغل تاني كل مرة أنجولار بيراجع التمبلت. أما <b class="nm nm-ng" data-nm="computed">computed</b> فبيتقري <code>store.dirty()</code> ومبيتحسبش تاني غير لما <b class="nm nm-pub" data-nm="draft">draft</b> أو <b class="nm nm-pub" data-nm="saved">saved</b> يتغيروا.</span></p><div class="note"><b class="lbl"><span class="l-en">You may also see</span><span class="l-ar" dir="auto">ممكن تشوف كمان</span></b><p><span class="l-en"><code>effect(() =&gt; …, { allowSignalWrites: true })</code>. That option key comes from the Angular versions before 19, when writing a signal inside an effect was blocked by default. Since Angular 19 it is deprecated and does nothing. Needing it was usually a sign the effect should have been a computed.</span><span class="l-ar" dir="auto"><code>effect(() =&gt; …, { allowSignalWrites: true })</code>. مفتاح الإعداد ده من أيام نسخ أنجولار اللي قبل 19، لما الكتابة في signal جوه effect كانت ممنوعة افتراضيًا. من Angular 19 بقى deprecated ومبيعملش حاجة. ولو كنت محتاجه، ده غالبًا كان معناه إن الـ effect كان المفروض يبقى computed.</span></p></div>
+      </section>
+      <section class="sec" id="silent">
+        <div class="sec-kick"><span class="l-en">It does nothing, and says nothing</span><span class="l-ar" dir="auto">مش بيعمل حاجة، ومش بيقول حاجة</span></div>
+        <h2><span class="l-en">Mistakes that fail silently</span><span class="l-ar" dir="auto">غلطات بتفشل في صمت</span></h2>
+        <p class="sec-lead"><span class="l-en">Signal mistakes rarely crash. The screen shows an old value, or shows nothing new, and nothing in the console says why.</span><span class="l-ar" dir="auto">غلطات الـ signals نادرًا ما بتوقّع التطبيق. الشاشة بتعرض قيمة قديمة، أو مش بتعرض حاجة جديدة، ومفيش حاجة في الكونسول بتقول ليه.</span></p>
+        <div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">1</span><b><span class="l-en">Storing what you could derive</span><span class="l-ar" dir="auto">إنك تخزّن حاجة كنت تقدر تشتقها</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-store.ts<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="dirty">dirty</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="dirty">pumpkin</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span></span><span class="ln"> </span><span class="ln"><i class="t-fn">constructor</i>() {</span><span class="ln">  <i class="t-fn"><b class="nm nm-ng" data-nm="effect">effect</b></i>(() =&gt; {</span><span class="ln"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="dirty">dirty</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>()) !== <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="saved">saved</b></i>()));</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="dirty">pumpkin</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>()) !== <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="saved">noodle</b></i>()));</span></span><span class="ln">  });</span><span class="ln">}</span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-store.ts<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="dirty">dirty</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt;</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="dirty">pumpkin</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt;</span></span><span class="ln"><span class="v0">  <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>()) !== <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="saved">saved</b></i>()));</span><span class="v1">  <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>()) !== <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="saved">noodle</b></i>()));</span></span><span class="ln"> </span><span class="ln"> </span><span class="ln"> </span><span class="ln"> </span><span class="ln"> </span></pre>
+      </div>
+    </div><p><span class="l-en">The left one mostly works, which is the problem. Effects run a little later, not at the moment you write. Read <code>dirty()</code> right after <code>setTitle</code> and you get the old answer. Two copies of one truth, and a window where they disagree.</span><span class="l-ar" dir="auto">اللي على الشمال شغال في أغلب الوقت، وده المشكلة. الـ effects بتشتغل بعدها بشوية، مش في لحظة ما بتكتب. اقرا <code>dirty()</code> بعد <code>setTitle</code> على طول وهتاخد الإجابة القديمة. نسختين من حقيقة واحدة، وشباك بيختلفوا فيه.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">2</span><b><span class="l-en">Changing the object instead of replacing it</span><span class="l-ar" dir="auto">إنك تغيّر الـ object بدل ما تبدّله</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-store.ts<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-pub" data-nm="setTitle">setTitle</b></i>(<b class="nm nm-mine" data-nm="text">text</b>: <i class="t-key">string</i>) {</span><span class="v1"><i class="t-fn"><b class="nm nm-pub" data-nm="setTitle">taco</b></i>(<b class="nm nm-mine" data-nm="text">melon</b>: <i class="t-key">string</i>) {</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="draft">draft</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(<b class="nm nm-mine" data-nm="d">d</b> =&gt; { <b class="nm nm-mine" data-nm="d">d</b>.<b class="nm nm-pub" data-nm="title">title</b> = <b class="nm nm-mine" data-nm="text">text</b>; <i class="t-key">return</i> <b class="nm nm-mine" data-nm="d">d</b>; });</span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="draft">waffle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(<b class="nm nm-mine" data-nm="d">radish</b> =&gt; { <b class="nm nm-mine" data-nm="d">radish</b>.<b class="nm nm-pub" data-nm="title">mango</b> = <b class="nm nm-mine" data-nm="text">melon</b>; <i class="t-key">return</i> <b class="nm nm-mine" data-nm="d">radish</b>; });</span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-store.ts<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-pub" data-nm="setTitle">setTitle</b></i>(<b class="nm nm-mine" data-nm="text">text</b>: <i class="t-key">string</i>) {</span><span class="v1"><i class="t-fn"><b class="nm nm-pub" data-nm="setTitle">taco</b></i>(<b class="nm nm-mine" data-nm="text">melon</b>: <i class="t-key">string</i>) {</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="draft">draft</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(<b class="nm nm-mine" data-nm="d">d</b> =&gt; ({ ...<b class="nm nm-mine" data-nm="d">d</b>, <b class="nm nm-pub" data-nm="title">title</b>: <b class="nm nm-mine" data-nm="text">text</b> }));</span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="draft">waffle</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(<b class="nm nm-mine" data-nm="d">radish</b> =&gt; ({ ...<b class="nm nm-mine" data-nm="d">radish</b>, <b class="nm nm-pub" data-nm="title">mango</b>: <b class="nm nm-mine" data-nm="text">melon</b> }));</span></span><span class="ln">}</span></pre>
+      </div>
+    </div><p><span class="l-en">A signal compares the old value with the new one. On the left it is the <b>same object</b>, so the signal decides nothing changed: <code>dirty</code>, <code>status</code> and the effect never run again.</span><span class="l-ar" dir="auto">الـ signal بتقارن القيمة القديمة بالجديدة. على الشمال هو <b>نفس الـ object</b>، فالـ signal بتقرر إن مفيش حاجة اتغيرت: <code>dirty</code> و<code>status</code> والـ effect عمرهم ما بيشتغلوا تاني.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">3</span><b><span class="l-en">Forgetting the brackets in the template</span><span class="l-ar" dir="auto">نسيان القوسين في التمبلت</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="html">
+        <div class="fc-h"><span class="d"></span>draft-bar.html<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;span</i> <i class="t-attr">class</i>=<i class="t-str">"bar-text"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="status">status</b> }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;span</i> <i class="t-attr">class</i>=<i class="t-str">"bar-text"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="store">olive</b>.<b class="nm nm-pub" data-nm="status">muffin</b> }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+      <div class="code good" data-lang="html">
+        <div class="fc-h"><span class="d"></span>draft-bar.html<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;span</i> <i class="t-attr">class</i>=<i class="t-str">"bar-text"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="store">store</b>.<b class="nm nm-pub" data-nm="status">status</b>() }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;span</i> <i class="t-attr">class</i>=<i class="t-str">"bar-text"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-mine" data-nm="store">olive</b>.<b class="nm nm-pub" data-nm="status">muffin</b>() }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+    </div><p><span class="l-en">Without <code>()</code> the template prints a description of the signal instead of its text. Recent Angular versions warn about this at build time, so read your warnings.</span><span class="l-ar" dir="auto">من غير <code>()</code> التمبلت بيطبع وصف للـ signal بدل النص اللي فيها. نسخ أنجولار الحديثة بتحذّرك من ده وقت الـ build، فاقرا الـ warnings بتاعتك.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">4</span><b><span class="l-en">Creating an effect in a method</span><span class="l-ar" dir="auto">إنك تعمل effect جوه ميثود</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-store.ts<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><i class="t-fn">startAutosave</i>() {</span><span class="ln"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="effect">effect</b></i>(() =&gt; <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setItem">setItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'draft'</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>())));</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="effect">effect</b></i>(() =&gt; <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setItem">setItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'bamia'</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>())));</span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-store.ts<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><i class="t-fn">constructor</i>() {</span><span class="ln"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="effect">effect</b></i>(() =&gt; <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setItem">setItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'draft'</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>())));</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="effect">effect</b></i>(() =&gt; <b class="nm nm-ng" data-nm="localStorage">localStorage</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="setItem">setItem</b></i>(<i class="t-str"><b class="nm nm-pub" data-nm="'draft'">'bamia'</b></i>, <i class="t-type"><b class="nm nm-ng" data-nm="JSON">JSON</b></i>.<i class="t-fn">stringify</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>())));</span></span><span class="ln">}</span></pre>
+      </div>
+    </div><p><span class="l-en">This one does fail, at runtime, with NG0203: <code>effect()</code> needs an injection context, like a constructor or a field. The message talks about injection, not about effects, which is why it confuses people.</span><span class="l-ar" dir="auto">دي بتفشل فعلًا، وهو شغال، بـ NG0203: <code>effect()</code> محتاج injection context، زي constructor أو field. والرسالة بتتكلم عن الـ injection، مش عن الـ effects، وعشان كده بتلخبط الناس.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">5</span><b><span class="l-en">Setting a computed</span><span class="l-ar" dir="auto">إنك تعمل set لـ computed</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-store.ts<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-pub" data-nm="save">save</b></i>() {</span><span class="v1"><i class="t-fn"><b class="nm nm-pub" data-nm="save">kiwi</b></i>() {</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="dirty">dirty</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">false</i>);</span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="dirty">pumpkin</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">false</i>);</span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>draft-store.ts<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-pub" data-nm="save">save</b></i>() {</span><span class="v1"><i class="t-fn"><b class="nm nm-pub" data-nm="save">kiwi</b></i>() {</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="saved">saved</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">draft</b></i>());</span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="saved">noodle</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="draft">waffle</b></i>());</span></span><span class="ln">}</span></pre>
+      </div>
+    </div><p><span class="l-en">A compile error: “Property <code>set</code> does not exist”. A computed is read-only. To change what it says, change what it reads: saving makes <code>saved</code> equal <code>draft</code>, and <code>dirty</code> becomes false by itself.</span><span class="l-ar" dir="auto">Compile error: «Property <code>set</code> does not exist». الـ computed للقراية بس. عشان تغيّر اللي بيقوله، غيّر اللي بيقراه: الحفظ بيخلي <code>saved</code> تساوي <code>draft</code>، و<code>dirty</code> بيبقى false لوحده.</span></p>
+    </div>
+      </section>
+      <section class="sec" id="check">
+        <div class="sec-kick"><span class="l-en">When it does nothing</span><span class="l-ar" dir="auto">لما مايعملش حاجة</span></div>
+        <h2><span class="l-en">Six questions, in this order</span><span class="l-ar" dir="auto">ست أسئلة، بالترتيب ده</span></h2>
+        <p class="sec-lead"><span class="l-en">The screen does not update, or the draft is gone after a reload. Ask these before anything else.</span><span class="l-ar" dir="auto">الشاشة مش بتتحدّث، أو الـ draft راح بعد الـ reload. اسأل دول قبل أي حاجة.</span></p>
+        <div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>1.</b> Is every signal and computed called with <code>()</code>, in the TypeScript and in the template?</span><span class="l-ar" dir="auto"><b>1.</b> كل signal وcomputed متنادية بـ <code>()</code>، في الـ TypeScript وفي التمبلت؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>2.</b> Does every <code>update</code> return a <b>new</b> object or array, not the old one changed?</span><span class="l-ar" dir="auto"><b>2.</b> كل <code>update</code> بترجّع object أو array <b>جديدة</b>، مش القديمة متعدلة؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>3.</b> Is any effect writing a signal? If the result is a value, make it a <code>computed</code>.</span><span class="l-ar" dir="auto"><b>3.</b> فيه effect بيكتب في signal؟ لو النتيجة قيمة، خليها <code>computed</code>.</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>4.</b> Is every <code>effect()</code> created in a constructor or a field?</span><span class="l-ar" dir="auto"><b>4.</b> كل <code>effect()</code> متعمل جوه constructor أو field؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>5.</b> Do <code>getItem</code> and <code>setItem</code> use the exact same key? Does the CSS file have the exact class the template adds?</span><span class="l-ar" dir="auto"><b>5.</b> <code>getItem</code> و<code>setItem</code> بيستخدموا نفس المفتاح بالظبط؟ وملف الـ CSS فيه نفس الـ class اللي التمبلت بيضيفه بالظبط؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>6.</b> Does an effect re-run too often? It depends on everything it reads; wrap the reads you do not care about in <code>untracked</code>.</span><span class="l-ar" dir="auto"><b>6.</b> فيه effect بيشتغل أكتر من اللازم؟ هو معتمد على كل حاجة بيقراها؛ لف القرايات اللي مش فارقة معاك في <code>untracked</code>.</span></p></div>
+      </section></div>
+  </div>
+
+  <nav class="pager">
+    <a class="pv" href="25-effects-vs-computed.html"><em>&larr; <span class="l-en">Back to the topic</span><span class="l-ar" dir="auto">رجوع للموضوع</span></em><b><span class="l-en"><code>effect()</code> is not a cheaper <code>computed()</code></span><span class="l-ar" dir="auto"><code>effect()</code> مش نسخة أرخص من <code>computed()</code></span></b></a>
+    <a class="nx" href="../intermediate/26-di-host-directives.html"><em><span class="l-en">Next topic</span><span class="l-ar" dir="auto">الموضوع اللي بعده</span> &rarr;</em><b><span class="l-en">Injection tokens and host directives</span><span class="l-ar" dir="auto">الـ Injection tokens والـ host directives</span></b></a>
+  </nav>
+</main>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+/* ---------- language + theme, shared by every page ---------- */
+function _g(id){ return document.getElementById(id); }
+function syncUI(){
+  const r = document.documentElement;
+  const l = r.dataset.lang === 'ar' ? 'ar' : 'en';
+  const t = r.dataset.theme === 'dark' ? 'dark' : 'light';
+  const set = (id, on) => { const b = _g(id); if (b) b.setAttribute('aria-pressed', String(on)); };
+  set('b-en', l === 'en'); set('b-ar', l === 'ar');
+  set('b-lt', t === 'light'); set('b-dk', t === 'dark');
+}
+function setLang(l){
+  const r = document.documentElement;
+  r.dataset.lang = l;
+  r.dir  = l === 'ar' ? 'rtl' : 'ltr';
+  r.lang = l === 'ar' ? 'ar-EG' : 'en';
+  try { localStorage.setItem('tas-lang', l); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+function setTheme(t){
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('tas-theme', t); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+_g('b-en').onclick = () => setLang('en');
+_g('b-ar').onclick = () => setLang('ar');
+_g('b-lt').onclick = () => setTheme('light');
+_g('b-dk').onclick = () => setTheme('dark');
+syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
+
+/* highlight the section you are reading.
+   Position-based, not IntersectionObserver: after clicking a link the previous
+   section still overlaps the observation band by a few pixels, and picking the
+   first intersecting one left the rail a step behind until you nudged the page. */
+const links = new Map([...document.querySelectorAll('[data-rail]')].map(a => [a.dataset.rail, a]));
+const secs = [...document.querySelectorAll('.sec')];
+const LINE = 92;                      /* the reading line, just under the sticky bar */
+
+function markActive(id){
+  links.forEach((a, key) => a.classList.toggle('on', key === id));
+}
+function spy(){
+  if (!secs.length) return;
+  let current = secs[0];
+  for (const sec of secs) {
+    if (sec.getBoundingClientRect().top - LINE <= 0) current = sec; else break;
+  }
+  /* the last section is often too short to ever cross the line */
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) current = secs[secs.length - 1];
+  markActive(current.id);
+}
+
+/* a click should light up immediately, not after the scroll settles */
+links.forEach((a, id) => a.addEventListener('click', () => markActive(id)));
+
+let spying = false;
+addEventListener('scroll', () => {
+  if (spying) return;
+  spying = true;
+  requestAnimationFrame(() => { spying = false; spy(); });
+}, { passive: true });
+addEventListener('resize', spy);
+addEventListener('hashchange', () => requestAnimationFrame(spy));
+addEventListener('load', spy);   /* the browser applies #hash after parsing */
+spy();
+</script>
+</body>
+</html>

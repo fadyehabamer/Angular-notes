@@ -1,0 +1,73 @@
+/* names for the signals ↔ RxJS interop topic.
+   n: the name exactly as typed in the code.   k: ng | mine | pub.
+   w: what it is, and what has to change with it.   { en, ar }
+   re / only / as: see _build/names.mjs.                                  */
+export default {
+'rxjs-interop': {
+  note: {
+    en: 'The bridges (<code>toSignal</code>, <code>toObservable</code>, <code>rxResource</code>, <code>takeUntilDestroyed</code>) are Angular’s and come from <code>@angular/core/rxjs-interop</code>. The option keys you pass them (<code>initialValue</code>, <code>params</code>, <code>stream</code>) are Angular’s too; the values are yours.',
+    ar: 'الكباري (<code>toSignal</code> و<code>toObservable</code> و<code>rxResource</code> و<code>takeUntilDestroyed</code>) بتاعة أنجولار وجاية من <code>@angular/core/rxjs-interop</code>. ومفاتيح الإعداد اللي بتدّيهالهم (<code>initialValue</code> و<code>params</code> و<code>stream</code>) بتاعة أنجولار برضه؛ القيم هي اللي بتاعتك.'
+  },
+  names: [
+    { n:'toSignal', k:'ng', w:{ en:'Angular’s bridge from an observable to a signal. It subscribes for you and unsubscribes on destroy.', ar:'الكوبري بتاع أنجولار من observable لـ signal. بيعمل subscribe بدالك وunsubscribe لما الـ component يتشال.' } },
+    { n:'toObservable', k:'ng', w:{ en:'Angular’s bridge from a signal to an observable.', ar:'الكوبري بتاع أنجولار من signal لـ observable.' } },
+    { n:'initialValue', k:'ng', w:{ en:'An option key <code>toSignal</code> reads: the value before the first emission.', ar:'مفتاح إعداد <code>toSignal</code> بيقراه: القيمة قبل أول ما يبعت.' } },
+    { n:'rxResource', k:'ng', w:{ en:'Angular’s resource whose loader returns an observable.', ar:'الـ resource بتاع أنجولار اللي الـ loader بتاعه بيرجّع observable.' } },
+    { n:'params', k:'ng',
+      w:{ en:'Fixed by Angular twice: the <code>rxResource</code> option key, and the property of the same name it hands to <code>stream</code>. The destructured <code>{ params }</code> must match it.',
+          ar:'ثابت من أنجولار مرتين: مفتاح الإعداد في <code>rxResource</code>، والـ property اللي بنفس الاسم اللي بيدّيها لـ <code>stream</code>. والـ <code>{ params }</code> اللي بتفكّه لازم يطابقه.' } },
+    { n:'stream', k:'ng', w:{ en:'An <code>rxResource</code> option key: the function that returns the observable.', ar:'مفتاح إعداد في <code>rxResource</code>: الـ function اللي بترجّع الـ observable.' } },
+    { n:'takeUntilDestroyed', k:'ng', w:{ en:'Angular’s operator that unsubscribes when the component is destroyed.', ar:'الـ operator بتاع أنجولار اللي بيعمل unsubscribe لما الـ component يتشال.' } },
+    { n:'debounceTime', k:'ng', w:{ en:'An RxJS operator: wait for a pause.', ar:'operator من RxJS: استنى وقفة.' } },
+    { n:'distinctUntilChanged', k:'ng', w:{ en:'An RxJS operator: drop a repeat of the last value.', ar:'operator من RxJS: ارمي القيمة لو هي زي اللي قبلها.' } },
+    { n:'switchMap', k:'ng', w:{ en:'An RxJS operator: cancel the previous request, keep the newest.', ar:'operator من RxJS: الغي الـ request اللي قبله، وخلّي الأحدث.' } },
+    { n:'retry', k:'ng', w:{ en:'An RxJS operator: try again on failure.', ar:'operator من RxJS: جرّب تاني لو فشل.' } },
+    { n:'count', k:'ng', w:{ en:'An option key <code>retry</code> reads.', ar:'مفتاح إعداد <code>retry</code> بيقراه.' } },
+    { n:'delay', k:'ng', w:{ en:'An option key <code>retry</code> reads.', ar:'مفتاح إعداد <code>retry</code> بيقراه.' } },
+    { n:'webSocket', k:'ng', w:{ en:'An RxJS function that opens a WebSocket as a stream.', ar:'function من RxJS بتفتح WebSocket كـ stream.' } },
+    { n:'scan', k:'ng', w:{ en:'An RxJS operator: keep a running total, like <code>reduce</code> over time.', ar:'operator من RxJS: بيحتفظ بنتيجة متراكمة، زي <code>reduce</code> على مدار الوقت.' } },
+    { n:'shareReplay', k:'ng', w:{ en:'An RxJS operator: share one connection and replay the last value to late subscribers.', ar:'operator من RxJS: شارك اتصال واحد وابعت آخر قيمة لأي حد يشترك متأخر.' } },
+    { n:'bufferSize', k:'ng', w:{ en:'An option key <code>shareReplay</code> reads.', ar:'مفتاح إعداد <code>shareReplay</code> بيقراه.' } },
+    { n:'refCount', k:'ng', w:{ en:'An option key <code>shareReplay</code> reads.', ar:'مفتاح إعداد <code>shareReplay</code> بيقراه.' } },
+    { n:'pipe', k:'ng', w:{ en:'The observable method that chains operators.', ar:'ميثود الـ observable اللي بتركّب الـ operators ورا بعض.' } },
+    { n:'subscribe', k:'ng', w:{ en:'The observable method that starts it running.', ar:'ميثود الـ observable اللي بتشغّله.' } },
+    { n:'valueChanges', k:'ng', w:{ en:'Angular forms’ stream of every value change. It never completes.', ar:'الـ stream بتاع الفورمز في أنجولار لكل تغيير في القيمة. مش بيخلص أبداً.' } },
+    { n:'HttpClient', k:'ng', w:{ en:'Angular’s HTTP service.', ar:'سيرفس الـ HTTP بتاعة أنجولار.' } },
+    { n:'get', k:'ng', w:{ en:'An <code>HttpClient</code> method.', ar:'ميثود في <code>HttpClient</code>.' } },
+    { n:'inject', k:'ng', w:{ en:'Angular’s function that hands you a service.', ar:'الـ function بتاعة أنجولار اللي بتديك سيرفس.' } },
+    { n:'@Injectable', k:'ng', w:{ en:'Angular’s decorator for a service.', ar:'الـ decorator بتاع أنجولار للسيرفس.' } },
+    { n:'signal', k:'ng', w:{ en:'Angular’s writable signal.', ar:'الـ signal بتاعة أنجولار اللي بتتكتب.' } },
+    { n:'computed', k:'ng', w:{ en:'Angular’s derived signal.', ar:'الـ signal المشتقة بتاعة أنجولار.' } },
+    { n:'filter', k:'ng', w:{ en:'JavaScript’s array method here, not the RxJS operator: <code>orders()</code> is already a plain array.', ar:'ميثود الـ array بتاعة JavaScript هنا، مش الـ operator بتاع RxJS: <code>orders()</code> array عادية خلاص.' } },
+    { n:'@for', k:'ng', w:{ en:'Angular’s loop.', ar:'الـ loop بتاع أنجولار.' } },
+
+    { n:'Search', k:'pub', w:{ en:'Your component’s class name.', ar:'اسم كلاس الـ component بتاعك.' } },
+    { n:'http', k:'mine', w:{ en:'Your field name for the injected <code>HttpClient</code>.', ar:'اسم الـ field بتاعك للـ <code>HttpClient</code> اللي اتعمله inject.' } },
+    { n:'term', k:'mine', w:{ en:'Your signal, written by this component’s template.', ar:'الـ signal بتاعتك، وتمبلت الـ component ده بيكتب فيها.' } },
+    { n:'results', k:'mine', w:{ en:'Your signal, read by this component’s template.', ar:'الـ signal بتاعتك، والتمبلت بتاع الـ component ده بيقراها.' } },
+    { n:'Product', k:'pub', w:{ en:'Your data type, imported from another file.', ar:'نوع الداتا بتاعك، جاي import من ملف تاني.' } },
+    { n:'user', k:'mine', w:{ en:'Your signal. Name it for what it holds.', ar:'الـ signal بتاعتك. سمّيها على حسب اللي شايلاه.' } },
+    { n:'cart', k:'mine', w:{ en:'Your signal.', ar:'الـ signal بتاعتك.' } },
+    { n:'isOpen', k:'mine', w:{ en:'Your signal.', ar:'الـ signal بتاعتك.' } },
+    { n:'page', k:'mine', re:'(?<![\\w$?&-])page(?![\\w$=-])',
+      w:{ en:'Your signal, and the key you chose inside <code>params</code> (read back as <code>params.page</code>). The <code>?page=</code> in the URL is the server’s.',
+          ar:'الـ signal بتاعتك، والمفتاح اللي اخترته جوه <code>params</code> (بيتقري تاني كـ <code>params.page</code>). و<code>?page=</code> اللي في الـ URL بتاع السيرفر.' } },
+    { n:'orders', k:'mine', re:'(?<![\\w$/-])orders(?=\\s*[(=])',
+      w:{ en:'Your resource or signal, read by this component and its template. <code>/api/orders</code> is the server’s path.',
+          ar:'الـ resource أو الـ signal بتاعتك، والـ component ده والتمبلت بتاعه بيقروها. و<code>/api/orders</code> مسار السيرفر.' } },
+    { n:'form', k:'mine', w:{ en:'Your component’s form field.', ar:'الـ field بتاع الفورم في الـ component بتاعك.' } },
+    { n:'autosave', k:'mine', w:{ en:'Your method.', ar:'الميثود بتاعتك.' } },
+    { n:'OrdersSocket', k:'pub', w:{ en:'Your service class. The board injects it by this name.', ar:'كلاس السيرفس بتاعك. الـ board بيعمله inject بالاسم ده.' } },
+    { n:'feed$', k:'pub', as:'okra$', w:{ en:'The service’s stream. The board reads <code>.feed$</code>, so both files change together.', ar:'الـ stream بتاع السيرفس. الـ board بيقرا <code>.feed$</code>، فالملفين بيتغيروا مع بعض.' } },
+    { n:'Order', k:'pub', w:{ en:'Your data type, imported from another file.', ar:'نوع الداتا بتاعك، جاي import من ملف تاني.' } },
+    { n:'OrdersBoard', k:'pub', w:{ en:'Your component’s class name.', ar:'اسم كلاس الـ component بتاعك.' } },
+    { n:'urgent', k:'mine', re:'(?<![\\w$-])(?<!class\\.)urgent(?![\\w$<-])',
+      w:{ en:'Your computed, read by the board’s own template. <code>[class.urgent]</code> is a CSS class name, a separate name.',
+          ar:'الـ computed بتاعتك، وتمبلت الـ board نفسه بيقراها. و<code>[class.urgent]</code> ده اسم CSS class، اسم تاني.' } },
+    { n:'total', k:'mine', w:{ en:'Your computed, read by the board’s own template.', ar:'الـ computed بتاعتك، وتمبلت الـ board نفسه بيقراها.' } },
+    { n:'app-order-card', k:'pub', w:{ en:'The card’s selector. The card’s <code>selector</code> string must match this tag.', ar:'الـ selector بتاع الكارت. النص في <code>selector</code> بتاع الكارت لازم يطابق التاج ده.' } },
+    { n:'order', k:'pub', w:{ en:'The card’s input, bound here with <code>[order]</code>. Rename it in the card too.', ar:'الـ input بتاع الكارت، مربوط هنا بـ <code>[order]</code>. غيّره في الكارت كمان.' } },
+    { n:'priority', k:'pub', w:{ en:'A field of your <code>Order</code> type, read in both the class and the template.', ar:'field في نوع الـ <code>Order</code> بتاعك، بيتقري في الكلاس والتمبلت.' } },
+  ]
+}
+};

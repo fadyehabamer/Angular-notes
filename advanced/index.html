@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -560,6 +563,73 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
 
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
+
 .thero{border-top:3px solid var(--c);padding-top:18px;margin-bottom:6px}
 .thero .tkick{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
 :root[dir="rtl"] .thero .tkick{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
@@ -606,7 +676,8 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -650,12 +721,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">Rendering</span><span class="l-ar" dir="auto">الرندرة</span></i>
       </span>
     </a>
+    <a class="extra" href="change-detection-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>OnPush</code>, name by name</span><span class="l-ar" dir="auto"><code>OnPush</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when “why didn’t the screen update?” makes you feel lost. One live price table followed through every file, every name coloured by who owns it, and the few mistakes that leave the screen quietly wrong.</span><span class="l-ar" dir="auto">الصفحة دي للي بيتوه في «ليه الشاشة متحدّثتش؟». جدول أسعار حي واحد ماشيين وراه في كل الملفات، وكل اسم ملوّن حسب صاحبه، والغلطات القليلة اللي بتسيب الشاشة غلط في صمت.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="29-zoneless.html">
       <em>29</em>
       <span class="tt">
         <b><span class="l-en">Zoneless: deleting the thing that guessed for you</span><span class="l-ar" dir="auto">Zoneless: تشيل الحاجة اللي كانت بتخمّن بدالك</span></b>
         <span class="tsay"><span class="l-en">Zoneless means <b>deleting the library that used to guess when to re-render</b>, because signals now tell Angular directly.</span><span class="l-ar" dir="auto">الـ zoneless معناها <b>إنك تشيل المكتبة اللي كانت بتخمّن إمتى تعيد الرسم</b>، لأن الـ signals بقت بتقول لأنجولار على طول.</span></span>
         <i class="tb"><span class="l-en">No zone.js</span><span class="l-ar" dir="auto">من غير zone.js</span></i>
+      </span>
+    </a>
+    <a class="extra" href="zoneless-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">Zoneless, name by name</span><span class="l-ar" dir="auto">Zoneless، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when going zoneless feels like deleting something you do not understand. One clock followed from <code>main.ts</code> to its test, every name coloured by who owns it, and the quiet ways a screen freezes.</span><span class="l-ar" dir="auto">الصفحة دي للي حاسس إن الـ zoneless معناه إنه بيمسح حاجة مش فاهمها. ساعة واحدة ماشيين وراها من <code>main.ts</code> لحد التست بتاعها، وكل اسم ملوّن حسب صاحبه، والطرق الهادية اللي الشاشة بتتجمد بيها.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a href="30-rxjs-operators.html">
@@ -666,12 +753,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">The four maps</span><span class="l-ar" dir="auto">الأربع maps</span></i>
       </span>
     </a>
+    <a class="extra" href="rxjs-operators-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>switchMap</code> and friends, name by name</span><span class="l-ar" dir="auto"><code>switchMap</code> وصحابها، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when a <code>pipe()</code> looks like a wall of words. One checkout page followed from the button to the server and back, every name coloured: <b>RxJS’s</b>, <b>Angular’s</b>, <b>yours</b>, or <b>the server’s</b>.</span><span class="l-ar" dir="auto">الصفحة دي للي بيشوف الـ <code>pipe()</code> حيطة كلام. صفحة دفع واحدة ماشيين وراها من الزرار للسيرفر ورجوع، وكل اسم ملوّن: <b>بتاع RxJS</b>، ولا <b>بتاع أنجولار</b>، ولا <b>بتاعك</b>، ولا <b>بتاع السيرفر</b>.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="31-rxjs-combination.html">
       <em>31</em>
       <span class="tt">
         <b><span class="l-en"><code>forkJoin</code>, <code>combineLatest</code>, <code>withLatestFrom</code></span><span class="l-ar" dir="auto"><code>forkJoin</code> و <code>combineLatest</code> و <code>withLatestFrom</code></span></b>
         <span class="tsay"><span class="l-en">Combination operators are how you <b>wait for several streams and get one answer</b> out of them.</span><span class="l-ar" dir="auto">الـ combination operators هي إزاي <b>تستنى كذا مجرى وتطلع منهم إجابة واحدة</b>.</span></span>
         <i class="tb"><span class="l-en">Joining streams</span><span class="l-ar" dir="auto">دمج الستريمز</span></i>
+      </span>
+    </a>
+    <a class="extra" href="rxjs-combination-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>forkJoin</code> and <code>combineLatest</code>, name by name</span><span class="l-ar" dir="auto"><code>forkJoin</code> و<code>combineLatest</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when <code>([, f])</code> and <code>{ me, categories }</code> look like a puzzle. One product page followed from the keyboard to the server and back, every name coloured, and the rule that decides every one of them: <b>keys come back by name, arrays come back by position</b>.</span><span class="l-ar" dir="auto">الصفحة دي للي شايف <code>([, f])</code> و<code>{ me, categories }</code> فزورة. صفحة منتجات واحدة ماشيين وراها من الكيبورد للسيرفر ورجوع، وكل اسم ملوّن، والقاعدة اللي بتحدد كل واحد فيهم: <b>المفاتيح بترجع بالاسم، والـ arrays بترجع بالترتيب</b>.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a href="32-rxjs-interop.html">
@@ -682,12 +785,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">Interop</span><span class="l-ar" dir="auto">التوافق</span></i>
       </span>
     </a>
+    <a class="extra" href="rxjs-interop-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>toSignal()</code> and <code>toObservable()</code>, name by name</span><span class="l-ar" dir="auto"><code>toSignal()</code> و<code>toObservable()</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">One search box followed from the keystroke to the list on screen: signal in, stream in the middle, signal out. Every name coloured by who owns it: Angular, RxJS, the browser, the server, or you.</span><span class="l-ar" dir="auto">خانة بحث واحدة ماشيين وراها من أول ضغطة زرار لحد الليستة اللي على الشاشة: signal داخلة، stream في النص، signal خارجة. وكل اسم ملوّن حسب صاحبه: أنجولار، ولا RxJS، ولا المتصفح، ولا السيرفر، ولا انت.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="33-signal-state.html">
       <em>33</em>
       <span class="tt">
         <b><span class="l-en">Signal-based state management</span><span class="l-ar" dir="auto">إدارة الحالة بالـ signals</span></b>
         <span class="tsay"><span class="l-en">Signal-based state is <b>keeping your app's data in signals inside a service</b>, with methods as the only way to change it.</span><span class="l-ar" dir="auto">الـ signal state معناها <b>إنك تحط داتا التطبيق في signals جوه service</b>، والميثودز هي الطريقة الوحيدة لتغييرها.</span></span>
         <i class="tb"><span class="l-en">State, scaled up</span><span class="l-ar" dir="auto">الحالة، لما تكبر</span></i>
+      </span>
+    </a>
+    <a class="extra" href="signal-state-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">A signal store, name by name</span><span class="l-ar" dir="auto">الـ signal store، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">One to-do store followed from a click in one component to a number changing in another. Every name coloured by who owns it, and the one keyword that decides whether a name is private or shared: <code>private</code>.</span><span class="l-ar" dir="auto">store واحد للـ to-do ماشيين وراه من كليك في component لحد رقم بيتغير في component تاني. كل اسم ملوّن حسب صاحبه، والكلمة الوحيدة اللي بتحدد الاسم خاص ولا متشارك: <code>private</code>.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a href="34-global-state.html">
@@ -698,12 +817,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">Libraries</span><span class="l-ar" dir="auto">المكتبات</span></i>
       </span>
     </a>
+    <a class="extra" href="global-state-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">NgRx SignalStore, name by name</span><span class="l-ar" dir="auto">NgRx SignalStore، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">One to-do store written with NgRx SignalStore, then the same feature in classic NgRx. Every name coloured: which words are NgRx’s, which keys you invent, and which names three files must spell the same way.</span><span class="l-ar" dir="auto">store واحد للـ to-do مكتوب بـ NgRx SignalStore، وبعدين نفس الفيتشر بـ NgRx الكلاسيك. كل اسم ملوّن: أنهي كلمات بتاعة NgRx، وأنهي مفاتيح انت بتخترعها، وأنهي أسماء لازم تلات ملفات يكتبوها بنفس الشكل.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="35-dynamic-components.html">
       <em>35</em>
       <span class="tt">
         <b><span class="l-en">Creating components at runtime</span><span class="l-ar" dir="auto">إنشاء components وقت التشغيل</span></b>
         <span class="tsay"><span class="l-en">Dynamic components are <b>components you create in code</b>, when the template cannot know in advance which one it needs.</span><span class="l-ar" dir="auto">الـ dynamic components هي <b>components بتعملها بالكود</b>، لما الـ template مايقدرش يعرف مقدّماً أنهي واحد محتاجه.</span></span>
         <i class="tb"><span class="l-en">Runtime rendering</span><span class="l-ar" dir="auto">الرسم وقت التشغيل</span></i>
+      </span>
+    </a>
+    <a class="extra" href="dynamic-components-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">Dynamic components, name by name</span><span class="l-ar" dir="auto">الـ dynamic components، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">One dashboard whose widgets are picked by data, followed from the server’s <code>type</code> string to a component on screen. Every name coloured, with a warning on the three names the compiler can no longer check for you.</span><span class="l-ar" dir="auto">داشبورد واحد الـ widgets بتاعته بتتختار من الداتا، ماشيين وراه من نص الـ <code>type</code> اللي جاي من السيرفر لحد component على الشاشة. كل اسم ملوّن، ومعاه تحذير على التلات أسماء اللي الـ compiler مبقاش يقدر يراجعها بدالك.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a href="36-control-value-accessor.html">
@@ -714,12 +849,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">Custom controls</span><span class="l-ar" dir="auto">كنترولز مخصصة</span></i>
       </span>
     </a>
+    <a class="extra" href="control-value-accessor-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>ControlValueAccessor</code>, name by name</span><span class="l-ar" dir="auto"><code>ControlValueAccessor</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">One star rating used inside a profile form, followed from the form’s value to the stars and back. Every name coloured: the four method names Angular fixed, the callback fields you name yourself, and the control name the rating never even sees.</span><span class="l-ar" dir="auto">تقييم بالنجوم واحد جوه فورم بروفايل، ماشيين وراه من قيمة الفورم للنجوم ورجوعًا. كل اسم ملوّن: الأربع أسماء ميثودز اللي أنجولار ثبّتها، والـ fields بتاعة الـ callbacks اللي انت بتسمّيها، واسم الكنترول اللي التقييم عمره ما بيشوفه أصلًا.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="37-renderer2.html">
       <em>37</em>
       <span class="tt">
         <b><span class="l-en"><code>Renderer2</code> and safe DOM access</span><span class="l-ar" dir="auto"><code>Renderer2</code> والوصول الآمن للـ DOM</span></b>
         <span class="tsay"><span class="l-en"><code>Renderer2</code> is <b>a safe way to touch the DOM</b> that still works on a server, in a worker, or with hydration.</span><span class="l-ar" dir="auto"><code>Renderer2</code> هو <b>طريقة آمنة تلمس بيها الـ DOM</b> وبتفضل شغالة على السيرفر أو في worker أو مع الـ hydration.</span></span>
         <i class="tb"><span class="l-en">Touching the DOM</span><span class="l-ar" dir="auto">لمس الـ DOM</span></i>
+      </span>
+    </a>
+    <a class="extra" href="renderer2-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>Renderer2</code>, name by name</span><span class="l-ar" dir="auto"><code>Renderer2</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">One tooltip directive followed from the button that uses it to the element it creates. Every name coloured by who owns it: <b>Angular’s</b> (or the browser’s), <b>yours</b>, or <b>yours but shared</b> with a template or a stylesheet. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">directive واحد بتاع tooltip ماشيين وراه من الزرار اللي بيستخدمه لحد الـ element اللي بيعمله. كل اسم ملوّن حسب صاحبه: <b>بتاع أنجولار</b> (أو المتصفح)، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b> مع تمبلت أو ملف CSS. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a href="38-lazy-loading.html">
@@ -730,12 +881,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">Ship less</span><span class="l-ar" dir="auto">اشحن أقل</span></i>
       </span>
     </a>
+    <a class="extra" href="lazy-loading-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">Lazy loading, name by name</span><span class="l-ar" dir="auto">الـ lazy loading، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">One app with a lazy About page, a lazy guarded admin area and a custom preloading strategy, followed through all eight files. Every name coloured by who owns it: <b>Angular’s</b>, <b>yours</b>, or <b>yours but shared</b>. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">تطبيق واحد فيه صفحة About بتتحمّل lazy، ومنطقة admin lazy ومحمية، واستراتيجية preloading بتاعتك، ماشيين وراه في التمن ملفات. كل اسم ملوّن حسب صاحبه: <b>بتاع أنجولار</b>، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b>. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="39-defer.html">
       <em>39</em>
       <span class="tt">
         <b><span class="l-en"><code>@defer</code>: shipping less on first paint</span><span class="l-ar" dir="auto"><code>@defer</code>: تشحن أقل في أول رسمة</span></b>
         <span class="tsay"><span class="l-en"><code>@defer</code> is <b>lazy loading for a block of template</b> instead of a whole route.</span><span class="l-ar" dir="auto"><code>@defer</code> هو <b>تحميل كسول لجزء من الـ template</b> بدل route كامل.</span></span>
         <i class="tb"><span class="l-en">Loading later</span><span class="l-ar" dir="auto">التحميل بعدين</span></i>
+      </span>
+    </a>
+    <a class="extra" href="defer-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en"><code>@defer</code>, name by name</span><span class="l-ar" dir="auto"><code>@defer</code>، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">One product page whose reviews load later, followed through all five files. Every name coloured by who owns it: <b>Angular’s</b> (every word inside <code>@defer ( )</code>), <b>yours</b>, or <b>yours but shared</b>. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">صفحة منتج واحدة الـ reviews بتاعتها بتتحمّل بعدين، ماشيين وراها في الخمس ملفات. كل اسم ملوّن حسب صاحبه: <b>بتاع أنجولار</b> (كل كلمة جوه <code>@defer ( )</code>)، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b>. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a href="40-performance.html">
@@ -746,12 +913,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">Measure first</span><span class="l-ar" dir="auto">قِس الأول</span></i>
       </span>
     </a>
+    <a class="extra" href="performance-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">Performance, name by name</span><span class="l-ar" dir="auto">الأداء، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">One slow orders page made fast, followed through every file: a budget, an optimised image, OnPush with a computed total, a tracked list, a deferred chart and a web worker. Every name coloured by who owns it. Most of them turn out to be fixed.</span><span class="l-ar" dir="auto">صفحة طلبات بطيئة واحدة بنخليها سريعة، ماشيين وراها في كل ملف: budget، وصورة متظبطة، وOnPush مع total محسوب بـ computed، وليستة متتبعة، ورسم متأجل، وweb worker. كل اسم ملوّن حسب صاحبه. وأغلبهم طلعوا ثابتين.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="41-ssr-hydration.html">
       <em>41</em>
       <span class="tt">
         <b><span class="l-en">SSR and hydration: the same DOM, twice</span><span class="l-ar" dir="auto">SSR والـ hydration: نفس الـ DOM، مرتين</span></b>
         <span class="tsay"><span class="l-en">SSR means <b>the server sends real HTML</b>, so the user sees content before any JavaScript has run.</span><span class="l-ar" dir="auto">الـ SSR معناه <b>إن السيرفر بيبعت HTML حقيقي</b>، فالمستخدم بيشوف محتوى قبل ما أي JavaScript تشتغل.</span></span>
         <i class="tb"><span class="l-en">Server rendering</span><span class="l-ar" dir="auto">الرندرة على السيرفر</span></i>
+      </span>
+    </a>
+    <a class="extra" href="ssr-hydration-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">SSR and hydration, name by name</span><span class="l-ar" dir="auto">الـ SSR والـ hydration، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when SSR files and function names blur together. One blog article followed from the route to the server and back into the browser, every name coloured: <b>Angular’s</b>, <b>yours</b>, or <b>yours but shared</b>. Then which spelling three files must agree on, and the mistakes that only show up in the server’s terminal.</span><span class="l-ar" dir="auto">الصفحة دي للي ملفات الـ SSR وأسماء الـ functions بتاعته بتدخل في بعض عنده. مقال واحد ماشيين وراه من الـ route للسيرفر ورجوعًا للمتصفح، وكل اسم ملوّن: <b>بتاع أنجولار</b>، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b>. وبعدين أنهي اسم لازم تلات ملفات يتفقوا عليه، والغلطات اللي مابتظهرش غير في الترمينال بتاع السيرفر.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a href="42-security.html">
@@ -762,12 +945,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">Not optional</span><span class="l-ar" dir="auto">مش اختياري</span></i>
       </span>
     </a>
+    <a class="extra" href="security-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">Security, name by name</span><span class="l-ar" dir="auto">الأمان، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when <code>sanitize</code>, <code>bypass</code>, <code>SafeHtml</code> and your own pipe names start to sound alike. One blog post followed from the API to the screen, every name coloured: <b>Angular’s</b>, <b>yours</b>, or <b>yours but shared</b>. Then why no name you pick can make anything safe.</span><span class="l-ar" dir="auto">الصفحة دي للي <code>sanitize</code> و<code>bypass</code> و<code>SafeHtml</code> وأسماء الـ pipes بتاعته بقوا بيرنّوا زي بعض في ودنه. بوست واحد ماشيين وراه من الـ API للشاشة، وكل اسم ملوّن: <b>بتاع أنجولار</b>، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b>. وبعدين ليه مفيش اسم تختاره يقدر يخلي حاجة آمنة.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="43-testing.html">
       <em>43</em>
       <span class="tt">
         <b><span class="l-en">Testing a component without a browser</span><span class="l-ar" dir="auto">تختبر component من غير براوزر</span></b>
         <span class="tsay"><span class="l-en">A unit test is <b>a small program that runs your component and checks what it did</b> — no browser, no clicking.</span><span class="l-ar" dir="auto">اختبار الوحدة هو <b>برنامج صغير بيشغّل الـ component بتاعك ويشوف عمل إيه</b> — من غير متصفح ولا ضغط بالماوس.</span></span>
         <i class="tb"><span class="l-en">Confidence</span><span class="l-ar" dir="auto">الثقة</span></i>
+      </span>
+    </a>
+    <a class="extra" href="testing-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">Component tests, name by name</span><span class="l-ar" dir="auto">تستات الـ components، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when a spec file feels like a wall of strange words. One cart and its test, every name coloured: the <b>test runner’s</b> and <b>Angular’s</b>, the ones <b>you</b> made up, and the ones the test <b>copies from the app</b>. Then what breaks when the app renames something and the test does not.</span><span class="l-ar" dir="auto">الصفحة دي للي ملف الـ spec بيبانله حيطة كلمات غريبة. كارت واحد والتست بتاعه، وكل اسم ملوّن: بتاع <b>الـ test runner</b> و<b>أنجولار</b>، واللي <b>انت</b> ألفته، واللي التست <b>بينسخه من التطبيق</b>. وبعدين إيه اللي بيبوظ لما التطبيق يغيّر اسم والتست لأ.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a href="44-e2e-testing.html">
@@ -778,12 +977,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">The real thing</span><span class="l-ar" dir="auto">الحاجة الحقيقية</span></i>
       </span>
     </a>
+    <a class="extra" href="e2e-testing-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">E2E tests, name by name</span><span class="l-ar" dir="auto">تستات الـ E2E، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">The page for when a Playwright test and your Angular app seem to speak different languages. One checkout journey followed through the config, the test, the page object and the app, every name coloured. The surprise: the names the test shares with the app are not TypeScript names at all, but <b>words on the screen</b> and URLs.</span><span class="l-ar" dir="auto">الصفحة دي للي حاسس إن تست Playwright والتطبيق بتاعه بيتكلموا لغتين مختلفين. رحلة checkout واحدة ماشيين وراها في الإعدادات والتست والـ page object والتطبيق، وكل اسم ملوّن. المفاجأة: الأسماء اللي التست متشارك فيها مع التطبيق مش أسماء TypeScript خالص، دي <b>كلام على الشاشة</b> وURLs.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="45-aot-tree-shaking.html">
       <em>45</em>
       <span class="tt">
         <b><span class="l-en">AOT compilation and tree shaking</span><span class="l-ar" dir="auto">كمبايل AOT والـ tree shaking</span></b>
         <span class="tsay"><span class="l-en">AOT <b>compiles your templates before shipping</b>, and tree shaking <b>throws away code nobody imports</b>.</span><span class="l-ar" dir="auto">الـ AOT <b>بيترجم الـ templates قبل الشحن</b>، والـ tree shaking <b>بيرمي الكود اللي محدش بيستورده</b>.</span></span>
         <i class="tb"><span class="l-en">The build</span><span class="l-ar" dir="auto">الـ build</span></i>
+      </span>
+    </a>
+    <a class="extra" href="aot-tree-shaking-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">AOT and tree shaking, name by name</span><span class="l-ar" dir="auto">الـ AOT والـ tree shaking، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">Your template becomes JavaScript before it ships, and the bundler keeps only what is imported. One small app followed from the template to the bundle, every name coloured: which ones the compiler copies, which ones it invents, and which ones decide what stays.</span><span class="l-ar" dir="auto">التمبلت بتاعك بيتحوّل لجافاسكريبت قبل ما يتشحن، والـ bundler بيسيب بس اللي متعمله import. تطبيق صغير ماشيين وراه من التمبلت لحد الـ bundle، وكل اسم ملوّن: مين الكومبايلر بينقله، ومين هو اللي بيألفه، ومين بيقرر إيه اللي يفضل.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a href="46-pwa.html">
@@ -794,6 +1009,14 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">Offline</span><span class="l-ar" dir="auto">من غير نت</span></i>
       </span>
     </a>
+    <a class="extra" href="pwa-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">The service worker, name by name</span><span class="l-ar" dir="auto">الـ service worker، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">A PWA is mostly JSON keys and a few service methods, and almost none of the names are yours. One shop app followed from <code>angular.json</code> to the “new version” banner, every name coloured, plus the typos that fail without a word.</span><span class="l-ar" dir="auto">الـ PWA أغلبها مفاتيح JSON وشوية ميثودز في service، وتقريبًا ولا اسم فيهم بتاعك. تطبيق shop واحد ماشيين وراه من <code>angular.json</code> لحد شريط «فيه نسخة جديدة»، وكل اسم ملوّن، ومعاهم الغلطات الإملائية اللي بتفشل من غير ولا كلمة.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="47-schematics.html">
       <em>47</em>
       <span class="tt">
@@ -802,12 +1025,28 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
         <i class="tb"><span class="l-en">Your own tooling</span><span class="l-ar" dir="auto">أدواتك إنت</span></i>
       </span>
     </a>
+    <a class="extra" href="schematics-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">Schematics, name by name</span><span class="l-ar" dir="auto">الـ schematics، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">A schematic is held together by strings in JSON files, and no compiler checks them. One <code>my-tools:feature</code> schematic followed from the command you type to the files it writes, every name coloured, and exactly which strings must match.</span><span class="l-ar" dir="auto">الـ schematic متماسك بـ strings في ملفات JSON، ومفيش كومبايلر بيشيّكها. schematic واحد <code>my-tools:feature</code> ماشيين وراه من الأمر اللي بتكتبه لحد الملفات اللي بيكتبها، وكل اسم ملوّن، وبالظبط أنهي strings لازم تبقى زي بعض.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
+      </span>
+    </a>
     <a href="48-micro-frontends.html">
       <em>48</em>
       <span class="tt">
         <b><span class="l-en">Micro frontends and Module Federation</span><span class="l-ar" dir="auto">الـ Micro frontends و Module Federation</span></b>
         <span class="tsay"><span class="l-en">Micro frontends mean <b>separate teams shipping separate apps</b> that appear to the user as one page.</span><span class="l-ar" dir="auto">الـ micro frontends معناها <b>فرق منفصلة بتشحن تطبيقات منفصلة</b> بتبان للمستخدم كأنها صفحة واحدة.</span></span>
         <i class="tb"><span class="l-en">Many teams</span><span class="l-ar" dir="auto">فرق كتير</span></i>
+      </span>
+    </a>
+    <a class="extra" href="micro-frontends-names.html">
+      <em>&#43;</em>
+      <span class="tt">
+        <b><span class="l-en">Micro frontends, name by name</span><span class="l-ar" dir="auto">الـ micro frontends، اسم اسم</span></b>
+        <span class="tsay"><span class="l-en">Two apps, two teams, two deployments, held together by a handful of strings that no compiler checks. One shell loading one checkout remote, every name coloured, and exactly which strings both teams must agree on.</span><span class="l-ar" dir="auto">تطبيقين، وفريقين، واتنين deploy، ماسكهم في بعض شوية strings مفيش كومبايلر بيشيّكها. shell واحد بيحمّل remote واحد للـ checkout، وكل اسم ملوّن، وبالظبط أنهي strings الفريقين لازم يتفقوا عليها.</span></span>
+        <i class="tb"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></i>
       </span>
     </a>
     <a class="extra" href="project.html">

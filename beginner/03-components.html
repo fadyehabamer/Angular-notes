@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -660,22 +731,40 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="pts" data-lang="ts">
         <div class="fc-h"><span class="d"></span>page.component.ts<span class="tag"><span class="l-en">source</span><span class="l-ar" dir="auto">المصدر</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Component</i> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"><i class="t-key">import</i> { <i class="t-type">UserCard</i> } <i class="t-key">from</i> <i class="t-str">'./user-card.component'</i>;</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="5">  selector: <i class="t-str">'app-page'</i>,</span><span class="ln" data-l="6">  imports: [<i class="t-type">UserCard</i>],          <i class="t-com">// ← the tag does not exist without this</i></span><span class="ln" data-l="7">  templateUrl: <i class="t-str">'./page.component.html'</i>,</span><span class="ln" data-l="8">})</span><span class="ln" data-l="9"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Page</i> {</span><span class="ln" data-l="10">  <i class="t-key">readonly</i> people = [</span><span class="ln" data-l="11">    { name: <i class="t-str">'Mona'</i>,  email: <i class="t-str">'mona@shop.eg'</i> },</span><span class="ln" data-l="12">    { name: <i class="t-str">'Karim'</i>, email: <i class="t-str">'karim@shop.eg'</i> },</span><span class="ln" data-l="13">  ];</span><span class="ln" data-l="14">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Component</i> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"><span class="v0"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="UserCard">UserCard</b></i> } <i class="t-key">from</i> <i class="t-str">'./user-card.component'</i>;</span><span class="v1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="UserCard">Banana</b></i> } <i class="t-key">from</i> <i class="t-str">'./user-card.component'</i>;</span></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-dec"><b class="nm nm-ng" data-nm="@Component">@Component</b></i>({</span><span class="ln" data-l="5"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-page">app-page</b>'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-page">app-noodle</b>'</i>,</span></span><span class="ln" data-l="6"><span class="v0">  <b class="nm nm-ng" data-nm="imports">imports</b>: [<i class="t-type"><b class="nm nm-pub" data-nm="UserCard">UserCard</b></i>],          <i class="t-com">// ← the tag does not exist without this</i></span><span class="v1">  <b class="nm nm-ng" data-nm="imports">imports</b>: [<i class="t-type"><b class="nm nm-pub" data-nm="UserCard">Banana</b></i>],          <i class="t-com">// ← the tag does not exist without this</i></span></span><span class="ln" data-l="7">  <b class="nm nm-ng" data-nm="templateUrl">templateUrl</b>: <i class="t-str">'./page.component.html'</i>,</span><span class="ln" data-l="8">})</span><span class="ln" data-l="9"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Page">Page</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Page">Waffle</b></i> {</span></span><span class="ln" data-l="10"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="people">people</b> = [</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="people">pumpkin</b> = [</span></span><span class="ln" data-l="11">    { name: <i class="t-str">'Mona'</i>,  email: <i class="t-str">'mona@shop.eg'</i> },</span><span class="ln" data-l="12">    { name: <i class="t-str">'Karim'</i>, email: <i class="t-str">'karim@shop.eg'</i> },</span><span class="ln" data-l="13">  ];</span><span class="ln" data-l="14">}</span></pre>
       </div>
       <div class="fc" data-file="phtml" data-lang="html">
         <div class="fc-h"><span class="d"></span>page.component.html<span class="tag"><span class="l-en">the wire</span><span class="l-ar" dir="auto">السلك</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">&lt;!-- now &lt;app-user-card&gt; resolves to the class above --&gt;</i></span><span class="ln" data-l="2"><i class="t-key">@for</i> (p of people; track p.email) {</span><span class="ln" data-l="3">  <i class="t-tag">&lt;app-user-card</i> <i class="t-bind">[name]</i>=<i class="t-str">"p.name"</i> <i class="t-bind">[email]</i>=<i class="t-str">"p.email"</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="4">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">&lt;!-- now &lt;app-user-card&gt; resolves to the class above --&gt;</i></span><span class="ln" data-l="2"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@for">@for</b></i> (<b class="nm nm-mine" data-nm="p">p</b> of <b class="nm nm-mine" data-nm="people">people</b>; <b class="nm nm-ng" data-nm="track">track</b> <b class="nm nm-mine" data-nm="p">p</b>.email) {</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@for">@for</b></i> (<b class="nm nm-mine" data-nm="p">turnip</b> of <b class="nm nm-mine" data-nm="people">pumpkin</b>; <b class="nm nm-ng" data-nm="track">track</b> <b class="nm nm-mine" data-nm="p">turnip</b>.email) {</span></span><span class="ln" data-l="3"><span class="v0">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-user-card">app-user-card</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="name">name</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="p">p</b>.name"</i> <i class="t-bind">[<b class="nm nm-pub" data-nm="email">email</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="p">p</b>.email"</i> <i class="t-tag">/&gt;</i></span><span class="v1">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-user-card">app-potato</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="name">mango</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="p">turnip</b>.name"</i> <i class="t-bind">[<b class="nm nm-pub" data-nm="email">pickle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="p">turnip</b>.email"</i> <i class="t-tag">/&gt;</i></span></span><span class="ln" data-l="4">}</span></pre>
       </div>
       <div class="fc" data-file="cts" data-lang="ts">
         <div class="fc-h"><span class="d"></span>user-card.component.ts<span class="tag"><span class="l-en">receiver</span><span class="l-ar" dir="auto">المستقبِل</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Component</i>, input } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="4">  selector: <i class="t-str">'app-user-card'</i>,    <i class="t-com">// the tag it answers to</i></span><span class="ln" data-l="5">  imports: [],                  <i class="t-com">// this template needs nothing else</i></span><span class="ln" data-l="6">  templateUrl: <i class="t-str">'./user-card.component.html'</i>,</span><span class="ln" data-l="7">  styleUrl: <i class="t-str">'./user-card.component.css'</i>,</span><span class="ln" data-l="8">})</span><span class="ln" data-l="9"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">UserCard</i> {</span><span class="ln" data-l="10">  <i class="t-key">readonly</i> name  = input.required&lt;<i class="t-key">string</i>&gt;();</span><span class="ln" data-l="11">  <i class="t-key">readonly</i> email = <i class="t-fn">input</i>(<i class="t-str">''</i>);</span><span class="ln" data-l="12">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Component</i>, <b class="nm nm-ng" data-nm="input">input</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-dec"><b class="nm nm-ng" data-nm="@Component">@Component</b></i>({</span><span class="ln" data-l="4"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-user-card">app-user-card</b>'</i>,    <i class="t-com">// the tag it answers to</i></span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-user-card">app-potato</b>'</i>,    <i class="t-com">// the tag it answers to</i></span></span><span class="ln" data-l="5">  <b class="nm nm-ng" data-nm="imports">imports</b>: [],                  <i class="t-com">// this template needs nothing else</i></span><span class="ln" data-l="6">  <b class="nm nm-ng" data-nm="templateUrl">templateUrl</b>: <i class="t-str">'./user-card.component.html'</i>,</span><span class="ln" data-l="7">  <b class="nm nm-ng" data-nm="styleUrl">styleUrl</b>: <i class="t-str">'./user-card.component.css'</i>,</span><span class="ln" data-l="8">})</span><span class="ln" data-l="9"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="UserCard">UserCard</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="UserCard">Banana</b></i> {</span></span><span class="ln" data-l="10"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="name">name</b>  = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;();</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="name">mango</b>  = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;();</span></span><span class="ln" data-l="11"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="email">email</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-str">''</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="email">pickle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-str">''</i>);</span></span><span class="ln" data-l="12">}</span></pre>
       </div>
       <div class="fc" data-file="chtml" data-lang="html">
         <div class="fc-h"><span class="d"></span>user-card.component.html<span class="tag"><span class="l-en">output</span><span class="l-ar" dir="auto">الناتج</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;article</i> <i class="t-attr">class</i>=<i class="t-str">"card"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="2">  <i class="t-tag">&lt;h3</i><i class="t-tag">&gt;</i><i class="t-bind">{{ name() }}</i><i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="3">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ email() }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="4"><i class="t-tag">&lt;/article</i><i class="t-tag">&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;article</i> <i class="t-attr">class</i>=<i class="t-str">"card"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="2"><span class="v0">  <i class="t-tag">&lt;h3</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="name">name</b>() }}</i><i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;h3</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="name">mango</b>() }}</i><i class="t-tag">&lt;/h3</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="3"><span class="v0">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="email">email</b>() }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="email">pickle</b>() }}</i><i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="4"><i class="t-tag">&lt;/article</i><i class="t-tag">&gt;</i></span></pre>
       </div></div>
 
   
@@ -688,17 +777,187 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="x1" data-lang="ts">
         <div class="fc-h"><span class="d"></span>stat-tile.component.ts<span class="tag"><span class="l-en">reusable</span><span class="l-ar" dir="auto">قابل للاستخدام</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="2">  selector: <i class="t-str">'app-stat-tile'</i>,</span><span class="ln" data-l="3">  template: <i class="t-str">`</i></span><span class="ln" data-l="4">    <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"tile"</i> <i class="t-bind">[class.down]</i>=<i class="t-str">"delta() &lt; 0"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5">      <i class="t-tag">&lt;span</i> <i class="t-attr">class</i>=<i class="t-str">"label"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ label() }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6">      <i class="t-tag">&lt;strong</i><i class="t-tag">&gt;</i><i class="t-bind">{{ value() }}</i><i class="t-tag">&lt;/strong</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="7">      <i class="t-tag">&lt;em</i><i class="t-tag">&gt;</i><i class="t-bind">{{ delta() &gt; 0 ? '+' : '' }}</i><i class="t-bind">{{ delta() }}</i>%<i class="t-tag">&lt;/em</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="8">    <i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="9">  <i class="t-str">`</i>,</span><span class="ln" data-l="10">})</span><span class="ln" data-l="11"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">StatTile</i> {</span><span class="ln" data-l="12">  <i class="t-key">readonly</i> label = input.required&lt;<i class="t-key">string</i>&gt;();</span><span class="ln" data-l="13">  <i class="t-key">readonly</i> value = input.required&lt;<i class="t-key">string</i>&gt;();</span><span class="ln" data-l="14">  <i class="t-key">readonly</i> delta = <i class="t-fn">input</i>(<i class="t-num">0</i>);</span><span class="ln" data-l="15">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-dec"><b class="nm nm-ng" data-nm="@Component">@Component</b></i>({</span><span class="ln" data-l="2"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-stat-tile">app-stat-tile</b>'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-stat-tile">app-taco</b>'</i>,</span></span><span class="ln" data-l="3">  <b class="nm nm-ng" data-nm="template">template</b>: <i class="t-str">`</i></span><span class="ln" data-l="4"><span class="v0">    <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"tile"</i> <i class="t-bind">[class.down]</i>=<i class="t-str">"<b class="nm nm-pub" data-nm="delta">delta</b>() &lt; 0"</i><i class="t-tag">&gt;</i></span><span class="v1">    <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"tile"</i> <i class="t-bind">[class.down]</i>=<i class="t-str">"<b class="nm nm-pub" data-nm="delta">pepper</b>() &lt; 0"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="5"><span class="v0">      <i class="t-tag">&lt;span</i> <i class="t-attr">class</i>=<i class="t-str">"label"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="label">label</b>() }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="v1">      <i class="t-tag">&lt;span</i> <i class="t-attr">class</i>=<i class="t-str">"label"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="label">kiwi</b>() }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="6"><span class="v0">      <i class="t-tag">&lt;strong</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="value">value</b>() }}</i><i class="t-tag">&lt;/strong</i><i class="t-tag">&gt;</i></span><span class="v1">      <i class="t-tag">&lt;strong</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="value">donut</b>() }}</i><i class="t-tag">&lt;/strong</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="7"><span class="v0">      <i class="t-tag">&lt;em</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="delta">delta</b>() &gt; 0 ? '+' : '' }}</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="delta">delta</b>() }}</i>%<i class="t-tag">&lt;/em</i><i class="t-tag">&gt;</i></span><span class="v1">      <i class="t-tag">&lt;em</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="delta">pepper</b>() &gt; 0 ? '+' : '' }}</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="delta">pepper</b>() }}</i>%<i class="t-tag">&lt;/em</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="8">    <i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="9">  <i class="t-str">`</i>,</span><span class="ln" data-l="10">})</span><span class="ln" data-l="11"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="StatTile">StatTile</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="StatTile">Muffin</b></i> {</span></span><span class="ln" data-l="12"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="label">label</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;();</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="label">kiwi</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;();</span></span><span class="ln" data-l="13"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="value">value</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;();</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="value">donut</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;();</span></span><span class="ln" data-l="14"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="delta">delta</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-num">0</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="delta">pepper</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-num">0</i>);</span></span><span class="ln" data-l="15">}</span></pre>
       </div>
       <div class="fc" data-file="x2" data-lang="html">
         <div class="fc-h"><span class="d"></span>sales-dashboard.component.html<span class="tag"><span class="l-en">page A</span><span class="l-ar" dir="auto">صفحة A</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;app-stat-tile</i> <i class="t-attr">label</i>=<i class="t-str">"Revenue"</i>  <i class="t-bind">[value]</i>=<i class="t-str">"revenue()"</i>  <i class="t-bind">[delta]</i>=<i class="t-str">"12"</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="2"><i class="t-tag">&lt;app-stat-tile</i> <i class="t-attr">label</i>=<i class="t-str">"Orders"</i>   <i class="t-bind">[value]</i>=<i class="t-str">"orders()"</i>   <i class="t-bind">[delta]</i>=<i class="t-str">"-3"</i> <i class="t-tag">/&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-stat-tile">app-stat-tile</b></i> <i class="t-attr"><b class="nm nm-pub" data-nm="label">label</b></i>=<i class="t-str">"Revenue"</i>  <i class="t-bind">[<b class="nm nm-pub" data-nm="value">value</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="revenue">revenue</b>()"</i>  <i class="t-bind">[<b class="nm nm-pub" data-nm="delta">delta</b>]</i>=<i class="t-str">"12"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-stat-tile">app-taco</b></i> <i class="t-attr"><b class="nm nm-pub" data-nm="label">kiwi</b></i>=<i class="t-str">"Revenue"</i>  <i class="t-bind">[<b class="nm nm-pub" data-nm="value">donut</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="revenue">lemon</b>()"</i>  <i class="t-bind">[<b class="nm nm-pub" data-nm="delta">pepper</b>]</i>=<i class="t-str">"12"</i> <i class="t-tag">/&gt;</i></span></span><span class="ln" data-l="2"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-stat-tile">app-stat-tile</b></i> <i class="t-attr"><b class="nm nm-pub" data-nm="label">label</b></i>=<i class="t-str">"Orders"</i>   <i class="t-bind">[<b class="nm nm-pub" data-nm="value">value</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="orders">orders</b>()"</i>   <i class="t-bind">[<b class="nm nm-pub" data-nm="delta">delta</b>]</i>=<i class="t-str">"-3"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-stat-tile">app-taco</b></i> <i class="t-attr"><b class="nm nm-pub" data-nm="label">kiwi</b></i>=<i class="t-str">"Orders"</i>   <i class="t-bind">[<b class="nm nm-pub" data-nm="value">donut</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="orders">carrot</b>()"</i>   <i class="t-bind">[<b class="nm nm-pub" data-nm="delta">pepper</b>]</i>=<i class="t-str">"-3"</i> <i class="t-tag">/&gt;</i></span></span></pre>
       </div>
       <div class="fc" data-file="x3" data-lang="html">
         <div class="fc-h"><span class="d"></span>ops-dashboard.component.html<span class="tag"><span class="l-en">page B</span><span class="l-ar" dir="auto">صفحة B</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">&lt;!-- same component, completely different subject --&gt;</i></span><span class="ln" data-l="2"><i class="t-tag">&lt;app-stat-tile</i> <i class="t-attr">label</i>=<i class="t-str">"Uptime"</i>   <i class="t-attr">value</i>=<i class="t-str">"99.98%"</i> <i class="t-bind">[delta]</i>=<i class="t-str">"0"</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="3"><i class="t-tag">&lt;app-stat-tile</i> <i class="t-attr">label</i>=<i class="t-str">"p95"</i>      <i class="t-attr">value</i>=<i class="t-str">"180ms"</i>  <i class="t-bind">[delta]</i>=<i class="t-str">"-8"</i> <i class="t-tag">/&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">&lt;!-- same component, completely different subject --&gt;</i></span><span class="ln" data-l="2"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-stat-tile">app-stat-tile</b></i> <i class="t-attr"><b class="nm nm-pub" data-nm="label">label</b></i>=<i class="t-str">"Uptime"</i>   <i class="t-attr"><b class="nm nm-pub" data-nm="value">value</b></i>=<i class="t-str">"99.98%"</i> <i class="t-bind">[<b class="nm nm-pub" data-nm="delta">delta</b>]</i>=<i class="t-str">"0"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-stat-tile">app-taco</b></i> <i class="t-attr"><b class="nm nm-pub" data-nm="label">kiwi</b></i>=<i class="t-str">"Uptime"</i>   <i class="t-attr"><b class="nm nm-pub" data-nm="value">donut</b></i>=<i class="t-str">"99.98%"</i> <i class="t-bind">[<b class="nm nm-pub" data-nm="delta">pepper</b>]</i>=<i class="t-str">"0"</i> <i class="t-tag">/&gt;</i></span></span><span class="ln" data-l="3"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-stat-tile">app-stat-tile</b></i> <i class="t-attr"><b class="nm nm-pub" data-nm="label">label</b></i>=<i class="t-str">"p95"</i>      <i class="t-attr"><b class="nm nm-pub" data-nm="value">value</b></i>=<i class="t-str">"180ms"</i>  <i class="t-bind">[<b class="nm nm-pub" data-nm="delta">delta</b>]</i>=<i class="t-str">"-8"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-stat-tile">app-taco</b></i> <i class="t-attr"><b class="nm nm-pub" data-nm="label">kiwi</b></i>=<i class="t-str">"p95"</i>      <i class="t-attr"><b class="nm nm-pub" data-nm="value">donut</b></i>=<i class="t-str">"180ms"</i>  <i class="t-bind">[<b class="nm nm-pub" data-nm="delta">pepper</b>]</i>=<i class="t-str">"-8"</i> <i class="t-tag">/&gt;</i></span></span></pre>
       </div></div>
   </div>
+
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">A component has two public faces: its <b>class name</b> (which a parent lists in <code>imports</code>) and its <b>selector</b> (which a parent types as a tag). Its inputs are public too. Everything else inside it is yours alone.</span><span class="l-ar" dir="auto">الـ component ليه وشّين عموميين: <b>اسم الكلاس</b> (اللي الأب بيحطه في <code>imports</code>) و<b>الـ selector</b> (اللي الأب بيكتبه كتاج). والـ inputs بتاعته عمومية برضه. أي حاجة تانية جواه بتاعتك انت لوحدك.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="@Component">
+        <td><b class="nm nm-ng" data-nm="@Component">@Component</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s decorator: the label that turns a class into a component.</span><span class="l-ar" dir="auto">الـ decorator بتاع أنجولار: اللافتة اللي بتحوّل الكلاس لـ component.</span></td>
+        <td class="nmfiles"><code>page.component.ts</code> <code>user-card.component.ts</code> <code>stat-tile.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="selector">
+        <td><b class="nm nm-ng" data-nm="selector">selector</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads. The tag name you give it is yours.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه. اسم التاج اللي بتحطه فيه بتاعك.</span></td>
+        <td class="nmfiles"><code>page.component.ts</code> <code>user-card.component.ts</code> <code>stat-tile.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="imports">
+        <td><b class="nm nm-ng" data-nm="imports">imports</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads: the components this template may use. The class names inside it are yours.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه: الـ components اللي التمبلت ده مسموح له يستخدمها. أسماء الكلاسات اللي جواه بتاعتك.</span></td>
+        <td class="nmfiles"><code>page.component.ts</code> <code>user-card.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="templateUrl">
+        <td><b class="nm nm-ng" data-nm="templateUrl">templateUrl</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads. The path you give it must match the real file name.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه. المسار اللي بتحطه لازم يبقى زي اسم الملف الحقيقي.</span></td>
+        <td class="nmfiles"><code>page.component.ts</code> <code>user-card.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="template">
+        <td><b class="nm nm-ng" data-nm="template">template</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads: the HTML written inline instead of in a separate file.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه: الـ HTML مكتوب في نفس الملف بدل ملف لوحده.</span></td>
+        <td class="nmfiles"><code>stat-tile.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="styleUrl">
+        <td><b class="nm nm-ng" data-nm="styleUrl">styleUrl</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads, for the component’s CSS file.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه، لملف الـ CSS بتاع الـ component.</span></td>
+        <td class="nmfiles"><code>user-card.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="input">
+        <td><b class="nm nm-ng" data-nm="input">input</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that creates an input. Only the property name on its left is yours.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتعمل input. اسم الـ property اللي على شمالها بس هو اللي بتاعك.</span></td>
+        <td class="nmfiles"><code>user-card.component.ts</code> <code>stat-tile.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="required">
+        <td><b class="nm nm-ng" data-nm="required">required</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Part of Angular’s API: <code>input.required</code> means the parent must set it.</span><span class="l-ar" dir="auto">جزء من API أنجولار: <code>input.required</code> معناها إن الأب لازم يحطه.</span></td>
+        <td class="nmfiles"><code>user-card.component.ts</code> <code>stat-tile.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="@for">
+        <td><b class="nm nm-ng" data-nm="@for">@for</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s loop in the template.</span><span class="l-ar" dir="auto">الـ loop بتاع أنجولار في التمبلت.</span></td>
+        <td class="nmfiles"><code>page.component.html</code></td>
+      </tr>
+      <tr data-nmrow="track">
+        <td><b class="nm nm-ng" data-nm="track">track</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s word inside <code>@for</code>: how to tell the items apart. The expression after it is yours.</span><span class="l-ar" dir="auto">كلمة أنجولار جوه <code>@for</code>: إزاي يفرّق بين العناصر. اللي بعدها بتاعك.</span></td>
+        <td class="nmfiles"><code>page.component.html</code></td>
+      </tr>
+      <tr data-nmrow="UserCard">
+        <td><b class="nm nm-pub" data-nm="UserCard">UserCard</b><span class="nmas">&rarr; <code>Banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The card’s class name. The page imports it and lists it in <code>imports</code>, so both files change together.</span><span class="l-ar" dir="auto">اسم كلاس الكارت. الصفحة بتعمله import وبتحطه في <code>imports</code>، فالملفين بيتغيروا مع بعض.</span></td>
+        <td class="nmfiles"><code>page.component.ts</code> <code>user-card.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="app-user-card">
+        <td><b class="nm nm-pub" data-nm="app-user-card">app-user-card</b><span class="nmas">&rarr; <code>app-potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The card’s selector: the <code>selector</code> string and the tag in the page template must match.</span><span class="l-ar" dir="auto">الـ selector بتاع الكارت: النص في <code>selector</code> والتاج في تمبلت الصفحة لازم يبقوا زي بعض.</span></td>
+        <td class="nmfiles"><code>page.component.html</code> <code>user-card.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="name">
+        <td><b class="nm nm-pub" data-nm="name">name</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The card’s input. The page sets it with <code>[name]</code>, so both files change together. The <code>p.name</code> on the right is a different thing: a field in your <code>people</code> data.</span><span class="l-ar" dir="auto">الـ input بتاع الكارت. الصفحة بتحطه بـ <code>[name]</code>، فالملفين بيتغيروا مع بعض. و<code>p.name</code> اللي على اليمين حاجة تانية: field في داتا <code>people</code> بتاعتك.</span></td>
+        <td class="nmfiles"><code>page.component.html</code> <code>user-card.component.ts</code> <code>user-card.component.html</code></td>
+      </tr>
+      <tr data-nmrow="email">
+        <td><b class="nm nm-pub" data-nm="email">email</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The card’s second input, set with <code>[email]</code>. <code>p.email</code> is the data field, not this.</span><span class="l-ar" dir="auto">الـ input التاني بتاع الكارت، بيتحط بـ <code>[email]</code>. و<code>p.email</code> هو الـ field بتاع الداتا، مش ده.</span></td>
+        <td class="nmfiles"><code>page.component.html</code> <code>user-card.component.ts</code> <code>user-card.component.html</code></td>
+      </tr>
+      <tr data-nmrow="Page">
+        <td><b class="nm nm-pub" data-nm="Page">Page</b><span class="nmas">&rarr; <code>Waffle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The page’s class name. Whatever shows this page (a route or a parent) imports it by this name.</span><span class="l-ar" dir="auto">اسم كلاس الصفحة. أي حاجة بتعرض الصفحة دي (route أو أب) بتعملها import بالاسم ده.</span></td>
+        <td class="nmfiles"><code>page.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="app-page">
+        <td><b class="nm nm-pub" data-nm="app-page">app-page</b><span class="nmas">&rarr; <code>app-noodle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The page’s selector. Any parent that uses it as a tag must match.</span><span class="l-ar" dir="auto">الـ selector بتاع الصفحة. أي أب بيستخدمه كتاج لازم يبقى زيه.</span></td>
+        <td class="nmfiles"><code>page.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="people">
+        <td><b class="nm nm-mine" data-nm="people">people</b><span class="nmas">&rarr; <code>pumpkin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The page’s own data, read by its own template.</span><span class="l-ar" dir="auto">الداتا بتاعة الصفحة، والتمبلت بتاعها بيقراها.</span></td>
+        <td class="nmfiles"><code>page.component.ts</code> <code>page.component.html</code></td>
+      </tr>
+      <tr data-nmrow="p">
+        <td><b class="nm nm-mine" data-nm="p">p</b><span class="nmas">&rarr; <code>turnip</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The loop variable: the name you give each item inside <code>@for</code>.</span><span class="l-ar" dir="auto">متغير الـ loop: الاسم اللي بتدّيه لكل عنصر جوه <code>@for</code>.</span></td>
+        <td class="nmfiles"><code>page.component.html</code></td>
+      </tr>
+      <tr data-nmrow="StatTile">
+        <td><b class="nm nm-pub" data-nm="StatTile">StatTile</b><span class="nmas">&rarr; <code>Muffin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The tile’s class name. Both dashboards list it in <code>imports</code>.</span><span class="l-ar" dir="auto">اسم كلاس التايل. الداشبوردين الاتنين بيحطوه في <code>imports</code>.</span></td>
+        <td class="nmfiles"><code>stat-tile.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="app-stat-tile">
+        <td><b class="nm nm-pub" data-nm="app-stat-tile">app-stat-tile</b><span class="nmas">&rarr; <code>app-taco</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The tile’s selector, typed as a tag in both dashboards.</span><span class="l-ar" dir="auto">الـ selector بتاع التايل، ومكتوب كتاج في الداشبوردين.</span></td>
+        <td class="nmfiles"><code>stat-tile.component.ts</code> <code>sales-dashboard.component.html</code> <code>ops-dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="label">
+        <td><b class="nm nm-pub" data-nm="label">label</b><span class="nmas">&rarr; <code>kiwi</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">An input. Both dashboards set it with <code>label="…"</code>. The CSS class <code>"label"</code> in the tile’s template is a separate name.</span><span class="l-ar" dir="auto">input. الداشبوردين بيحطوه بـ <code>label="…"</code>. والـ CSS class <code>"label"</code> اللي في تمبلت التايل اسم تاني منفصل.</span></td>
+        <td class="nmfiles"><code>stat-tile.component.ts</code> <code>sales-dashboard.component.html</code> <code>ops-dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="value">
+        <td><b class="nm nm-pub" data-nm="value">value</b><span class="nmas">&rarr; <code>donut</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">An input, set with <code>[value]</code> or plain <code>value="…"</code>.</span><span class="l-ar" dir="auto">input، بيتحط بـ <code>[value]</code> أو بـ <code>value="…"</code> عادي.</span></td>
+        <td class="nmfiles"><code>stat-tile.component.ts</code> <code>sales-dashboard.component.html</code> <code>ops-dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="delta">
+        <td><b class="nm nm-pub" data-nm="delta">delta</b><span class="nmas">&rarr; <code>pepper</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">An input with a default, set with <code>[delta]</code>.</span><span class="l-ar" dir="auto">input ليه قيمة افتراضية، بيتحط بـ <code>[delta]</code>.</span></td>
+        <td class="nmfiles"><code>stat-tile.component.ts</code> <code>sales-dashboard.component.html</code> <code>ops-dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="revenue">
+        <td><b class="nm nm-mine" data-nm="revenue">revenue</b><span class="nmas">&rarr; <code>lemon</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The sales dashboard’s own signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة داشبورد المبيعات نفسه.</span></td>
+        <td class="nmfiles"><code>sales-dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="orders">
+        <td><b class="nm nm-mine" data-nm="orders">orders</b><span class="nmas">&rarr; <code>carrot</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The sales dashboard’s own signal. The text <code>"Orders"</code> is just a label.</span><span class="l-ar" dir="auto">الـ signal بتاعة داشبورد المبيعات نفسه. والنص <code>"Orders"</code> مجرد كلام.</span></td>
+        <td class="nmfiles"><code>sales-dashboard.component.html</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="components-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en"><code>@Component</code>, name by name</span><span class="l-ar" dir="auto"><code>@Component</code>، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">The page for when a component’s class name, selector, file names and inputs blur together. One user card followed from its own files into the page that shows it, every name coloured: <b>Angular’s</b>, <b>yours</b>, or <b>yours but shared</b>. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">الصفحة دي للي اسم الكلاس والـ selector وأسماء الملفات والـ inputs بتاعة الـ component بيدخلوا في بعض عنده. كارت يوزر واحد ماشيين وراه من ملفاته لحد الصفحة اللي بتعرضه، وكل اسم ملوّن: <b>بتاع أنجولار</b>، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b>. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+  </a>
 
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
@@ -801,8 +1060,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../beginner/02-cli-and-project-files.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">The CLI, and what every file is for</span><span class="l-ar" dir="auto">الـ CLI، وكل ملف بيعمل إيه</span></b></a>
-    <a class="nx" href="../beginner/04-template-syntax.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Template syntax and interpolation</span><span class="l-ar" dir="auto">صياغة التمبلت والـ interpolation</span></b></a>
+    <a class="pv" href="../beginner/cli-and-project-files-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en"><code>ng generate</code>, name by name</span><span class="l-ar" dir="auto"><code>ng generate</code>، اسم اسم</span></b></a>
+    <a class="nx" href="../beginner/components-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en"><code>@Component</code>, name by name</span><span class="l-ar" dir="auto"><code>@Component</code>، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -844,6 +1103,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){

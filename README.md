@@ -23,6 +23,8 @@ index.html                   contents / cover
 beginner/       01–15        how an app starts → HTTP basics
 intermediate/   16–27        reactive forms → UI libraries
 advanced/       28–48        change detection → micro frontends
+<track>/<topic>-names.html  after every topic: that topic, name by name
+                             (for topic 10 it is beginner/output-names.html)
 beginner/project.html       build project: to-do app, then shopping cart
 intermediate/project.html   build project: the real store on a public API
 advanced/project.html       build project: the production pass
@@ -44,6 +46,13 @@ Every topic goes from plain language to real code, in that order:
    scroll; `←` / `→` step through, `R` replays, or click a dot in the step bar.
    Each step lights a wire and highlights the exact lines involved.
 4. **The files, line by line**, then a worked example, then the traps.
+   Every name in the code is coloured by who owns it: **blue** is Angular's
+   (or TypeScript's, or the browser's) and must be typed exactly, **green** is
+   yours and private to one component, **orange** is yours but another file
+   types it too, so both sides change together. Hover a name to light up
+   every other place it appears. **Rename test** swaps every name you own for
+   a made-up word, which proves which names are yours. A table after the
+   examples lists every name, whether you can rename it, and where it appears.
 5. **One sentence worth memorising**, at the end.
 
 Two switches sit top right and both are remembered across pages:
@@ -56,13 +65,30 @@ Code, file names and diagrams stay left-to-right in every combination.
 ## Regenerating
 
 ```bash
-node _build/build.mjs
+node _build/build.mjs            # build every page
+node _build/build.mjs --check    # run every validation, write nothing
 ```
 
 - `_build/content/{beginner,intermediate,advanced}.mjs` — the topics. One object
   per topic: `slug`, `badge`, `title`, `lead`, `nodes`, `edges`, `files`,
   `steps`, `example`, `gotchas`, every text field carrying `{ en, ar }`.
   `example` may be an array.
+- `_build/content/names/<slug>.mjs` — the naming layer, one file per topic,
+  keyed by base slug: `{ n, k, w }` per name, where `k` is `ng`, `mine` or
+  `pub`. Optional `re`, `only`, `not` and `as` are documented at the top of
+  `_build/names.mjs`. A listed name that never appears in the topic's code
+  fails the build. `node _build/names-report.mjs <slug>` prints every line
+  where each name matched, to catch false matches.
+- `_build/content/deep/<topic>.mjs` — the "name by name" page for each
+  topic, in the reference-document shape: one running example followed
+  through every file, who writes what, what breaks when you rename each
+  name, the fixed names, naming habits and the mistakes that fail silently.
+  `topic` places it right after that topic in the reading order; `file`
+  overrides the default `<topic>-names.html`; `names` is either a key in
+  `content/names/` or an inline `{ note, names }`. The topic page links to
+  it under its names table. `deep/inputs-outputs.mjs` (the `output()` page)
+  is the model for the rest. `node _build/names-report.mjs --deep <topic>`
+  checks its colouring.
 - `_build/content/projects.mjs` — the three end-of-track build projects,
   one per level. Written in the reference-document shape (sections and
   blocks, including `step` and `chk`), rendered by the same engine as the

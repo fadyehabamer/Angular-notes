@@ -1,7 +1,11 @@
 import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { hlLines, esc } from './hl.mjs';
+import { loadNames, checkEntry, prepNames, markLines, namesBar, namesTable, NAMES_JS } from './names.mjs';
+
+/* `node _build/build.mjs --check` validates everything and writes nothing */
+const CHECK_ONLY = process.argv.includes('--check');
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..');
@@ -39,6 +43,25 @@ const QUIZ  = (await import('./content/quiz.mjs')).default;
 const DOC = (await import('./content/typescript.mjs')).default;
 const JSDOC = (await import('./content/javascript.mjs')).default;
 const MAP = (await import('./content/roadmap.mjs')).default;
+/* "name by name" deep dives: one reference-shaped page per topic, read right
+   after it. content/deep/<topic>.mjs, written to <track>/<topic>-names.html */
+const DEEP = new Map();
+{
+  const dir = join(HERE, 'content', 'deep'), bad = [];
+  for (const f of readdirSync(dir).filter(f => f.endsWith('.mjs')).sort()) {
+    const d = (await import(pathToFileURL(join(dir, f)).href)).default;
+    if (!d || !d.topic) { bad.push(f + ': no topic'); continue; }
+    if (DEEP.has(d.topic)) bad.push(f + ': second page for ' + d.topic);
+    for (const k of ['tab', 'title', 'say', 'lead', 'sections', 'names']) if (!d[k]) bad.push(f + ': missing ' + k);
+    if (d.names && typeof d.names === 'object') bad.push(...checkEntry(f, d.names));
+    d.file = d.file || d.topic + '-names.html';
+    d.src = f;
+    DEEP.set(d.topic, d);
+  }
+  if (bad.length) { console.error('deep pages:\n  ' + bad.join('\n  ')); process.exit(1); }
+}
+const NAMES = await loadNames(join(HERE, 'content', 'names'));
+if (NAMES.problems.length) { console.error('names problems:\n  ' + NAMES.problems.join('\n  ')); process.exit(1); }
 
 const TRACKS = [
   (await import('./content/beginner.mjs')).default,
@@ -122,7 +145,8 @@ const BOOT = `<script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>`;
 
 const UI_JS = `/* ---------- language + theme, shared by every page ---------- */
@@ -161,7 +185,7 @@ const FONTS = 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz
 const codeCard = f => `
       <div class="fc" data-file="${f.id}" data-lang="${f.lang}">
         <div class="fc-h"><span class="d"></span>${esc(f.name)}<span class="tag">${bi(f.tag || '')}</span></div>
-        <pre>${hlLines(f.code, f.lang).map((l, i) => `<span class="ln" data-l="${i + 1}">${l || ' '}</span>`).join('')}</pre>
+        <pre>${(f.marked || hlLines(f.code, f.lang)).map((l, i) => `<span class="ln" data-l="${i + 1}">${l || ' '}</span>`).join('')}</pre>
       </div>`;
 
 const nodeBox = n => `
@@ -296,6 +320,24 @@ for (const t of TRACKS) for (const a of t.arts) {
   if (noQuiz.length)  console.warn('  no quiz yet (' + noQuiz.length + '): ' + noQuiz.join(', '));
   if (badWire.length) { console.error('wire words point at an edge that does not exist: ' + badWire.join(', ')); process.exit(1); }
   if (badQuiz.length) { console.error('quiz problems:\n  ' + badQuiz.join('\n  ')); process.exit(1); }
+}
+
+/* the naming layer: colour every name, build the rename test, and refuse
+   any listed name that never appears in the topic's code */
+const allFiles = a => [...a.files, ...(Array.isArray(a.example) ? a.example : [a.example]).flatMap(ex => ex.files)];
+{
+  const noNames = [], dead = [];
+  for (const t of TRACKS) for (const a of t.arts) {
+    const k = base(a.slug), entry = NAMES.all[k];
+    if (!entry) { noNames.push(k); continue; }
+    const files = allFiles(a);
+    a.nm = prepNames(entry, files.map(f => f.code.join('\n')).join('\n'));
+    a.nmNote = entry.note || null;
+    for (const f of files) f.marked = markLines(f.code, f.lang, a.nm, f.name, f.id);
+    for (const x of a.nm) if (!x.hits.size) dead.push(k + ' -> "' + x.n + '"');
+  }
+  if (noNames.length) console.warn('  no names list yet (' + noNames.length + '): ' + noNames.join(', '));
+  if (dead.length) { console.error('names that never appear in the code (typo, or only inside a comment):\n  ' + dead.join('\n  ')); process.exit(1); }
 }
 
 const FLAT = TRACKS.flatMap(t => t.arts.map(a => ({ ...a, track: t })));
@@ -450,6 +492,7 @@ ${chrome(a.track.id)}
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  ${a.nm ? namesBar() : ''}
   <div class="files">${a.files.map(codeCard).join('')}</div>
 
   ${(Array.isArray(a.example) ? a.example : [a.example]).map((ex, k) => `
@@ -461,6 +504,14 @@ ${chrome(a.track.id)}
     <p class="exlead">${bi(ex.what)}</p>
     <div class="files">${ex.files.map(codeCard).join('')}</div>
   </div>`).join('')}
+
+  ${a.nm ? namesTable(a.nm, a.nmNote) : ''}
+  ${DEEP.has(base(a.slug)) ? `
+  <a class="deeplink" href="${DEEP.get(base(a.slug)).file}">
+    <span class="dl-k">${bi(DEEP_KICK)}</span>
+    <b>${bi(DEEP.get(base(a.slug)).title)}</b>
+    <span class="dl-s">${bi(DEEP.get(base(a.slug)).say)}</span>
+  </a>` : ''}
 
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
@@ -492,6 +543,7 @@ const page = $('#page');
 function relayout(){ requestAnimationFrame(layout); }
 
 ${UI_JS}
+${a.nm ? NAMES_JS : ''}
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){
@@ -748,7 +800,7 @@ new IntersectionObserver((en, o) => {
    `after` places it in the reading order, and every list on the site — the
    track page, the contents page, the roadmap and the prev/next pager — is
    built from `trackItems()` below, so the order is stated once. */
-const COMPANIONS = {
+const HANDWRITTEN = {
   beginner: [{
     file: 'angular-data-flow.html', // authored at beginner/angular-data-flow.html
     after: 'inputs-outputs',        // it is the deep dive that follows that topic
@@ -758,6 +810,20 @@ const COMPANIONS = {
            ar:'أربعتاشر طريقة القيمة بتوصل بيها من component لواحد تاني، وكل واحدة متحركة ملف ملف: <b>@Input</b> لتحت، و<b>@Output</b> لفوق، والاتجاهين، والـ services، والـ signals، والمسارات، والـ dialogs وغيرهم — وبعدها أربع اختبارات.'},
   }],
 };
+const DEEP_KICK = {en:'Name by name', ar:'اسم اسم'};
+/* per track, in reading order: each topic's deep dive, then any hand-written deck */
+const COMPANIONS = Object.fromEntries(TRACKS.map(t => [t.id, [
+  ...t.arts.map(a => DEEP.get(base(a.slug))).filter(Boolean).map(d => ({
+    file: d.file, gen: true, deep: d, after: d.topic, kick: DEEP_KICK, name: d.title, say: d.say })),
+  ...(HANDWRITTEN[t.id] || []),
+]]));
+{
+  const placed = new Set(TRACKS.flatMap(t => t.arts.map(a => base(a.slug))));
+  const stray = [...DEEP.keys()].filter(k => !placed.has(k));
+  const none = [...placed].filter(k => !DEEP.has(k));
+  if (none.length) console.warn('  no name-by-name page yet (' + none.length + '): ' + none.join(', '));
+  if (stray.length) { console.error('deep pages for topics not in PLAN: ' + stray.join(', ')); process.exit(1); }
+}
 
 /* End-of-track build projects. One per level, generated from
    _build/content/projects.mjs into <track>/project.html, and spliced into the
@@ -796,7 +862,7 @@ const companionAfter = a => {
 const companionBefore = (a, i) => {
   const p = FLAT[i - 1];
   if (!p || p.track.id !== a.track.id) return undefined;
-  return (COMPANIONS[a.track.id] || []).find(x => x.after === base(p.slug));
+  return (COMPANIONS[a.track.id] || []).filter(x => x.after === base(p.slug)).pop();
 };
 
 function trackPage(t, ti) {
@@ -927,6 +993,10 @@ ${UI_JS}
 }
 
 /* ---------- the TypeScript reference page ---------- */
+/* the names list of the doc page being rendered, if it has one */
+let DOC_NM = null;
+const docLines = (code, lang, name) => DOC_NM ? markLines(code, lang, DOC_NM, name, name) : hlLines(code, lang);
+
 function docBlock(b) {
   if (b.t === 'p')  return `<p>${bi(b)}</p>`;
   if (b.t === 'ul') return `<ul>${b.en.map((_, k) =>
@@ -935,16 +1005,25 @@ function docBlock(b) {
   if (b.t === 'code') return `
       <div class="code" data-lang="${b.lang}">
         <div class="fc-h"><span class="d"></span>${esc(b.name)}<span class="tag">${bi(b.tag || '')}</span></div>
-        <pre>${hlLines(b.code, b.lang).map(l => `<span class="ln">${l || ' '}</span>`).join('')}</pre>
+        <pre>${docLines(b.code, b.lang, b.name).map(l => `<span class="ln">${l || ' '}</span>`).join('')}</pre>
       </div>`;
+  if (b.t === 'chain') return `<ol class="chain">${b.items.map((it, k) => `
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">${k + 1}</span><span class="ch-f">${esc(it.file)}</span>${it.who ? `<span class="ch-w">${bi(it.who)}</span>` : ''}</div>
+        <pre class="ch-c" data-lang="${it.lang}">${docLines(it.code, it.lang, it.file).map(l => `<span class="ln">${l || ' '}</span>`).join('')}</pre>
+        <p>${bi(it.say)}</p>
+      </li>`).join('')}
+    </ol>`;
+  if (b.t === 'nmbar') return namesBar();
+  if (b.t === 'nmtable') return DOC_NM ? '<!--NMTABLE-->' : '';   /* filled once every block has been marked */
   if (b.t === 'pair') return `<div class="pair">
-      <div class="code bad" data-lang="ts">
+      <div class="code bad" data-lang="${b.bad.lang || 'ts'}">
         <div class="fc-h"><span class="d"></span>${esc(b.bad.name)}<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
-        <pre>${hlLines(b.bad.code, 'ts').map(l => `<span class="ln">${l || ' '}</span>`).join('')}</pre>
+        <pre>${docLines(b.bad.code, b.bad.lang || 'ts', b.bad.name).map(l => `<span class="ln">${l || ' '}</span>`).join('')}</pre>
       </div>
-      <div class="code good" data-lang="ts">
+      <div class="code good" data-lang="${b.good.lang || 'ts'}">
         <div class="fc-h"><span class="d"></span>${esc(b.good.name)}<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
-        <pre>${hlLines(b.good.code, 'ts').map(l => `<span class="ln">${l || ' '}</span>`).join('')}</pre>
+        <pre>${docLines(b.good.code, b.good.lang || 'ts', b.good.name).map(l => `<span class="ln">${l || ' '}</span>`).join('')}</pre>
       </div>
     </div>`;
   if (b.t === 'tbl') return `<div class="dtbl-wrap"><table class="dtbl">
@@ -962,6 +1041,11 @@ function docBlock(b) {
 }
 
 function docPage(D, o) {
+  /* a page can carry its own names list: a key into content/names/ */
+  const nmEntry = !D.names ? null : typeof D.names === 'string' ? NAMES.all[D.names] : D.names;
+  if (D.names && !nmEntry) { console.error('doc page names "' + D.names + '" not found in content/names/'); process.exit(1); }
+  DOC_NM = nmEntry ? prepNames(nmEntry, JSON.stringify(D)) : null;
+  const pageNm = DOC_NM;
   const rail = D.sections.map((sec, k) =>
     `<li><a href="#${sec.id}" data-rail="${sec.id}"><em>${String(k + 1).padStart(2, '0')}</em><span>${bi(sec.title).replace(/<code>|<\/code>/g, '')}</span></a></li>`).join('');
 
@@ -971,7 +1055,11 @@ function docPage(D, o) {
         <h2>${bi(sec.title)}</h2>
         <p class="sec-lead">${bi(sec.lead)}</p>
         ${sec.blocks.map(docBlock).join('')}
-      </section>`).join('');
+      </section>`).join('').replace('<!--NMTABLE-->', () => pageNm ? namesTable(pageNm, nmEntry.note || null) : '');
+  if (pageNm) {
+    const dead = pageNm.filter(x => !x.hits.size).map(x => '"' + x.n + '"');
+    if (dead.length) { console.error('names on ' + o.tab + ' that never appear in its code: ' + dead.join(', ')); process.exit(1); }
+  }
 
   return `<!DOCTYPE html>
 <html lang="en" data-lang="en" dir="ltr" data-theme="light">
@@ -989,7 +1077,7 @@ ${CSS}</style>
 ${BOOT}
 </head>
 <body>
-${chrome(o.id, '')}
+${chrome(o.id, o.base || '')}
 <main class="page" id="page">
   <div class="eyebrow">
     <span class="num seq">${o.num}</span>
@@ -1016,6 +1104,7 @@ ${chrome(o.id, '')}
 <script>
 const $ = (s, r = document) => r.querySelector(s);
 ${UI_JS}
+${pageNm ? NAMES_JS : ''}
 
 /* highlight the section you are reading.
    Position-based, not IntersectionObserver: after clicking a link the previous
@@ -1302,16 +1391,18 @@ ${UI_JS}
 /* ---------- write ---------- */
 /* Remove only this build's own output. Anything else in a track folder is
    hand-authored (the companion decks) and must survive the rebuild. */
-const GENERATED = /^(\d\d-.+|index|project)\.html$/;
-for (const t of TRACKS) {
+const GENERATED = /^(\d\d-.+|index|project|.+-names)\.html$/;
+/* --check renders every page (so every validation runs) but writes nothing */
+const write = (p, html) => { if (!CHECK_ONLY) writeFileSync(p, html); };
+if (!CHECK_ONLY) for (const t of TRACKS) {
   const dir = join(ROOT, t.id);
   if (!existsSync(dir)) { mkdirSync(dir, { recursive: true }); continue; }
   for (const f of readdirSync(dir)) if (GENERATED.test(f)) rmSync(join(dir, f));
 }
 TRACKS.forEach((t, ti) => {
-  writeFileSync(join(ROOT, t.id, 'index.html'), trackPage(t, ti));
+  write(join(ROOT, t.id, 'index.html'), trackPage(t, ti));
   for (const x of COMPANIONS[t.id] || []) {
-    if (!existsSync(join(ROOT, t.id, x.file)))
+    if (!x.gen && !existsSync(join(ROOT, t.id, x.file)))
       console.warn('  ! ' + t.id + '/' + x.file + ' is in COMPANIONS but not on disk');
     if (!t.arts.some(a => base(a.slug) === x.after))
       console.warn('  ! companion "' + x.file + '" points at "' + x.after + '", not in ' + t.id);
@@ -1319,15 +1410,15 @@ TRACKS.forEach((t, ti) => {
   if (!PROJECTS[t.id]) { console.error('  ! no entry in _build/content/projects.mjs for track "' + t.id + '"'); process.exit(1); }
 });
 FLAT.forEach((a, i) => {
-  writeFileSync(join(ROOT, a.track.id, a.slug + '.html'), page(a, i));
+  write(join(ROOT, a.track.id, a.slug + '.html'), page(a, i));
 });
-writeFileSync(join(ROOT, 'javascript-for-angular.html'), docPage(JSDOC, {
+write(join(ROOT, 'javascript-for-angular.html'), docPage(JSDOC, {
   id: 'javascript', ink: '--js', num: '00', tab: 'JavaScript for Angular',
   kicker: { en: 'Read this first of all', ar: 'اقرا دي قبل أي حاجة' },
   next: { href: 'typescript-for-angular.html',
           kick: { en: 'Then', ar: 'وبعدين' }, title: DOC.title },
 }));
-writeFileSync(join(ROOT, 'typescript-for-angular.html'), docPage(DOC, {
+write(join(ROOT, 'typescript-for-angular.html'), docPage(DOC, {
   id: 'typescript', ink: '--ts', num: '01', tab: 'TypeScript for Angular',
   kicker: { en: 'Read this second', ar: 'اقرا دي بعدها' },
   prev: { href: 'javascript-for-angular.html',
@@ -1335,30 +1426,51 @@ writeFileSync(join(ROOT, 'typescript-for-angular.html'), docPage(DOC, {
   next: { href: FLAT[0].track.id + '/' + FLAT[0].slug + '.html',
           kick: { en: 'Start the magazine', ar: 'ابدأ المجلة' }, title: FLAT[0].title },
 }));
-writeFileSync(join(ROOT, 'roadmap.html'), mapPage());
-writeFileSync(join(ROOT, 'index.html'), index());
+write(join(ROOT, 'roadmap.html'), mapPage());
+write(join(ROOT, 'index.html'), index());
 
 /* ---------- the three end-of-track build-project pages ---------- */
 for (const [ti, t] of TRACKS.entries()) {
   const prevTrack = TRACKS[ti - 1], nextTrack = TRACKS[ti + 1];
-  writeFileSync(join(ROOT, t.id, 'project.html'), docPage(PROJECTS[t.id], {
-    id: t.id, ink: t.ink, num: t.arts[0].num, tab: PROJECTS[t.id].tab,
+  write(join(ROOT, t.id, 'project.html'), docPage(PROJECTS[t.id], {
+    id: t.id, ink: t.ink, num: t.arts[0].num, tab: PROJECTS[t.id].tab, base: '../',
     badge: { en: 'Build project', ar: 'مشروع عملي' },
     kicker: { en: 'The ' + t.name.en.toLowerCase() + ' track', ar: 'مستوى ' + t.name.ar },
     prev: prevTrack
       ? { href: '../' + prevTrack.id + '/project.html',
           kick: { en: 'Previous project', ar: 'المشروع اللي فات' },
           title: PROJECTS[prevTrack.id].title }
-      : { href: 'typescript-for-angular.html',
+      : { href: '../typescript-for-angular.html',
           kick: { en: 'Before this', ar: 'قبل دي' }, title: DOC.title },
     next: nextTrack
       ? { href: '../' + nextTrack.id + '/index.html',
           kick: { en: 'Next level', ar: 'المستوى اللي بعده' }, title: nextTrack.name }
-      : { href: 'roadmap.html',
+      : { href: '../roadmap.html',
           kick: { en: 'Back to', ar: 'رجوع لـ' },
           title: { en: 'The learning path', ar: 'خطة التعلّم' } },
   }));
 }
 
-console.log('built ' + FLAT.length + ' topic pages + roadmap + javascript + typescript + 3 build projects + index');
+/* ---------- the name-by-name deep dives, one after each topic ---------- */
+for (const t of TRACKS) for (const x of COMPANIONS[t.id].filter(c => c.deep)) {
+  const d = x.deep, list = COMPANIONS[t.id];
+  const io = FLAT.find(a => base(a.slug) === d.topic);
+  const after = list[list.indexOf(x) + 1];
+  /* the last topic of a track reads into its build project, not the next track */
+  const nextTopic = base(t.arts[t.arts.length - 1].slug) === d.topic ? null : FLAT[FLAT.indexOf(io) + 1];
+  write(join(ROOT, t.id, x.file), docPage(d, {
+    id: t.id, ink: t.ink, num: io.num + '+', tab: d.tab, base: '../',
+    badge: x.kick,
+    kicker: { en: 'Right after topic ' + io.num, ar: 'بعد موضوع ' + io.num + ' على طول' },
+    prev: { href: io.slug + '.html', kick: { en: 'Back to the topic', ar: 'رجوع للموضوع' }, title: io.title },
+    next: after && after.after === d.topic
+      ? { href: after.file, kick: after.kick, title: after.name }
+      : nextTopic
+        ? { href: href(nextTopic, true), kick: { en: 'Next topic', ar: 'الموضوع اللي بعده' }, title: nextTopic.title }
+        : { href: 'project.html', kick: { en: 'Build project', ar: 'مشروع عملي' }, title: PROJECTS[t.id].title },
+  }));
+}
+
+if (CHECK_ONLY) { console.log('check passed — nothing written'); process.exit(0); }
+console.log('built ' + FLAT.length + ' topic pages + ' + DEEP.size + ' name-by-name pages + roadmap + javascript + typescript + 3 build projects + index');
 TRACKS.forEach(t => console.log('  ' + t.id + '/  → ' + t.arts.map(a => a.slug).join(', ')));

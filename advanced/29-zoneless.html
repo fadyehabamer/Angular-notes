@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -660,26 +731,44 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="boot" data-lang="ts">
         <div class="fc-h"><span class="d"></span>app.config.ts<span class="tag"><span class="l-en">one provider</span><span class="l-ar" dir="auto">provider واحد</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { provideZonelessChangeDetection } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-key">export</i> <i class="t-key">const</i> appConfig: <i class="t-type">ApplicationConfig</i> = {</span><span class="ln" data-l="4">  providers: [</span><span class="ln" data-l="5">    <i class="t-fn">provideZonelessChangeDetection</i>(),</span><span class="ln" data-l="6">    <i class="t-com">// v18–v19 called this provideExperimentalZonelessChangeDetection()</i></span><span class="ln" data-l="7">    <i class="t-fn">provideRouter</i>(routes),</span><span class="ln" data-l="8">    <i class="t-fn">provideHttpClient</i>(<i class="t-fn">withFetch</i>()),</span><span class="ln" data-l="9">  ],</span><span class="ln" data-l="10">};</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <b class="nm nm-ng" data-nm="provideZonelessChangeDetection">provideZonelessChangeDetection</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><span class="v0"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="appConfig">appConfig</b>: <i class="t-type"><b class="nm nm-ng" data-nm="ApplicationConfig">ApplicationConfig</b></i> = {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">const</i> <b class="nm nm-pub" data-nm="appConfig">banana</b>: <i class="t-type"><b class="nm nm-ng" data-nm="ApplicationConfig">ApplicationConfig</b></i> = {</span></span><span class="ln" data-l="4">  <b class="nm nm-ng" data-nm="providers">providers</b>: [</span><span class="ln" data-l="5">    <i class="t-fn"><b class="nm nm-ng" data-nm="provideZonelessChangeDetection">provideZonelessChangeDetection</b></i>(),</span><span class="ln" data-l="6">    <i class="t-com">// v18–v19 called this provideExperimentalZonelessChangeDetection()</i></span><span class="ln" data-l="7"><span class="v0">    <i class="t-fn"><b class="nm nm-ng" data-nm="provideRouter">provideRouter</b></i>(<b class="nm nm-pub" data-nm="routes">routes</b>),</span><span class="v1">    <i class="t-fn"><b class="nm nm-ng" data-nm="provideRouter">provideRouter</b></i>(<b class="nm nm-pub" data-nm="routes">potato</b>),</span></span><span class="ln" data-l="8">    <i class="t-fn"><b class="nm nm-ng" data-nm="provideHttpClient">provideHttpClient</b></i>(<i class="t-fn"><b class="nm nm-ng" data-nm="withFetch">withFetch</b></i>()),</span><span class="ln" data-l="9">  ],</span><span class="ln" data-l="10">};</span></pre>
       </div>
       <div class="fc" data-file="poly" data-lang="json">
         <div class="fc-h"><span class="d"></span>angular.json<span class="tag"><span class="l-en">delete the line</span><span class="l-ar" dir="auto">امسح السطر</span></span></div>
-        <pre><span class="ln" data-l="1">"architect": {</span><span class="ln" data-l="2">  "build": {</span><span class="ln" data-l="3">    "options": {</span><span class="ln" data-l="4">      "polyfills": ["zone.js"]      ← remove this entry</span><span class="ln" data-l="5">    }</span><span class="ln" data-l="6">  }</span><span class="ln" data-l="7">}</span></pre>
+        <pre><span class="ln" data-l="1">"architect": {</span><span class="ln" data-l="2">  "build": {</span><span class="ln" data-l="3">    "options": {</span><span class="ln" data-l="4">      "<b class="nm nm-ng" data-nm="polyfills">polyfills</b>": ["<b class="nm nm-ng" data-nm="zone.js">zone.js</b>"]      ← remove this entry</span><span class="ln" data-l="5">    }</span><span class="ln" data-l="6">  }</span><span class="ln" data-l="7">}</span></pre>
       </div>
       <div class="fc" data-file="ok" data-lang="ts">
         <div class="fc-h"><span class="d"></span>clock.component.ts<span class="tag"><span class="l-en">works zoneless</span><span class="l-ar" dir="auto">شغال zoneless</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Clock</i> {</span><span class="ln" data-l="2">  <i class="t-key">readonly</i> now = <i class="t-fn">signal</i>(<i class="t-key">new</i> <i class="t-fn">Date</i>());</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">  <i class="t-fn">constructor</i>() {</span><span class="ln" data-l="5">    <i class="t-key">const</i> id = <i class="t-fn">setInterval</i>(() =&gt; <i class="t-key">this</i>.now.<i class="t-key">set</i>(<i class="t-key">new</i> <i class="t-fn">Date</i>()), <i class="t-num">1000</i>);</span><span class="ln" data-l="6">    <i class="t-fn">inject</i>(<i class="t-type">DestroyRef</i>).<i class="t-fn">onDestroy</i>(() =&gt; <i class="t-fn">clearInterval</i>(id));</span><span class="ln" data-l="7">  }</span><span class="ln" data-l="8"> </span><span class="ln" data-l="9">  <i class="t-com">// the signal write is the notification. zone.js is not</i></span><span class="ln" data-l="10">  <i class="t-com">// involved and was never needed here.</i></span><span class="ln" data-l="11">}</span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Clock">Clock</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Clock">Mango</b></i> {</span></span><span class="ln" data-l="2"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="now">now</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">new</i> <i class="t-fn"><b class="nm nm-ng" data-nm="Date">Date</b></i>());</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="now">waffle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">new</i> <i class="t-fn"><b class="nm nm-ng" data-nm="Date">Date</b></i>());</span></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">  <i class="t-fn">constructor</i>() {</span><span class="ln" data-l="5"><span class="v0">    <i class="t-key">const</i> <b class="nm nm-mine" data-nm="id">id</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="setInterval">setInterval</b></i>(() =&gt; <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="now">now</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">new</i> <i class="t-fn"><b class="nm nm-ng" data-nm="Date">Date</b></i>()), <i class="t-num">1000</i>);</span><span class="v1">    <i class="t-key">const</i> <b class="nm nm-mine" data-nm="id">noodle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="setInterval">setInterval</b></i>(() =&gt; <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="now">waffle</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<i class="t-key">new</i> <i class="t-fn"><b class="nm nm-ng" data-nm="Date">Date</b></i>()), <i class="t-num">1000</i>);</span></span><span class="ln" data-l="6"><span class="v0">    <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="DestroyRef">DestroyRef</b></i>).<i class="t-fn"><b class="nm nm-ng" data-nm="onDestroy">onDestroy</b></i>(() =&gt; <i class="t-fn"><b class="nm nm-ng" data-nm="clearInterval">clearInterval</b></i>(<b class="nm nm-mine" data-nm="id">id</b>));</span><span class="v1">    <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="DestroyRef">DestroyRef</b></i>).<i class="t-fn"><b class="nm nm-ng" data-nm="onDestroy">onDestroy</b></i>(() =&gt; <i class="t-fn"><b class="nm nm-ng" data-nm="clearInterval">clearInterval</b></i>(<b class="nm nm-mine" data-nm="id">noodle</b>));</span></span><span class="ln" data-l="7">  }</span><span class="ln" data-l="8"> </span><span class="ln" data-l="9">  <i class="t-com">// the signal write is the notification. zone.js is not</i></span><span class="ln" data-l="10">  <i class="t-com">// involved and was never needed here.</i></span><span class="ln" data-l="11">}</span></pre>
       </div>
       <div class="fc" data-file="broke" data-lang="ts">
         <div class="fc-h"><span class="d"></span>legacy.component.ts<span class="tag"><span class="l-en">breaks silently</span><span class="l-ar" dir="auto">بيكسر في صمت</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Legacy</i> {</span><span class="ln" data-l="2">  now = <i class="t-key">new</i> <i class="t-fn">Date</i>();          <i class="t-com">// a plain field: nothing notifies</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">  <i class="t-fn">constructor</i>() {</span><span class="ln" data-l="5">    <i class="t-fn">setInterval</i>(() =&gt; {</span><span class="ln" data-l="6">      <i class="t-key">this</i>.now = <i class="t-key">new</i> <i class="t-fn">Date</i>();   <i class="t-com">// with zone.js this repainted.</i></span><span class="ln" data-l="7">    }, <i class="t-num">1000</i>);                  <i class="t-com">// zoneless, the screen freezes.</i></span><span class="ln" data-l="8">  }</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10">  <i class="t-com">// this is the whole migration risk in one component.</i></span><span class="ln" data-l="11">}</span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Legacy">Legacy</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Legacy">Pickle</b></i> {</span></span><span class="ln" data-l="2"><span class="v0">  <b class="nm nm-mine" data-nm="now">now</b> = <i class="t-key">new</i> <i class="t-fn"><b class="nm nm-ng" data-nm="Date">Date</b></i>();          <i class="t-com">// a plain field: nothing notifies</i></span><span class="v1">  <b class="nm nm-mine" data-nm="now">waffle</b> = <i class="t-key">new</i> <i class="t-fn"><b class="nm nm-ng" data-nm="Date">Date</b></i>();          <i class="t-com">// a plain field: nothing notifies</i></span></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">  <i class="t-fn">constructor</i>() {</span><span class="ln" data-l="5">    <i class="t-fn"><b class="nm nm-ng" data-nm="setInterval">setInterval</b></i>(() =&gt; {</span><span class="ln" data-l="6"><span class="v0">      <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="now">now</b> = <i class="t-key">new</i> <i class="t-fn"><b class="nm nm-ng" data-nm="Date">Date</b></i>();   <i class="t-com">// with zone.js this repainted.</i></span><span class="v1">      <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="now">waffle</b> = <i class="t-key">new</i> <i class="t-fn"><b class="nm nm-ng" data-nm="Date">Date</b></i>();   <i class="t-com">// with zone.js this repainted.</i></span></span><span class="ln" data-l="7">    }, <i class="t-num">1000</i>);                  <i class="t-com">// zoneless, the screen freezes.</i></span><span class="ln" data-l="8">  }</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10">  <i class="t-com">// this is the whole migration risk in one component.</i></span><span class="ln" data-l="11">}</span></pre>
       </div>
       <div class="fc" data-file="test" data-lang="bash">
         <div class="fc-h"><span class="d"></span>finding them<span class="tag"><span class="l-en">the safe order</span><span class="l-ar" dir="auto">الترتيب الآمن</span></span></div>
-        <pre><span class="ln" data-l="1"># 1. turn OnPush on everywhere first and fix what breaks</span><span class="ln" data-l="2"># 2. move remaining mutable state into signals</span><span class="ln" data-l="3"># 3. only then flip the provider</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"># a useful intermediate step — same scheduling rules,</span><span class="ln" data-l="6"># but zone.js is still loaded as a safety net:</span><span class="ln" data-l="7">provideZoneChangeDetection({ eventCoalescing: true })</span></pre>
+        <pre><span class="ln" data-l="1"># 1. turn OnPush on everywhere first and fix what breaks</span><span class="ln" data-l="2"># 2. move remaining mutable state into signals</span><span class="ln" data-l="3"># 3. only then flip the provider</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"># a useful intermediate step — same scheduling rules,</span><span class="ln" data-l="6"># but zone.js is still loaded as a safety net:</span><span class="ln" data-l="7"><b class="nm nm-ng" data-nm="provideZoneChangeDetection">provideZoneChangeDetection</b>({ <b class="nm nm-ng" data-nm="eventCoalescing">eventCoalescing</b>: true })</span></pre>
       </div></div>
 
   
@@ -692,13 +781,243 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="m1" data-lang="ts">
         <div class="fc-h"><span class="d"></span>the old way<span class="tag"><span class="l-en">zone-dependent</span><span class="l-ar" dir="auto">معتمد على الـ zone</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-fn">constructor</i>(<i class="t-key">private</i> zone: <i class="t-type">NgZone</i>) {</span><span class="ln" data-l="2">  map.<i class="t-fn">on</i>(<i class="t-str">'moveend'</i>, () =&gt; {</span><span class="ln" data-l="3">    <i class="t-key">this</i>.zone.<i class="t-fn">run</i>(() =&gt; {          <i class="t-com">// without this the view froze</i></span><span class="ln" data-l="4">      <i class="t-key">this</i>.center = map.<i class="t-fn">getCenter</i>();</span><span class="ln" data-l="5">    });</span><span class="ln" data-l="6">  });</span><span class="ln" data-l="7">}</span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-fn">constructor</i>(<i class="t-key">private</i> <b class="nm nm-mine" data-nm="zone">zone</b>: <i class="t-type"><b class="nm nm-ng" data-nm="NgZone">NgZone</b></i>) {</span><span class="v1"><i class="t-fn">constructor</i>(<i class="t-key">private</i> <b class="nm nm-mine" data-nm="zone">pumpkin</b>: <i class="t-type"><b class="nm nm-ng" data-nm="NgZone">NgZone</b></i>) {</span></span><span class="ln" data-l="2"><span class="v0">  <b class="nm nm-mine" data-nm="map">map</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="on">on</b></i>(<i class="t-str">'<b class="nm nm-ng" data-nm="moveend">moveend</b>'</i>, () =&gt; {</span><span class="v1">  <b class="nm nm-mine" data-nm="map">muffin</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="on">on</b></i>(<i class="t-str">'<b class="nm nm-ng" data-nm="moveend">moveend</b>'</i>, () =&gt; {</span></span><span class="ln" data-l="3"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="zone">zone</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="run">run</b></i>(() =&gt; {          <i class="t-com">// without this the view froze</i></span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="zone">pumpkin</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="run">run</b></i>(() =&gt; {          <i class="t-com">// without this the view froze</i></span></span><span class="ln" data-l="4"><span class="v0">      <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="center">center</b> = <b class="nm nm-mine" data-nm="map">map</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="getCenter">getCenter</b></i>();</span><span class="v1">      <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="center">turnip</b> = <b class="nm nm-mine" data-nm="map">muffin</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="getCenter">getCenter</b></i>();</span></span><span class="ln" data-l="5">    });</span><span class="ln" data-l="6">  });</span><span class="ln" data-l="7">}</span></pre>
       </div>
       <div class="fc" data-file="m2" data-lang="ts">
         <div class="fc-h"><span class="d"></span>the way that works either way<span class="tag"><span class="l-en">zone-agnostic</span><span class="l-ar" dir="auto">مش فارق معاه</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">readonly</i> center = signal&lt;<i class="t-type">LatLng</i> | <i class="t-key">null</i>&gt;(<i class="t-key">null</i>);</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-fn">constructor</i>() {</span><span class="ln" data-l="4">  <i class="t-key">const</i> map = <i class="t-key">new</i> <i class="t-fn">MapSdk</i>(<i class="t-str">'#map'</i>);</span><span class="ln" data-l="5">  map.<i class="t-fn">on</i>(<i class="t-str">'moveend'</i>, () =&gt; <i class="t-key">this</i>.center.<i class="t-key">set</i>(map.<i class="t-fn">getCenter</i>()));</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7">  <i class="t-fn">inject</i>(<i class="t-type">DestroyRef</i>).<i class="t-fn">onDestroy</i>(() =&gt; map.<i class="t-fn">destroy</i>());</span><span class="ln" data-l="8">}</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10"><i class="t-com">// no NgZone injected, no run() wrapper, and it is correct</i></span><span class="ln" data-l="11"><i class="t-com">// under zone.js, under zoneless, and under SSR.</i></span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="center">center</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="LatLng">LatLng</b></i> | <i class="t-key">null</i>&gt;(<i class="t-key">null</i>);</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="center">turnip</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="LatLng">LatLng</b></i> | <i class="t-key">null</i>&gt;(<i class="t-key">null</i>);</span></span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-fn">constructor</i>() {</span><span class="ln" data-l="4"><span class="v0">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="map">map</b> = <i class="t-key">new</i> <i class="t-fn"><b class="nm nm-ng" data-nm="MapSdk">MapSdk</b></i>(<i class="t-str">'#map'</i>);</span><span class="v1">  <i class="t-key">const</i> <b class="nm nm-mine" data-nm="map">muffin</b> = <i class="t-key">new</i> <i class="t-fn"><b class="nm nm-ng" data-nm="MapSdk">MapSdk</b></i>(<i class="t-str">'#map'</i>);</span></span><span class="ln" data-l="5"><span class="v0">  <b class="nm nm-mine" data-nm="map">map</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="on">on</b></i>(<i class="t-str">'<b class="nm nm-ng" data-nm="moveend">moveend</b>'</i>, () =&gt; <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="center">center</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<b class="nm nm-mine" data-nm="map">map</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="getCenter">getCenter</b></i>()));</span><span class="v1">  <b class="nm nm-mine" data-nm="map">muffin</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="on">on</b></i>(<i class="t-str">'<b class="nm nm-ng" data-nm="moveend">moveend</b>'</i>, () =&gt; <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="center">turnip</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(<b class="nm nm-mine" data-nm="map">muffin</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="getCenter">getCenter</b></i>()));</span></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="DestroyRef">DestroyRef</b></i>).<i class="t-fn"><b class="nm nm-ng" data-nm="onDestroy">onDestroy</b></i>(() =&gt; <b class="nm nm-mine" data-nm="map">map</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="destroy">destroy</b></i>());</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="DestroyRef">DestroyRef</b></i>).<i class="t-fn"><b class="nm nm-ng" data-nm="onDestroy">onDestroy</b></i>(() =&gt; <b class="nm nm-mine" data-nm="map">muffin</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="destroy">destroy</b></i>());</span></span><span class="ln" data-l="8">}</span><span class="ln" data-l="9"> </span><span class="ln" data-l="10"><i class="t-com">// no NgZone injected, no run() wrapper, and it is correct</i></span><span class="ln" data-l="11"><i class="t-com">// under zone.js, under zoneless, and under SSR.</i></span></pre>
       </div></div>
   </div>
+
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">Going zoneless is almost all fixed words: one provider to add and one polyfill entry to remove. The names you own here are ordinary fields; what matters is whether they are <b>signals</b> (the screen updates) or plain fields (it freezes).</span><span class="l-ar" dir="auto">التحويل لـ zoneless تقريباً كله كلمات ثابتة: provider واحد تضيفه وسطر polyfill واحد تشيله. الأسامي اللي بتاعتك هنا fields عادية؛ المهم هي <b>signals</b> (الشاشة بتتحدث) ولا fields عادية (الشاشة بتتجمد).</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="provideZonelessChangeDetection">
+        <td><b class="nm nm-ng" data-nm="provideZonelessChangeDetection">provideZonelessChangeDetection</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s provider that turns zone.js-based change detection off. Type it exactly.</span><span class="l-ar" dir="auto">الـ provider بتاع أنجولار اللي بيقفل الـ change detection المعتمد على zone.js. اكتبه بالظبط.</span></td>
+        <td class="nmfiles"><code>app.config.ts</code></td>
+      </tr>
+      <tr data-nmrow="ApplicationConfig">
+        <td><b class="nm nm-ng" data-nm="ApplicationConfig">ApplicationConfig</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s type for the app’s startup config.</span><span class="l-ar" dir="auto">النوع بتاع أنجولار لإعدادات تشغيل التطبيق.</span></td>
+        <td class="nmfiles"><code>app.config.ts</code></td>
+      </tr>
+      <tr data-nmrow="providers">
+        <td><b class="nm nm-ng" data-nm="providers">providers</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s list of app-wide providers.</span><span class="l-ar" dir="auto">قايمة أنجولار بالـ providers بتاعة التطبيق كله.</span></td>
+        <td class="nmfiles"><code>app.config.ts</code></td>
+      </tr>
+      <tr data-nmrow="provideRouter">
+        <td><b class="nm nm-ng" data-nm="provideRouter">provideRouter</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s router provider.</span><span class="l-ar" dir="auto">الـ provider بتاع الراوتر من أنجولار.</span></td>
+        <td class="nmfiles"><code>app.config.ts</code></td>
+      </tr>
+      <tr data-nmrow="provideHttpClient">
+        <td><b class="nm nm-ng" data-nm="provideHttpClient">provideHttpClient</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s HTTP provider.</span><span class="l-ar" dir="auto">الـ provider بتاع HTTP من أنجولار.</span></td>
+        <td class="nmfiles"><code>app.config.ts</code></td>
+      </tr>
+      <tr data-nmrow="withFetch">
+        <td><b class="nm nm-ng" data-nm="withFetch">withFetch</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An Angular option for <code>provideHttpClient</code>: use the browser’s <code>fetch</code>.</span><span class="l-ar" dir="auto">إعداد من أنجولار لـ <code>provideHttpClient</code>: استخدم <code>fetch</code> بتاع المتصفح.</span></td>
+        <td class="nmfiles"><code>app.config.ts</code></td>
+      </tr>
+      <tr data-nmrow="polyfills">
+        <td><b class="nm nm-ng" data-nm="polyfills">polyfills</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A key the Angular CLI reads in <code>angular.json</code>.</span><span class="l-ar" dir="auto">مفتاح الـ Angular CLI بيقراه في <code>angular.json</code>.</span></td>
+        <td class="nmfiles"><code>angular.json</code></td>
+      </tr>
+      <tr data-nmrow="zone.js">
+        <td><b class="nm nm-ng" data-nm="zone.js">zone.js</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The zone.js library’s package name. Zoneless means this entry goes away.</span><span class="l-ar" dir="auto">اسم باكدج مكتبة zone.js. الـ zoneless معناه إن السطر ده يتشال.</span></td>
+        <td class="nmfiles"><code>angular.json</code></td>
+      </tr>
+      <tr data-nmrow="provideZoneChangeDetection">
+        <td><b class="nm nm-ng" data-nm="provideZoneChangeDetection">provideZoneChangeDetection</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s provider for the classic zone.js mode, with options.</span><span class="l-ar" dir="auto">الـ provider بتاع أنجولار للطريقة القديمة بـ zone.js، مع إعدادات.</span></td>
+        <td class="nmfiles"><code>finding them</code></td>
+      </tr>
+      <tr data-nmrow="eventCoalescing">
+        <td><b class="nm nm-ng" data-nm="eventCoalescing">eventCoalescing</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads: group events from one tick into one check.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه: لمّ الـ events اللي في نفس اللحظة في تشييك واحد.</span></td>
+        <td class="nmfiles"><code>finding them</code></td>
+      </tr>
+      <tr data-nmrow="signal">
+        <td><b class="nm nm-ng" data-nm="signal">signal</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s writable signal. Writing it is what tells Angular to repaint.</span><span class="l-ar" dir="auto">الـ signal بتاعة أنجولار اللي بتتكتب. الكتابة فيها هي اللي بتقول لأنجولار يعيد الرسم.</span></td>
+        <td class="nmfiles"><code>clock.component.ts</code> <code>the way that works either way</code></td>
+      </tr>
+      <tr data-nmrow="set">
+        <td><b class="nm nm-ng" data-nm="set">set</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal method.</span><span class="l-ar" dir="auto">ميثود بتاعة الـ signal.</span></td>
+        <td class="nmfiles"><code>clock.component.ts</code> <code>the way that works either way</code></td>
+      </tr>
+      <tr data-nmrow="inject">
+        <td><b class="nm nm-ng" data-nm="inject">inject</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that hands you a service.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتديك سيرفس.</span></td>
+        <td class="nmfiles"><code>clock.component.ts</code> <code>the way that works either way</code></td>
+      </tr>
+      <tr data-nmrow="DestroyRef">
+        <td><b class="nm nm-ng" data-nm="DestroyRef">DestroyRef</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s handle on “this component is being destroyed”.</span><span class="l-ar" dir="auto">الـ handle بتاع أنجولار لـ “الـ component ده بيتشال”.</span></td>
+        <td class="nmfiles"><code>clock.component.ts</code> <code>the way that works either way</code></td>
+      </tr>
+      <tr data-nmrow="onDestroy">
+        <td><b class="nm nm-ng" data-nm="onDestroy">onDestroy</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A <code>DestroyRef</code> method: run this cleanup at the end.</span><span class="l-ar" dir="auto">ميثود في <code>DestroyRef</code>: شغّل التنضيف ده في الآخر.</span></td>
+        <td class="nmfiles"><code>clock.component.ts</code> <code>the way that works either way</code></td>
+      </tr>
+      <tr data-nmrow="setInterval">
+        <td><b class="nm nm-ng" data-nm="setInterval">setInterval</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s timer function.</span><span class="l-ar" dir="auto">function التايمر بتاعة المتصفح.</span></td>
+        <td class="nmfiles"><code>clock.component.ts</code> <code>legacy.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="clearInterval">
+        <td><b class="nm nm-ng" data-nm="clearInterval">clearInterval</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s function that stops a timer.</span><span class="l-ar" dir="auto">function المتصفح اللي بتوقف تايمر.</span></td>
+        <td class="nmfiles"><code>clock.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="Date">
+        <td><b class="nm nm-ng" data-nm="Date">Date</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">JavaScript’s date class.</span><span class="l-ar" dir="auto">كلاس التاريخ بتاع JavaScript.</span></td>
+        <td class="nmfiles"><code>clock.component.ts</code> <code>legacy.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="NgZone">
+        <td><b class="nm nm-ng" data-nm="NgZone">NgZone</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s zone.js service. Zoneless code does not need it.</span><span class="l-ar" dir="auto">سيرفس zone.js من أنجولار. الكود الـ zoneless مش محتاجه.</span></td>
+        <td class="nmfiles"><code>the old way</code></td>
+      </tr>
+      <tr data-nmrow="run">
+        <td><b class="nm nm-ng" data-nm="run">run</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An <code>NgZone</code> method: run this inside Angular’s zone so it notices.</span><span class="l-ar" dir="auto">ميثود في <code>NgZone</code>: شغّل ده جوه الـ zone بتاعة أنجولار عشان ياخد باله.</span></td>
+        <td class="nmfiles"><code>the old way</code></td>
+      </tr>
+      <tr data-nmrow="MapSdk">
+        <td><b class="nm nm-ng" data-nm="MapSdk">MapSdk</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The map library’s class. Not yours, not Angular’s: the library decides the name.</span><span class="l-ar" dir="auto">كلاس مكتبة الخرايط. مش بتاعك ولا بتاع أنجولار: المكتبة هي اللي بتحدد الاسم.</span></td>
+        <td class="nmfiles"><code>the way that works either way</code></td>
+      </tr>
+      <tr data-nmrow="LatLng">
+        <td><b class="nm nm-ng" data-nm="LatLng">LatLng</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The map library’s coordinate type.</span><span class="l-ar" dir="auto">نوع الإحداثيات بتاع مكتبة الخرايط.</span></td>
+        <td class="nmfiles"><code>the way that works either way</code></td>
+      </tr>
+      <tr data-nmrow="on">
+        <td><b class="nm nm-ng" data-nm="on">on</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The map library’s method for listening to its events.</span><span class="l-ar" dir="auto">ميثود مكتبة الخرايط عشان تسمع الـ events بتاعتها.</span></td>
+        <td class="nmfiles"><code>the old way</code> <code>the way that works either way</code></td>
+      </tr>
+      <tr data-nmrow="moveend">
+        <td><b class="nm nm-ng" data-nm="moveend">moveend</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The map library’s own event name.</span><span class="l-ar" dir="auto">اسم الـ event بتاع مكتبة الخرايط نفسها.</span></td>
+        <td class="nmfiles"><code>the old way</code> <code>the way that works either way</code></td>
+      </tr>
+      <tr data-nmrow="getCenter">
+        <td><b class="nm nm-ng" data-nm="getCenter">getCenter</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A map library method.</span><span class="l-ar" dir="auto">ميثود في مكتبة الخرايط.</span></td>
+        <td class="nmfiles"><code>the old way</code> <code>the way that works either way</code></td>
+      </tr>
+      <tr data-nmrow="destroy">
+        <td><b class="nm nm-ng" data-nm="destroy">destroy</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A map library method that cleans the map up.</span><span class="l-ar" dir="auto">ميثود في مكتبة الخرايط بتنضّف الخريطة.</span></td>
+        <td class="nmfiles"><code>the way that works either way</code></td>
+      </tr>
+      <tr data-nmrow="appConfig">
+        <td><b class="nm nm-pub" data-nm="appConfig">appConfig</b><span class="nmas">&rarr; <code>banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your exported config. <code>main.ts</code> imports it by this name, so both files change together.</span><span class="l-ar" dir="auto">الـ config بتاعك المتصدّر. <code>main.ts</code> بيعمله import بالاسم ده، فالملفين بيتغيروا مع بعض.</span></td>
+        <td class="nmfiles"><code>app.config.ts</code></td>
+      </tr>
+      <tr data-nmrow="routes">
+        <td><b class="nm nm-pub" data-nm="routes">routes</b><span class="nmas">&rarr; <code>potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your route list, imported from <code>app.routes.ts</code>.</span><span class="l-ar" dir="auto">ليستة الـ routes بتاعتك، جاية import من <code>app.routes.ts</code>.</span></td>
+        <td class="nmfiles"><code>app.config.ts</code></td>
+      </tr>
+      <tr data-nmrow="Clock">
+        <td><b class="nm nm-pub" data-nm="Clock">Clock</b><span class="nmas">&rarr; <code>Mango</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your component’s class name.</span><span class="l-ar" dir="auto">اسم كلاس الـ component بتاعك.</span></td>
+        <td class="nmfiles"><code>clock.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="Legacy">
+        <td><b class="nm nm-pub" data-nm="Legacy">Legacy</b><span class="nmas">&rarr; <code>Pickle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your component’s class name.</span><span class="l-ar" dir="auto">اسم كلاس الـ component بتاعك.</span></td>
+        <td class="nmfiles"><code>legacy.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="now">
+        <td><b class="nm nm-mine" data-nm="now">now</b><span class="nmas">&rarr; <code>waffle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own field (a signal in <code>Clock</code>, a plain field in <code>Legacy</code>). Only its template reads it.</span><span class="l-ar" dir="auto">الـ field بتاع الـ component نفسه (signal في <code>Clock</code>، وfield عادي في <code>Legacy</code>). التمبلت بتاعه بس اللي بيقراه.</span></td>
+        <td class="nmfiles"><code>clock.component.ts</code> <code>legacy.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="id">
+        <td><b class="nm nm-mine" data-nm="id">id</b><span class="nmas">&rarr; <code>noodle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A local variable holding the timer id.</span><span class="l-ar" dir="auto">متغير محلي شايل رقم التايمر.</span></td>
+        <td class="nmfiles"><code>clock.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="zone">
+        <td><b class="nm nm-mine" data-nm="zone">zone</b><span class="nmas">&rarr; <code>pumpkin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your field name for the injected <code>NgZone</code>.</span><span class="l-ar" dir="auto">اسم الـ field بتاعك للـ <code>NgZone</code> اللي اتعمله inject.</span></td>
+        <td class="nmfiles"><code>the old way</code></td>
+      </tr>
+      <tr data-nmrow="center">
+        <td><b class="nm nm-mine" data-nm="center">center</b><span class="nmas">&rarr; <code>turnip</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own field, read by its template.</span><span class="l-ar" dir="auto">الـ field بتاع الـ component، والتمبلت بتاعه بيقراه.</span></td>
+        <td class="nmfiles"><code>the old way</code> <code>the way that works either way</code></td>
+      </tr>
+      <tr data-nmrow="map">
+        <td><b class="nm nm-mine" data-nm="map">map</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your variable holding the map. <code>'#map'</code> is the id of the element in the page, a different name.</span><span class="l-ar" dir="auto">المتغير بتاعك اللي شايل الخريطة. و<code>'#map'</code> ده id العنصر في الصفحة، اسم تاني.</span></td>
+        <td class="nmfiles"><code>the old way</code> <code>the way that works either way</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="zoneless-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en">Zoneless, name by name</span><span class="l-ar" dir="auto">Zoneless، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">The page for when going zoneless feels like deleting something you do not understand. One clock followed from <code>main.ts</code> to its test, every name coloured by who owns it, and the quiet ways a screen freezes.</span><span class="l-ar" dir="auto">الصفحة دي للي حاسس إن الـ zoneless معناه إنه بيمسح حاجة مش فاهمها. ساعة واحدة ماشيين وراها من <code>main.ts</code> لحد التست بتاعها، وكل اسم ملوّن حسب صاحبه، والطرق الهادية اللي الشاشة بتتجمد بيها.</span></span>
+  </a>
 
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
@@ -798,8 +1117,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../advanced/28-change-detection.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">What actually makes Angular re-render</span><span class="l-ar" dir="auto">إيه اللي بيخلي أنجولار يرندر تاني فعلاً</span></b></a>
-    <a class="nx" href="../advanced/30-rxjs-operators.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en"><code>switchMap</code>, <code>mergeMap</code>, <code>concatMap</code>, <code>exhaustMap</code></span><span class="l-ar" dir="auto"><code>switchMap</code> و <code>mergeMap</code> و <code>concatMap</code> و <code>exhaustMap</code></span></b></a>
+    <a class="pv" href="../advanced/change-detection-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en"><code>OnPush</code>, name by name</span><span class="l-ar" dir="auto"><code>OnPush</code>، اسم اسم</span></b></a>
+    <a class="nx" href="../advanced/zoneless-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Zoneless, name by name</span><span class="l-ar" dir="auto">Zoneless، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -841,6 +1160,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){

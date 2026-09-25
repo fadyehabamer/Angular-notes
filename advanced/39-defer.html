@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -656,22 +727,40 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="tpl" data-lang="html">
         <div class="fc-h"><span class="d"></span>product-page.component.html<span class="tag"><span class="l-en">the block</span><span class="l-ar" dir="auto">البلوك</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;app-gallery</i> <i class="t-bind">[images]</i>=<i class="t-str">"product().images"</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="2"><i class="t-tag">&lt;app-buy-box</i> <i class="t-bind">[product]</i>=<i class="t-str">"product()"</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-key">@defer</i> (on viewport; prefetch on idle) {</span><span class="ln" data-l="5">  <i class="t-tag">&lt;app-reviews</i> <i class="t-bind">[productId]</i>=<i class="t-str">"product().id"</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="6">} <i class="t-key">@placeholder</i> (minimum 400ms) {</span><span class="ln" data-l="7">  <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"skeleton"</i> <i class="t-attr">style</i>=<i class="t-str">"height: 320px"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="8">} <i class="t-key">@loading</i> (after 100ms; minimum 500ms) {</span><span class="ln" data-l="9">  <i class="t-tag">&lt;app-spinner</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="10">} <i class="t-key">@error</i> {</span><span class="ln" data-l="11">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i>Reviews are unavailable right now.<i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="12">}</span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-gallery">app-gallery</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="images">images</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="product">product</b>().images"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-gallery">app-noodle</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="images">waffle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="product">pickle</b>().images"</i> <i class="t-tag">/&gt;</i></span></span><span class="ln" data-l="2"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-buy-box">app-buy-box</b></i> <i class="t-bind">[product]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="product">product</b>()"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-buy-box">app-pumpkin</b></i> <i class="t-bind">[product]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="product">pickle</b>()"</i> <i class="t-tag">/&gt;</i></span></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="viewport">viewport</b>; <b class="nm nm-ng" data-nm="prefetch">prefetch</b> <b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="idle">idle</b>) {</span><span class="ln" data-l="5"><span class="v0">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-reviews">app-reviews</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="productId">productId</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="product">product</b>().id"</i> <i class="t-tag">/&gt;</i></span><span class="v1">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-reviews">app-banana</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="productId">mango</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="product">pickle</b>().id"</i> <i class="t-tag">/&gt;</i></span></span><span class="ln" data-l="6">} <i class="t-key"><b class="nm nm-ng" data-nm="@placeholder">@placeholder</b></i> (<b class="nm nm-ng" data-nm="minimum">minimum</b> 400ms) {</span><span class="ln" data-l="7"><span class="v0">  <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="skeleton">skeleton</b>"</i> <i class="t-attr">style</i>=<i class="t-str">"height: 320px"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="skeleton">radish</b>"</i> <i class="t-attr">style</i>=<i class="t-str">"height: 320px"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="8">} <i class="t-key"><b class="nm nm-ng" data-nm="@loading">@loading</b></i> (<b class="nm nm-ng" data-nm="after">after</b> 100ms; <b class="nm nm-ng" data-nm="minimum">minimum</b> 500ms) {</span><span class="ln" data-l="9"><span class="v0">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-spinner">app-spinner</b></i> <i class="t-tag">/&gt;</i></span><span class="v1">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-spinner">app-turnip</b></i> <i class="t-tag">/&gt;</i></span></span><span class="ln" data-l="10">} <i class="t-key"><b class="nm nm-ng" data-nm="@error">@error</b></i> {</span><span class="ln" data-l="11">  <i class="t-tag">&lt;p</i><i class="t-tag">&gt;</i>Reviews are unavailable right now.<i class="t-tag">&lt;/p</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="12">}</span></pre>
       </div>
       <div class="fc" data-file="trig" data-lang="html">
         <div class="fc-h"><span class="d"></span>the triggers<span class="tag"><span class="l-en">pick one</span><span class="l-ar" dir="auto">اختار واحد</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">@defer</i> (on idle)                    <i class="t-com">&lt;!-- default: when the browser is free --&gt;</i></span><span class="ln" data-l="2"><i class="t-key">@defer</i> (on viewport)                <i class="t-com">&lt;!-- when the placeholder scrolls into view --&gt;</i></span><span class="ln" data-l="3"><i class="t-key">@defer</i> (on interaction)             <i class="t-com">&lt;!-- first click or keydown on the placeholder --&gt;</i></span><span class="ln" data-l="4"><i class="t-key">@defer</i> (on hover)                   <i class="t-com">&lt;!-- pointer enters the placeholder --&gt;</i></span><span class="ln" data-l="5"><i class="t-key">@defer</i> (on timer<i class="t-bind">(3s)</i>)               <i class="t-com">&lt;!-- after a delay --&gt;</i></span><span class="ln" data-l="6"><i class="t-key">@defer</i> (on immediate)               <i class="t-com">&lt;!-- right after the page renders --&gt;</i></span><span class="ln" data-l="7"><i class="t-key">@defer</i> (when isAdmin())             <i class="t-com">&lt;!-- any boolean expression, once true --&gt;</i></span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><i class="t-com">&lt;!-- combine: fetch early, render late --&gt;</i></span><span class="ln" data-l="10"><i class="t-key">@defer</i> (on interaction; prefetch on hover) { … }</span><span class="ln" data-l="11"> </span><span class="ln" data-l="12"><i class="t-com">&lt;!-- trigger from another element by reference --&gt;</i></span><span class="ln" data-l="13"><i class="t-tag">&lt;button</i> <i class="t-bind">#more</i><i class="t-tag">&gt;</i>Show reviews<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="14"><i class="t-key">@defer</i> (on interaction<i class="t-bind">(more)</i>) { <i class="t-tag">&lt;app-reviews</i> <i class="t-tag">/&gt;</i> }</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="idle">idle</b>)                    <i class="t-com">&lt;!-- default: when the browser is free --&gt;</i></span><span class="ln" data-l="2"><i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="viewport">viewport</b>)                <i class="t-com">&lt;!-- when the placeholder scrolls into view --&gt;</i></span><span class="ln" data-l="3"><i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="interaction">interaction</b>)             <i class="t-com">&lt;!-- first click or keydown on the placeholder --&gt;</i></span><span class="ln" data-l="4"><i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="hover">hover</b>)                   <i class="t-com">&lt;!-- pointer enters the placeholder --&gt;</i></span><span class="ln" data-l="5"><i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="timer">timer</b><i class="t-bind">(3s)</i>)               <i class="t-com">&lt;!-- after a delay --&gt;</i></span><span class="ln" data-l="6"><i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="immediate">immediate</b>)               <i class="t-com">&lt;!-- right after the page renders --&gt;</i></span><span class="ln" data-l="7"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="when">when</b> <b class="nm nm-mine" data-nm="isAdmin">isAdmin</b>())             <i class="t-com">&lt;!-- any boolean expression, once true --&gt;</i></span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="when">when</b> <b class="nm nm-mine" data-nm="isAdmin">taco</b>())             <i class="t-com">&lt;!-- any boolean expression, once true --&gt;</i></span></span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><i class="t-com">&lt;!-- combine: fetch early, render late --&gt;</i></span><span class="ln" data-l="10"><i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="interaction">interaction</b>; <b class="nm nm-ng" data-nm="prefetch">prefetch</b> <b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="hover">hover</b>) { … }</span><span class="ln" data-l="11"> </span><span class="ln" data-l="12"><i class="t-com">&lt;!-- trigger from another element by reference --&gt;</i></span><span class="ln" data-l="13"><span class="v0"><i class="t-tag">&lt;button</i> <i class="t-bind">#<b class="nm nm-mine" data-nm="more">more</b></i><i class="t-tag">&gt;</i>Show reviews<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;button</i> <i class="t-bind">#<b class="nm nm-mine" data-nm="more">muffin</b></i><i class="t-tag">&gt;</i>Show reviews<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="14"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="interaction">interaction</b><i class="t-bind">(<b class="nm nm-mine" data-nm="more">more</b>)</i>) { <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-reviews">app-reviews</b></i> <i class="t-tag">/&gt;</i> }</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="interaction">interaction</b><i class="t-bind">(<b class="nm nm-mine" data-nm="more">muffin</b>)</i>) { <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-reviews">app-banana</b></i> <i class="t-tag">/&gt;</i> }</span></span></pre>
       </div>
       <div class="fc" data-file="chunk" data-lang="ts">
         <div class="fc-h"><span class="d"></span>reviews.component.ts<span class="tag"><span class="l-en">the payload</span><span class="l-ar" dir="auto">الحمولة</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Component</i>, input } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"><i class="t-key">import</i> { <i class="t-type">ChartLib</i> } <i class="t-key">from</i> <i class="t-str">'some-heavy-charting-lib'</i>;   <i class="t-com">// 180 kB</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="5">  selector: <i class="t-str">'app-reviews'</i>,</span><span class="ln" data-l="6">  imports: [<i class="t-type">ChartLib</i>, <i class="t-type">StarRating</i>],</span><span class="ln" data-l="7">  templateUrl: <i class="t-str">'./reviews.component.html'</i>,</span><span class="ln" data-l="8">})</span><span class="ln" data-l="9"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Reviews</i> {</span><span class="ln" data-l="10">  <i class="t-key">readonly</i> productId = input.required&lt;<i class="t-key">string</i>&gt;();</span><span class="ln" data-l="11"> </span><span class="ln" data-l="12">  <i class="t-com">// this file AND everything it imports leaves the main bundle,</i></span><span class="ln" data-l="13">  <i class="t-com">// because the only reference to it is inside a @defer block.</i></span><span class="ln" data-l="14">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Component</i>, input } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="2"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-ng" data-nm="ChartLib">ChartLib</b></i> } <i class="t-key">from</i> <i class="t-str">'some-heavy-charting-lib'</i>;   <i class="t-com">// 180 kB</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-dec"><b class="nm nm-ng" data-nm="@Component">@Component</b></i>({</span><span class="ln" data-l="5"><span class="v0">  selector: <i class="t-str">'<b class="nm nm-pub" data-nm="app-reviews">app-reviews</b>'</i>,</span><span class="v1">  selector: <i class="t-str">'<b class="nm nm-pub" data-nm="app-reviews">app-banana</b>'</i>,</span></span><span class="ln" data-l="6"><span class="v0">  imports: [<i class="t-type"><b class="nm nm-ng" data-nm="ChartLib">ChartLib</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="StarRating">StarRating</b></i>],</span><span class="v1">  imports: [<i class="t-type"><b class="nm nm-ng" data-nm="ChartLib">ChartLib</b></i>, <i class="t-type"><b class="nm nm-pub" data-nm="StarRating">Kiwi</b></i>],</span></span><span class="ln" data-l="7">  templateUrl: <i class="t-str">'./reviews.component.html'</i>,</span><span class="ln" data-l="8">})</span><span class="ln" data-l="9"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Reviews">Reviews</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Reviews">Potato</b></i> {</span></span><span class="ln" data-l="10"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="productId">productId</b> = <b class="nm nm-ng" data-nm="input">input</b>.required&lt;<i class="t-key">string</i>&gt;();</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="productId">mango</b> = <b class="nm nm-ng" data-nm="input">input</b>.required&lt;<i class="t-key">string</i>&gt;();</span></span><span class="ln" data-l="11"> </span><span class="ln" data-l="12">  <i class="t-com">// this file AND everything it imports leaves the main bundle,</i></span><span class="ln" data-l="13">  <i class="t-com">// because the only reference to it is inside a @defer block.</i></span><span class="ln" data-l="14">}</span></pre>
       </div>
       <div class="fc" data-file="hyd" data-lang="html">
         <div class="fc-h"><span class="d"></span>incremental hydration<span class="tag"><span class="l-en">with SSR</span><span class="l-ar" dir="auto">مع الـ SSR</span></span></div>
-        <pre><span class="ln" data-l="1">&lt;!-- rendered on the server, sent as real HTML,</span><span class="ln" data-l="2">     and its JavaScript is only fetched on interaction --<i class="t-tag">&gt;</i></span><span class="ln" data-l="3"><i class="t-key">@defer</i> (hydrate on interaction) {</span><span class="ln" data-l="4">  <i class="t-tag">&lt;app-comment-form</i> <i class="t-bind">[postId]</i>=<i class="t-str">"post().id"</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="5">}</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">&lt;!-- hydrate never = server-render it and ship no JS at all --&gt;</i></span><span class="ln" data-l="8"><i class="t-key">@defer</i> (hydrate never) {</span><span class="ln" data-l="9">  <i class="t-tag">&lt;app-legal-footer</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="10">}</span></pre>
+        <pre><span class="ln" data-l="1">&lt;!-- rendered on the server, sent as real HTML,</span><span class="ln" data-l="2">     and its JavaScript is only fetched on interaction --<i class="t-tag">&gt;</i></span><span class="ln" data-l="3"><i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="hydrate">hydrate</b> <b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="interaction">interaction</b>) {</span><span class="ln" data-l="4"><span class="v0">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-comment-form">app-comment-form</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="postId">postId</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="post">post</b>().id"</i> <i class="t-tag">/&gt;</i></span><span class="v1">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-comment-form">app-donut</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="postId">pepper</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="post">lemon</b>().id"</i> <i class="t-tag">/&gt;</i></span></span><span class="ln" data-l="5">}</span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">&lt;!-- hydrate never = server-render it and ship no JS at all --&gt;</i></span><span class="ln" data-l="8"><i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="hydrate">hydrate</b> <b class="nm nm-ng" data-nm="never">never</b>) {</span><span class="ln" data-l="9"><span class="v0">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-legal-footer">app-legal-footer</b></i> <i class="t-tag">/&gt;</i></span><span class="v1">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-legal-footer">app-carrot</b></i> <i class="t-tag">/&gt;</i></span></span><span class="ln" data-l="10">}</span></pre>
       </div></div>
 
   
@@ -684,13 +773,285 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="t1" data-lang="html">
         <div class="fc-h"><span class="d"></span>dashboard.component.html<span class="tag"><span class="l-en">six chunks</span><span class="l-ar" dir="auto">ستة chunks</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;nav</i> <i class="t-attr">role</i>=<i class="t-str">"tablist"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="2">  <i class="t-key">@for</i> (t of tabs; track t.id) {</span><span class="ln" data-l="3">    <i class="t-tag">&lt;button</i> <i class="t-attr">role</i>=<i class="t-str">"tab"</i> <i class="t-bind">#tab</i></span><span class="ln" data-l="4">            <i class="t-bind">[attr.aria-selected]</i>=<i class="t-str">"active() === t.id"</i></span><span class="ln" data-l="5">            <i class="t-bind">(click)</i>=<i class="t-str">"active.set(t.id)"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t.label }}</i><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6">  }</span><span class="ln" data-l="7"><i class="t-tag">&lt;/nav</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><i class="t-key">@if</i> (active() === <i class="t-str">'revenue'</i>) {</span><span class="ln" data-l="10">  <i class="t-key">@defer</i> (on immediate; prefetch on hover) {</span><span class="ln" data-l="11">    <i class="t-tag">&lt;app-revenue-charts</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="12">  } <i class="t-key">@placeholder</i> { <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"skeleton tall"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i> }</span><span class="ln" data-l="13">}</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-key">@if</i> (active() === <i class="t-str">'cohorts'</i>) {</span><span class="ln" data-l="16">  <i class="t-key">@defer</i> (on immediate) {</span><span class="ln" data-l="17">    <i class="t-tag">&lt;app-cohort-table</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="18">  } <i class="t-key">@placeholder</i> { <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"skeleton tall"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i> }</span><span class="ln" data-l="19">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;nav</i> <i class="t-attr">role</i>=<i class="t-str">"tablist"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="2"><span class="v0">  <i class="t-key"><b class="nm nm-ng" data-nm="@for">@for</b></i> (t of <b class="nm nm-mine" data-nm="tabs">tabs</b>; track t.id) {</span><span class="v1">  <i class="t-key"><b class="nm nm-ng" data-nm="@for">@for</b></i> (t of <b class="nm nm-mine" data-nm="tabs">biscuit</b>; track t.id) {</span></span><span class="ln" data-l="3">    <i class="t-tag">&lt;button</i> <i class="t-attr">role</i>=<i class="t-str">"tab"</i> <i class="t-bind">#tab</i></span><span class="ln" data-l="4"><span class="v0">            <i class="t-bind">[attr.aria-selected]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="active">active</b>() === t.id"</i></span><span class="v1">            <i class="t-bind">[attr.aria-selected]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="active">olive</b>() === t.id"</i></span></span><span class="ln" data-l="5"><span class="v0">            <i class="t-bind">(click)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="active">active</b>.set(t.id)"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t.label }}</i><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="v1">            <i class="t-bind">(click)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="active">olive</b>.set(t.id)"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t.label }}</i><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="6">  }</span><span class="ln" data-l="7"><i class="t-tag">&lt;/nav</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@if">@if</b></i> (<b class="nm nm-mine" data-nm="active">active</b>() === <i class="t-str">'revenue'</i>) {</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@if">@if</b></i> (<b class="nm nm-mine" data-nm="active">olive</b>() === <i class="t-str">'revenue'</i>) {</span></span><span class="ln" data-l="10">  <i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="immediate">immediate</b>; <b class="nm nm-ng" data-nm="prefetch">prefetch</b> <b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="hover">hover</b>) {</span><span class="ln" data-l="11"><span class="v0">    <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-revenue-charts">app-revenue-charts</b></i> <i class="t-tag">/&gt;</i></span><span class="v1">    <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-revenue-charts">app-cookie</b></i> <i class="t-tag">/&gt;</i></span></span><span class="ln" data-l="12"><span class="v0">  } <i class="t-key"><b class="nm nm-ng" data-nm="@placeholder">@placeholder</b></i> { <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="skeleton">skeleton</b> tall"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i> }</span><span class="v1">  } <i class="t-key"><b class="nm nm-ng" data-nm="@placeholder">@placeholder</b></i> { <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="skeleton">radish</b> tall"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i> }</span></span><span class="ln" data-l="13">}</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@if">@if</b></i> (<b class="nm nm-mine" data-nm="active">active</b>() === <i class="t-str">'cohorts'</i>) {</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@if">@if</b></i> (<b class="nm nm-mine" data-nm="active">olive</b>() === <i class="t-str">'cohorts'</i>) {</span></span><span class="ln" data-l="16">  <i class="t-key"><b class="nm nm-ng" data-nm="@defer">@defer</b></i> (<b class="nm nm-ng" data-nm="on">on</b> <b class="nm nm-ng" data-nm="immediate">immediate</b>) {</span><span class="ln" data-l="17"><span class="v0">    <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-cohort-table">app-cohort-table</b></i> <i class="t-tag">/&gt;</i></span><span class="v1">    <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-cohort-table">app-melon</b></i> <i class="t-tag">/&gt;</i></span></span><span class="ln" data-l="18"><span class="v0">  } <i class="t-key"><b class="nm nm-ng" data-nm="@placeholder">@placeholder</b></i> { <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="skeleton">skeleton</b> tall"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i> }</span><span class="v1">  } <i class="t-key"><b class="nm nm-ng" data-nm="@placeholder">@placeholder</b></i> { <i class="t-tag">&lt;div</i> <i class="t-attr">class</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="skeleton">radish</b> tall"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i> }</span></span><span class="ln" data-l="19">}</span></pre>
       </div>
       <div class="fc" data-file="t2" data-lang="bash">
         <div class="fc-h"><span class="d"></span>what the build produces<span class="tag"><span class="l-en">the payoff</span><span class="l-ar" dir="auto">المكسب</span></span></div>
         <pre><span class="ln" data-l="1">Initial chunk files   | Names            |  Raw size</span><span class="ln" data-l="2">main-QK4L2P.js        | main             | 214.60 kB</span><span class="ln" data-l="3">polyfills-B7NX.js     | polyfills        |  34.58 kB</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5">Lazy chunk files      | Names            |  Raw size</span><span class="ln" data-l="6">chunk-REVENUE.js      | revenue-charts   | 186.20 kB   ← not on first paint</span><span class="ln" data-l="7">chunk-COHORT.js       | cohort-table     |  92.10 kB   ← not on first paint</span><span class="ln" data-l="8">chunk-FUNNEL.js       | funnel-view      |  77.40 kB   ← not on first paint</span></pre>
       </div></div>
   </div>
+
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">Everything inside the parentheses of <code>@defer (…)</code> is Angular’s vocabulary: <code>on</code>, <code>when</code>, <code>prefetch</code>, <code>hydrate</code> and the trigger names. The only thing of yours in there is a template reference like <code>more</code> or a signal like <code>isAdmin()</code>. The components inside the block are ordinary components, with ordinary selectors and inputs.</span><span class="l-ar" dir="auto">كل اللي جوه أقواس <code>@defer (…)</code> ده من قاموس أنجولار: <code>on</code> و<code>when</code> و<code>prefetch</code> و<code>hydrate</code> وأسماء الـ triggers. الحاجة الوحيدة اللي بتاعتك جوه هي template reference زي <code>more</code> أو signal زي <code>isAdmin()</code>. والـ components اللي جوه البلوك components عادية، بـ selectors وinputs عادية.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="@defer">
+        <td><b class="nm nm-ng" data-nm="@defer">@defer</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s block: load this part’s code later, when a trigger fires.</span><span class="l-ar" dir="auto">البلوك بتاع أنجولار: حمّل كود الجزء ده بعدين، لما trigger يحصل.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code> <code>the triggers</code> <code>incremental hydration</code> <code>dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="@placeholder">
+        <td><b class="nm nm-ng" data-nm="@placeholder">@placeholder</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s block shown before loading starts. It is also what <code>on viewport</code> and <code>on interaction</code> watch.</span><span class="l-ar" dir="auto">البلوك بتاع أنجولار اللي بيظهر قبل ما التحميل يبدأ. وهو كمان اللي <code>on viewport</code> و<code>on interaction</code> بيراقبوه.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code> <code>dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="@loading">
+        <td><b class="nm nm-ng" data-nm="@loading">@loading</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s block shown while the chunk downloads.</span><span class="l-ar" dir="auto">البلوك بتاع أنجولار اللي بيظهر والـ chunk بيتحمّل.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code></td>
+      </tr>
+      <tr data-nmrow="@error">
+        <td><b class="nm nm-ng" data-nm="@error">@error</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s block shown if the download fails.</span><span class="l-ar" dir="auto">البلوك بتاع أنجولار اللي بيظهر لو التحميل فشل.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code></td>
+      </tr>
+      <tr data-nmrow="on">
+        <td><b class="nm nm-ng" data-nm="on">on</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s keyword that introduces a trigger.</span><span class="l-ar" dir="auto">الكلمة بتاعة أنجولار اللي بتبدأ بيها الـ trigger.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code> <code>the triggers</code> <code>incremental hydration</code> <code>dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="viewport">
+        <td><b class="nm nm-ng" data-nm="viewport">viewport</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A trigger: when the placeholder scrolls into view.</span><span class="l-ar" dir="auto">trigger: لما الـ placeholder يظهر على الشاشة.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code> <code>the triggers</code></td>
+      </tr>
+      <tr data-nmrow="idle">
+        <td><b class="nm nm-ng" data-nm="idle">idle</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A trigger: when the browser has nothing else to do. The default.</span><span class="l-ar" dir="auto">trigger: لما المتصفح يفضى. ده الافتراضي.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code> <code>the triggers</code></td>
+      </tr>
+      <tr data-nmrow="interaction">
+        <td><b class="nm nm-ng" data-nm="interaction">interaction</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A trigger: the first click or key press on the placeholder, or on the element you name.</span><span class="l-ar" dir="auto">trigger: أول ضغطة أو زرار كيبورد على الـ placeholder، أو على الـ element اللي بتسميه.</span></td>
+        <td class="nmfiles"><code>the triggers</code> <code>incremental hydration</code></td>
+      </tr>
+      <tr data-nmrow="hover">
+        <td><b class="nm nm-ng" data-nm="hover">hover</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A trigger: the pointer enters the placeholder.</span><span class="l-ar" dir="auto">trigger: الماوس يدخل على الـ placeholder.</span></td>
+        <td class="nmfiles"><code>the triggers</code> <code>dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="timer">
+        <td><b class="nm nm-ng" data-nm="timer">timer</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A trigger: after a fixed delay.</span><span class="l-ar" dir="auto">trigger: بعد وقت محدد.</span></td>
+        <td class="nmfiles"><code>the triggers</code></td>
+      </tr>
+      <tr data-nmrow="immediate">
+        <td><b class="nm nm-ng" data-nm="immediate">immediate</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A trigger: straight after the page renders.</span><span class="l-ar" dir="auto">trigger: على طول بعد ما الصفحة تترسم.</span></td>
+        <td class="nmfiles"><code>the triggers</code> <code>dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="when">
+        <td><b class="nm nm-ng" data-nm="when">when</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s keyword for “once this expression is true”. The expression after it is yours.</span><span class="l-ar" dir="auto">الكلمة بتاعة أنجولار لـ “أول ما التعبير ده يبقى true”. التعبير اللي بعدها بتاعك.</span></td>
+        <td class="nmfiles"><code>the triggers</code></td>
+      </tr>
+      <tr data-nmrow="prefetch">
+        <td><b class="nm nm-ng" data-nm="prefetch">prefetch</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s keyword: download early on this trigger, show later on the main one.</span><span class="l-ar" dir="auto">كلمة أنجولار: نزّل بدري على الـ trigger ده، واعرض بعدين على الـ trigger الأساسي.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code> <code>the triggers</code> <code>dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="hydrate">
+        <td><b class="nm nm-ng" data-nm="hydrate">hydrate</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s keyword for incremental hydration: the server already drew it, and this says when to wake it up.</span><span class="l-ar" dir="auto">كلمة أنجولار للـ incremental hydration: السيرفر رسمه خلاص، ودي بتقول إمتى يصحى.</span></td>
+        <td class="nmfiles"><code>incremental hydration</code></td>
+      </tr>
+      <tr data-nmrow="never">
+        <td><b class="nm nm-ng" data-nm="never">never</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">With <code>hydrate</code>: keep the server HTML and never load its JavaScript.</span><span class="l-ar" dir="auto">مع <code>hydrate</code>: سيب الـ HTML اللي جه من السيرفر ومتحمّلش الـ JavaScript بتاعه أبداً.</span></td>
+        <td class="nmfiles"><code>incremental hydration</code></td>
+      </tr>
+      <tr data-nmrow="minimum">
+        <td><b class="nm nm-ng" data-nm="minimum">minimum</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s option: keep this block on screen at least this long, so it does not flash.</span><span class="l-ar" dir="auto">اختيار من أنجولار: خلي البلوك ده ظاهر المدة دي على الأقل، عشان ميرمّشش.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code></td>
+      </tr>
+      <tr data-nmrow="after">
+        <td><b class="nm nm-ng" data-nm="after">after</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s option: only show the loading block if loading takes longer than this.</span><span class="l-ar" dir="auto">اختيار من أنجولار: متظهرش بلوك التحميل إلا لو التحميل أخد وقت أطول من كده.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code></td>
+      </tr>
+      <tr data-nmrow="@if">
+        <td><b class="nm nm-ng" data-nm="@if">@if</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s control-flow block.</span><span class="l-ar" dir="auto">بلوك الـ control flow بتاع أنجولار.</span></td>
+        <td class="nmfiles"><code>dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="@for">
+        <td><b class="nm nm-ng" data-nm="@for">@for</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s control-flow loop.</span><span class="l-ar" dir="auto">الـ loop بتاعة الـ control flow في أنجولار.</span></td>
+        <td class="nmfiles"><code>dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="@Component">
+        <td><b class="nm nm-ng" data-nm="@Component">@Component</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s decorator that turns a class into a component.</span><span class="l-ar" dir="auto">الـ decorator بتاع أنجولار اللي بيحوّل الكلاس لـ component.</span></td>
+        <td class="nmfiles"><code>reviews.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="input">
+        <td><b class="nm nm-ng" data-nm="input">input</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that creates an input.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتعمل input.</span></td>
+        <td class="nmfiles"><code>reviews.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="ChartLib">
+        <td><b class="nm nm-ng" data-nm="ChartLib">ChartLib</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The heavy library’s own export. Its name is whatever that library chose.</span><span class="l-ar" dir="auto">الـ export بتاع المكتبة التقيلة نفسها. اسمه اللي المكتبة اختارته.</span></td>
+        <td class="nmfiles"><code>reviews.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="app-reviews">
+        <td><b class="nm nm-pub" data-nm="app-reviews">app-reviews</b><span class="nmas">&rarr; <code>app-banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Selector: the string in <code>Reviews</code> and every tag that uses it must match.</span><span class="l-ar" dir="auto">الـ selector: النص اللي في <code>Reviews</code> وكل تاج بيستخدمه لازم يبقوا زي بعض.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code> <code>the triggers</code> <code>reviews.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="Reviews">
+        <td><b class="nm nm-pub" data-nm="Reviews">Reviews</b><span class="nmas">&rarr; <code>Potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The class name. The template only references it through its tag, which is why the whole file can be deferred.</span><span class="l-ar" dir="auto">اسم الكلاس. التمبلت بيشاور عليه من خلال التاج بس، وعشان كده الملف كله ينفع يتأجل.</span></td>
+        <td class="nmfiles"><code>reviews.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="productId">
+        <td><b class="nm nm-pub" data-nm="productId">productId</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">An input. The page binds <code>[productId]</code>, so both files change together.</span><span class="l-ar" dir="auto">input. الصفحة بتربط <code>[productId]</code>، فالملفين بيتغيروا مع بعض.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code> <code>reviews.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="product">
+        <td><b class="nm nm-mine" data-nm="product">product</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The page’s own signal. <code>[product]</code> on <code>app-buy-box</code> is that child’s input, a separate name.</span><span class="l-ar" dir="auto">الـ signal بتاعة الصفحة نفسها. و<code>[product]</code> اللي على <code>app-buy-box</code> ده input الابن، اسم تاني.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code></td>
+      </tr>
+      <tr data-nmrow="images">
+        <td><b class="nm nm-pub" data-nm="images">images</b><span class="nmas">&rarr; <code>waffle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The gallery’s input. <code>.images</code> on the right is a field on your product data.</span><span class="l-ar" dir="auto">الـ input بتاع الـ gallery. و<code>.images</code> اللي على اليمين field في داتا المنتج بتاعك.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code></td>
+      </tr>
+      <tr data-nmrow="app-gallery">
+        <td><b class="nm nm-pub" data-nm="app-gallery">app-gallery</b><span class="nmas">&rarr; <code>app-noodle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A child component’s selector.</span><span class="l-ar" dir="auto">الـ selector بتاع component ابن.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code></td>
+      </tr>
+      <tr data-nmrow="app-buy-box">
+        <td><b class="nm nm-pub" data-nm="app-buy-box">app-buy-box</b><span class="nmas">&rarr; <code>app-pumpkin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A child component’s selector.</span><span class="l-ar" dir="auto">الـ selector بتاع component ابن.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code></td>
+      </tr>
+      <tr data-nmrow="app-spinner">
+        <td><b class="nm nm-pub" data-nm="app-spinner">app-spinner</b><span class="nmas">&rarr; <code>app-turnip</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A child component’s selector.</span><span class="l-ar" dir="auto">الـ selector بتاع component ابن.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code></td>
+      </tr>
+      <tr data-nmrow="more">
+        <td><b class="nm nm-mine" data-nm="more">more</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your template reference, <code>#more</code>. <code>interaction(more)</code> must use the same name.</span><span class="l-ar" dir="auto">الـ template reference بتاعك، <code>#more</code>. و<code>interaction(more)</code> لازم يستخدم نفس الاسم.</span></td>
+        <td class="nmfiles"><code>the triggers</code></td>
+      </tr>
+      <tr data-nmrow="isAdmin">
+        <td><b class="nm nm-mine" data-nm="isAdmin">isAdmin</b><span class="nmas">&rarr; <code>taco</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your component’s own signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة الـ component بتاعك.</span></td>
+        <td class="nmfiles"><code>the triggers</code></td>
+      </tr>
+      <tr data-nmrow="StarRating">
+        <td><b class="nm nm-pub" data-nm="StarRating">StarRating</b><span class="nmas">&rarr; <code>Kiwi</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Another of your components, imported here.</span><span class="l-ar" dir="auto">component تاني من بتوعك، بيتعمله import هنا.</span></td>
+        <td class="nmfiles"><code>reviews.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="app-comment-form">
+        <td><b class="nm nm-pub" data-nm="app-comment-form">app-comment-form</b><span class="nmas">&rarr; <code>app-donut</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A child component’s selector.</span><span class="l-ar" dir="auto">الـ selector بتاع component ابن.</span></td>
+        <td class="nmfiles"><code>incremental hydration</code></td>
+      </tr>
+      <tr data-nmrow="postId">
+        <td><b class="nm nm-pub" data-nm="postId">postId</b><span class="nmas">&rarr; <code>pepper</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The comment form’s input.</span><span class="l-ar" dir="auto">الـ input بتاع فورم الكومنتات.</span></td>
+        <td class="nmfiles"><code>incremental hydration</code></td>
+      </tr>
+      <tr data-nmrow="post">
+        <td><b class="nm nm-mine" data-nm="post">post</b><span class="nmas">&rarr; <code>lemon</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The page’s own signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة الصفحة نفسها.</span></td>
+        <td class="nmfiles"><code>incremental hydration</code></td>
+      </tr>
+      <tr data-nmrow="app-legal-footer">
+        <td><b class="nm nm-pub" data-nm="app-legal-footer">app-legal-footer</b><span class="nmas">&rarr; <code>app-carrot</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A child component’s selector.</span><span class="l-ar" dir="auto">الـ selector بتاع component ابن.</span></td>
+        <td class="nmfiles"><code>incremental hydration</code></td>
+      </tr>
+      <tr data-nmrow="tabs">
+        <td><b class="nm nm-mine" data-nm="tabs">tabs</b><span class="nmas">&rarr; <code>biscuit</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The dashboard’s own list.</span><span class="l-ar" dir="auto">الليستة بتاعة الداشبورد نفسه.</span></td>
+        <td class="nmfiles"><code>dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="active">
+        <td><b class="nm nm-mine" data-nm="active">active</b><span class="nmas">&rarr; <code>olive</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The dashboard’s own signal: which tab is open.</span><span class="l-ar" dir="auto">الـ signal بتاعة الداشبورد نفسه: أنهي تاب مفتوح.</span></td>
+        <td class="nmfiles"><code>dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="app-revenue-charts">
+        <td><b class="nm nm-pub" data-nm="app-revenue-charts">app-revenue-charts</b><span class="nmas">&rarr; <code>app-cookie</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A child component’s selector.</span><span class="l-ar" dir="auto">الـ selector بتاع component ابن.</span></td>
+        <td class="nmfiles"><code>dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="app-cohort-table">
+        <td><b class="nm nm-pub" data-nm="app-cohort-table">app-cohort-table</b><span class="nmas">&rarr; <code>app-melon</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A child component’s selector.</span><span class="l-ar" dir="auto">الـ selector بتاع component ابن.</span></td>
+        <td class="nmfiles"><code>dashboard.component.html</code></td>
+      </tr>
+      <tr data-nmrow="skeleton">
+        <td><b class="nm nm-mine" data-nm="skeleton">skeleton</b><span class="nmas">&rarr; <code>radish</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your CSS class, from your own stylesheet.</span><span class="l-ar" dir="auto">كلاس CSS بتاعك، من ملف الـ CSS بتاعك.</span></td>
+        <td class="nmfiles"><code>product-page.component.html</code> <code>dashboard.component.html</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="defer-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en"><code>@defer</code>, name by name</span><span class="l-ar" dir="auto"><code>@defer</code>، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">One product page whose reviews load later, followed through all five files. Every name coloured by who owns it: <b>Angular’s</b> (every word inside <code>@defer ( )</code>), <b>yours</b>, or <b>yours but shared</b>. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">صفحة منتج واحدة الـ reviews بتاعتها بتتحمّل بعدين، ماشيين وراها في الخمس ملفات. كل اسم ملوّن حسب صاحبه: <b>بتاع أنجولار</b> (كل كلمة جوه <code>@defer ( )</code>)، ولا <b>بتاعك</b>، ولا <b>بتاعك بس متشارك</b>. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+  </a>
 
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
@@ -790,8 +1151,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../advanced/38-lazy-loading.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">Lazy loading and preloading strategies</span><span class="l-ar" dir="auto">التحميل الكسلان واستراتيجيات التحميل المسبق</span></b></a>
-    <a class="nx" href="../advanced/40-performance.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Performance: budgets, profiles and the big wins</span><span class="l-ar" dir="auto">الأداء: الميزانيات والقياس والمكاسب الكبيرة</span></b></a>
+    <a class="pv" href="../advanced/lazy-loading-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">Lazy loading, name by name</span><span class="l-ar" dir="auto">الـ lazy loading، اسم اسم</span></b></a>
+    <a class="nx" href="../advanced/defer-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en"><code>@defer</code>, name by name</span><span class="l-ar" dir="auto"><code>@defer</code>، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -833,6 +1194,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){

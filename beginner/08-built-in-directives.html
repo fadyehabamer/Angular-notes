@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -656,22 +727,40 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="new" data-lang="html">
         <div class="fc-h"><span class="d"></span>the modern way — nothing to import<span class="tag"><span class="l-en">prefer this</span><span class="l-ar" dir="auto">فضّل ده</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">&lt;!-- one class, toggled by a boolean --&gt;</i></span><span class="ln" data-l="2"><i class="t-tag">&lt;span</i> <i class="t-bind">[class.sold-out]</i>=<i class="t-str">"stock() === 0"</i><i class="t-tag">&gt;</i>Wireless mouse<i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-com">&lt;!-- several, from an object — true means "apply it" --&gt;</i></span><span class="ln" data-l="5"><i class="t-tag">&lt;span</i> <i class="t-bind">[class]</i>=<i class="t-str">"{ featured: isFeatured(), cheap: price() &lt; 100 }"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">&lt;!-- from a string or an array --&gt;</i></span><span class="ln" data-l="8"><i class="t-tag">&lt;span</i> <i class="t-bind">[class]</i>=<i class="t-str">"'badge ' + kind()"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="9"><i class="t-tag">&lt;span</i> <i class="t-bind">[class]</i>=<i class="t-str">"['badge', kind()]"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-com">&lt;!-- one style property, with the unit IN the binding --&gt;</i></span><span class="ln" data-l="12"><i class="t-tag">&lt;div</i> [style.width.%]=<i class="t-str">"percent()"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="13"><i class="t-tag">&lt;div</i> <i class="t-bind">[style.font-size.px]</i>=<i class="t-str">"size()"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="14"><i class="t-tag">&lt;div</i> <i class="t-bind">[style.color]</i>=<i class="t-str">"isError() ? 'red' : null"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="15"> </span><span class="ln" data-l="16"><i class="t-com">&lt;!-- several styles from an object --&gt;</i></span><span class="ln" data-l="17"><i class="t-tag">&lt;div</i> <i class="t-bind">[style]</i>=<i class="t-str">"{ width: percent() + '%', opacity: faded() ? 0.5 : 1 }"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="18"> </span><span class="ln" data-l="19"><i class="t-com">&lt;!-- static and bound merge — you never lose "badge" --&gt;</i></span><span class="ln" data-l="20"><i class="t-tag">&lt;span</i> <i class="t-attr">class</i>=<i class="t-str">"badge"</i> <i class="t-bind">[class.new]</i>=<i class="t-str">"isNew()"</i><i class="t-tag">&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">&lt;!-- one class, toggled by a boolean --&gt;</i></span><span class="ln" data-l="2"><span class="v0"><i class="t-tag">&lt;span</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="sold-out">sold-out</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="stock">stock</b>() === 0"</i><i class="t-tag">&gt;</i>Wireless mouse<i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;span</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="sold-out">sold-banana</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="stock">noodle</b>() === 0"</i><i class="t-tag">&gt;</i>Wireless mouse<i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-com">&lt;!-- several, from an object — true means "apply it" --&gt;</i></span><span class="ln" data-l="5"><span class="v0"><i class="t-tag">&lt;span</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>]</i>=<i class="t-str">"{ <b class="nm nm-pub" data-nm="featured">featured</b>: <b class="nm nm-mine" data-nm="isFeatured">isFeatured</b>(), cheap: price() &lt; 100 }"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;span</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>]</i>=<i class="t-str">"{ <b class="nm nm-pub" data-nm="featured">potato</b>: <b class="nm nm-mine" data-nm="isFeatured">pumpkin</b>(), cheap: price() &lt; 100 }"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">&lt;!-- from a string or an array --&gt;</i></span><span class="ln" data-l="8"><span class="v0"><i class="t-tag">&lt;span</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>]</i>=<i class="t-str">"'<b class="nm nm-pub" data-nm="badge">badge</b> ' + <b class="nm nm-mine" data-nm="kind">kind</b>()"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;span</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>]</i>=<i class="t-str">"'<b class="nm nm-pub" data-nm="badge">mango</b> ' + <b class="nm nm-mine" data-nm="kind">muffin</b>()"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="9"><span class="v0"><i class="t-tag">&lt;span</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>]</i>=<i class="t-str">"['<b class="nm nm-pub" data-nm="badge">badge</b>', <b class="nm nm-mine" data-nm="kind">kind</b>()]"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;span</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>]</i>=<i class="t-str">"['<b class="nm nm-pub" data-nm="badge">mango</b>', <b class="nm nm-mine" data-nm="kind">muffin</b>()]"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-com">&lt;!-- one style property, with the unit IN the binding --&gt;</i></span><span class="ln" data-l="12"><span class="v0"><i class="t-tag">&lt;div</i> [<b class="nm nm-ng" data-nm="style">style</b>.width.%]=<i class="t-str">"<b class="nm nm-mine" data-nm="percent">percent</b>()"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;div</i> [<b class="nm nm-ng" data-nm="style">style</b>.width.%]=<i class="t-str">"<b class="nm nm-mine" data-nm="percent">taco</b>()"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="13"><i class="t-tag">&lt;div</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="style">style</b>.font-size.px]</i>=<i class="t-str">"size()"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="14"><i class="t-tag">&lt;div</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="style">style</b>.color]</i>=<i class="t-str">"isError() ? 'red' : null"</i><i class="t-tag">&gt;</i><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="15"> </span><span class="ln" data-l="16"><i class="t-com">&lt;!-- several styles from an object --&gt;</i></span><span class="ln" data-l="17"><span class="v0"><i class="t-tag">&lt;div</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="style">style</b>]</i>=<i class="t-str">"{ width: <b class="nm nm-mine" data-nm="percent">percent</b>() + '%', opacity: faded() ? 0.5 : 1 }"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;div</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="style">style</b>]</i>=<i class="t-str">"{ width: <b class="nm nm-mine" data-nm="percent">taco</b>() + '%', opacity: faded() ? 0.5 : 1 }"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="18"> </span><span class="ln" data-l="19"><i class="t-com">&lt;!-- static and bound merge — you never lose "badge" --&gt;</i></span><span class="ln" data-l="20"><span class="v0"><i class="t-tag">&lt;span</i> <i class="t-attr"><b class="nm nm-ng" data-nm="class">class</b></i>=<i class="t-str">"<b class="nm nm-pub" data-nm="badge">badge</b>"</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>.new]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="isNew">isNew</b>()"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;span</i> <i class="t-attr"><b class="nm nm-ng" data-nm="class">class</b></i>=<i class="t-str">"<b class="nm nm-pub" data-nm="badge">mango</b>"</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>.new]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="isNew">turnip</b>()"</i><i class="t-tag">&gt;</i></span></span></pre>
       </div>
       <div class="fc" data-file="old" data-lang="html">
         <div class="fc-h"><span class="d"></span>ngClass / ngStyle — the older API<span class="tag"><span class="l-en">still works</span><span class="l-ar" dir="auto">لسه شغال</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">&lt;!-- requires: imports: [NgClass, NgStyle] --&gt;</i></span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-tag">&lt;span</i> <i class="t-bind">[ngClass]</i>=<i class="t-str">"{ 'sold-out': stock() === 0, featured: isFeatured() }"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="4"><i class="t-tag">&lt;span</i> <i class="t-bind">[ngClass]</i>=<i class="t-str">"['badge', kind()]"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5"><i class="t-tag">&lt;span</i> <i class="t-bind">[ngClass]</i>=<i class="t-str">"'badge ' + kind()"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-tag">&lt;div</i> <i class="t-bind">[ngStyle]</i>=<i class="t-str">"{ 'width.%': percent(), color: colour() }"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="8"> </span><span class="ln" data-l="9">&lt;!-- these are not deprecated and not wrong. they are simply</span><span class="ln" data-l="10">     an import and a few characters more than <i class="t-bind">[class]</i> / <i class="t-bind">[style]</i>,</span><span class="ln" data-l="11">     which do the same job. new code rarely needs them. --<i class="t-tag">&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">&lt;!-- requires: imports: [NgClass, NgStyle] --&gt;</i></span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><span class="v0"><i class="t-tag">&lt;span</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="ngClass">ngClass</b>]</i>=<i class="t-str">"{ '<b class="nm nm-pub" data-nm="sold-out">sold-out</b>': <b class="nm nm-mine" data-nm="stock">stock</b>() === 0, <b class="nm nm-pub" data-nm="featured">featured</b>: <b class="nm nm-mine" data-nm="isFeatured">isFeatured</b>() }"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;span</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="ngClass">ngClass</b>]</i>=<i class="t-str">"{ '<b class="nm nm-pub" data-nm="sold-out">sold-banana</b>': <b class="nm nm-mine" data-nm="stock">noodle</b>() === 0, <b class="nm nm-pub" data-nm="featured">potato</b>: <b class="nm nm-mine" data-nm="isFeatured">pumpkin</b>() }"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="4"><span class="v0"><i class="t-tag">&lt;span</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="ngClass">ngClass</b>]</i>=<i class="t-str">"['<b class="nm nm-pub" data-nm="badge">badge</b>', <b class="nm nm-mine" data-nm="kind">kind</b>()]"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;span</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="ngClass">ngClass</b>]</i>=<i class="t-str">"['<b class="nm nm-pub" data-nm="badge">mango</b>', <b class="nm nm-mine" data-nm="kind">muffin</b>()]"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="5"><span class="v0"><i class="t-tag">&lt;span</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="ngClass">ngClass</b>]</i>=<i class="t-str">"'<b class="nm nm-pub" data-nm="badge">badge</b> ' + <b class="nm nm-mine" data-nm="kind">kind</b>()"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;span</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="ngClass">ngClass</b>]</i>=<i class="t-str">"'<b class="nm nm-pub" data-nm="badge">mango</b> ' + <b class="nm nm-mine" data-nm="kind">muffin</b>()"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><span class="v0"><i class="t-tag">&lt;div</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="ngStyle">ngStyle</b>]</i>=<i class="t-str">"{ 'width.%': <b class="nm nm-mine" data-nm="percent">percent</b>(), color: colour() }"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;div</i> <i class="t-bind">[<b class="nm nm-ng" data-nm="ngStyle">ngStyle</b>]</i>=<i class="t-str">"{ 'width.%': <b class="nm nm-mine" data-nm="percent">taco</b>(), color: colour() }"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="8"> </span><span class="ln" data-l="9">&lt;!-- these are not deprecated and not wrong. they are simply</span><span class="ln" data-l="10">     an import and a few characters more than <i class="t-bind">[class]</i> / <i class="t-bind">[style]</i>,</span><span class="ln" data-l="11">     which do the same job. new code rarely needs them. --<i class="t-tag">&gt;</i></span></pre>
       </div>
       <div class="fc" data-file="others" data-lang="html">
         <div class="fc-h"><span class="d"></span>the other built-ins worth knowing<span class="tag"><span class="l-en">the useful ones</span><span class="l-ar" dir="auto">المفيدين</span></span></div>
-        <pre><span class="ln" data-l="1">&lt;!-- NgOptimizedImage — lazy loading, sizing and preload hints,</span><span class="ln" data-l="2">     for free. use it for every <i class="t-tag">&lt;img</i><i class="t-tag">&gt;</i> that is not an icon.        --<i class="t-tag">&gt;</i></span><span class="ln" data-l="3"><i class="t-tag">&lt;img</i> <i class="t-attr">ngSrc</i>=<i class="t-str">"/hero.jpg"</i> <i class="t-attr">width</i>=<i class="t-str">"1200"</i> <i class="t-attr">height</i>=<i class="t-str">"600"</i> priority<i class="t-tag">&gt;</i></span><span class="ln" data-l="4"><i class="t-tag">&lt;img</i> <i class="t-attr">ngSrc</i>=<i class="t-str">"/thumb.jpg"</i> <i class="t-attr">width</i>=<i class="t-str">"200"</i> <i class="t-attr">height</i>=<i class="t-str">"200"</i><i class="t-tag">&gt;</i>   <i class="t-com">&lt;!-- lazy by default --&gt;</i></span><span class="ln" data-l="5"> </span><span class="ln" data-l="6"><i class="t-com">&lt;!-- NgTemplateOutlet — render a template you captured earlier --&gt;</i></span><span class="ln" data-l="7"><i class="t-tag">&lt;ng-container</i> <i class="t-bind">*ngTemplateOutlet</i>=<i class="t-str">"rowTpl; context: { $implicit: row }"</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><i class="t-com">&lt;!-- NgComponentOutlet — render a component chosen at runtime --&gt;</i></span><span class="ln" data-l="10"><i class="t-tag">&lt;ng-container</i> <i class="t-bind">*ngComponentOutlet</i>=<i class="t-str">"widgetFor(type())"</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="11"> </span><span class="ln" data-l="12"><i class="t-com">&lt;!-- RouterLink / RouterLinkActive — navigation without a reload --&gt;</i></span><span class="ln" data-l="13"><i class="t-tag">&lt;a</i> <i class="t-attr">routerLink</i>=<i class="t-str">"/orders"</i> <i class="t-attr">routerLinkActive</i>=<i class="t-str">"active"</i><i class="t-tag">&gt;</i>Orders<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="14"> </span><span class="ln" data-l="15">&lt;!-- <i class="t-bind">*ngIf</i>, <i class="t-bind">*ngFor</i> and <i class="t-bind">*ngSwitch</i> still exist, but <i class="t-key">@if</i> / <i class="t-key">@for</i> / <i class="t-key">@switch</i></span><span class="ln" data-l="16">     replaced them: no import, real <i class="t-key">@else</i>, and mandatory track. --<i class="t-tag">&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1">&lt;!-- NgOptimizedImage — lazy loading, sizing and preload hints,</span><span class="ln" data-l="2">     for free. use it for every <i class="t-tag">&lt;img</i><i class="t-tag">&gt;</i> that is not an icon.        --<i class="t-tag">&gt;</i></span><span class="ln" data-l="3"><i class="t-tag">&lt;img</i> <i class="t-attr"><b class="nm nm-ng" data-nm="ngSrc">ngSrc</b></i>=<i class="t-str">"/hero.jpg"</i> <i class="t-attr">width</i>=<i class="t-str">"1200"</i> <i class="t-attr">height</i>=<i class="t-str">"600"</i> priority<i class="t-tag">&gt;</i></span><span class="ln" data-l="4"><i class="t-tag">&lt;img</i> <i class="t-attr"><b class="nm nm-ng" data-nm="ngSrc">ngSrc</b></i>=<i class="t-str">"/thumb.jpg"</i> <i class="t-attr">width</i>=<i class="t-str">"200"</i> <i class="t-attr">height</i>=<i class="t-str">"200"</i><i class="t-tag">&gt;</i>   <i class="t-com">&lt;!-- lazy by default --&gt;</i></span><span class="ln" data-l="5"> </span><span class="ln" data-l="6"><i class="t-com">&lt;!-- NgTemplateOutlet — render a template you captured earlier --&gt;</i></span><span class="ln" data-l="7"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-ng" data-nm="ng-container">ng-container</b></i> <i class="t-bind">*<b class="nm nm-ng" data-nm="ngTemplateOutlet">ngTemplateOutlet</b></i>=<i class="t-str">"<b class="nm nm-mine" data-nm="rowTpl">rowTpl</b>; context: { <b class="nm nm-ng" data-nm="$implicit">$implicit</b>: row }"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-ng" data-nm="ng-container">ng-container</b></i> <i class="t-bind">*<b class="nm nm-ng" data-nm="ngTemplateOutlet">ngTemplateOutlet</b></i>=<i class="t-str">"<b class="nm nm-mine" data-nm="rowTpl">kiwi</b>; context: { <b class="nm nm-ng" data-nm="$implicit">$implicit</b>: row }"</i> <i class="t-tag">/&gt;</i></span></span><span class="ln" data-l="8"> </span><span class="ln" data-l="9"><i class="t-com">&lt;!-- NgComponentOutlet — render a component chosen at runtime --&gt;</i></span><span class="ln" data-l="10"><i class="t-tag">&lt;<b class="nm nm-ng" data-nm="ng-container">ng-container</b></i> <i class="t-bind">*<b class="nm nm-ng" data-nm="ngComponentOutlet">ngComponentOutlet</b></i>=<i class="t-str">"widgetFor(type())"</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="11"> </span><span class="ln" data-l="12"><i class="t-com">&lt;!-- RouterLink / RouterLinkActive — navigation without a reload --&gt;</i></span><span class="ln" data-l="13"><span class="v0"><i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/orders"</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLinkActive">routerLinkActive</b></i>=<i class="t-str">"<b class="nm nm-pub" data-nm="active">active</b>"</i><i class="t-tag">&gt;</i>Orders<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;a</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLink">routerLink</b></i>=<i class="t-str">"/orders"</i> <i class="t-attr"><b class="nm nm-ng" data-nm="routerLinkActive">routerLinkActive</b></i>=<i class="t-str">"<b class="nm nm-pub" data-nm="active">waffle</b>"</i><i class="t-tag">&gt;</i>Orders<i class="t-tag">&lt;/a</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="14"> </span><span class="ln" data-l="15">&lt;!-- <i class="t-bind">*ngIf</i>, <i class="t-bind">*ngFor</i> and <i class="t-bind">*ngSwitch</i> still exist, but <i class="t-key">@if</i> / <i class="t-key">@for</i> / <i class="t-key">@switch</i></span><span class="ln" data-l="16">     replaced them: no import, real <i class="t-key">@else</i>, and mandatory track. --<i class="t-tag">&gt;</i></span></pre>
       </div>
       <div class="fc" data-file="ts" data-lang="ts">
         <div class="fc-h"><span class="d"></span>badge.component.ts<span class="tag"><span class="l-en">derive, then bind</span><span class="l-ar" dir="auto">اشتق، وبعدين اربط</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Badge</i> {</span><span class="ln" data-l="2">  <i class="t-key">readonly</i> product = input.required&lt;<i class="t-type">Product</i>&gt;();</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">  <i class="t-com">// decide in the CLASS, bind a name in the template</i></span><span class="ln" data-l="5">  <i class="t-key">readonly</i> stock      = <i class="t-fn">computed</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">product</i>().stock);</span><span class="ln" data-l="6">  <i class="t-key">readonly</i> isFeatured = <i class="t-fn">computed</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">product</i>().featured);</span><span class="ln" data-l="7">  <i class="t-key">readonly</i> isNew      = <i class="t-fn">computed</i>(() =&gt; <i class="t-fn">daysSince</i>(<i class="t-key">this</i>.<i class="t-fn">product</i>().addedAt) &lt; <i class="t-num">7</i>);</span><span class="ln" data-l="8">  <i class="t-key">readonly</i> kind       = <i class="t-fn">computed</i>(() =&gt;</span><span class="ln" data-l="9">    <i class="t-key">this</i>.<i class="t-fn">stock</i>() === <i class="t-num">0</i> ? <i class="t-str">'danger'</i> : <i class="t-key">this</i>.<i class="t-fn">isNew</i>() ? <i class="t-str">'success'</i> : <i class="t-str">'neutral'</i>);</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">  <i class="t-com">// a template full of &amp;&amp; and ?: is a class that is missing a computed</i></span><span class="ln" data-l="12">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Badge</i> {</span><span class="ln" data-l="2"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="product">product</b> = <b class="nm nm-ng" data-nm="input">input</b>.required&lt;<i class="t-type">Product</i>&gt;();</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="product">donut</b> = <b class="nm nm-ng" data-nm="input">input</b>.required&lt;<i class="t-type">Product</i>&gt;();</span></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4">  <i class="t-com">// decide in the CLASS, bind a name in the template</i></span><span class="ln" data-l="5"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="stock">stock</b>      = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="product">product</b></i>().stock);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="stock">noodle</b>      = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="product">donut</b></i>().stock);</span></span><span class="ln" data-l="6"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="isFeatured">isFeatured</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="product">product</b></i>().featured);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="isFeatured">pumpkin</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="product">donut</b></i>().featured);</span></span><span class="ln" data-l="7"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="isNew">isNew</b>      = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-fn">daysSince</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="product">product</b></i>().addedAt) &lt; <i class="t-num">7</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="isNew">turnip</b>      = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-fn">daysSince</i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="product">donut</b></i>().addedAt) &lt; <i class="t-num">7</i>);</span></span><span class="ln" data-l="8"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="kind">kind</b>       = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt;</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="kind">muffin</b>       = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt;</span></span><span class="ln" data-l="9"><span class="v0">    <i class="t-key">this</i>.<i class="t-fn">stock</i>() === <i class="t-num">0</i> ? <i class="t-str">'danger'</i> : <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="isNew">isNew</b></i>() ? <i class="t-str">'success'</i> : <i class="t-str">'neutral'</i>);</span><span class="v1">    <i class="t-key">this</i>.<i class="t-fn">stock</i>() === <i class="t-num">0</i> ? <i class="t-str">'danger'</i> : <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="isNew">turnip</b></i>() ? <i class="t-str">'success'</i> : <i class="t-str">'neutral'</i>);</span></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">  <i class="t-com">// a template full of &amp;&amp; and ?: is a class that is missing a computed</i></span><span class="ln" data-l="12">}</span></pre>
       </div></div>
 
   
@@ -684,17 +773,211 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="sp1" data-lang="ts">
         <div class="fc-h"><span class="d"></span>status-pill.component.ts<span class="tag"><span class="l-en">one decision</span><span class="l-ar" dir="auto">قرار واحد</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">type</i> <i class="t-type">Kind</i> = <i class="t-str">'paid'</i> | <i class="t-str">'pending'</i> | <i class="t-str">'failed'</i> | <i class="t-str">'refunded'</i>;</span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">StatusPill</i> {</span><span class="ln" data-l="4">  <i class="t-key">readonly</i> status = input.required&lt;<i class="t-type">Kind</i>&gt;();</span><span class="ln" data-l="5"> </span><span class="ln" data-l="6">  <i class="t-key">readonly</i> label = <i class="t-fn">computed</i>(() =&gt; ({</span><span class="ln" data-l="7">    paid: <i class="t-str">'Paid'</i>, pending: <i class="t-str">'Awaiting payment'</i>,</span><span class="ln" data-l="8">    failed: <i class="t-str">'Payment failed'</i>, refunded: <i class="t-str">'Refunded'</i>,</span><span class="ln" data-l="9">  }[<i class="t-key">this</i>.<i class="t-fn">status</i>()]));</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">  <i class="t-key">readonly</i> needsAttention = <i class="t-fn">computed</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">status</i>() === <i class="t-str">'failed'</i>);</span><span class="ln" data-l="12">}</span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-key">type</i> <i class="t-type"><b class="nm nm-mine" data-nm="Kind">Kind</b></i> = <i class="t-str">'paid'</i> | <i class="t-str">'pending'</i> | <i class="t-str">'failed'</i> | <i class="t-str">'refunded'</i>;</span><span class="v1"><i class="t-key">type</i> <i class="t-type"><b class="nm nm-mine" data-nm="Kind">Lemon</b></i> = <i class="t-str">'paid'</i> | <i class="t-str">'pending'</i> | <i class="t-str">'failed'</i> | <i class="t-str">'refunded'</i>;</span></span><span class="ln" data-l="2"> </span><span class="ln" data-l="3"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">StatusPill</i> {</span><span class="ln" data-l="4"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="status">status</b> = <b class="nm nm-ng" data-nm="input">input</b>.required&lt;<i class="t-type"><b class="nm nm-mine" data-nm="Kind">Kind</b></i>&gt;();</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="status">pepper</b> = <b class="nm nm-ng" data-nm="input">input</b>.required&lt;<i class="t-type"><b class="nm nm-mine" data-nm="Kind">Lemon</b></i>&gt;();</span></span><span class="ln" data-l="5"> </span><span class="ln" data-l="6"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="label">label</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; ({</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="label">carrot</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; ({</span></span><span class="ln" data-l="7">    paid: <i class="t-str">'Paid'</i>, pending: <i class="t-str">'Awaiting payment'</i>,</span><span class="ln" data-l="8">    failed: <i class="t-str">'Payment failed'</i>, refunded: <i class="t-str">'Refunded'</i>,</span><span class="ln" data-l="9"><span class="v0">  }[<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="status">status</b></i>()]));</span><span class="v1">  }[<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="status">pepper</b></i>()]));</span></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="needsAttention">needsAttention</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="status">status</b></i>() === <i class="t-str">'failed'</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="needsAttention">biscuit</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="computed">computed</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="status">pepper</b></i>() === <i class="t-str">'failed'</i>);</span></span><span class="ln" data-l="12">}</span></pre>
       </div>
       <div class="fc" data-file="sp2" data-lang="html">
         <div class="fc-h"><span class="d"></span>status-pill.component.html<span class="tag"><span class="l-en">no logic</span><span class="l-ar" dir="auto">من غير منطق</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;span</i> <i class="t-attr">class</i>=<i class="t-str">"pill"</i></span><span class="ln" data-l="2">      <i class="t-bind">[class]</i>=<i class="t-str">"'pill--' + status()"</i></span><span class="ln" data-l="3">      <i class="t-bind">[class.pulse]</i>=<i class="t-str">"needsAttention()"</i></span><span class="ln" data-l="4">      <i class="t-bind">[attr.aria-label]</i>=<i class="t-str">"label()"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5">  <i class="t-bind">{{ label() }}</i></span><span class="ln" data-l="6"><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;span</i> <i class="t-attr"><b class="nm nm-ng" data-nm="class">class</b></i>=<i class="t-str">"pill"</i></span><span class="ln" data-l="2"><span class="v0">      <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>]</i>=<i class="t-str">"'pill--' + <b class="nm nm-pub" data-nm="status">status</b>()"</i></span><span class="v1">      <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>]</i>=<i class="t-str">"'pill--' + <b class="nm nm-pub" data-nm="status">pepper</b>()"</i></span></span><span class="ln" data-l="3"><span class="v0">      <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="pulse">pulse</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="needsAttention">needsAttention</b>()"</i></span><span class="v1">      <i class="t-bind">[<b class="nm nm-ng" data-nm="class">class</b>.<b class="nm nm-pub" data-nm="pulse">pickle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="needsAttention">biscuit</b>()"</i></span></span><span class="ln" data-l="4"><span class="v0">      <i class="t-bind">[attr.aria-label]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="label">label</b>()"</i><i class="t-tag">&gt;</i></span><span class="v1">      <i class="t-bind">[attr.aria-label]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="label">carrot</b>()"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="5"><span class="v0">  <i class="t-bind">{{ <b class="nm nm-mine" data-nm="label">label</b>() }}</i></span><span class="v1">  <i class="t-bind">{{ <b class="nm nm-mine" data-nm="label">carrot</b>() }}</i></span></span><span class="ln" data-l="6"><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></pre>
       </div></div>
   </div>
 
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">In <code>[class.sold-out]="stock() === 0"</code> there are three owners: <code>class</code> is the browser’s, <code>sold-out</code> is a CSS class name you share with your stylesheet, and <code>stock</code> is your component’s. The <code>ng…</code> directive names are all Angular’s.</span><span class="l-ar" dir="auto">في <code>[class.sold-out]="stock() === 0"</code> فيه تلات أصحاب: <code>class</code> بتاعة المتصفح، و<code>sold-out</code> اسم CSS class متشارك بينك وبين الـ stylesheet بتاعك، و<code>stock</code> بتاعة الـ component بتاعك. وأسماء الـ directives اللي بتبدأ بـ <code>ng…</code> كلها بتاعة أنجولار.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="class">
+        <td><b class="nm nm-ng" data-nm="class">class</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s <code>class</code> attribute. <code>[class]</code> and <code>[class.x]</code> are Angular’s way to bind it.</span><span class="l-ar" dir="auto">الـ attribute <code>class</code> بتاع المتصفح. و<code>[class]</code> و<code>[class.x]</code> طريقة أنجولار إنها تربطه.</span></td>
+        <td class="nmfiles"><code>the modern way — nothing to import</code> <code>status-pill.component.html</code></td>
+      </tr>
+      <tr data-nmrow="style">
+        <td><b class="nm nm-ng" data-nm="style">style</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s <code>style</code> attribute. The CSS property after the dot (<code>width</code>, <code>color</code>) is the browser’s too.</span><span class="l-ar" dir="auto">الـ attribute <code>style</code> بتاع المتصفح. والـ CSS property اللي بعد النقطة (<code>width</code> و<code>color</code>) بتاعة المتصفح برضه.</span></td>
+        <td class="nmfiles"><code>the modern way — nothing to import</code></td>
+      </tr>
+      <tr data-nmrow="ngClass">
+        <td><b class="nm nm-ng" data-nm="ngClass">ngClass</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s older class directive. Needs <code>NgClass</code> in <code>imports</code>.</span><span class="l-ar" dir="auto">الـ directive القديم بتاع أنجولار للـ classes. محتاج <code>NgClass</code> في <code>imports</code>.</span></td>
+        <td class="nmfiles"><code>ngClass / ngStyle — the older API</code></td>
+      </tr>
+      <tr data-nmrow="ngStyle">
+        <td><b class="nm nm-ng" data-nm="ngStyle">ngStyle</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s older style directive. Needs <code>NgStyle</code> in <code>imports</code>.</span><span class="l-ar" dir="auto">الـ directive القديم بتاع أنجولار للـ styles. محتاج <code>NgStyle</code> في <code>imports</code>.</span></td>
+        <td class="nmfiles"><code>ngClass / ngStyle — the older API</code></td>
+      </tr>
+      <tr data-nmrow="ngSrc">
+        <td><b class="nm nm-ng" data-nm="ngSrc">ngSrc</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en"><code>NgOptimizedImage</code>’s attribute, used instead of <code>src</code>.</span><span class="l-ar" dir="auto">الـ attribute بتاع <code>NgOptimizedImage</code>، بيتكتب بدل <code>src</code>.</span></td>
+        <td class="nmfiles"><code>the other built-ins worth knowing</code></td>
+      </tr>
+      <tr data-nmrow="ng-container">
+        <td><b class="nm nm-ng" data-nm="ng-container">ng-container</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s invisible tag: it holds a directive without adding an element to the page.</span><span class="l-ar" dir="auto">تاج أنجولار اللي مش بيظهر: بيشيل directive من غير ما يزوّد عنصر في الصفحة.</span></td>
+        <td class="nmfiles"><code>the other built-ins worth knowing</code></td>
+      </tr>
+      <tr data-nmrow="ngTemplateOutlet">
+        <td><b class="nm nm-ng" data-nm="ngTemplateOutlet">ngTemplateOutlet</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s directive that renders a template you captured.</span><span class="l-ar" dir="auto">الـ directive بتاع أنجولار اللي بيعرض template انت مسكته قبل كده.</span></td>
+        <td class="nmfiles"><code>the other built-ins worth knowing</code></td>
+      </tr>
+      <tr data-nmrow="$implicit">
+        <td><b class="nm nm-ng" data-nm="$implicit">$implicit</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s fixed key for the default value handed to the template.</span><span class="l-ar" dir="auto">مفتاح ثابت من أنجولار للقيمة الافتراضية اللي بتتبعت للـ template.</span></td>
+        <td class="nmfiles"><code>the other built-ins worth knowing</code></td>
+      </tr>
+      <tr data-nmrow="ngComponentOutlet">
+        <td><b class="nm nm-ng" data-nm="ngComponentOutlet">ngComponentOutlet</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s directive that renders a component chosen at runtime.</span><span class="l-ar" dir="auto">الـ directive بتاع أنجولار اللي بيعرض component بيتختار وقت التشغيل.</span></td>
+        <td class="nmfiles"><code>the other built-ins worth knowing</code></td>
+      </tr>
+      <tr data-nmrow="routerLink">
+        <td><b class="nm nm-ng" data-nm="routerLink">routerLink</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s link directive.</span><span class="l-ar" dir="auto">الـ directive بتاع أنجولار للينكات.</span></td>
+        <td class="nmfiles"><code>the other built-ins worth knowing</code></td>
+      </tr>
+      <tr data-nmrow="routerLinkActive">
+        <td><b class="nm nm-ng" data-nm="routerLinkActive">routerLinkActive</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s directive that adds a CSS class while the link’s route is active. The class name you give it is yours.</span><span class="l-ar" dir="auto">الـ directive بتاع أنجولار اللي بيزوّد CSS class طول ما الـ route بتاع اللينك شغال. اسم الـ class اللي بتدّيهوله بتاعك.</span></td>
+        <td class="nmfiles"><code>the other built-ins worth knowing</code></td>
+      </tr>
+      <tr data-nmrow="input">
+        <td><b class="nm nm-ng" data-nm="input">input</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that creates an input.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتعمل input.</span></td>
+        <td class="nmfiles"><code>badge.component.ts</code> <code>status-pill.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="computed">
+        <td><b class="nm nm-ng" data-nm="computed">computed</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s derived signal.</span><span class="l-ar" dir="auto">الـ signal المشتقة بتاعة أنجولار.</span></td>
+        <td class="nmfiles"><code>badge.component.ts</code> <code>status-pill.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="sold-out">
+        <td><b class="nm nm-pub" data-nm="sold-out">sold-out</b><span class="nmas">&rarr; <code>sold-banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your CSS class name. The template and the stylesheet must spell it the same.</span><span class="l-ar" dir="auto">اسم الـ CSS class بتاعك. التمبلت والـ stylesheet لازم يكتبوه زي بعض.</span></td>
+        <td class="nmfiles"><code>the modern way — nothing to import</code> <code>ngClass / ngStyle — the older API</code></td>
+      </tr>
+      <tr data-nmrow="featured">
+        <td><b class="nm nm-pub" data-nm="featured">featured</b><span class="nmas">&rarr; <code>potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your CSS class name, shared with the stylesheet. <code>.featured</code> in the class is a separate thing: a field on your product data.</span><span class="l-ar" dir="auto">اسم الـ CSS class بتاعك، متشارك مع الـ stylesheet. و<code>.featured</code> اللي في الكلاس حاجة تانية: field في داتا المنتج.</span></td>
+        <td class="nmfiles"><code>the modern way — nothing to import</code> <code>ngClass / ngStyle — the older API</code></td>
+      </tr>
+      <tr data-nmrow="badge">
+        <td><b class="nm nm-pub" data-nm="badge">badge</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your CSS class name, shared with the stylesheet.</span><span class="l-ar" dir="auto">اسم الـ CSS class بتاعك، متشارك مع الـ stylesheet.</span></td>
+        <td class="nmfiles"><code>the modern way — nothing to import</code> <code>ngClass / ngStyle — the older API</code></td>
+      </tr>
+      <tr data-nmrow="pulse">
+        <td><b class="nm nm-pub" data-nm="pulse">pulse</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your CSS class name, shared with the stylesheet.</span><span class="l-ar" dir="auto">اسم الـ CSS class بتاعك، متشارك مع الـ stylesheet.</span></td>
+        <td class="nmfiles"><code>status-pill.component.html</code></td>
+      </tr>
+      <tr data-nmrow="active">
+        <td><b class="nm nm-pub" data-nm="active">active</b><span class="nmas">&rarr; <code>waffle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your CSS class name. <code>routerLinkActive</code> adds it; your stylesheet styles it.</span><span class="l-ar" dir="auto">اسم الـ CSS class بتاعك. <code>routerLinkActive</code> بيزوّده، والـ stylesheet بتاعك بيدّيه الشكل.</span></td>
+        <td class="nmfiles"><code>the other built-ins worth knowing</code></td>
+      </tr>
+      <tr data-nmrow="stock">
+        <td><b class="nm nm-mine" data-nm="stock">stock</b><span class="nmas">&rarr; <code>noodle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A computed in the component. <code>.stock</code> after <code>product()</code> is your data field, not this.</span><span class="l-ar" dir="auto">computed في الـ component. و<code>.stock</code> اللي بعد <code>product()</code> هو الـ field بتاع الداتا، مش ده.</span></td>
+        <td class="nmfiles"><code>the modern way — nothing to import</code> <code>ngClass / ngStyle — the older API</code> <code>badge.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="isFeatured">
+        <td><b class="nm nm-mine" data-nm="isFeatured">isFeatured</b><span class="nmas">&rarr; <code>pumpkin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A computed in the component.</span><span class="l-ar" dir="auto">computed في الـ component.</span></td>
+        <td class="nmfiles"><code>the modern way — nothing to import</code> <code>ngClass / ngStyle — the older API</code> <code>badge.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="isNew">
+        <td><b class="nm nm-mine" data-nm="isNew">isNew</b><span class="nmas">&rarr; <code>turnip</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A computed in the component.</span><span class="l-ar" dir="auto">computed في الـ component.</span></td>
+        <td class="nmfiles"><code>the modern way — nothing to import</code> <code>badge.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="kind">
+        <td><b class="nm nm-mine" data-nm="kind">kind</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A computed in the component.</span><span class="l-ar" dir="auto">computed في الـ component.</span></td>
+        <td class="nmfiles"><code>the modern way — nothing to import</code> <code>ngClass / ngStyle — the older API</code> <code>badge.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="percent">
+        <td><b class="nm nm-mine" data-nm="percent">percent</b><span class="nmas">&rarr; <code>taco</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own signal. The <code>%</code> unit sits in the binding, not in the value.</span><span class="l-ar" dir="auto">الـ signal بتاعة الـ component. وحدة الـ <code>%</code> مكتوبة في الـ binding، مش في القيمة.</span></td>
+        <td class="nmfiles"><code>the modern way — nothing to import</code> <code>ngClass / ngStyle — the older API</code></td>
+      </tr>
+      <tr data-nmrow="rowTpl">
+        <td><b class="nm nm-mine" data-nm="rowTpl">rowTpl</b><span class="nmas">&rarr; <code>kiwi</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A template reference (<code>#rowTpl</code>) captured earlier in the same template.</span><span class="l-ar" dir="auto">template reference (<code>#rowTpl</code>) اتمسك قبل كده في نفس التمبلت.</span></td>
+        <td class="nmfiles"><code>the other built-ins worth knowing</code></td>
+      </tr>
+      <tr data-nmrow="product">
+        <td><b class="nm nm-pub" data-nm="product">product</b><span class="nmas">&rarr; <code>donut</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The badge’s input: the parent sets it with <code>[product]</code>.</span><span class="l-ar" dir="auto">الـ input بتاع البادج: الأب بيحطه بـ <code>[product]</code>.</span></td>
+        <td class="nmfiles"><code>badge.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="status">
+        <td><b class="nm nm-pub" data-nm="status">status</b><span class="nmas">&rarr; <code>pepper</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The pill’s input: the parent sets it with <code>[status]</code>.</span><span class="l-ar" dir="auto">الـ input بتاع الـ pill: الأب بيحطه بـ <code>[status]</code>.</span></td>
+        <td class="nmfiles"><code>status-pill.component.ts</code> <code>status-pill.component.html</code></td>
+      </tr>
+      <tr data-nmrow="Kind">
+        <td><b class="nm nm-mine" data-nm="Kind">Kind</b><span class="nmas">&rarr; <code>Lemon</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your type, not exported, so only this file uses it.</span><span class="l-ar" dir="auto">الـ type بتاعك، مش معمول له export، فالملف ده بس اللي بيستخدمه.</span></td>
+        <td class="nmfiles"><code>status-pill.component.ts</code></td>
+      </tr>
+      <tr data-nmrow="label">
+        <td><b class="nm nm-mine" data-nm="label">label</b><span class="nmas">&rarr; <code>carrot</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A computed in the component.</span><span class="l-ar" dir="auto">computed في الـ component.</span></td>
+        <td class="nmfiles"><code>status-pill.component.ts</code> <code>status-pill.component.html</code></td>
+      </tr>
+      <tr data-nmrow="needsAttention">
+        <td><b class="nm nm-mine" data-nm="needsAttention">needsAttention</b><span class="nmas">&rarr; <code>biscuit</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A computed in the component.</span><span class="l-ar" dir="auto">computed في الـ component.</span></td>
+        <td class="nmfiles"><code>status-pill.component.ts</code> <code>status-pill.component.html</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="built-in-directives-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en"><code>[class]</code> and <code>[style]</code>, name by name</span><span class="l-ar" dir="auto"><code>[class]</code> و<code>[style]</code>، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">The page for when <code>[class.sold-out]="soldOut()"</code> looks like three names glued together. It is: one is the browser’s, one is shared with your stylesheet, one is your component’s. One badge followed through four files, then what breaks when you rename each part.</span><span class="l-ar" dir="auto">الصفحة دي للي شايف <code>[class.sold-out]="soldOut()"</code> كأنها تلات أسماء لازقين في بعض. وهي فعلًا كده: واحد بتاع المتصفح، وواحد متشارك مع الـ stylesheet بتاعك، وواحد بتاع الـ component بتاعك. بادج واحد ماشيين وراه في أربع ملفات، وبعدين إيه اللي بيبوظ لما تغيّر كل حتة.</span></span>
+  </a>
+
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
-    <ul><li><span class="l-en">A class name with a dash needs quotes inside an object: <code class="i">{ 'sold-out': true }</code>. Without them it is a syntax error.</span><span class="l-ar" dir="auto">اسم الـ class اللي فيه شرطة محتاج علامات تنصيص جوه الـ object: <code class="i">{ 'sold-out': true }</code>. ومن غيرها بيبقى syntax error.</span></li><li><span class="l-en"><code class="i">[class]</code> with a string <b>replaces</b> the bound classes each time. If you are building a string with <code class="i">+</code>, an object is almost always clearer.</span><span class="l-ar" dir="auto"><code class="i">[class]</code> بنص بت<b>ستبدل</b> الـ classes المربوطة كل مرة. ولو بتبني نص بـ <code class="i">+</code>، الـ object تقريباً دايماً أوضح.</span></li><li><span class="l-en">Setting a style to <code class="i">null</code> removes it. Setting it to <code class="i">''</code> or <code class="i">undefined</code> also works, but <code class="i">null</code> is the explicit way to say “no value”.</span><span class="l-ar" dir="auto">لما تحط استايل بـ <code class="i">null</code> بيتشال. و<code class="i">''</code> أو <code class="i">undefined</code> بيشتغلوا كمان، بس <code class="i">null</code> هي الطريقة الصريحة اللي معناها «مفيش قيمة».</span></li><li><span class="l-en"><code class="i">NgOptimizedImage</code> requires <code class="i">width</code> and <code class="i">height</code>, and refuses to work without them. That is deliberate — it is what prevents layout shift.</span><span class="l-ar" dir="auto"><code class="i">NgOptimizedImage</code> محتاج <code class="i">width</code> و<code class="i">height</code>، ومش بيشتغل من غيرهم. وده مقصود — هو اللي بيمنع الـ layout shift.</span></li><li><span class="l-en">Forgetting <code class="i">NgClass</code> in <code class="i">imports</code> fails <b>silently</b> — the attribute is just ignored. This is a good reason to prefer <code class="i">[class]</code>, which cannot be forgotten.</span><span class="l-ar" dir="auto">نسيان <code class="i">NgClass</code> في <code class="i">imports</code> بيفشل <b>في صمت</b> — الخاصية بتتجاهل وخلاص. وده سبب كويس إنك تفضّل <code class="i">[class]</code>، اللي مستحيل تنساها.</span></li></ul>
+    <ul><li><span class="l-en">A class name with a dash needs quotes inside an object: <code class="i">{ 'sold-out': true }</code>. Without them it is a syntax error.</span><span class="l-ar" dir="auto">اسم الـ class اللي فيه شرطة محتاج علامات تنصيص جوه الـ object: <code class="i">{ 'sold-out': true }</code>. ومن غيرها بيبقى syntax error.</span></li><li><span class="l-en"><code class="i">[class]</code> with a string <b>replaces</b> the bound classes each time. If you are building a string with <code class="i">+</code>, an object is almost always clearer.</span><span class="l-ar" dir="auto"><code class="i">[class]</code> بنص بت<b>ستبدل</b> الـ classes المربوطة كل مرة. ولو بتبني نص بـ <code class="i">+</code>، الـ object تقريباً دايماً أوضح.</span></li><li><span class="l-en">Setting a style to <code class="i">null</code> removes it. Setting it to <code class="i">''</code> or <code class="i">undefined</code> also works, but <code class="i">null</code> is the explicit way to say “no value”.</span><span class="l-ar" dir="auto">لما تحط استايل بـ <code class="i">null</code> بيتشال. و<code class="i">''</code> أو <code class="i">undefined</code> بيشتغلوا كمان، بس <code class="i">null</code> هي الطريقة الصريحة اللي معناها «مفيش قيمة».</span></li><li><span class="l-en"><code class="i">NgOptimizedImage</code> requires <code class="i">width</code> and <code class="i">height</code>, and refuses to work without them. That is deliberate — it is what prevents layout shift.</span><span class="l-ar" dir="auto"><code class="i">NgOptimizedImage</code> محتاج <code class="i">width</code> و<code class="i">height</code>، ومش بيشتغل من غيرهم. وده مقصود — هو اللي بيمنع الـ layout shift.</span></li><li><span class="l-en">Forgetting <code class="i">NgClass</code> in <code class="i">imports</code> stops the build with a confusing message: <i>“Can't bind to 'ngClass' since it isn't a known property”</i>. It is not a typo in <code class="i">ngClass</code>; it is the missing import. <code class="i">[class]</code> needs no import at all, which is a good reason to prefer it.</span><span class="l-ar" dir="auto">نسيان <code class="i">NgClass</code> في <code class="i">imports</code> بيوقف الـ build برسالة ملخبطة: <i>«Can't bind to 'ngClass' since it isn't a known property»</i>. المشكلة مش غلطة في كتابة <code class="i">ngClass</code>؛ المشكلة إن الـ import ناقص. و<code class="i">[class]</code> مش محتاجة import خالص، وده سبب كويس إنك تفضّلها.</span></li></ul>
   </div>
 
   
@@ -790,8 +1073,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../beginner/07-control-flow.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en">The template finally got a real <code>if</code></span><span class="l-ar" dir="auto">التمبلت أخيراً بقى فيه <code>if</code> حقيقي</span></b></a>
-    <a class="nx" href="../beginner/09-built-in-pipes.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Built-in pipes: date, currency, async and the rest</span><span class="l-ar" dir="auto">الـ pipes الجاهزة: التاريخ والعملة والـ async والباقي</span></b></a>
+    <a class="pv" href="../beginner/control-flow-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en"><code>@if</code> and <code>@for</code>, name by name</span><span class="l-ar" dir="auto"><code>@if</code> و<code>@for</code>، اسم اسم</span></b></a>
+    <a class="nx" href="../beginner/built-in-directives-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en"><code>[class]</code> and <code>[style]</code>, name by name</span><span class="l-ar" dir="auto"><code>[class]</code> و<code>[style]</code>، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -833,6 +1116,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){

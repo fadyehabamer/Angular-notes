@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>output(), name by name — The Angular Signal</title>
+<meta name="description" content="If outputs confuse you, it is almost never the idea. The idea is simple: the child shouts, the parent decides what to do about it. The confusing part is the names. Four or five of ">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Cairo:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--c:var(--beg)}
+/* ============================================================
+   Two skins, one set of names. Light is the default; the top-bar
+   switch stamps data-theme="dark" on the root element, and only the
+   below change. Never hard-code a colour outside these blocks.
+   ============================================================ */
+:root{
+  color-scheme:light;
+  /* surfaces */
+  --bg:#f3f4fb; --bg2:#eaecf7; --card:#ffffff; --card2:#f7f8fd; --code:#fbfbff;
+  --line:rgba(23,27,64,.14); --line2:rgba(23,27,64,.08);
+  --sunk:rgba(23,27,64,.03); --sunk2:rgba(23,27,64,.05); --hover:rgba(23,27,64,.05);
+  --chip:rgba(23,27,64,.065); --chipink:#3a3f70;
+  --topbg:rgba(248,249,254,.84);
+  --wire:rgba(23,27,64,.24); --dotbg:rgba(23,27,64,.17);
+  --nodesh:0 12px 26px -20px rgba(23,27,64,.55), inset 0 1px 0 #fff;
+  --glow1:9%; --glow2:5%;
+  /* ink */
+  --ink:#12142c; --mut:#4d5480; --dim:#767d9f; --onc:#ffffff;
+  --ok:#0a8f5b; --no:#c62348;   /* quiz: right / wrong */
+  /* track accents — darkened so they carry on paper */
+  --beg:#0c9280;    /* track 1 */
+  --int:#5b3ad4;    /* track 2 */
+  --adv:#c60059;    /* track 3 */
+  --ts:#1566cc; --js:#9a6410; --html:#c04d1a; --svc:#8a5f00; --cfg:#5b3ad4;
+  /* syntax */
+  --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
+  --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
+  --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
+  --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0b0d1c; --bg2:#101430; --card:#141935; --card2:#171d3d; --code:transparent;
+  --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.055);
+  --sunk:rgba(255,255,255,.03); --sunk2:rgba(255,255,255,.05); --hover:rgba(255,255,255,.04);
+  --chip:rgba(255,255,255,.07); --chipink:#cfd6ff;
+  --topbg:rgba(8,10,22,.72);
+  --wire:rgba(255,255,255,.13); --dotbg:rgba(255,255,255,.16);
+  --nodesh:0 10px 26px -18px #000, inset 0 1px 0 rgba(255,255,255,.05);
+  --glow1:16%; --glow2:8%;
+  --ink:#eceefb; --mut:#98a0c8; --dim:#69719e; --onc:#0b0d1c;
+  --ok:#3ddc97; --no:#ff5470;
+  --beg:#2ee6c5; --int:#8b6cff; --adv:#ff2e88;
+  --ts:#4a9eff; --js:#ffc857; --html:#ff7a45; --svc:#ffb020; --cfg:#8b6cff;
+  --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
+  --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
+  --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:
+    radial-gradient(1100px 700px at 78% -10%,color-mix(in srgb,var(--c) var(--glow1),transparent),transparent 62%),
+    radial-gradient(900px 600px at 4% 108%,color-mix(in srgb,var(--adv) var(--glow2),transparent),transparent 62%),
+    var(--bg);
+  color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--c);color:var(--onc)}
+:focus-visible{outline:2px solid var(--c);outline-offset:3px;border-radius:6px}
+a{color:var(--c)}
+code.i{font-family:var(--mono);font-size:.9em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+
+/* ---------- language ---------- */
+:root[data-lang="en"] .l-ar{display:none !important}
+:root[data-lang="ar"] .l-en{display:none !important}
+:root[dir="rtl"]{
+  --disp:'Cairo','IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+  --body:'IBM Plex Sans Arabic',ui-sans-serif,system-ui,sans-serif;
+}
+:root[dir="rtl"] h1.title{line-height:1.32;letter-spacing:0}
+:root[dir="rtl"] .lead{font-size:15px;line-height:1.75}
+:root[dir="rtl"] .num,:root[dir="rtl"] .badge{letter-spacing:.04em}
+/* keep neighbouring runs from reordering each other in RTL */
+.kick span,.cover-top span{unicode-bidi:isolate}
+/* diagrams and code always read left-to-right */
+.stage,.files,pre,.mono{direction:ltr}
+/* a Latin run next to Arabic must not lend its brackets to the wrong side */
+code{direction:ltr;unicode-bidi:isolate}
+
+/* ---------- top bar ---------- */
+.top{
+  position:sticky;top:0;z-index:40;background:var(--topbg);
+  backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);
+  border-bottom:1px solid var(--line2);
+}
+.top-in{
+  max-width:1220px;margin:0 auto;padding:9px clamp(16px,3.4vw,40px);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.home{
+  display:inline-flex;align-items:baseline;gap:9px;text-decoration:none;white-space:nowrap;
+}
+.home b{
+  font-family:var(--disp);font-weight:800;font-size:15.5px;letter-spacing:-.02em;
+  background:linear-gradient(92deg,#e40035,#f20089 45%,#9717e2);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.home span{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase}
+.tracknav{display:flex;gap:4px;flex-wrap:wrap;margin-inline-start:6px}
+.tracknav a{
+  font-size:12.5px;font-weight:600;text-decoration:none;color:var(--dim);
+  padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+}
+.tracknav a i{width:7px;height:7px;border-radius:99px;background:currentColor;display:block;flex:none}
+.tracknav a:hover{color:var(--mut);background:var(--hover)}
+.tracknav a[aria-current="page"]{color:var(--onc);background:var(--c)}
+.top-right{display:flex;align-items:center;gap:8px;margin-inline-start:auto}
+.seg{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:var(--hover)}
+.seg button{
+  appearance:none;border:0;background:none;cursor:pointer;padding:5px 12px;
+  font-family:var(--body);font-size:12.5px;font-weight:600;color:var(--dim);line-height:1.5;
+}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--c);color:var(--onc)}
+
+/* ---------- article shell ---------- */
+.page{max-width:1220px;margin:0 auto;padding:clamp(24px,3.6vw,44px) clamp(16px,3.4vw,40px) 0}
+.eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.num{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.16em}
+/* a numeric counter must not be reordered by the bidi algorithm */
+.num.seq{direction:ltr;unicode-bidi:isolate}
+:root[dir="rtl"] .num:not(.seq){font-family:var(--body);letter-spacing:0;font-size:12.5px}
+.badge{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 10px;border-radius:99px;border:1px solid currentColor;color:var(--c);
+  background:color-mix(in srgb,var(--c) 12%,transparent);
+}
+:root[dir="rtl"] .badge{font-family:var(--body);font-weight:600;text-transform:none;font-size:11.5px}
+h1.title{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.03em;line-height:1.02;
+  font-size:clamp(28px,4vw,46px);margin:0 0 10px;text-wrap:balance;
+}
+h1.title code{font-family:var(--mono);font-size:.82em;font-weight:600;color:var(--c);letter-spacing:0}
+.lead{color:var(--mut);max-width:74ch;margin:0 0 22px;font-size:15.5px;text-wrap:pretty}
+.lead b{color:var(--ink);font-weight:600}
+
+/* ---------- stage / diagram ---------- */
+.stage{position:relative;margin:6px 0 4px;padding:26px 8px;display:flex;flex-direction:column;gap:74px}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.row{display:flex;justify-content:center;gap:clamp(92px,7vw,120px);flex-wrap:wrap;position:relative;z-index:2}
+.node{
+  background:linear-gradient(180deg,var(--card2),var(--card));
+  border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:172px;
+  box-shadow:var(--nodesh);
+  transition:border-color .3s,box-shadow .3s,transform .3s;
+}
+.node .role{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:3px;font-family:var(--mono)}
+:root[dir="rtl"] .node .role{font-family:var(--body);font-size:11px;letter-spacing:0;text-transform:none}
+:root[dir="rtl"] .home span{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .fc-h .tag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .pager a em{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+:root[dir="rtl"] .stepbar .cap span.n{direction:ltr;unicode-bidi:isolate}
+.node .file{font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--ink);white-space:nowrap;display:block}
+.node[data-kind="ts"] .file b{color:var(--ts)}
+.node[data-kind="html"] .file b{color:var(--html)}
+.node[data-kind="svc"] .file b{color:var(--svc)}
+.node[data-kind="cfg"] .file b{color:var(--cfg)}
+.node.active{border-color:color-mix(in srgb,var(--c) 65%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent),0 0 34px -8px var(--c);transform:translateY(-2px)}
+.edge path.wire{fill:none;stroke:var(--wire);stroke-width:1.6}
+.edge path.head{fill:var(--wire);stroke:none}
+.edge.lit path.head{fill:var(--c)}
+.edge path.flow{fill:none;stroke:var(--c);stroke-width:2.2;stroke-dasharray:5 9;opacity:0;stroke-linecap:round}
+.edge.lit path.wire{stroke:color-mix(in srgb,var(--c) 40%,transparent)}
+.edge.lit path.flow{opacity:1;animation:march 1s linear infinite}
+@keyframes march{to{stroke-dashoffset:-28}}
+.edge text{font-family:var(--mono);font-size:10.5px;fill:var(--dim);paint-order:stroke;stroke:var(--bg);stroke-width:5px;stroke-linejoin:round}
+.edge.lit text{fill:var(--c)}
+.packet{opacity:0}
+.packet rect{fill:var(--c)}
+.packet text{font-family:var(--mono);font-size:11px;font-weight:600;fill:var(--onc);stroke:none}
+
+/* ---------- step bar ---------- */
+.stepbar{
+  display:flex;align-items:center;gap:14px;margin:8px 0 22px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk);
+}
+.stepbar .dots{display:flex;gap:6px;flex-shrink:0}
+.stepbar .dot{width:7px;height:7px;border-radius:99px;background:var(--dotbg);cursor:pointer;border:0;padding:0;transition:.2s}
+.stepbar .dot.on{background:var(--c);box-shadow:0 0 10px -1px var(--c);transform:scale(1.25)}
+.stepbar .cap{flex:1;min-width:0;font-size:14px;color:var(--ink);text-wrap:pretty}
+.stepbar .cap span.n{color:var(--dim);font-family:var(--mono);font-size:11px;margin-inline-end:8px}
+.iconbtn{
+  background:var(--sunk2);border:1px solid var(--line);color:var(--mut);
+  border-radius:8px;padding:5px 11px;font-family:var(--mono);font-size:11px;cursor:pointer;white-space:nowrap;
+}
+.iconbtn:hover{color:var(--ink);border-color:color-mix(in srgb,var(--c) 55%,transparent)}
+
+/* ---------- code cards ---------- */
+.sechead{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:28px 0 12px}
+:root[dir="rtl"] .sechead{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.files{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:14px}
+.fc{background:var(--card);border:1px solid var(--line2);border-radius:12px;overflow:hidden;transition:border-color .3s;min-width:0}
+.fc.active{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.fc-h{
+  display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid var(--line2);
+  background:var(--sunk);font-family:var(--mono);font-size:11.5px;color:var(--mut);
+}
+.fc-h .d{width:7px;height:7px;border-radius:99px;flex-shrink:0}
+.fc[data-lang="ts"] .d{background:var(--ts)}
+.fc[data-lang="html"] .d{background:var(--html)}
+.fc[data-lang="json"] .d{background:var(--svc)}
+.fc[data-lang="bash"] .d{background:var(--beg)}
+.fc-h .tag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:var(--mono);font-size:12.2px;line-height:1.72;scrollbar-width:thin}
+.ln{display:block;padding:0 15px;white-space:pre;border-left:2px solid transparent;transition:background .25s,border-color .25s}
+.ln.hl{background:color-mix(in srgb,var(--c) 13%,transparent);border-left-color:var(--c)}
+.t-key{color:var(--t-key)}.t-str{color:var(--t-str)}.t-com{color:var(--t-com);font-style:italic}
+.t-dec{color:var(--t-dec)}.t-tag{color:var(--t-tag)}.t-bind{color:var(--t-bind)}.t-num{color:var(--t-num)}
+.t-fn{color:var(--t-fn)}.t-type{color:var(--t-type)}.t-attr{color:var(--t-attr)}.t-punc{color:var(--t-punc)}
+
+/* ---------- real example ---------- */
+.example{margin-top:26px;padding-top:18px;border-top:1px solid var(--line2)}
+.exhead{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:7px}
+.extag{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);border:1px solid currentColor;border-radius:99px;padding:3px 9px;
+  background:color-mix(in srgb,var(--c) 12%,transparent);white-space:nowrap;
+}
+:root[dir="rtl"] .extag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+.exhead b{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--ink)}
+.exlead{margin:0 0 14px;color:var(--mut);font-size:14px;max-width:82ch;text-wrap:pretty}
+
+/* ---------- gotchas ---------- */
+.gotchas{margin-top:22px;border-top:1px solid var(--line2);padding-top:16px}
+.gotchas h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 10px;font-weight:500}
+:root[dir="rtl"] .gotchas h4{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
+.gotchas ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:9px 22px}
+.gotchas li{position:relative;padding-inline-start:20px;font-size:13.6px;color:var(--mut);text-wrap:pretty}
+.gotchas li::before{content:"!";position:absolute;inset-inline-start:0;top:0;font-family:var(--mono);font-size:11px;color:var(--c);font-weight:700}
+.gotchas li b{color:var(--ink);font-weight:600}
+
+/* ---------- pager ---------- */
+.pager{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin:34px 0 0;padding:22px 0 46px;border-top:1px solid var(--line2);
+}
+.pager a{
+  display:flex;flex-direction:column;gap:4px;text-decoration:none;padding:14px 16px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--card);transition:.22s;min-width:0;
+}
+.pager a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.pager a em{font-family:var(--mono);font-style:normal;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.pager a b{font-size:14.5px;color:var(--ink);font-weight:600;line-height:1.35;text-wrap:pretty}
+.pager a.nx{text-align:end;align-items:flex-end}
+.pager .void{border:1px dashed var(--line2);border-radius:12px;opacity:.35}
+@media (max-width:600px){.pager{grid-template-columns:1fr}.pager a.nx{text-align:start;align-items:flex-start}}
+
+@media (max-width:900px){
+  .row{gap:16px}
+  .node{min-width:0;flex:1 1 auto}
+  .stage{gap:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+
+/* ================= reference-document layout (TypeScript page) ============ */
+.doc{display:grid;grid-template-columns:212px minmax(0,1fr);gap:clamp(20px,3.4vw,54px);align-items:start}
+@media (max-width:940px){.doc{grid-template-columns:1fr}}
+.doc-rail{position:sticky;top:70px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;scrollbar-width:thin}
+@media (max-width:940px){.doc-rail{position:static;max-height:none;border-bottom:1px solid var(--line2);padding-bottom:14px}}
+.doc-rail b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;font-weight:500}
+:root[dir="rtl"] .doc-rail b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.doc-rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.doc-rail a{
+  display:grid;grid-template-columns:1.6rem 1fr;gap:8px;align-items:baseline;
+  text-decoration:none;color:var(--dim);font-size:13px;line-height:1.35;
+  padding:6px 9px;border-radius:7px;transition:.16s;
+}
+.doc-rail a em{font-family:var(--mono);font-style:normal;font-size:10.5px;opacity:.7}
+.doc-rail a:hover{color:var(--ink);background:var(--hover)}
+.doc-rail a.on{color:var(--onc);background:var(--c)}
+.doc-rail a.on em{opacity:.75}
+
+.sec{padding-block:clamp(26px,3.6vw,44px);border-top:1px solid var(--line2);scroll-margin-top:74px}
+.sec:first-child{border-top:0;padding-top:6px}
+.sec-kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--c);margin-bottom:8px}
+:root[dir="rtl"] .sec-kick{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px;font-weight:600}
+.sec h2{
+  font-family:var(--disp);font-weight:800;letter-spacing:-.028em;line-height:1.08;
+  font-size:clamp(23px,3vw,33px);margin:0 0 10px;text-wrap:balance;
+}
+:root[dir="rtl"] .sec h2{letter-spacing:0;line-height:1.4}
+.sec h2 code{font-family:var(--mono);font-size:.8em;font-weight:600;color:var(--c);letter-spacing:0}
+.sec > .sec-lead{color:var(--mut);max-width:74ch;margin:0 0 4px;font-size:15px;text-wrap:pretty}
+.sec > .sec-lead b{color:var(--ink);font-weight:600}
+.sec p{max-width:74ch;text-wrap:pretty;color:var(--mut)}
+.sec p b{color:var(--ink);font-weight:600}
+.sec > p{margin:18px 0 0}
+.sec .code{margin-top:18px}
+.sec ul{margin:16px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;max-width:74ch}
+.sec ul li{padding-inline-start:20px;position:relative;color:var(--mut);text-wrap:pretty}
+.sec ul li::before{content:"";position:absolute;inset-inline-start:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--c);opacity:.6}
+
+.code{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--card);min-width:0}
+.code .fc-h{background:var(--sunk)}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px;margin-top:18px}
+.code.bad{border-color:color-mix(in srgb,var(--adv) 42%,transparent)}
+.code.bad .fc-h{background:color-mix(in srgb,var(--adv) 10%,transparent)}
+.code.bad .fc-h .d{background:var(--adv)}
+.code.good{border-color:color-mix(in srgb,var(--beg) 42%,transparent)}
+.code.good .fc-h{background:color-mix(in srgb,var(--beg) 10%,transparent)}
+.code.good .fc-h .d{background:var(--beg)}
+.code .flag{margin-inline-start:auto;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.code.bad .flag{color:var(--adv)}
+.code.good .flag{color:var(--beg)}
+:root[dir="rtl"] .code .flag{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+
+.note{
+  margin-top:20px;max-width:76ch;background:color-mix(in srgb,var(--c) 8%,transparent);
+  border-inline-start:3px solid var(--c);border-radius:0 9px 9px 0;padding:13px 16px;
+}
+:root[dir="rtl"] .note{border-radius:9px 0 0 9px}
+.note b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .note b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.note p{margin:0;font-size:14.2px;color:var(--mut)}
+
+.dtbl-wrap{overflow-x:auto;border:1px solid var(--line2);border-radius:12px;margin-top:18px;background:var(--card)}
+.dtbl{width:100%;border-collapse:collapse;font-size:13.6px;min-width:640px}
+.dtbl th{
+  text-align:start;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);font-weight:500;padding:10px 14px;border-bottom:1px solid var(--line);
+  background:var(--sunk);white-space:nowrap;
+}
+:root[dir="rtl"] .dtbl th{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px;font-weight:600}
+.dtbl td{padding:11px 14px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--mut);line-height:1.55}
+.dtbl tr:last-child td{border-bottom:0}
+.dtbl td:first-child{color:var(--ink);font-family:var(--mono);font-size:12px}
+
+/* ========================= roadmap page ========================= */
+.verdict{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin:26px 0 8px}
+.verdict div{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.verdict b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:8px;font-weight:600}
+:root[dir="rtl"] .verdict b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.verdict p{margin:0;color:var(--mut);font-size:14.2px;line-height:1.6;text-wrap:pretty}
+
+.phase{position:relative;padding:0 0 0 clamp(22px,3vw,42px);margin-top:clamp(24px,3.4vw,38px)}
+:root[dir="rtl"] .phase{padding:0 clamp(22px,3vw,42px) 0 0}
+.phase::before{content:"";position:absolute;inset-inline-start:0;top:6px;bottom:0;width:2px;background:linear-gradient(180deg,var(--c),transparent)}
+.phase-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.phase-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 8px;font-weight:600;direction:ltr}
+.phase-h h3{margin:0;font-family:var(--disp);font-weight:800;font-size:clamp(20px,2.6vw,27px);letter-spacing:-.02em;color:var(--ink)}
+:root[dir="rtl"] .phase-h h3{letter-spacing:0;line-height:1.4}
+.phase-when{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em;direction:ltr;unicode-bidi:isolate}
+.phase-goal{margin:0 0 14px;color:var(--mut);max-width:72ch;font-size:14.6px;text-wrap:pretty}
+.phase-list{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:14px}
+.phase-list a{
+  display:grid;grid-template-columns:1.8rem 1fr;gap:9px;align-items:baseline;text-decoration:none;
+  padding:8px 11px;border-radius:8px;border:1px solid var(--line2);background:var(--card);transition:.18s;min-width:0;
+}
+.phase-list a em{font-family:var(--mono);font-style:normal;font-size:10.5px;color:var(--dim)}
+.phase-list a span{font-size:13.6px;color:var(--ink);line-height:1.35;text-wrap:pretty}
+.phase-list a span code{font-family:var(--mono);font-size:.86em;color:var(--c)}
+.phase-list a:hover{border-color:color-mix(in srgb,var(--c) 50%,transparent);background:var(--card2)}
+.phase-build{
+  border-inline-start:3px solid var(--c);background:color-mix(in srgb,var(--c) 7%,transparent);
+  border-radius:0 9px 9px 0;padding:12px 15px;max-width:72ch;
+}
+:root[dir="rtl"] .phase-build{border-radius:9px 0 0 9px}
+.phase-build b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .phase-build b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.phase-build p{margin:0;color:var(--mut);font-size:14px;line-height:1.6;text-wrap:pretty}
+
+.gap{margin-top:16px;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.gap section{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--card);min-width:0}
+.gap h4{margin:0 0 10px;font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.3;text-wrap:pretty}
+.gap ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.gap li{padding-inline-start:19px;position:relative;font-size:13.4px;color:var(--mut);line-height:1.5;text-wrap:pretty}
+.gap li::before{content:"○";position:absolute;inset-inline-start:0;top:0;font-size:10px;color:var(--c);opacity:.7}
+.gap li code{font-family:var(--mono);font-size:.88em;background:var(--chip);padding:1px 4px;border-radius:3px;color:var(--chipink)}
+
+.advice{margin-top:16px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.advice div{border-top:2px solid var(--c);padding-top:12px;min-width:0}
+.advice b{display:block;font-family:var(--disp);font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px;letter-spacing:-.015em}
+:root[dir="rtl"] .advice b{letter-spacing:0}
+.advice p{margin:0;color:var(--mut);font-size:13.8px;line-height:1.6;text-wrap:pretty}
+
+/* ---------- theme switch (icon segment) ---------- */
+.seg.ico button{padding:5px 10px;display:grid;place-items:center}
+.seg.ico svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block}
+@media (max-width:820px){.seg.ico{order:2}}
+
+/* ================= beginner scaffolding on every topic ================= */
+/* three plain-language cards that sit above the technical diagram */
+.plain{display:grid;gap:12px;grid-template-columns:1.4fr 1fr 1fr;margin:2px 0 26px}
+@media (max-width:900px){.plain{grid-template-columns:1fr}}
+.pc{
+  border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);
+  min-width:0;display:flex;flex-direction:column;gap:9px;
+}
+.pc.say{background:color-mix(in srgb,var(--c) 7%,var(--card));border-color:color-mix(in srgb,var(--c) 26%,transparent)}
+.pc .ph{display:flex;align-items:center;gap:8px}
+.pc .ph svg{width:16px;height:16px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pc .ph b{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);font-weight:600}
+:root[dir="rtl"] .pc .ph b{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.pc p{margin:0;font-size:14.2px;color:var(--mut);line-height:1.62;text-wrap:pretty}
+.pc p b{color:var(--ink);font-weight:600}
+.pc p code{font-family:var(--mono);font-size:.87em;background:var(--chip);padding:1px 5px;border-radius:4px;color:var(--chipink)}
+.pc.say p{font-size:16px;color:var(--ink)}
+
+/* the idea, as a strip of pictures */
+.strip{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(188px,1fr));margin:2px 0 4px}
+.sp{position:relative;border:1px solid var(--line2);border-radius:14px;padding:15px 16px 14px;background:var(--card);min-width:0}
+.sp .plate{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:11px;
+  background:color-mix(in srgb,var(--c) 13%,transparent);border:1px solid color-mix(in srgb,var(--c) 20%,transparent);
+}
+.sp .plate svg{width:21px;height:21px;stroke:var(--c);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sp b{display:block;font-size:14.5px;color:var(--ink);font-weight:600;margin-bottom:4px;line-height:1.32;text-wrap:pretty}
+.sp p{margin:0;font-size:13.3px;color:var(--mut);line-height:1.55;text-wrap:pretty}
+.sp p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+.sp::after{
+  content:"";position:absolute;top:30px;right:-15px;width:11px;height:11px;
+  border-top:1.6px solid var(--line);border-right:1.6px solid var(--line);
+  transform:rotate(45deg);z-index:2;
+}
+:root[dir="rtl"] .sp::after{right:auto;left:-15px;transform:rotate(-135deg)}
+.sp:last-child::after{display:none}
+@media (max-width:760px){.sp::after{display:none}}
+
+/* the single sentence worth memorising */
+.oneline{
+  margin-top:26px;display:flex;gap:14px;align-items:flex-start;border-radius:14px;padding:16px 19px;
+  border:1px solid color-mix(in srgb,var(--c) 30%,transparent);
+  background:color-mix(in srgb,var(--c) 8%,transparent);
+}
+.oneline > svg{width:22px;height:22px;flex:none;stroke:var(--c);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin-top:3px}
+.oneline b.lbl{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);margin-bottom:5px;font-weight:600}
+:root[dir="rtl"] .oneline b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.oneline p{margin:0;font-size:15px;color:var(--ink);line-height:1.62;text-wrap:pretty;max-width:78ch}
+.oneline p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+/* ============================================================
+   Check yourself — the quiz block, same shape on every topic page
+   ============================================================ */
+.edge text.plain{font-size:9.5px;fill:var(--mut);letter-spacing:.01em;opacity:.85}
+.edge.lit text.plain{opacity:1}
+/* Arabic is cursive: the mono face and any letter-spacing break the joins,
+   so the wire words switch to the Arabic text face in RTL */
+:root[dir="rtl"] .edge text.plain{font-family:var(--body);letter-spacing:0;font-size:10.5px}
+
+.quiz{display:grid;gap:13px;margin-top:4px}
+.qbar{
+  display:flex;align-items:center;gap:13px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:12px;background:var(--sunk);
+}
+.qbar .qtxt{font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap}
+.qbar .qtxt b{color:var(--ink);font-weight:600}
+.qbar .qtxt em{font-style:normal;color:var(--ok);font-weight:600}
+.qmeter{flex:1;min-width:50px;height:4px;border-radius:99px;background:var(--dotbg);overflow:hidden}
+.qmeter i{display:block;height:100%;width:0;background:var(--c);transition:width .35s cubic-bezier(.2,.7,.3,1)}
+
+.qcard{border:1px solid var(--line2);border-radius:14px;padding:16px 18px;background:var(--card);transition:border-color .3s}
+.qcard.right{border-color:color-mix(in srgb,var(--ok) 48%,transparent)}
+.qcard.wrong{border-color:color-mix(in srgb,var(--no) 48%,transparent)}
+.qhead{display:flex;gap:12px;align-items:baseline;margin-bottom:12px}
+.qnum{font-family:var(--mono);font-size:11px;color:var(--c);flex:none}
+.qask{font-size:14.8px;line-height:1.5;color:var(--ink);font-weight:600;text-wrap:pretty}
+.qask code{font-family:var(--mono);font-size:.87em;color:var(--c);font-weight:500}
+.qcode{border:1px solid var(--line2);border-radius:11px;overflow:hidden;margin-bottom:12px;background:var(--code)}
+.qcode .qcf{padding:7px 13px;border-bottom:1px solid var(--line2);background:var(--sunk);
+            font-family:var(--mono);font-size:11px;color:var(--dim)}
+.qcode pre{font-size:12px;padding:10px 0;margin:0;overflow-x:auto}
+
+.opts{display:grid;gap:8px}
+.opt{
+  display:flex;gap:11px;align-items:flex-start;width:100%;text-align:start;cursor:pointer;
+  background:var(--sunk);border:1px solid var(--line2);border-radius:10px;padding:10px 13px;
+  color:var(--mut);font-family:var(--body);font-size:13.8px;line-height:1.5;transition:.18s;
+}
+.opt .k{font-family:var(--mono);font-size:11px;color:var(--dim);border:1px solid var(--line);
+        border-radius:6px;padding:0 6px;flex:none;line-height:1.6}
+.opt .ot{flex:1;min-width:0;text-wrap:pretty}
+.opt .ot code{font-family:var(--mono);font-size:.87em}
+.opt .mark{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;flex:none;line-height:2}
+.opt:hover{color:var(--ink);background:var(--hover);border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.qcard.done .opt,.qcard.done .opt:hover{cursor:default;background:var(--sunk);border-color:var(--line2);color:var(--mut)}
+.qcard.done .opt.ok{color:var(--ink);border-color:color-mix(in srgb,var(--ok) 55%,transparent);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.qcard.done .opt.ok .k{color:var(--ok);border-color:currentColor}
+.qcard.done .opt.ok .mark{color:var(--ok)}
+.qcard.done .opt.no{color:var(--ink);border-color:color-mix(in srgb,var(--no) 55%,transparent);background:color-mix(in srgb,var(--no) 9%,transparent)}
+.qcard.done .opt.no .k{color:var(--no);border-color:currentColor}
+.qcard.done .opt.no .mark{color:var(--no)}
+
+.why{
+  display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:12px 15px;
+  border:1px solid var(--line2);border-radius:11px;background:var(--sunk2);
+}
+.why[hidden]{display:none}
+.why .wt{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--c);flex:none;padding-top:3px}
+.why p{margin:0;flex:1;min-width:0;font-size:13.6px;line-height:1.68;color:var(--mut);text-wrap:pretty}
+.why p code{font-family:var(--mono);font-size:.87em;color:var(--c)}
+
+.qend{border:1px solid var(--line2);border-radius:14px;padding:19px;text-align:center;background:var(--card2)}
+.qend .sc{display:block;font-family:var(--disp);font-weight:800;font-size:29px;letter-spacing:-.03em;color:var(--ink)}
+.qend p{margin:6px 0 13px;color:var(--mut);font-size:13.6px}
+
+:root[dir="rtl"] .qnum,:root[dir="rtl"] .qbar .qtxt{font-family:var(--body);letter-spacing:0}
+:root[dir="rtl"] .opt .mark,:root[dir="rtl"] .why .wt{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11px}
+:root[dir="rtl"] .qask,:root[dir="rtl"] .opt,:root[dir="rtl"] .why p{line-height:1.8}
+@media (max-width:900px){
+  .qbar{flex-wrap:wrap;gap:10px}
+  .qmeter{order:3;flex-basis:100%}
+  .qcard{padding:14px 15px}
+}
+
+/* ================= build-project tutorials (step-by-step) ============ */
+.pstep{margin-top:26px;border-top:1px solid var(--line2);padding-top:18px}
+.sec .pstep:first-child{margin-top:12px}
+.pstep-h{display:flex;align-items:center;gap:11px;margin-bottom:2px}
+.pstep-n{font-family:var(--mono);font-size:12px;color:var(--onc);background:var(--c);border-radius:5px;padding:2px 9px;font-weight:600;direction:ltr;flex:none}
+.pstep-h b{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:-.015em;color:var(--ink);line-height:1.3;text-wrap:pretty}
+:root[dir="rtl"] .pstep-h b{letter-spacing:0}
+.pstep > p{margin:13px 0 0}
+
+.chk{
+  margin-top:16px;max-width:76ch;background:color-mix(in srgb,var(--beg) 9%,transparent);
+  border-inline-start:3px solid var(--beg);border-radius:0 9px 9px 0;padding:12px 16px;
+}
+:root[dir="rtl"] .chk{border-radius:9px 0 0 9px}
+.chk b.lbl{
+  display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--beg);margin-bottom:5px;font-weight:600;
+}
+:root[dir="rtl"] .chk b.lbl{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:11.5px}
+.chk p{margin:0;font-size:14.2px;color:var(--mut)}
+.chk p code{font-family:var(--mono);font-size:.87em}
+
+.build-link{
+  display:inline-flex;align-items:center;gap:7px;margin-top:12px;text-decoration:none;
+  font-size:13.6px;font-weight:600;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);
+  border-radius:9px;padding:7px 13px;background:var(--card);transition:.18s;
+}
+.build-link:hover{background:color-mix(in srgb,var(--c) 12%,transparent)}
+
+/* the roadmap's build-projects index */
+.blds{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:16px}
+.blds-track{border:1px solid var(--line2);border-top:2px solid var(--c);border-radius:12px;padding:15px 18px;background:var(--card);min-width:0;display:flex;flex-direction:column;gap:11px}
+.blds-track > b{font-family:var(--disp);font-weight:700;font-size:16.5px;letter-spacing:-.015em;color:var(--ink)}
+:root[dir="rtl"] .blds-track > b{letter-spacing:0}
+.blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
+.blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
+</style>
+<script>
+(function(){var r=document.documentElement;try{
+if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
+r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
+</script>
+</head>
+<body>
+<header class="top"><div class="top-in">
+    <a class="home" href="../index.html"><b>The Angular Signal</b><span class="l-en">contents</span><span class="l-ar">المحتويات</span></a>
+    <nav class="tracknav"><a href="../roadmap.html" style="--c:var(--beg)"><i></i><span class="l-en">Learning path</span><span class="l-ar">خطة التعلّم</span></a><a href="../beginner/index.html" style="--c:var(--beg)" aria-current="page"><i></i><span class="l-en">Beginner</span><span class="l-ar" dir="auto">مبتدئ</span></a><a href="../intermediate/index.html" style="--c:var(--int)"><i></i><span class="l-en">Intermediate</span><span class="l-ar" dir="auto">متوسط</span></a><a href="../advanced/index.html" style="--c:var(--adv)"><i></i><span class="l-en">Advanced</span><span class="l-ar" dir="auto">متقدم</span></a><a href="../javascript-for-angular.html" style="--c:var(--js)"><i></i><span class="l-en">JavaScript</span><span class="l-ar">JavaScript</span></a><a href="../typescript-for-angular.html" style="--c:var(--ts)"><i></i><span class="l-en">TypeScript</span><span class="l-ar">TypeScript</span></a></nav>
+    <div class="top-right">
+      <div class="seg" role="group" aria-label="Language">
+        <button id="b-en" aria-pressed="true">EN</button>
+        <button id="b-ar" aria-pressed="false" lang="ar">مصري</button>
+      </div>
+      <div class="seg ico" role="group" aria-label="Theme">
+        <button id="b-lt" aria-pressed="true" title="Light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.2v2.3M12 19.5v2.3M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.2 12h2.3M19.5 12h2.3M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button>
+        <button id="b-dk" aria-pressed="false" title="Dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.7 6.7 0 0 0 11.1 11.1z"/></svg></button>
+      </div>
+    </div>
+  </div></header>
+<main class="page" id="page">
+  <div class="eyebrow">
+    <span class="num seq">10+</span>
+    <span class="badge"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <span class="num"><span class="l-en">Right after topic 10</span><span class="l-ar" dir="auto">بعد موضوع 10 على طول</span></span>
+  </div>
+  <h1 class="title"><span class="l-en"><code>output()</code>, name by name</span><span class="l-ar" dir="auto"><code>output()</code>، اسم اسم</span></h1>
+  <p class="lead"><span class="l-en">If outputs confuse you, it is almost never the idea. The idea is simple: <b>the child shouts, the parent decides what to do about it.</b> The confusing part is the names. Four or five of them appear across two components, and nobody tells you which ones are Angular’s, which ones you made up, and which ones must match. This page answers exactly that.</span><span class="l-ar" dir="auto">لو الـ outputs ملخبطاك، فالمشكلة تقريبًا عمرها ما بتبقى في الفكرة. الفكرة بسيطة: <b>الابن بينادي، والأب هو اللي بيقرر يعمل إيه.</b> اللي بيلخبط هو الأسماء. فيه أربع أو خمس أسماء متوزعين على اتنين components، ومحدش بيقولك مين فيهم بتاع أنجولار، ومين انت اللي مألفه، ومين لازم يبقى زي التاني بالظبط. الصفحة دي بتجاوب على ده بالظبط.</span></p>
+
+  <div class="doc">
+    <nav class="doc-rail">
+      <b><span class="l-en">On this page</span><span class="l-ar">في الصفحة دي</span></b>
+      <ol><li><a href="#trip" data-rail="trip"><em>01</em><span><span class="l-en">One click, five stops</span><span class="l-ar" dir="auto">كليك واحدة، خمس محطات</span></span></a></li><li><a href="#who" data-rail="who"><em>02</em><span><span class="l-en">Who writes what, and who picks the name</span><span class="l-ar" dir="auto">مين بيكتب إيه، ومين بيختار الاسم</span></span></a></li><li><a href="#files" data-rail="files"><em>03</em><span><span class="l-en">All five files, every name coloured</span><span class="l-ar" dir="auto">الخمس ملفات، وكل اسم ملوّن</span></span></a></li><li><a href="#rename" data-rail="rename"><em>04</em><span><span class="l-en">What breaks when you rename each name</span><span class="l-ar" dir="auto">إيه اللي بيبوظ لما تغيّر كل اسم</span></span></a></li><li><a href="#event" data-rail="event"><em>05</em><span><span class="l-en">$event is not a variable you made</span><span class="l-ar" dir="auto">$event مش متغير انت عامله</span></span></a></li><li><a href="#habits" data-rail="habits"><em>06</em><span><span class="l-en">How to pick good names</span><span class="l-ar" dir="auto">تختار أسماء كويسة إزاي</span></span></a></li><li><a href="#forced" data-rail="forced"><em>07</em><span><span class="l-en">Two places where the name is not free</span><span class="l-ar" dir="auto">مكانين الاسم فيهم مش براحتك</span></span></a></li><li><a href="#old" data-rail="old"><em>08</em><span><span class="l-en">The old @Output() uses the same names</span><span class="l-ar" dir="auto">@Output() القديم بيستخدم نفس الأسماء</span></span></a></li><li><a href="#silent" data-rail="silent"><em>09</em><span><span class="l-en">Mistakes that fail silently</span><span class="l-ar" dir="auto">غلطات بتفشل في صمت</span></span></a></li><li><a href="#check" data-rail="check"><em>10</em><span><span class="l-en">Five questions, in this order</span><span class="l-ar" dir="auto">خمس أسئلة، بالترتيب ده</span></span></a></li></ol>
+    </nav>
+    <div>
+      <section class="sec" id="trip">
+        <div class="sec-kick"><span class="l-en">Start here</span><span class="l-ar" dir="auto">ابدأ من هنا</span></div>
+        <h2><span class="l-en">One click, five stops</span><span class="l-ar" dir="auto">كليك واحدة، خمس محطات</span></h2>
+        <p class="sec-lead"><span class="l-en">A to-do list. Each row is a child component with a Delete button. The row cannot delete itself, because the list lives in the parent. So the row <b>tells</b> the parent, and the parent does the deleting. Follow the click:</span><span class="l-ar" dir="auto">ليستة to-do. كل صف فيها component ابن فيه زرار Delete. الصف مايقدرش يمسح نفسه، عشان الليستة عايشة في الأب. فالصف <b>بيبلّغ</b> الأب، والأب هو اللي بيمسح. امشي ورا الكليك:</span></p>
+        
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div><ol class="chain">
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">1</span><span class="ch-f">todo-item.ts</span><span class="ch-w"><span class="l-en">child · declares</span><span class="l-ar" dir="auto">الابن · بيعلن</span></span></div>
+        <pre class="ch-c" data-lang="ts"><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="deleted">deleted</b> = <b class="nm nm-ng" data-nm="output">output</b>&lt;<i class="t-key">number</i>&gt;();</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="deleted">potato</b> = <b class="nm nm-ng" data-nm="output">output</b>&lt;<i class="t-key">number</i>&gt;();</span></span></pre>
+        <p><span class="l-en">The child announces: <i>“I can shout something called <b class="nm nm-pub" data-nm="deleted">deleted</b>, and what I shout is a number.”</i> <b class="nm nm-ng" data-nm="output">output</b> is Angular’s. <b class="nm nm-pub" data-nm="deleted">deleted</b> is a name you chose. Nothing happens yet.</span><span class="l-ar" dir="auto">الابن بيعلن: <i>«أنا ممكن أنادي بحاجة اسمها <b class="nm nm-pub" data-nm="deleted">deleted</b>، واللي هبعته رقم.»</i> <b class="nm nm-ng" data-nm="output">output</b> بتاعة أنجولار. و<b class="nm nm-pub" data-nm="deleted">deleted</b> اسم انت اللي اخترته. لسه مفيش حاجة حصلت.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">2</span><span class="ch-f">todo-item.html</span><span class="ch-w"><span class="l-en">child · button</span><span class="l-ar" dir="auto">الابن · الزرار</span></span></div>
+        <pre class="ch-c" data-lang="html"><span class="ln"><span class="v0"><i class="t-tag">&lt;button</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="click">click</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="remove">remove</b>()"</i><i class="t-tag">&gt;</i>Delete<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;button</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="click">click</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="remove">olive</b>()"</i><i class="t-tag">&gt;</i>Delete<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span></span></pre>
+        <p><span class="l-en">The user clicks. <b class="nm nm-ng" data-nm="click">click</b> is the browser’s event, so its name is fixed. <b class="nm nm-mine" data-nm="remove">remove</b> is the child’s own method; you picked that name, and only the child uses it.</span><span class="l-ar" dir="auto">المستخدم بيدوس. <b class="nm nm-ng" data-nm="click">click</b> ده event بتاع المتصفح، فاسمه ثابت. و<b class="nm nm-mine" data-nm="remove">remove</b> ميثود الابن نفسه؛ انت اللي اخترت الاسم ومحدش بيستخدمه غير الابن.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">3</span><span class="ch-f">todo-item.ts</span><span class="ch-w"><span class="l-en">child · shouts</span><span class="l-ar" dir="auto">الابن · بينادي</span></span></div>
+        <pre class="ch-c" data-lang="ts"><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-mine" data-nm="remove">remove</b></i>() {</span><span class="v1"><i class="t-fn"><b class="nm nm-mine" data-nm="remove">olive</b></i>() {</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="deleted">deleted</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">todo</b></i>().<b class="nm nm-pub" data-nm="id">id</b>);</span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="deleted">potato</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">pickle</b></i>().<b class="nm nm-pub" data-nm="id">taco</b>);</span></span><span class="ln">}</span></pre>
+        <p><span class="l-en">Here is the shout. <b class="nm nm-ng" data-nm="emit">emit</b> is Angular’s and it is the <b>only</b> way to fire an output. Whatever you put in the brackets travels to the parent. Only the child ever calls <b class="nm nm-ng" data-nm="emit">emit</b>.</span><span class="l-ar" dir="auto">ودي النداية. <b class="nm nm-ng" data-nm="emit">emit</b> بتاعة أنجولار وهي الطريقة <b>الوحيدة</b> إنك تطلّع output. أي حاجة تحطها بين القوسين بتروح للأب. والابن بس هو اللي بينادي <b class="nm nm-ng" data-nm="emit">emit</b>.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">4</span><span class="ch-f">todo-list.html</span><span class="ch-w"><span class="l-en">parent · listens</span><span class="l-ar" dir="auto">الأب · بيسمع</span></span></div>
+        <pre class="ch-c" data-lang="html"><span class="ln"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">todo</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">t</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">deleted</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">removeTodo</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-waffle</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">pickle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">falafel</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">potato</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">cookie</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span></span></pre>
+        <p><span class="l-en">The parent listens on the child’s tag. The name in round brackets must be <b>exactly</b> the child’s <b class="nm nm-pub" data-nm="deleted">deleted</b>. <b class="nm nm-ng" data-nm="$event">$event</b> is Angular’s fixed name for “the thing the child emitted”, here the id. <b class="nm nm-mine" data-nm="removeTodo">removeTodo</b> is the parent’s own method.</span><span class="l-ar" dir="auto">الأب بيسمع على تاج الابن. الاسم اللي بين القوسين لازم يبقى <b class="nm nm-pub" data-nm="deleted">deleted</b> بتاع الابن <b>بالظبط</b>. و<b class="nm nm-ng" data-nm="$event">$event</b> اسم ثابت من أنجولار معناه «الحاجة اللي الابن بعتها»، وهنا هي الـ id. و<b class="nm nm-mine" data-nm="removeTodo">removeTodo</b> ميثود الأب نفسه.</span></p>
+      </li>
+      <li class="ch">
+        <div class="ch-h"><span class="ch-n">5</span><span class="ch-f">todo-list.ts</span><span class="ch-w"><span class="l-en">parent · acts</span><span class="l-ar" dir="auto">الأب · بيتصرف</span></span></div>
+        <pre class="ch-c" data-lang="ts"><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-mine" data-nm="removeTodo">removeTodo</b></i>(<b class="nm nm-mine" data-nm="todoId">todoId</b>: <i class="t-key">number</i>) {</span><span class="v1"><i class="t-fn"><b class="nm nm-mine" data-nm="removeTodo">cookie</b></i>(<b class="nm nm-mine" data-nm="todoId">melon</b>: <i class="t-key">number</i>) {</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="todos">todos</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(<b class="nm nm-mine" data-nm="list">list</b> =&gt; <b class="nm nm-mine" data-nm="list">list</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="filter">filter</b></i>(<b class="nm nm-mine" data-nm="t">t</b> =&gt; <b class="nm nm-mine" data-nm="t">t</b>.<b class="nm nm-pub" data-nm="id">id</b> !== <b class="nm nm-mine" data-nm="todoId">todoId</b>));</span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="todos">radish</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(<b class="nm nm-mine" data-nm="list">koshary</b> =&gt; <b class="nm nm-mine" data-nm="list">koshary</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="filter">filter</b></i>(<b class="nm nm-mine" data-nm="t">falafel</b> =&gt; <b class="nm nm-mine" data-nm="t">falafel</b>.<b class="nm nm-pub" data-nm="id">taco</b> !== <b class="nm nm-mine" data-nm="todoId">melon</b>));</span></span><span class="ln">}</span></pre>
+        <p><span class="l-en">The parent does the real work. Inside the TypeScript file there is no <b class="nm nm-ng" data-nm="$event">$event</b>: the value simply arrives as the parameter, and you can call that parameter anything. Here it is <b class="nm nm-mine" data-nm="todoId">todoId</b>.</span><span class="l-ar" dir="auto">الأب بيعمل الشغل الحقيقي. جوه ملف الـ TypeScript مفيش <b class="nm nm-ng" data-nm="$event">$event</b>: القيمة بتوصل كـ parameter وخلاص، وتقدر تسمّيه أي اسم. هنا اسمه <b class="nm nm-mine" data-nm="todoId">todoId</b>.</span></p>
+      </li>
+    </ol><div class="note"><b class="lbl"><span class="l-en">The whole thing in one line</span><span class="l-ar" dir="auto">الحكاية كلها في سطر</span></b><p><span class="l-en">Child: <code>deleted.emit(id)</code>. Parent: <code>(deleted)="removeTodo($event)"</code>. The only name the two components share is <b>deleted</b>. Everything else is either Angular’s or private to one side.</span><span class="l-ar" dir="auto">الابن: <code>deleted.emit(id)</code>. الأب: <code>(deleted)="removeTodo($event)"</code>. الاسم الوحيد اللي الاتنين components متشاركين فيه هو <b>deleted</b>. كل حاجة تانية يا إما بتاعة أنجولار، يا إما خاصة بناحية واحدة.</span></p></div>
+      </section>
+      <section class="sec" id="who">
+        <div class="sec-kick"><span class="l-en">Child or parent?</span><span class="l-ar" dir="auto">الابن ولا الأب؟</span></div>
+        <h2><span class="l-en">Who writes what, and who picks the name</span><span class="l-ar" dir="auto">مين بيكتب إيه، ومين بيختار الاسم</span></h2>
+        <p class="sec-lead"><span class="l-en">Most of the “which side does this go on?” confusion disappears once you see that every piece has exactly one home.</span><span class="l-ar" dir="auto">أغلب لخبطة «دي تتكتب في أنهي ناحية؟» بتختفي أول ما تشوف إن كل حتة ليها بيت واحد بس.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">Piece</span><span class="l-ar" dir="auto">الحتة</span></th><th><span class="l-en">Lives in</span><span class="l-ar" dir="auto">مكانها</span></th><th><span class="l-en">Written by</span><span class="l-ar" dir="auto">مين بيكتبها</span></th><th><span class="l-en">Who picks the name</span><span class="l-ar" dir="auto">مين بيختار الاسم</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en"><code>readonly deleted = output&lt;number&gt;()</code></span><span class="l-ar" dir="auto"><code>readonly deleted = output&lt;number&gt;()</code></span></td><td><span class="l-en">child <code>.ts</code></span><span class="l-ar" dir="auto"><code>.ts</code> الابن</span></td><td><span class="l-en">child</span><span class="l-ar" dir="auto">الابن</span></td><td><span class="l-en">you pick <b class="nm nm-pub" data-nm="deleted">deleted</b>; <b class="nm nm-ng" data-nm="output">output</b> is Angular’s</span><span class="l-ar" dir="auto">انت بتختار <b class="nm nm-pub" data-nm="deleted">deleted</b>؛ و<b class="nm nm-ng" data-nm="output">output</b> بتاعة أنجولار</span></td></tr><tr><td><span class="l-en"><code>this.deleted.emit(id)</code></span><span class="l-ar" dir="auto"><code>this.deleted.emit(id)</code></span></td><td><span class="l-en">child <code>.ts</code></span><span class="l-ar" dir="auto"><code>.ts</code> الابن</span></td><td><span class="l-en">child, and <b>only</b> the child</span><span class="l-ar" dir="auto">الابن، والابن <b>بس</b></span></td><td><span class="l-en"><b class="nm nm-ng" data-nm="emit">emit</b> is Angular’s</span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="emit">emit</b> بتاعة أنجولار</span></td></tr><tr><td><span class="l-en"><code>(click)="remove()"</code></span><span class="l-ar" dir="auto"><code>(click)="remove()"</code></span></td><td><span class="l-en">child <code>.html</code></span><span class="l-ar" dir="auto"><code>.html</code> الابن</span></td><td><span class="l-en">child</span><span class="l-ar" dir="auto">الابن</span></td><td><span class="l-en"><b class="nm nm-ng" data-nm="click">click</b> is the browser’s; you pick <b class="nm nm-mine" data-nm="remove">remove</b></span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="click">click</b> بتاع المتصفح؛ وانت بتختار <b class="nm nm-mine" data-nm="remove">remove</b></span></td></tr><tr><td><span class="l-en"><code>(deleted)="removeTodo($event)"</code></span><span class="l-ar" dir="auto"><code>(deleted)="removeTodo($event)"</code></span></td><td><span class="l-en">parent <code>.html</code></span><span class="l-ar" dir="auto"><code>.html</code> الأب</span></td><td><span class="l-en">parent</span><span class="l-ar" dir="auto">الأب</span></td><td><span class="l-en"><b class="nm nm-pub" data-nm="deleted">deleted</b> must copy the child; <b class="nm nm-ng" data-nm="$event">$event</b> is Angular’s; you pick <b class="nm nm-mine" data-nm="removeTodo">removeTodo</b></span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="deleted">deleted</b> لازم ينسخ الابن؛ و<b class="nm nm-ng" data-nm="$event">$event</b> بتاعة أنجولار؛ وانت بتختار <b class="nm nm-mine" data-nm="removeTodo">removeTodo</b></span></td></tr><tr><td><span class="l-en"><code>removeTodo(todoId: number) { … }</code></span><span class="l-ar" dir="auto"><code>removeTodo(todoId: number) { … }</code></span></td><td><span class="l-en">parent <code>.ts</code></span><span class="l-ar" dir="auto"><code>.ts</code> الأب</span></td><td><span class="l-en">parent</span><span class="l-ar" dir="auto">الأب</span></td><td><span class="l-en">you pick both <b class="nm nm-mine" data-nm="removeTodo">removeTodo</b> and <b class="nm nm-mine" data-nm="todoId">todoId</b></span><span class="l-ar" dir="auto">انت بتختار <b class="nm nm-mine" data-nm="removeTodo">removeTodo</b> و<b class="nm nm-mine" data-nm="todoId">todoId</b> الاتنين</span></td></tr></tbody>
+    </table></div><ul><li><span class="l-en"><b>The child never knows the parent’s method name.</b> It only knows its own output. That is why the same row works inside any list.</span><span class="l-ar" dir="auto"><b>الابن عمره ما بيعرف اسم ميثود الأب.</b> هو يعرف الـ output بتاعه وبس. وعشان كده نفس الصف بيشتغل جوه أي ليستة.</span></li><li><span class="l-en"><b>The parent never calls <code>emit</code>.</b> Emitting is the child’s job. The parent only listens, with round brackets on the child’s tag.</span><span class="l-ar" dir="auto"><b>الأب عمره ما بينادي <code>emit</code>.</b> الـ emit شغلانة الابن. الأب بيسمع وبس، بالأقواس المدورة على تاج الابن.</span></li><li><span class="l-en"><b>Round brackets <code>( )</code> mean “listen”.</b> On a button they listen to the browser. On your component’s tag they listen to your outputs. Same syntax, same direction: into the component that writes the template.</span><span class="l-ar" dir="auto"><b>الأقواس المدورة <code>( )</code> معناها «اسمع».</b> على زرار بتسمع المتصفح. على تاج الـ component بتاعك بتسمع الـ outputs بتاعتك. نفس الكتابة، ونفس الاتجاه: لجوه الـ component اللي كاتب التمبلت.</span></li></ul>
+      </section>
+      <section class="sec" id="files">
+        <div class="sec-kick"><span class="l-en">The real files</span><span class="l-ar" dir="auto">الملفات الحقيقية</span></div>
+        <h2><span class="l-en">All five files, every name coloured</span><span class="l-ar" dir="auto">الخمس ملفات، وكل اسم ملوّن</span></h2>
+        <p class="sec-lead"><span class="l-en">The same example, complete. Hover a coloured name to light up everywhere else it appears. Then press <b>Rename test</b>: every name you own turns into a made-up word, Angular’s words stay put, and the code is still correct.</span><span class="l-ar" dir="auto">نفس المثال، كامل. قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها. وبعدين دوس <b>جرّب تغيّر الأسماء</b>: كل اسم بتاعك هيبقى كلمة عشوائية، وكلمات أنجولار هتفضل مكانها، والكود لسه صح.</span></p>
+        
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>todo.ts<span class="tag"><span class="l-en">the data</span><span class="l-ar" dir="auto">الداتا</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">interface</i> <i class="t-type"><b class="nm nm-pub" data-nm="Todo">Todo</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">interface</i> <i class="t-type"><b class="nm nm-pub" data-nm="Todo">Muffin</b></i> {</span></span><span class="ln"><span class="v0">  <b class="nm nm-pub" data-nm="id">id</b>: <i class="t-key">number</i>;</span><span class="v1">  <b class="nm nm-pub" data-nm="id">taco</b>: <i class="t-key">number</i>;</span></span><span class="ln"><span class="v0">  <b class="nm nm-pub" data-nm="title">title</b>: <i class="t-key">string</i>;</span><span class="v1">  <b class="nm nm-pub" data-nm="title">kiwi</b>: <i class="t-key">string</i>;</span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>todo-item.ts<span class="tag"><span class="l-en">child</span><span class="l-ar" dir="auto">الابن</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Component</i>, <b class="nm nm-ng" data-nm="input">input</b>, <b class="nm nm-ng" data-nm="output">output</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"><span class="v0"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="Todo">Todo</b></i> } <i class="t-key">from</i> <i class="t-str">'./todo'</i>;</span><span class="v1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="Todo">Muffin</b></i> } <i class="t-key">from</i> <i class="t-str">'./todo'</i>;</span></span><span class="ln"> </span><span class="ln"><i class="t-dec"><b class="nm nm-ng" data-nm="@Component">@Component</b></i>({</span><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b>'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-todo-item">app-waffle</b>'</i>,</span></span><span class="ln">  <b class="nm nm-ng" data-nm="templateUrl">templateUrl</b>: <i class="t-str">'./todo-item.html'</i>,</span><span class="ln">})</span><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="TodoItem">TodoItem</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="TodoItem">Pumpkin</b></i> {</span></span><span class="ln"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="todo">todo</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Todo">Todo</b></i>&gt;();   <i class="t-com">// in:  the parent gives me a todo</i></span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="todo">pickle</b> = <b class="nm nm-ng" data-nm="input">input</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Todo">Muffin</b></i>&gt;();   <i class="t-com">// in:  the parent gives me a todo</i></span></span><span class="ln"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="deleted">deleted</b> = <b class="nm nm-ng" data-nm="output">output</b>&lt;<i class="t-key">number</i>&gt;();      <i class="t-com">// out: I tell the parent an id</i></span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="deleted">potato</b> = <b class="nm nm-ng" data-nm="output">output</b>&lt;<i class="t-key">number</i>&gt;();      <i class="t-com">// out: I tell the parent an id</i></span></span><span class="ln"> </span><span class="ln"><span class="v0">  <i class="t-fn"><b class="nm nm-mine" data-nm="remove">remove</b></i>() {</span><span class="v1">  <i class="t-fn"><b class="nm nm-mine" data-nm="remove">olive</b></i>() {</span></span><span class="ln"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="deleted">deleted</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">todo</b></i>().<b class="nm nm-pub" data-nm="id">id</b>);</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="deleted">potato</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">pickle</b></i>().<b class="nm nm-pub" data-nm="id">taco</b>);</span></span><span class="ln">  }</span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="html">
+        <div class="fc-h"><span class="d"></span>todo-item.html<span class="tag"><span class="l-en">child</span><span class="l-ar" dir="auto">الابن</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="todo">todo</b>().<b class="nm nm-pub" data-nm="title">title</b> }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;span</i><i class="t-tag">&gt;</i><i class="t-bind">{{ <b class="nm nm-pub" data-nm="todo">pickle</b>().<b class="nm nm-pub" data-nm="title">kiwi</b> }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></span><span class="ln"><span class="v0"><i class="t-tag">&lt;button</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="click">click</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="remove">remove</b>()"</i><i class="t-tag">&gt;</i>Delete<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;button</i> <i class="t-bind">(<b class="nm nm-ng" data-nm="click">click</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="remove">olive</b>()"</i><i class="t-tag">&gt;</i>Delete<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span></span></pre>
+      </div>
+      <div class="code" data-lang="html">
+        <div class="fc-h"><span class="d"></span>todo-list.html<span class="tag"><span class="l-en">parent</span><span class="l-ar" dir="auto">الأب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key"><b class="nm nm-ng" data-nm="@for">@for</b></i> (<b class="nm nm-mine" data-nm="t">t</b> of <b class="nm nm-mine" data-nm="todos">todos</b>(); <b class="nm nm-ng" data-nm="track">track</b> <b class="nm nm-mine" data-nm="t">t</b>.<b class="nm nm-pub" data-nm="id">id</b>) {</span><span class="v1"><i class="t-key"><b class="nm nm-ng" data-nm="@for">@for</b></i> (<b class="nm nm-mine" data-nm="t">falafel</b> of <b class="nm nm-mine" data-nm="todos">radish</b>(); <b class="nm nm-ng" data-nm="track">track</b> <b class="nm nm-mine" data-nm="t">falafel</b>.<b class="nm nm-pub" data-nm="id">taco</b>) {</span></span><span class="ln"><span class="v0">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">todo</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">t</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">deleted</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">removeTodo</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span><span class="v1">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-waffle</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">pickle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">falafel</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">potato</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">cookie</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>todo-list.ts<span class="tag"><span class="l-en">parent</span><span class="l-ar" dir="auto">الأب</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Component</i>, <b class="nm nm-ng" data-nm="signal">signal</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"><span class="v0"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="TodoItem">TodoItem</b></i> } <i class="t-key">from</i> <i class="t-str">'./todo-item'</i>;</span><span class="v1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="TodoItem">Pumpkin</b></i> } <i class="t-key">from</i> <i class="t-str">'./todo-item'</i>;</span></span><span class="ln"><span class="v0"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="Todo">Todo</b></i> } <i class="t-key">from</i> <i class="t-str">'./todo'</i>;</span><span class="v1"><i class="t-key">import</i> { <i class="t-type"><b class="nm nm-pub" data-nm="Todo">Muffin</b></i> } <i class="t-key">from</i> <i class="t-str">'./todo'</i>;</span></span><span class="ln"> </span><span class="ln"><i class="t-dec"><b class="nm nm-ng" data-nm="@Component">@Component</b></i>({</span><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-todo-list">app-todo-list</b>'</i>,</span><span class="v1">  <b class="nm nm-ng" data-nm="selector">selector</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="app-todo-list">app-noodle</b>'</i>,</span></span><span class="ln"><span class="v0">  <b class="nm nm-ng" data-nm="imports">imports</b>: [<i class="t-type"><b class="nm nm-pub" data-nm="TodoItem">TodoItem</b></i>],</span><span class="v1">  <b class="nm nm-ng" data-nm="imports">imports</b>: [<i class="t-type"><b class="nm nm-pub" data-nm="TodoItem">Pumpkin</b></i>],</span></span><span class="ln">  <b class="nm nm-ng" data-nm="templateUrl">templateUrl</b>: <i class="t-str">'./todo-list.html'</i>,</span><span class="ln">})</span><span class="ln"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="TodoList">TodoList</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="TodoList">Turnip</b></i> {</span></span><span class="ln"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="todos">todos</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Todo">Todo</b></i>[]&gt;([</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="todos">radish</b> = <b class="nm nm-ng" data-nm="signal">signal</b>&lt;<i class="t-type"><b class="nm nm-pub" data-nm="Todo">Muffin</b></i>[]&gt;([</span></span><span class="ln"><span class="v0">    { <b class="nm nm-pub" data-nm="id">id</b>: <i class="t-num">1</i>, <b class="nm nm-pub" data-nm="title">title</b>: <i class="t-str">'Buy milk'</i> },</span><span class="v1">    { <b class="nm nm-pub" data-nm="id">taco</b>: <i class="t-num">1</i>, <b class="nm nm-pub" data-nm="title">kiwi</b>: <i class="t-str">'Buy milk'</i> },</span></span><span class="ln"><span class="v0">    { <b class="nm nm-pub" data-nm="id">id</b>: <i class="t-num">2</i>, <b class="nm nm-pub" data-nm="title">title</b>: <i class="t-str">'Learn outputs'</i> },</span><span class="v1">    { <b class="nm nm-pub" data-nm="id">taco</b>: <i class="t-num">2</i>, <b class="nm nm-pub" data-nm="title">kiwi</b>: <i class="t-str">'Learn outputs'</i> },</span></span><span class="ln">  ]);</span><span class="ln"> </span><span class="ln"><span class="v0">  <i class="t-fn"><b class="nm nm-mine" data-nm="removeTodo">removeTodo</b></i>(<b class="nm nm-mine" data-nm="todoId">todoId</b>: <i class="t-key">number</i>) {</span><span class="v1">  <i class="t-fn"><b class="nm nm-mine" data-nm="removeTodo">cookie</b></i>(<b class="nm nm-mine" data-nm="todoId">melon</b>: <i class="t-key">number</i>) {</span></span><span class="ln"><span class="v0">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="todos">todos</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(<b class="nm nm-mine" data-nm="list">list</b> =&gt; <b class="nm nm-mine" data-nm="list">list</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="filter">filter</b></i>(<b class="nm nm-mine" data-nm="t">t</b> =&gt; <b class="nm nm-mine" data-nm="t">t</b>.<b class="nm nm-pub" data-nm="id">id</b> !== <b class="nm nm-mine" data-nm="todoId">todoId</b>));</span><span class="v1">    <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="todos">radish</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(<b class="nm nm-mine" data-nm="list">koshary</b> =&gt; <b class="nm nm-mine" data-nm="list">koshary</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="filter">filter</b></i>(<b class="nm nm-mine" data-nm="t">falafel</b> =&gt; <b class="nm nm-mine" data-nm="t">falafel</b>.<b class="nm nm-pub" data-nm="id">taco</b> !== <b class="nm nm-mine" data-nm="todoId">melon</b>));</span></span><span class="ln">  }</span><span class="ln">}</span></pre>
+      </div>
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">Read the orange rows first. Those are the only names two files have to agree on. Everything green is private to one component, and everything blue belongs to Angular, TypeScript or the browser.</span><span class="l-ar" dir="auto">اقرا الصفوف البرتقاني الأول. دول الأسماء الوحيدة اللي ملفين لازم يتفقوا عليها. كل حاجة خضرا خاصة بـ component واحد، وكل حاجة زرقا بتاعة أنجولار أو TypeScript أو المتصفح.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="deleted">
+        <td><b class="nm nm-pub" data-nm="deleted">deleted</b><span class="nmas">&rarr; <code>potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The output. Declared in the child, typed again in the parent’s <code>(deleted)</code>. Rename both or the parent silently hears nothing.</span><span class="l-ar" dir="auto">الـ output. متعلن في الابن، ومكتوب تاني عند الأب في <code>(deleted)</code>. غيّر الاتنين وإلا الأب مش هيسمع حاجة ومحدش هيقولك.</span></td>
+        <td class="nmfiles"><code>todo-item.ts</code> <code>todo-list.html</code> <code>todo-item.ts — older style</code> <code>todo-item.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="removed">
+        <td><b class="nm nm-pub" data-nm="removed">removed</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">An alias. Once it exists, this is the name the parent types, and the class property behind it becomes private.</span><span class="l-ar" dir="auto">alias. أول ما يبقى موجود، ده الاسم اللي الأب بيكتبه، والـ property اللي وراه بتبقى خاصة.</span></td>
+        <td class="nmfiles"><code>todo-item.ts · with alias</code> <code>todo-list.html</code></td>
+      </tr>
+      <tr data-nmrow="todo">
+        <td><b class="nm nm-pub" data-nm="todo">todo</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The child’s input. The parent sets it with <code>[todo]</code>.</span><span class="l-ar" dir="auto">الـ input بتاع الابن. الأب بيحطه بـ <code>[todo]</code>.</span></td>
+        <td class="nmfiles"><code>todo-item.ts</code> <code>todo-list.html</code> <code>todo-item.html</code> <code>todo-item.ts · with alias</code> <code>todo-item.ts — older style</code> <code>todo-item.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="app-todo-item">
+        <td><b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b><span class="nmas">&rarr; <code>app-waffle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The child’s selector. Its <code>selector</code> string and the tag in the parent must match.</span><span class="l-ar" dir="auto">الـ selector بتاع الابن. النص في <code>selector</code> والتاج عند الأب لازم يبقوا زي بعض.</span></td>
+        <td class="nmfiles"><code>todo-list.html</code> <code>todo-item.ts</code></td>
+      </tr>
+      <tr data-nmrow="app-todo-list">
+        <td><b class="nm nm-pub" data-nm="app-todo-list">app-todo-list</b><span class="nmas">&rarr; <code>app-noodle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The list’s selector. Whoever shows the list types this tag.</span><span class="l-ar" dir="auto">الـ selector بتاع الليستة. أي حد بيعرض الليستة بيكتب التاج ده.</span></td>
+        <td class="nmfiles"><code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="TodoItem">
+        <td><b class="nm nm-pub" data-nm="TodoItem">TodoItem</b><span class="nmas">&rarr; <code>Pumpkin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The child’s class. The parent imports it and lists it in <code>imports</code>.</span><span class="l-ar" dir="auto">كلاس الابن. الأب بيعمله import وبيكتبه في <code>imports</code>.</span></td>
+        <td class="nmfiles"><code>todo-item.ts</code> <code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="TodoList">
+        <td><b class="nm nm-pub" data-nm="TodoList">TodoList</b><span class="nmas">&rarr; <code>Turnip</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The parent’s class. Whoever uses the list imports it by this name.</span><span class="l-ar" dir="auto">كلاس الأب. أي حد بيستخدم الليستة بيعمله import بالاسم ده.</span></td>
+        <td class="nmfiles"><code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="Todo">
+        <td><b class="nm nm-pub" data-nm="Todo">Todo</b><span class="nmas">&rarr; <code>Muffin</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Your data type. Every file that imports it follows a rename.</span><span class="l-ar" dir="auto">نوع الداتا بتاعك. أي ملف بيعمله import بيتغير معاه.</span></td>
+        <td class="nmfiles"><code>todo.ts</code> <code>todo-item.ts</code> <code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="id">
+        <td><b class="nm nm-pub" data-nm="id">id</b><span class="nmas">&rarr; <code>taco</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field on your data. Every file that reads <code>.id</code> follows a rename.</span><span class="l-ar" dir="auto">field في الداتا بتاعتك. أي ملف بيقرا <code>.id</code> بيتغير معاه.</span></td>
+        <td class="nmfiles"><code>todo-item.ts</code> <code>todo-list.ts</code> <code>todo.ts</code> <code>todo-list.html</code> <code>todo-item.ts · with alias</code> <code>todo-item.ts — older style</code> <code>todo-item.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="title">
+        <td><b class="nm nm-pub" data-nm="title">title</b><span class="nmas">&rarr; <code>kiwi</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field on your data, read by the child’s template.</span><span class="l-ar" dir="auto">field في الداتا بتاعتك، وتمبلت الابن بيقراه.</span></td>
+        <td class="nmfiles"><code>todo.ts</code> <code>todo-item.html</code> <code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="moved">
+        <td><b class="nm nm-pub" data-nm="moved">moved</b><span class="nmas">&rarr; <code>donut</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A second output, carrying an object.</span><span class="l-ar" dir="auto">output تاني، شايل object.</span></td>
+        <td class="nmfiles"><code>todo-item.ts</code> <code>todo-list.html</code></td>
+      </tr>
+      <tr data-nmrow="column">
+        <td><b class="nm nm-pub" data-nm="column">column</b><span class="nmas">&rarr; <code>pepper</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field inside the emitted object. The parent reads it as <code>$event.column</code>, so both sides type it.</span><span class="l-ar" dir="auto">field جوه الـ object اللي اتبعت. الأب بيقراه كـ <code>$event.column</code>، فالناحيتين بيكتبوه.</span></td>
+        <td class="nmfiles"><code>todo-item.ts</code> <code>todo-list.html</code></td>
+      </tr>
+      <tr data-nmrow="todoRemoved">
+        <td><b class="nm nm-pub" data-nm="todoRemoved">todoRemoved</b><span class="nmas">&rarr; <code>lemon</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The list’s own output, so the list’s parent can hear about removals too.</span><span class="l-ar" dir="auto">الـ output بتاع الليستة نفسها، عشان أبو الليستة يعرف بالمسح هو كمان.</span></td>
+        <td class="nmfiles"><code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="checked">
+        <td><b class="nm nm-pub" data-nm="checked">checked</b><span class="nmas">&rarr; <code>sparkle</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">An input used with <code>[(checked)]</code>. Renaming it means renaming <code>checkedChange</code> to match.</span><span class="l-ar" dir="auto">input بيتستخدم مع <code>[(checked)]</code>. لو غيّرته لازم تغيّر <code>checkedChange</code> معاه.</span></td>
+        <td class="nmfiles"><code>switch.ts — by hand</code> <code>switch.ts — with model()</code> <code>settings.html</code></td>
+      </tr>
+      <tr data-nmrow="checkedChange">
+        <td><b class="nm nm-pub" data-nm="checkedChange">checkedChange</b><span class="nmas">&rarr; <code>sparkleChange</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Must be the input’s name plus <code>Change</code>, or <code>[(checked)]</code> stops updating the parent.</span><span class="l-ar" dir="auto">لازم يبقى اسم الـ input وبعده <code>Change</code>، وإلا <code>[(checked)]</code> هتبطل تحدّث الأب.</span></td>
+        <td class="nmfiles"><code>switch.ts — by hand</code></td>
+      </tr>
+      <tr data-nmrow="app-switch">
+        <td><b class="nm nm-pub" data-nm="app-switch">app-switch</b><span class="nmas">&rarr; <code>app-carrot</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The switch’s selector, typed by the settings page.</span><span class="l-ar" dir="auto">الـ selector بتاع الـ switch، وصفحة الإعدادات بتكتبه.</span></td>
+        <td class="nmfiles"><code>settings.html</code></td>
+      </tr>
+      <tr data-nmrow="deleted">
+        <td><b class="nm nm-mine" data-nm="deleted">deleted</b><span class="nmas">&rarr; <code>biscuit</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">With an alias, the property name is only used inside the child.</span><span class="l-ar" dir="auto">مع الـ alias، اسم الـ property بيتستخدم جوه الابن بس.</span></td>
+        <td class="nmfiles"><code>todo-item.ts · with alias</code></td>
+      </tr>
+      <tr data-nmrow="remove">
+        <td><b class="nm nm-mine" data-nm="remove">remove</b><span class="nmas">&rarr; <code>olive</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The child’s own method, called by its own button.</span><span class="l-ar" dir="auto">ميثود الابن نفسه، والزرار بتاعه هو اللي بيناديها.</span></td>
+        <td class="nmfiles"><code>todo-item.html</code> <code>todo-item.ts</code> <code>todo-item.ts · with alias</code> <code>todo-item.ts — older style</code> <code>todo-item.ts — today</code></td>
+      </tr>
+      <tr data-nmrow="removeTodo">
+        <td><b class="nm nm-mine" data-nm="removeTodo">removeTodo</b><span class="nmas">&rarr; <code>cookie</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The parent’s own method. Only the parent’s template calls it.</span><span class="l-ar" dir="auto">ميثود الأب نفسه. تمبلت الأب بس هو اللي بيناديها.</span></td>
+        <td class="nmfiles"><code>todo-list.html</code> <code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="todoId">
+        <td><b class="nm nm-mine" data-nm="todoId">todoId</b><span class="nmas">&rarr; <code>melon</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A parameter. It receives <code>$event</code>, but you can call it anything.</span><span class="l-ar" dir="auto">parameter. بيستقبل <code>$event</code>، بس تقدر تسمّيه أي حاجة.</span></td>
+        <td class="nmfiles"><code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="todos">
+        <td><b class="nm nm-mine" data-nm="todos">todos</b><span class="nmas">&rarr; <code>radish</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The parent’s signal holding the list.</span><span class="l-ar" dir="auto">الـ signal بتاعة الأب اللي شايلة الليستة.</span></td>
+        <td class="nmfiles"><code>todo-list.ts</code> <code>todo-list.html</code></td>
+      </tr>
+      <tr data-nmrow="t">
+        <td><b class="nm nm-mine" data-nm="t">t</b><span class="nmas">&rarr; <code>falafel</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A loop variable, and separately an arrow-function parameter. Both are local.</span><span class="l-ar" dir="auto">متغير اللوب، وبرضه parameter في arrow function. الاتنين محليين.</span></td>
+        <td class="nmfiles"><code>todo-list.html</code> <code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="list">
+        <td><b class="nm nm-mine" data-nm="list">list</b><span class="nmas">&rarr; <code>koshary</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The arrow function’s parameter: the current array.</span><span class="l-ar" dir="auto">الـ parameter بتاع الـ arrow function: الـ array الحالية.</span></td>
+        <td class="nmfiles"><code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="lastDeletedId">
+        <td><b class="nm nm-mine" data-nm="lastDeletedId">lastDeletedId</b><span class="nmas">&rarr; <code>feteer</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A signal on the parent.</span><span class="l-ar" dir="auto">signal عند الأب.</span></td>
+        <td class="nmfiles"><code>todo-list.html</code></td>
+      </tr>
+      <tr data-nmrow="showUndoBar">
+        <td><b class="nm nm-mine" data-nm="showUndoBar">showUndoBar</b><span class="nmas">&rarr; <code>basbousa</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A parent method that needs no value.</span><span class="l-ar" dir="auto">ميثود عند الأب مش محتاجة قيمة.</span></td>
+        <td class="nmfiles"><code>todo-list.html</code></td>
+      </tr>
+      <tr data-nmrow="moveToDone">
+        <td><b class="nm nm-mine" data-nm="moveToDone">moveToDone</b><span class="nmas">&rarr; <code>banana2</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The child’s method that emits <code>moved</code>.</span><span class="l-ar" dir="auto">ميثود الابن اللي بتبعت <code>moved</code>.</span></td>
+        <td class="nmfiles"><code>todo-item.ts</code></td>
+      </tr>
+      <tr data-nmrow="moveTodo">
+        <td><b class="nm nm-mine" data-nm="moveTodo">moveTodo</b><span class="nmas">&rarr; <code>potato2</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The parent’s handler for <code>moved</code>.</span><span class="l-ar" dir="auto">ميثود الأب اللي بتستقبل <code>moved</code>.</span></td>
+        <td class="nmfiles"><code>todo-list.html</code></td>
+      </tr>
+      <tr data-nmrow="flip">
+        <td><b class="nm nm-mine" data-nm="flip">flip</b><span class="nmas">&rarr; <code>mango2</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The switch’s own method.</span><span class="l-ar" dir="auto">ميثود الـ switch نفسه.</span></td>
+        <td class="nmfiles"><code>switch.ts — by hand</code> <code>switch.ts — with model()</code></td>
+      </tr>
+      <tr data-nmrow="darkMode">
+        <td><b class="nm nm-mine" data-nm="darkMode">darkMode</b><span class="nmas">&rarr; <code>pickle2</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The settings page’s signal, kept in sync by <code>[( )]</code>.</span><span class="l-ar" dir="auto">الـ signal بتاعة صفحة الإعدادات، و<code>[( )]</code> بتخليها متزامنة.</span></td>
+        <td class="nmfiles"><code>settings.html</code></td>
+      </tr>
+      <tr data-nmrow="output">
+        <td><b class="nm nm-ng" data-nm="output">output</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that creates an output.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتعمل output.</span></td>
+        <td class="nmfiles"><code>todo-item.ts</code> <code>todo-item.ts · with alias</code> <code>switch.ts — by hand</code> <code>todo-item.ts — today</code> <code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="emit">
+        <td><b class="nm nm-ng" data-nm="emit">emit</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The one method you call on an output. Only the child calls it.</span><span class="l-ar" dir="auto">الميثود الوحيدة اللي بتناديها على الـ output. والابن بس هو اللي بيناديها.</span></td>
+        <td class="nmfiles"><code>todo-item.ts</code> <code>todo-item.ts · with alias</code> <code>switch.ts — by hand</code> <code>todo-item.ts — older style</code> <code>todo-item.ts — today</code> <code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="$event">
+        <td><b class="nm nm-ng" data-nm="$event">$event</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s fixed name for the emitted value. Exists only inside <code>( )="…"</code> in a template.</span><span class="l-ar" dir="auto">اسم أنجولار الثابت للقيمة اللي اتبعتت. موجود بس جوه <code>( )="…"</code> في التمبلت.</span></td>
+        <td class="nmfiles"><code>todo-list.html</code></td>
+      </tr>
+      <tr data-nmrow="click">
+        <td><b class="nm nm-ng" data-nm="click">click</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s event name.</span><span class="l-ar" dir="auto">اسم الـ event بتاع المتصفح.</span></td>
+        <td class="nmfiles"><code>todo-item.html</code></td>
+      </tr>
+      <tr data-nmrow="input">
+        <td><b class="nm nm-ng" data-nm="input">input</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that creates an input.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتعمل input.</span></td>
+        <td class="nmfiles"><code>todo-item.ts</code> <code>switch.ts — by hand</code></td>
+      </tr>
+      <tr data-nmrow="required">
+        <td><b class="nm nm-ng" data-nm="required">required</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Part of <code>input.required</code>.</span><span class="l-ar" dir="auto">جزء من <code>input.required</code>.</span></td>
+        <td class="nmfiles"><code>todo-item.ts</code></td>
+      </tr>
+      <tr data-nmrow="model">
+        <td><b class="nm nm-ng" data-nm="model">model</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s input and output in one.</span><span class="l-ar" dir="auto">الـ input والـ output في واحدة، من أنجولار.</span></td>
+        <td class="nmfiles"><code>switch.ts — with model()</code></td>
+      </tr>
+      <tr data-nmrow="alias">
+        <td><b class="nm nm-ng" data-nm="alias">alias</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads. The string you give it is yours.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه. النص اللي بتديهوله بتاعك.</span></td>
+        <td class="nmfiles"><code>todo-item.ts · with alias</code></td>
+      </tr>
+      <tr data-nmrow="@Output">
+        <td><b class="nm nm-ng" data-nm="@Output">@Output</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The older decorator.</span><span class="l-ar" dir="auto">الـ decorator القديم.</span></td>
+        <td class="nmfiles"><code>todo-item.ts — older style</code></td>
+      </tr>
+      <tr data-nmrow="EventEmitter">
+        <td><b class="nm nm-ng" data-nm="EventEmitter">EventEmitter</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The older output class. It also has <code>emit</code>.</span><span class="l-ar" dir="auto">كلاس الـ output القديم. وفيه <code>emit</code> برضه.</span></td>
+        <td class="nmfiles"><code>todo-item.ts — older style</code></td>
+      </tr>
+      <tr data-nmrow="signal">
+        <td><b class="nm nm-ng" data-nm="signal">signal</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s writable signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة أنجولار اللي بتتكتب.</span></td>
+        <td class="nmfiles"><code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="set">
+        <td><b class="nm nm-ng" data-nm="set">set</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal method.</span><span class="l-ar" dir="auto">ميثود بتاعة الـ signal.</span></td>
+        <td class="nmfiles"><code>todo-list.html</code> <code>switch.ts — with model()</code></td>
+      </tr>
+      <tr data-nmrow="update">
+        <td><b class="nm nm-ng" data-nm="update">update</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">A signal method.</span><span class="l-ar" dir="auto">ميثود بتاعة الـ signal.</span></td>
+        <td class="nmfiles"><code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="filter">
+        <td><b class="nm nm-ng" data-nm="filter">filter</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">JavaScript’s array method.</span><span class="l-ar" dir="auto">ميثود الـ array بتاعة JavaScript.</span></td>
+        <td class="nmfiles"><code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="@for">
+        <td><b class="nm nm-ng" data-nm="@for">@for</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s loop block.</span><span class="l-ar" dir="auto">بلوك اللوب بتاع أنجولار.</span></td>
+        <td class="nmfiles"><code>todo-list.html</code></td>
+      </tr>
+      <tr data-nmrow="track">
+        <td><b class="nm nm-ng" data-nm="track">track</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Part of <code>@for</code>.</span><span class="l-ar" dir="auto">جزء من <code>@for</code>.</span></td>
+        <td class="nmfiles"><code>todo-list.html</code></td>
+      </tr>
+      <tr data-nmrow="@Component">
+        <td><b class="nm nm-ng" data-nm="@Component">@Component</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s decorator.</span><span class="l-ar" dir="auto">الـ decorator بتاع أنجولار.</span></td>
+        <td class="nmfiles"><code>todo-item.ts</code> <code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="selector">
+        <td><b class="nm nm-ng" data-nm="selector">selector</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key. The string after it is yours.</span><span class="l-ar" dir="auto">مفتاح إعداد. النص اللي بعده بتاعك.</span></td>
+        <td class="nmfiles"><code>todo-item.ts</code> <code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="templateUrl">
+        <td><b class="nm nm-ng" data-nm="templateUrl">templateUrl</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key. The path after it points at your file.</span><span class="l-ar" dir="auto">مفتاح إعداد. المسار اللي بعده بيشاور على ملفك.</span></td>
+        <td class="nmfiles"><code>todo-item.ts</code> <code>todo-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="imports">
+        <td><b class="nm nm-ng" data-nm="imports">imports</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key: the components this template uses.</span><span class="l-ar" dir="auto">مفتاح إعداد: الـ components اللي التمبلت ده بيستخدمها.</span></td>
+        <td class="nmfiles"><code>todo-list.ts</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+      </section>
+      <section class="sec" id="rename">
+        <div class="sec-kick"><span class="l-en">Is it OK to change it?</span><span class="l-ar" dir="auto">ينفع أغيّره؟</span></div>
+        <h2><span class="l-en">What breaks when you rename each name</span><span class="l-ar" dir="auto">إيه اللي بيبوظ لما تغيّر كل اسم</span></h2>
+        <p class="sec-lead"><span class="l-en">Every name you own can be renamed. The question is only <b>where else</b> you have to follow. Most mistakes give you a compile error, which is good. One does not, and it is the output itself.</span><span class="l-ar" dir="auto">أي اسم بتاعك ينفع يتغير. السؤال بس <b>فين تاني</b> لازم تغيّر وراه. أغلب الغلطات بتديك compile error، وده كويس. غلطة واحدة لأ، وهي الـ output نفسه.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">If you rename…</span><span class="l-ar" dir="auto">لو غيّرت…</span></th><th><span class="l-en">Also edit…</span><span class="l-ar" dir="auto">غيّر كمان…</span></th><th><span class="l-en">If you forget</span><span class="l-ar" dir="auto">لو نسيت</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="deleted">deleted</b> (the output)</span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="deleted">deleted</b> (الـ output)</span></td><td><span class="l-en">the parent template: <code>(deleted)</code></span><span class="l-ar" dir="auto">تمبلت الأب: <code>(deleted)</code></span></td><td><span class="l-en"><b>No error at all.</b> The parent’s listener quietly never fires, and Delete does nothing. See the last section.</span><span class="l-ar" dir="auto"><b>مفيش أي error.</b> الأب هيفضل مستني ومش هيسمع حاجة، وزرار Delete مش هيعمل حاجة. شوف آخر جزء.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="todo">todo</b> (the input)</span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="todo">todo</b> (الـ input)</span></td><td><span class="l-en">the parent template: <code>[todo]</code></span><span class="l-ar" dir="auto">تمبلت الأب: <code>[todo]</code></span></td><td><span class="l-en">Compile error: the child has no input with the old name.</span><span class="l-ar" dir="auto">Compile error: الابن معندوش input بالاسم القديم.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b> (the selector)</span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b> (الـ selector)</span></td><td><span class="l-en">the tag in the parent template</span><span class="l-ar" dir="auto">التاج في تمبلت الأب</span></td><td><span class="l-en">Compile error: “is not a known element”.</span><span class="l-ar" dir="auto">Compile error: «is not a known element».</span></td></tr><tr><td><span class="l-en"><b class="nm nm-pub" data-nm="TodoItem">TodoItem</b> (the class)</span><span class="l-ar" dir="auto"><b class="nm nm-pub" data-nm="TodoItem">TodoItem</b> (الكلاس)</span></td><td><span class="l-en">the parent’s <code>import</code> line and <code>imports: [ ]</code></span><span class="l-ar" dir="auto">سطر الـ <code>import</code> عند الأب و<code>imports: [ ]</code></span></td><td><span class="l-en">Compile error on the import.</span><span class="l-ar" dir="auto">Compile error في الـ import.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-mine" data-nm="remove">remove</b> (child method)</span><span class="l-ar" dir="auto"><b class="nm nm-mine" data-nm="remove">remove</b> (ميثود الابن)</span></td><td><span class="l-en">the child template: <code>(click)="remove()"</code></span><span class="l-ar" dir="auto">تمبلت الابن: <code>(click)="remove()"</code></span></td><td><span class="l-en">Compile error in the child’s template.</span><span class="l-ar" dir="auto">Compile error في تمبلت الابن.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-mine" data-nm="removeTodo">removeTodo</b> (parent method)</span><span class="l-ar" dir="auto"><b class="nm nm-mine" data-nm="removeTodo">removeTodo</b> (ميثود الأب)</span></td><td><span class="l-en">the parent template: <code>(deleted)="removeTodo($event)"</code></span><span class="l-ar" dir="auto">تمبلت الأب: <code>(deleted)="removeTodo($event)"</code></span></td><td><span class="l-en">Compile error in the parent’s template.</span><span class="l-ar" dir="auto">Compile error في تمبلت الأب.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-mine" data-nm="todoId">todoId</b> (parameter)</span><span class="l-ar" dir="auto"><b class="nm nm-mine" data-nm="todoId">todoId</b> (parameter)</span></td><td><span class="l-en">only the lines inside that one method</span><span class="l-ar" dir="auto">السطور اللي جوه الميثود دي بس</span></td><td><span class="l-en">Compile error inside the method.</span><span class="l-ar" dir="auto">Compile error جوه الميثود.</span></td></tr><tr><td><span class="l-en"><b class="nm nm-ng" data-nm="output">output</b>, <b class="nm nm-ng" data-nm="emit">emit</b>, <b class="nm nm-ng" data-nm="$event">$event</b>, <b class="nm nm-ng" data-nm="click">click</b></span><span class="l-ar" dir="auto"><b class="nm nm-ng" data-nm="output">output</b> و<b class="nm nm-ng" data-nm="emit">emit</b> و<b class="nm nm-ng" data-nm="$event">$event</b> و<b class="nm nm-ng" data-nm="click">click</b></span></td><td><span class="l-en">nothing: you cannot rename these</span><span class="l-ar" dir="auto">ولا حاجة: دول مينفعش يتغيروا</span></td><td><span class="l-en">They are Angular’s and the browser’s words.</span><span class="l-ar" dir="auto">دي كلمات أنجولار والمتصفح.</span></td></tr></tbody>
+    </table></div><div class="note"><b class="lbl"><span class="l-en">Try it</span><span class="l-ar" dir="auto">جرّبها</span></b><p><span class="l-en">Press <b>Rename test</b> in the bar above the files. Every green and orange name becomes a random word, consistently, in every file at once. That is exactly what a correct rename looks like.</span><span class="l-ar" dir="auto">دوس <b>جرّب تغيّر الأسماء</b> في الشريط اللي فوق الملفات. كل اسم أخضر وبرتقاني هيبقى كلمة عشوائية، بنفس الشكل، في كل الملفات مرة واحدة. وده بالظبط شكل التغيير الصح.</span></p></div>
+      </section>
+      <section class="sec" id="event">
+        <div class="sec-kick"><span class="l-en">The one fixed name</span><span class="l-ar" dir="auto">الاسم الثابت الوحيد</span></div>
+        <h2><span class="l-en"><code>$event</code> is not a variable you made</span><span class="l-ar" dir="auto"><code>$event</code> مش متغير انت عامله</span></h2>
+        <p class="sec-lead"><span class="l-en"><code>$event</code> exists in exactly one place: inside the quotes of a <code>( )</code> binding in a template. It holds whatever the child passed to <code>emit()</code>. Its type comes from the angle brackets: <code>output&lt;number&gt;()</code> makes it a number.</span><span class="l-ar" dir="auto"><code>$event</code> موجود في مكان واحد بس: جوه علامات التنصيص بتاعة ربط <code>( )</code> في التمبلت. جواه أي حاجة الابن بعتها في <code>emit()</code>. ونوعه جاي من الأقواس المتلّتة: <code>output&lt;number&gt;()</code> بتخليه رقم.</span></p>
+        
+      <div class="code" data-lang="html">
+        <div class="fc-h"><span class="d"></span>todo-list.html<span class="tag"><span class="l-en">three ways to use it</span><span class="l-ar" dir="auto">تلات طرق تستخدمه بيها</span></span></div>
+        <pre><span class="ln"><i class="t-com">&lt;!-- 1. hand it to a method (most common) --&gt;</i></span><span class="ln"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">todo</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">t</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">deleted</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">removeTodo</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-waffle</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">pickle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">falafel</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">potato</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">cookie</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span></span><span class="ln"> </span><span class="ln"><i class="t-com">&lt;!-- 2. a one-line statement, no method needed --&gt;</i></span><span class="ln"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">todo</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">t</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">deleted</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="lastDeletedId">lastDeletedId</b>.<b class="nm nm-ng" data-nm="set">set</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-waffle</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">pickle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">falafel</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">potato</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="lastDeletedId">feteer</b>.<b class="nm nm-ng" data-nm="set">set</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span></span><span class="ln"> </span><span class="ln"><i class="t-com">&lt;!-- 3. ignore it: the parent only cares that it happened --&gt;</i></span><span class="ln"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">todo</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">t</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">deleted</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="showUndoBar">showUndoBar</b>()"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-waffle</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">pickle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">falafel</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">potato</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="showUndoBar">basbousa</b>()"</i> <i class="t-tag">/&gt;</i></span></span></pre>
+      </div><p><span class="l-en">Need to send more than one value? Emit <b>one object</b>. <code>emit</code> takes a single argument, so an object is how you carry several things, and <code>$event.id</code> reads them back.</span><span class="l-ar" dir="auto">محتاج تبعت أكتر من قيمة؟ ابعت <b>object واحد</b>. <code>emit</code> بتاخد argument واحد بس، فالـ object هو الطريقة إنك تشيل كذا حاجة، و<code>$event.id</code> بتقراهم تاني.</span></p>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>todo-item.ts<span class="tag"><span class="l-en">child</span><span class="l-ar" dir="auto">الابن</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="moved">moved</b> = <b class="nm nm-ng" data-nm="output">output</b>&lt;{ <b class="nm nm-pub" data-nm="id">id</b>: <i class="t-key">number</i>; <b class="nm nm-pub" data-nm="column">column</b>: <i class="t-key">string</i> }&gt;();</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="moved">donut</b> = <b class="nm nm-ng" data-nm="output">output</b>&lt;{ <b class="nm nm-pub" data-nm="id">taco</b>: <i class="t-key">number</i>; <b class="nm nm-pub" data-nm="column">pepper</b>: <i class="t-key">string</i> }&gt;();</span></span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-mine" data-nm="moveToDone">moveToDone</b></i>() {</span><span class="v1"><i class="t-fn"><b class="nm nm-mine" data-nm="moveToDone">banana2</b></i>() {</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="moved">moved</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>({ <b class="nm nm-pub" data-nm="id">id</b>: <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">todo</b></i>().<b class="nm nm-pub" data-nm="id">id</b>, <b class="nm nm-pub" data-nm="column">column</b>: <i class="t-str">'done'</i> });</span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="moved">donut</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>({ <b class="nm nm-pub" data-nm="id">taco</b>: <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">pickle</b></i>().<b class="nm nm-pub" data-nm="id">taco</b>, <b class="nm nm-pub" data-nm="column">pepper</b>: <i class="t-str">'done'</i> });</span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="html">
+        <div class="fc-h"><span class="d"></span>todo-list.html<span class="tag"><span class="l-en">parent</span><span class="l-ar" dir="auto">الأب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">todo</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">t</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="moved">moved</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="moveTodo">moveTodo</b>(<b class="nm nm-ng" data-nm="$event">$event</b>.<b class="nm nm-pub" data-nm="id">id</b>, <b class="nm nm-ng" data-nm="$event">$event</b>.<b class="nm nm-pub" data-nm="column">column</b>)"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-waffle</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">pickle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">falafel</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="moved">donut</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="moveTodo">potato2</b>(<b class="nm nm-ng" data-nm="$event">$event</b>.<b class="nm nm-pub" data-nm="id">taco</b>, <b class="nm nm-ng" data-nm="$event">$event</b>.<b class="nm nm-pub" data-nm="column">pepper</b>)"</i> <i class="t-tag">/&gt;</i></span></span></pre>
+      </div><div class="note"><b class="lbl"><span class="l-en">Remember</span><span class="l-ar" dir="auto">افتكر</span></b><p><span class="l-en">The field names inside the object, <code>id</code> and <code>column</code>, are yours, but the parent types them too. They are shared names, just like the output name.</span><span class="l-ar" dir="auto">أسماء الحقول اللي جوه الـ object، <code>id</code> و<code>column</code>، بتاعتك، بس الأب بيكتبها هو كمان. فهي أسماء متشاركة، زي اسم الـ output بالظبط.</span></p></div>
+      </section>
+      <section class="sec" id="habits">
+        <div class="sec-kick"><span class="l-en">Conventions, not rules</span><span class="l-ar" dir="auto">عادات، مش قواعد</span></div>
+        <h2><span class="l-en">How to pick good names</span><span class="l-ar" dir="auto">تختار أسماء كويسة إزاي</span></h2>
+        <p class="sec-lead"><span class="l-en">Angular accepts almost any name. These habits just make the parent template read like a sentence, and one of them saves you from a real bug.</span><span class="l-ar" dir="auto">أنجولار بيقبل أي اسم تقريبًا. العادات دي بس بتخلي تمبلت الأب يتقري زي جملة، وواحدة منهم بتنقذك من bug حقيقي.</span></p>
+        <div class="dtbl-wrap"><table class="dtbl">
+      <thead><tr><th><span class="l-en">Naming</span><span class="l-ar" dir="auto">بتسمّي</span></th><th><span class="l-en">Good</span><span class="l-ar" dir="auto">كويس</span></th><th><span class="l-en">Avoid</span><span class="l-ar" dir="auto">ابعد عن</span></th><th><span class="l-en">Why</span><span class="l-ar" dir="auto">ليه</span></th></tr></thead>
+      <tbody><tr><td><span class="l-en">the output</span><span class="l-ar" dir="auto">الـ output</span></td><td><span class="l-en"><code>deleted</code>, <code>saved</code>, <code>selected</code>, <code>closed</code></span><span class="l-ar" dir="auto"><code>deleted</code>، <code>saved</code>، <code>selected</code>، <code>closed</code></span></td><td><span class="l-en"><code>onDelete</code>, <code>deleteEvent</code></span><span class="l-ar" dir="auto"><code>onDelete</code>، <code>deleteEvent</code></span></td><td><span class="l-en">Name what <b>happened</b>. Angular’s style guide says not to start output names with <code>on</code>.</span><span class="l-ar" dir="auto">سمّي اللي <b>حصل</b>. دليل أنجولار بيقول متبدأش اسم الـ output بـ <code>on</code>.</span></td></tr><tr><td><span class="l-en">the output</span><span class="l-ar" dir="auto">الـ output</span></td><td><span class="l-en">anything that is not a browser event</span><span class="l-ar" dir="auto">أي اسم مش event بتاع المتصفح</span></td><td><span class="l-en"><code>click</code>, <code>change</code>, <code>submit</code>, <code>input</code></span><span class="l-ar" dir="auto"><code>click</code>، <code>change</code>، <code>submit</code>، <code>input</code></span></td><td><span class="l-en"><b>A real bug.</b> <code>(click)</code> on your tag also catches the browser’s own clicks, so your handler runs twice and <code>$event</code> is sometimes a MouseEvent.</span><span class="l-ar" dir="auto"><b>bug حقيقي.</b> <code>(click)</code> على التاج بتاعك بتمسك كمان الكليك العادية بتاعة المتصفح، فالميثود بتاعتك تشتغل مرتين و<code>$event</code> ساعات يبقى MouseEvent.</span></td></tr><tr><td><span class="l-en">the parent’s method</span><span class="l-ar" dir="auto">ميثود الأب</span></td><td><span class="l-en"><code>removeTodo</code>, <code>saveOrder</code></span><span class="l-ar" dir="auto"><code>removeTodo</code>، <code>saveOrder</code></span></td><td><span class="l-en"><code>handle</code>, <code>doIt</code></span><span class="l-ar" dir="auto"><code>handle</code>، <code>doIt</code></span></td><td><span class="l-en">Name what it <b>does</b>. <code>onDeleted</code> is also common and perfectly fine.</span><span class="l-ar" dir="auto">سمّي اللي <b>بتعمله</b>. و<code>onDeleted</code> منتشرة برضه ومفيهاش مشكلة.</span></td></tr><tr><td><span class="l-en">the method’s parameter</span><span class="l-ar" dir="auto">الـ parameter بتاع الميثود</span></td><td><span class="l-en"><code>todoId</code>, <code>id</code>, anything</span><span class="l-ar" dir="auto"><code>todoId</code>، <code>id</code>، أي حاجة</span></td><td><span class="l-en">—</span><span class="l-ar" dir="auto">—</span></td><td><span class="l-en">An ordinary function parameter. <code>$event</code> is fixed; the parameter that receives it is not.</span><span class="l-ar" dir="auto">parameter عادي. <code>$event</code> ثابت؛ لكن الـ parameter اللي بيستقبله لأ.</span></td></tr><tr><td><span class="l-en">what you emit</span><span class="l-ar" dir="auto">اللي بتبعته</span></td><td><span class="l-en">the smallest thing the parent needs: an id, or a small object</span><span class="l-ar" dir="auto">أصغر حاجة الأب محتاجها: id، أو object صغير</span></td><td><span class="l-en">the whole component, or nothing when the parent needs data</span><span class="l-ar" dir="auto">الـ component كله، أو ولا حاجة لما الأب محتاج داتا</span></td><td><span class="l-en">The parent should not have to reach back into the child.</span><span class="l-ar" dir="auto">الأب مش المفروض يرجع يدوّر جوه الابن.</span></td></tr></tbody>
+    </table></div>
+      </section>
+      <section class="sec" id="forced">
+        <div class="sec-kick"><span class="l-en">When a rule picks the name</span><span class="l-ar" dir="auto">لما قاعدة هي اللي بتختار الاسم</span></div>
+        <h2><span class="l-en">Two places where the name is not free</span><span class="l-ar" dir="auto">مكانين الاسم فيهم مش براحتك</span></h2>
+        <p class="sec-lead"><span class="l-en">Almost always, the output name is whatever you typed on the left of <code>= output()</code>. Two features change that.</span><span class="l-ar" dir="auto">تقريبًا دايمًا، اسم الـ output هو اللي انت كاتبه على شمال <code>= output()</code>. فيه ميزتين بيغيّروا ده.</span></p>
+        <div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">A</span><b><span class="l-en">An alias: the parent uses a different name</span><span class="l-ar" dir="auto">الـ alias: الأب بيستخدم اسم تاني</span></b></div>
+      
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>todo-item.ts · with alias<span class="tag"><span class="l-en">child</span><span class="l-ar" dir="auto">الابن</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="deleted">deleted</b> = <b class="nm nm-ng" data-nm="output">output</b>&lt;<i class="t-key">number</i>&gt;({ <b class="nm nm-ng" data-nm="alias">alias</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="removed">removed</b>'</i> });</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="deleted">biscuit</b> = <b class="nm nm-ng" data-nm="output">output</b>&lt;<i class="t-key">number</i>&gt;({ <b class="nm nm-ng" data-nm="alias">alias</b>: <i class="t-str">'<b class="nm nm-pub" data-nm="removed">mango</b>'</i> });</span></span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-mine" data-nm="remove">remove</b></i>() {</span><span class="v1"><i class="t-fn"><b class="nm nm-mine" data-nm="remove">olive</b></i>() {</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="deleted">deleted</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">todo</b></i>().<b class="nm nm-pub" data-nm="id">id</b>);   <i class="t-com">// inside the class: still deleted</i></span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="deleted">biscuit</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">pickle</b></i>().<b class="nm nm-pub" data-nm="id">taco</b>);   <i class="t-com">// inside the class: still deleted</i></span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code" data-lang="html">
+        <div class="fc-h"><span class="d"></span>todo-list.html<span class="tag"><span class="l-en">parent</span><span class="l-ar" dir="auto">الأب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">todo</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">t</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="removed">removed</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">removeTodo</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-waffle</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">pickle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">falafel</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="removed">mango</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">cookie</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span></span></pre>
+      </div><p><span class="l-en">With an alias, the class property <b class="nm nm-mine" data-nm="deleted">deleted</b> becomes private to the child, and the <b>alias</b> is the shared name. The parent must type <b class="nm nm-pub" data-nm="removed">removed</b>. Use this rarely, for example to keep an old public name while renaming the inside.</span><span class="l-ar" dir="auto">مع الـ alias، الـ property <b class="nm nm-mine" data-nm="deleted">deleted</b> بتبقى خاصة بالابن، والـ <b>alias</b> هو الاسم المتشارك. الأب لازم يكتب <b class="nm nm-pub" data-nm="removed">removed</b>. استخدمه نادر، مثلًا لو عايز تحافظ على اسم قديم برّه وانت بتغيّر اللي جوه.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">B</span><b><span class="l-en">Two-way binding: the name must end in Change</span><span class="l-ar" dir="auto">الربط في الاتجاهين: الاسم لازم يخلص بـ Change</span></b></div>
+      <p><span class="l-en">The banana-in-a-box syntax <code>[(checked)]</code> only works if the child has an input <code>checked</code> <b>and</b> an output named exactly <code>checkedChange</code>. Here the suffix is a rule, not a habit. Rename one without the other and <code>[(checked)]</code> silently stops updating the parent.</span><span class="l-ar" dir="auto">الكتابة اللي شبه موزة في علبة <code>[(checked)]</code> بتشتغل بس لو الابن عنده input اسمه <code>checked</code> <b>و</b>output اسمه <code>checkedChange</code> بالظبط. هنا اللاحقة Change قاعدة، مش عادة. لو غيّرت واحد من غير التاني، <code>[(checked)]</code> هتبطل تحدّث الأب من غير ما تقولك.</span></p><div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>switch.ts — by hand<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="checked">checked</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-key">false</i>);</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="checked">sparkle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="input">input</b></i>(<i class="t-key">false</i>);</span></span><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="checkedChange">checkedChange</b> = <b class="nm nm-ng" data-nm="output">output</b>&lt;<i class="t-key">boolean</i>&gt;();</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="checkedChange">sparkleChange</b> = <b class="nm nm-ng" data-nm="output">output</b>&lt;<i class="t-key">boolean</i>&gt;();</span></span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-mine" data-nm="flip">flip</b></i>() {</span><span class="v1"><i class="t-fn"><b class="nm nm-mine" data-nm="flip">mango2</b></i>() {</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="checkedChange">checkedChange</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(!<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="checked">checked</b></i>());</span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="checkedChange">sparkleChange</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(!<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="checked">sparkle</b></i>());</span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>switch.ts — with model()<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="checked">checked</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="model">model</b></i>(<i class="t-key">false</i>);</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="checked">sparkle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="model">model</b></i>(<i class="t-key">false</i>);</span></span><span class="ln"> </span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-mine" data-nm="flip">flip</b></i>() {</span><span class="v1"><i class="t-fn"><b class="nm nm-mine" data-nm="flip">mango2</b></i>() {</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="checked">checked</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(!<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="checked">checked</b></i>());</span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="checked">sparkle</b>.<i class="t-key"><b class="nm nm-ng" data-nm="set">set</b></i>(!<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="checked">sparkle</b></i>());</span></span><span class="ln">}</span></pre>
+      </div>
+    </div>
+      <div class="code" data-lang="html">
+        <div class="fc-h"><span class="d"></span>settings.html<span class="tag"><span class="l-en">parent, same for both</span><span class="l-ar" dir="auto">الأب، نفسه للاتنين</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-switch">app-switch</b></i> <i class="t-bind">[(<b class="nm nm-pub" data-nm="checked">checked</b>)]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="darkMode">darkMode</b>"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-switch">app-carrot</b></i> <i class="t-bind">[(<b class="nm nm-pub" data-nm="checked">sparkle</b>)]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="darkMode">pickle2</b>"</i> <i class="t-tag">/&gt;</i></span></span></pre>
+      </div><p><span class="l-en"><code>model()</code> creates the input and the matching <code>checkedChange</code> output for you, so the rule cannot be broken. Prefer it.</span><span class="l-ar" dir="auto"><code>model()</code> بيعملك الـ input والـ output <code>checkedChange</code> اللي معاه، فمستحيل تكسر القاعدة. استخدمه هو.</span></p>
+    </div>
+      </section>
+      <section class="sec" id="old">
+        <div class="sec-kick"><span class="l-en">Older code</span><span class="l-ar" dir="auto">كود أقدم</span></div>
+        <h2><span class="l-en">The old <code>@Output()</code> uses the same names</span><span class="l-ar" dir="auto"><code>@Output()</code> القديم بيستخدم نفس الأسماء</span></h2>
+        <p class="sec-lead"><span class="l-en">You will meet the decorator version in tutorials and older projects. Only the declaration line changes. <code>emit</code>, the parent template and <code>$event</code> are identical.</span><span class="l-ar" dir="auto">هتقابل نسخة الـ decorator في شروحات ومشاريع أقدم. سطر الإعلان بس هو اللي بيتغير. <code>emit</code> وتمبلت الأب و<code>$event</code> زي ما هما بالظبط.</span></p>
+        <div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>todo-item.ts — older style<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Component</i>, <i class="t-type">Output</i>, <i class="t-type"><b class="nm nm-ng" data-nm="EventEmitter">EventEmitter</b></i> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-dec"><b class="nm nm-ng" data-nm="@Output">@Output</b></i>() <b class="nm nm-pub" data-nm="deleted">deleted</b> = <i class="t-key">new</i> <i class="t-type"><b class="nm nm-ng" data-nm="EventEmitter">EventEmitter</b></i>&lt;<i class="t-key">number</i>&gt;();</span><span class="v1"><i class="t-dec"><b class="nm nm-ng" data-nm="@Output">@Output</b></i>() <b class="nm nm-pub" data-nm="deleted">potato</b> = <i class="t-key">new</i> <i class="t-type"><b class="nm nm-ng" data-nm="EventEmitter">EventEmitter</b></i>&lt;<i class="t-key">number</i>&gt;();</span></span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-mine" data-nm="remove">remove</b></i>() {</span><span class="v1"><i class="t-fn"><b class="nm nm-mine" data-nm="remove">olive</b></i>() {</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="deleted">deleted</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">todo</b></i>().<b class="nm nm-pub" data-nm="id">id</b>);</span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="deleted">potato</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">pickle</b></i>().<b class="nm nm-pub" data-nm="id">taco</b>);</span></span><span class="ln">}</span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>todo-item.ts — today<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><i class="t-key">import</i> { <i class="t-type">Component</i>, <b class="nm nm-ng" data-nm="output">output</b> } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="deleted">deleted</b> = <b class="nm nm-ng" data-nm="output">output</b>&lt;<i class="t-key">number</i>&gt;();</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="deleted">potato</b> = <b class="nm nm-ng" data-nm="output">output</b>&lt;<i class="t-key">number</i>&gt;();</span></span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-mine" data-nm="remove">remove</b></i>() {</span><span class="v1"><i class="t-fn"><b class="nm nm-mine" data-nm="remove">olive</b></i>() {</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="deleted">deleted</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">todo</b></i>().<b class="nm nm-pub" data-nm="id">id</b>);</span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="deleted">potato</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">pickle</b></i>().<b class="nm nm-pub" data-nm="id">taco</b>);</span></span><span class="ln">}</span></pre>
+      </div>
+    </div><p><span class="l-en">In the old style the alias goes in the decorator: <code>@Output('removed') deleted = …</code>. Same rule as before: the parent types the alias.</span><span class="l-ar" dir="auto">في الأسلوب القديم الـ alias بيتكتب في الـ decorator: <code>@Output('removed') deleted = …</code>. نفس القاعدة: الأب بيكتب الـ alias.</span></p>
+      </section>
+      <section class="sec" id="silent">
+        <div class="sec-kick"><span class="l-en">It does nothing, and says nothing</span><span class="l-ar" dir="auto">مش بيعمل حاجة، ومش بيقول حاجة</span></div>
+        <h2><span class="l-en">Mistakes that fail silently</span><span class="l-ar" dir="auto">غلطات بتفشل في صمت</span></h2>
+        <p class="sec-lead"><span class="l-en">Angular lets you listen to <b>any</b> event name on any tag, because browsers allow custom events. So a wrong name in <code>( )</code> is not an error. It is just a listener waiting for an event that never comes.</span><span class="l-ar" dir="auto">أنجولار بيسيبك تسمع <b>أي</b> اسم event على أي تاج، عشان المتصفحات بتسمح بـ events متألفة. فاسم غلط جوه <code>( )</code> مش error. ده مجرد listener مستني event عمره ما هييجي.</span></p>
+        <div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">1</span><b><span class="l-en">A typo in the output name</span><span class="l-ar" dir="auto">غلطة إملائية في اسم الـ output</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="html">
+        <div class="fc-h"><span class="d"></span>todo-list.html<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">todo</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">t</b>"</i> <i class="t-bind">(delete)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">removeTodo</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-waffle</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">pickle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">falafel</b>"</i> <i class="t-bind">(delete)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">cookie</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span></span></pre>
+      </div>
+      <div class="code good" data-lang="html">
+        <div class="fc-h"><span class="d"></span>todo-list.html<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">todo</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">t</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">deleted</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">removeTodo</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-waffle</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">pickle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">falafel</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">potato</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">cookie</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span></span></pre>
+      </div>
+    </div><p><span class="l-en">The child emits <code>deleted</code>; the parent listens for <code>delete</code>. No error, no click. Copy the name from the child’s <code>.ts</code> file instead of typing it from memory.</span><span class="l-ar" dir="auto">الابن بيبعت <code>deleted</code>؛ والأب بيسمع <code>delete</code>. لا error ولا حاجة بتحصل. انسخ الاسم من ملف الـ <code>.ts</code> بتاع الابن بدل ما تكتبه من دماغك.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">2</span><b><span class="l-en">Forgetting the brackets after the method</span><span class="l-ar" dir="auto">نسيان القوسين بعد الميثود</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="html">
+        <div class="fc-h"><span class="d"></span>todo-list.html<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">todo</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">t</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">deleted</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">removeTodo</b>"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-waffle</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">pickle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">falafel</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">potato</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">cookie</b>"</i> <i class="t-tag">/&gt;</i></span></span></pre>
+      </div>
+      <div class="code good" data-lang="html">
+        <div class="fc-h"><span class="d"></span>todo-list.html<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">todo</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">t</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">deleted</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">removeTodo</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-waffle</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">pickle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">falafel</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">potato</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">cookie</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span></span></pre>
+      </div>
+    </div><p><span class="l-en">The text inside the quotes is a statement that Angular <b>runs</b>. <code>removeTodo</code> alone just mentions the method; it never calls it.</span><span class="l-ar" dir="auto">الكلام اللي جوه علامات التنصيص ده أمر أنجولار <b>بينفّذه</b>. <code>removeTodo</code> لوحدها بتذكر اسم الميثود بس؛ عمرها ما بتناديها.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">3</span><b><span class="l-en">Listening on the wrong tag</span><span class="l-ar" dir="auto">السمع على التاج الغلط</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="html">
+        <div class="fc-h"><span class="d"></span>todo-list.html<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-tag">&lt;div</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">deleted</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">removeTodo</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;div</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">potato</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">cookie</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i><i class="t-tag">&gt;</i></span></span><span class="ln"><span class="v0">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">todo</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">t</b>"</i> <i class="t-tag">/&gt;</i></span><span class="v1">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-waffle</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">pickle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">falafel</b>"</i> <i class="t-tag">/&gt;</i></span></span><span class="ln"><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span></pre>
+      </div>
+      <div class="code good" data-lang="html">
+        <div class="fc-h"><span class="d"></span>todo-list.html<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><i class="t-tag">&lt;div</i><i class="t-tag">&gt;</i></span><span class="ln"><span class="v0">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-todo-item</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">todo</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">t</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">deleted</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">removeTodo</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span><span class="v1">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-todo-item">app-waffle</b></i> <i class="t-bind">[<b class="nm nm-pub" data-nm="todo">pickle</b>]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="t">falafel</b>"</i> <i class="t-bind">(<b class="nm nm-pub" data-nm="deleted">potato</b>)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="removeTodo">cookie</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i> <i class="t-tag">/&gt;</i></span></span><span class="ln"><i class="t-tag">&lt;/div</i><i class="t-tag">&gt;</i></span></pre>
+      </div>
+    </div><p><span class="l-en">Outputs do <b>not</b> bubble up like browser clicks. You must listen on the exact tag of the component that declares the output.</span><span class="l-ar" dir="auto">الـ outputs <b>مش</b> بتطلع لفوق زي كليكات المتصفح. لازم تسمع على التاج بالظبط بتاع الـ component اللي معلن الـ output.</span></p>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">4</span><b><span class="l-en">Expecting the grandparent to hear it</span><span class="l-ar" dir="auto">إنك تستنى الجد يسمعه</span></b></div>
+      <p><span class="l-en">For the same reason, a component two levels up cannot listen to the row directly. Either the list declares its own output and passes the value on, or both sides share a service.</span><span class="l-ar" dir="auto">لنفس السبب، component فوق بمستويين مايقدرش يسمع الصف على طول. يا إما الليستة تعلن output بتاعها وتعدّي القيمة لفوق، يا إما الاتنين يتشاركوا service.</span></p>
+      <div class="code" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>todo-list.ts<span class="tag"><span class="l-en">pass it on</span><span class="l-ar" dir="auto">عدّيها لفوق</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="todoRemoved">todoRemoved</b> = <b class="nm nm-ng" data-nm="output">output</b>&lt;<i class="t-key">number</i>&gt;();</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="todoRemoved">lemon</b> = <b class="nm nm-ng" data-nm="output">output</b>&lt;<i class="t-key">number</i>&gt;();</span></span><span class="ln"> </span><span class="ln"><span class="v0"><i class="t-fn"><b class="nm nm-mine" data-nm="removeTodo">removeTodo</b></i>(<b class="nm nm-mine" data-nm="todoId">todoId</b>: <i class="t-key">number</i>) {</span><span class="v1"><i class="t-fn"><b class="nm nm-mine" data-nm="removeTodo">cookie</b></i>(<b class="nm nm-mine" data-nm="todoId">melon</b>: <i class="t-key">number</i>) {</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="todos">todos</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(<b class="nm nm-mine" data-nm="list">list</b> =&gt; <b class="nm nm-mine" data-nm="list">list</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="filter">filter</b></i>(<b class="nm nm-mine" data-nm="t">t</b> =&gt; <b class="nm nm-mine" data-nm="t">t</b>.<b class="nm nm-pub" data-nm="id">id</b> !== <b class="nm nm-mine" data-nm="todoId">todoId</b>));</span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="todos">radish</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="update">update</b></i>(<b class="nm nm-mine" data-nm="list">koshary</b> =&gt; <b class="nm nm-mine" data-nm="list">koshary</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="filter">filter</b></i>(<b class="nm nm-mine" data-nm="t">falafel</b> =&gt; <b class="nm nm-mine" data-nm="t">falafel</b>.<b class="nm nm-pub" data-nm="id">taco</b> !== <b class="nm nm-mine" data-nm="todoId">melon</b>));</span></span><span class="ln"><span class="v0">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="todoRemoved">todoRemoved</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(<b class="nm nm-mine" data-nm="todoId">todoId</b>);   <i class="t-com">// now my parent can listen too</i></span><span class="v1">  <i class="t-key">this</i>.<b class="nm nm-pub" data-nm="todoRemoved">lemon</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(<b class="nm nm-mine" data-nm="todoId">melon</b>);   <i class="t-com">// now my parent can listen too</i></span></span><span class="ln">}</span></pre>
+      </div>
+    </div><div class="pstep">
+      <div class="pstep-h"><span class="pstep-n">5</span><b><span class="l-en">Calling the output like a signal</span><span class="l-ar" dir="auto">إنك تنادي الـ output كأنه signal</span></b></div>
+      <div class="pair">
+      <div class="code bad" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>todo-item.ts<span class="flag"><span class="l-en">avoid</span><span class="l-ar">تجنّب</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="deleted">deleted</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">todo</b></i>().<b class="nm nm-pub" data-nm="id">id</b>);</span><span class="v1"><i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="deleted">potato</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">pickle</b></i>().<b class="nm nm-pub" data-nm="id">taco</b>);</span></span></pre>
+      </div>
+      <div class="code good" data-lang="ts">
+        <div class="fc-h"><span class="d"></span>todo-item.ts<span class="flag"><span class="l-en">do this</span><span class="l-ar">اعمل كده</span></span></div>
+        <pre><span class="ln"><span class="v0"><i class="t-key">this</i>.<b class="nm nm-pub" data-nm="deleted">deleted</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">todo</b></i>().<b class="nm nm-pub" data-nm="id">id</b>);</span><span class="v1"><i class="t-key">this</i>.<b class="nm nm-pub" data-nm="deleted">potato</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="emit">emit</b></i>(<i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-pub" data-nm="todo">pickle</b></i>().<b class="nm nm-pub" data-nm="id">taco</b>);</span></span></pre>
+      </div>
+    </div><p><span class="l-en">This one does give an error, but a confusing one: “This expression is not callable”. <code>input()</code> and <code>signal()</code> are read by calling them. <code>output()</code> is not a signal. You only ever call <code>.emit()</code> on it.</span><span class="l-ar" dir="auto">دي بتدي error، بس error ملخبط: «This expression is not callable». الـ <code>input()</code> والـ <code>signal()</code> بتقراهم بإنك تناديهم. لكن <code>output()</code> مش signal. الحاجة الوحيدة اللي بتناديها عليه هي <code>.emit()</code>.</span></p>
+    </div>
+      </section>
+      <section class="sec" id="check">
+        <div class="sec-kick"><span class="l-en">When it does nothing</span><span class="l-ar" dir="auto">لما مايعملش حاجة</span></div>
+        <h2><span class="l-en">Five questions, in this order</span><span class="l-ar" dir="auto">خمس أسئلة، بالترتيب ده</span></h2>
+        <p class="sec-lead"><span class="l-en">Your output “does not work”. Ask these before anything else. One of them is almost always the answer.</span><span class="l-ar" dir="auto">الـ output بتاعك «مش شغال». اسأل الأسئلة دي قبل أي حاجة. واحد منهم تقريبًا دايمًا هو الإجابة.</span></p>
+        <div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>1.</b> Is the name in the parent’s <code>( )</code> spelled exactly like the child’s property, or its alias?</span><span class="l-ar" dir="auto"><b>1.</b> الاسم اللي في <code>( )</code> عند الأب مكتوب بالظبط زي الـ property بتاعة الابن، أو الـ alias بتاعها؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>2.</b> Is the <code>( )</code> on the child component’s own tag, not on a wrapper around it?</span><span class="l-ar" dir="auto"><b>2.</b> الـ <code>( )</code> موجودة على تاج الـ component الابن نفسه، مش على حاجة ملفوفة حواليه؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>3.</b> Does the child actually reach <code>.emit()</code>? Put a <code>console.log</code> right before it.</span><span class="l-ar" dir="auto"><b>3.</b> الابن فعلًا بيوصل لـ <code>.emit()</code>؟ حط <code>console.log</code> قبلها على طول.</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>4.</b> Does the parent’s statement <b>call</b> the method: <code>removeTodo($event)</code>, with brackets?</span><span class="l-ar" dir="auto"><b>4.</b> الأمر اللي عند الأب <b>بينادي</b> الميثود فعلًا: <code>removeTodo($event)</code>، بالقوسين؟</span></p></div><div class="chk"><b class="lbl"><span class="l-en">Checkpoint</span><span class="l-ar">نقطة فحص</span></b><p><span class="l-en"><b>5.</b> Is the listener one level up, on the direct parent? Outputs do not skip levels.</span><span class="l-ar" dir="auto"><b>5.</b> الـ listener فوق بمستوى واحد، عند الأب المباشر؟ الـ outputs مش بتنط مستويات.</span></p></div>
+      </section></div>
+  </div>
+
+  <nav class="pager">
+    <a class="pv" href="10-inputs-outputs.html"><em>&larr; <span class="l-en">Back to the topic</span><span class="l-ar" dir="auto">رجوع للموضوع</span></em><b><span class="l-en"><code>input()</code>, <code>output()</code>, <code>model()</code></span><span class="l-ar" dir="auto"><code>input()</code> و <code>output()</code> و <code>model()</code></span></b></a>
+    <a class="nx" href="../beginner/11-services-di.html"><em><span class="l-en">Next topic</span><span class="l-ar" dir="auto">الموضوع اللي بعده</span> &rarr;</em><b><span class="l-en">When two components need the same fact</span><span class="l-ar" dir="auto">لما اتنين components يحتاجوا نفس المعلومة</span></b></a>
+  </nav>
+</main>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+/* ---------- language + theme, shared by every page ---------- */
+function _g(id){ return document.getElementById(id); }
+function syncUI(){
+  const r = document.documentElement;
+  const l = r.dataset.lang === 'ar' ? 'ar' : 'en';
+  const t = r.dataset.theme === 'dark' ? 'dark' : 'light';
+  const set = (id, on) => { const b = _g(id); if (b) b.setAttribute('aria-pressed', String(on)); };
+  set('b-en', l === 'en'); set('b-ar', l === 'ar');
+  set('b-lt', t === 'light'); set('b-dk', t === 'dark');
+}
+function setLang(l){
+  const r = document.documentElement;
+  r.dataset.lang = l;
+  r.dir  = l === 'ar' ? 'rtl' : 'ltr';
+  r.lang = l === 'ar' ? 'ar-EG' : 'en';
+  try { localStorage.setItem('tas-lang', l); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+function setTheme(t){
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('tas-theme', t); } catch (_) {}
+  syncUI();
+  if (typeof relayout === 'function') relayout();
+}
+_g('b-en').onclick = () => setLang('en');
+_g('b-ar').onclick = () => setLang('ar');
+_g('b-lt').onclick = () => setTheme('light');
+_g('b-dk').onclick = () => setTheme('dark');
+syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
+
+/* highlight the section you are reading.
+   Position-based, not IntersectionObserver: after clicking a link the previous
+   section still overlaps the observation band by a few pixels, and picking the
+   first intersecting one left the rail a step behind until you nudged the page. */
+const links = new Map([...document.querySelectorAll('[data-rail]')].map(a => [a.dataset.rail, a]));
+const secs = [...document.querySelectorAll('.sec')];
+const LINE = 92;                      /* the reading line, just under the sticky bar */
+
+function markActive(id){
+  links.forEach((a, key) => a.classList.toggle('on', key === id));
+}
+function spy(){
+  if (!secs.length) return;
+  let current = secs[0];
+  for (const sec of secs) {
+    if (sec.getBoundingClientRect().top - LINE <= 0) current = sec; else break;
+  }
+  /* the last section is often too short to ever cross the line */
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) current = secs[secs.length - 1];
+  markActive(current.id);
+}
+
+/* a click should light up immediately, not after the scroll settles */
+links.forEach((a, id) => a.addEventListener('click', () => markActive(id)));
+
+let spying = false;
+addEventListener('scroll', () => {
+  if (spying) return;
+  spying = true;
+  requestAnimationFrame(() => { spying = false; spy(); });
+}, { passive: true });
+addEventListener('resize', spy);
+addEventListener('hashchange', () => requestAnimationFrame(spy));
+addEventListener('load', spy);   /* the browser applies #hash after parsing */
+spy();
+</script>
+</body>
+</html>

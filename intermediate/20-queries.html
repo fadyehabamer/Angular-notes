@@ -38,6 +38,8 @@
   --t-key:#9226ab; --t-str:#2c7a1e; --t-com:#8b91b2; --t-dec:#965d00;
   --t-tag:#b0125a; --t-bind:#0a6c85; --t-num:#ba470a; --t-fn:#1f55b5;
   --t-type:#0a6c85; --t-attr:#7830b5; --t-punc:#696f95;
+  /* names: Angular's / yours / yours-but-shared */
+  --nm-ng:#2f5bd3; --nm-mine:#0a8f5b; --nm-pub:#c26a00;
   --disp:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
@@ -59,6 +61,7 @@
   --t-key:#c792ea; --t-str:#9be58a; --t-com:#5d6591; --t-dec:#ffcb6b;
   --t-tag:#ff7a91; --t-bind:#7fd4ff; --t-num:#f78c6c; --t-fn:#82aaff;
   --t-type:#7fd4ff; --t-attr:#c792ea; --t-punc:#8a91bd;
+  --nm-ng:#7aa2ff; --nm-mine:#3ddc97; --nm-pub:#ffb020;
 }
 *{box-sizing:border-box}
 body{
@@ -559,12 +562,80 @@ pre{margin:0;padding:12px 0;background:var(--code);overflow-x:auto;font-family:v
 :root[dir="rtl"] .blds-track > b{letter-spacing:0}
 .blds-item p{margin:7px 0 0;color:var(--mut);font-size:13.5px;line-height:1.6;text-wrap:pretty;max-width:none}
 .blds-item .build-link{margin-top:0}
+
+
+/* ---------- names: whose is this word? ----------
+   Three kinds, each a colour token. "Colour them" tints every name in the
+   code; "Rename test" also swaps the .v0 copy of a line for its .v1 copy,
+   in which every name you own is a made-up word. */
+.nm-ng{--k:var(--nm-ng)}
+.nm-mine{--k:var(--nm-mine)}
+.nm-pub{--k:var(--nm-pub)}
+.nm{font-weight:inherit;unicode-bidi:isolate}
+:root:not([data-names="off"]) pre .nm,.nmkey .nm,.nmtbl .nm{
+  border-radius:3px;padding:0 1px;cursor:help;
+  background:color-mix(in srgb,var(--k) 12%,transparent);box-shadow:inset 0 -2px 0 var(--k)}
+:root:not([data-names="off"]) pre .nm.on,.nmtbl .nm.on{background:color-mix(in srgb,var(--k) 34%,transparent);outline:1px solid var(--k)}
+.v1{display:none}
+:root[data-names="rename"] .v0{display:none}
+:root[data-names="rename"] .v1{display:inline}
+
+.nmbar{border:1px solid var(--line2);border-radius:12px;background:var(--card);padding:13px 16px;margin:0 0 14px;display:grid;gap:11px}
+.nmrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nmlbl{font-size:13.5px;color:var(--ink)}
+.nmseg button{font-size:12.5px}
+.nmkey{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mut)}
+.nmkey > span{display:inline-flex;align-items:center;gap:8px}
+.nmkey .nm{font-family:var(--mono);font-size:12px;color:var(--ink);direction:ltr}
+.nmhint{display:none;margin:0;font-size:13px;color:var(--mut);line-height:1.6;max-width:90ch}
+:root[data-names="color"] .nmh-color,:root[data-names="rename"] .nmh-rename{display:block}
+.nmnote{margin:0 0 4px;color:var(--mut);font-size:14px;max-width:80ch;line-height:1.65}
+.nmtbl td:first-child{white-space:nowrap;direction:ltr;text-align:start}
+.nmtbl .nm{color:var(--ink)}
+.nmas{display:block;margin-top:6px;font-size:11px;color:var(--dim)}
+.nmas code{font-family:var(--mono)}
+.nmtbl .nmk{font-weight:600;min-width:170px}
+.nmtbl .nmk-ng{color:var(--nm-ng)}
+.nmtbl .nmk-mine{color:var(--nm-mine)}
+.nmtbl .nmk-pub{color:var(--nm-pub)}
+.nmtbl tr.on td{background:var(--hover)}
+.nmfiles code{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--chip);color:var(--chipink);border-radius:4px;padding:1px 6px;margin:0 4px 4px 0;direction:ltr}
+
+/* a name followed from file to file, one numbered stop at a time */
+.chain{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0;max-width:86ch}
+.ch{position:relative;padding:0 0 18px 34px}
+:root[dir="rtl"] .ch{padding:0 34px 18px 0}
+.ch::before{content:"";position:absolute;inset-inline-start:11px;top:26px;bottom:0;border-inline-start:2px dashed var(--line)}
+.ch:last-child::before{display:none}
+.ch-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ch-n{position:absolute;inset-inline-start:0;top:0;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+  background:var(--c);color:var(--onc);font-family:var(--mono);font-size:12px;font-weight:600}
+.ch-f{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600;direction:ltr}
+.ch-w{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+.ch-c{margin:0;border:1px solid var(--line2);border-radius:10px;background:var(--code);padding:10px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.ch p{margin:8px 0 0;color:var(--mut);font-size:14px;line-height:1.65}
+
+/* the topic page's way into its name-by-name deep dive */
+.deeplink{display:grid;gap:5px;margin-top:22px;text-decoration:none;border:1px solid var(--line2);border-inline-start:3px solid var(--c);
+  border-radius:12px;padding:15px 18px;background:var(--card);transition:.2s}
+.deeplink:hover{background:var(--card2);transform:translateY(-2px)}
+.deeplink .dl-k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+:root[dir="rtl"] .deeplink .dl-k{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:12px}
+.deeplink b{font-family:var(--disp);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+:root[dir="rtl"] .deeplink b{letter-spacing:0}
+.deeplink b::after{content:" \2192"}
+:root[dir="rtl"] .deeplink b::after{content:" \2190"}
+.deeplink .dl-s{color:var(--mut);font-size:13.8px;line-height:1.6}
+.deeplink .dl-s b{font:inherit;font-weight:600;color:var(--ink)}
+.deeplink .dl-s b::after{content:none}
 </style>
 <script>
 (function(){var r=document.documentElement;try{
 if(localStorage.getItem('tas-lang')==='ar'){r.dataset.lang='ar';r.dir='rtl';r.lang='ar-EG';}
 r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
-}catch(e){r.dataset.theme='light';}})();
+r.dataset.names=localStorage.getItem('tas-names')||'color';
+}catch(e){r.dataset.theme='light';r.dataset.names='color';}})();
 </script>
 </head>
 <body>
@@ -656,26 +727,44 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <p class="sechead"><span class="l-en">The files, line by line</span><span class="l-ar">الملفات، سطر سطر</span></p>
+  
+  <div class="nmbar">
+    <div class="nmrow">
+      <b class="nmlbl"><span class="l-en">Names in the code</span><span class="l-ar">الأسماء في الكود</span></b>
+      <div class="seg nmseg" role="group" aria-label="Names in the code">
+        <button data-nmode="off" aria-pressed="false"><span class="l-en">Plain</span><span class="l-ar">عادي</span></button>
+        <button data-nmode="color" aria-pressed="true"><span class="l-en">Colour them</span><span class="l-ar">لوّنها</span></button>
+        <button data-nmode="rename" aria-pressed="false"><span class="l-en">Rename test</span><span class="l-ar">جرّب تغيّر الأسماء</span></button>
+      </div>
+    </div>
+    <div class="nmkey">
+      <span><b class="nm nm-ng">output</b><span class="l-en">Angular’s word — type it exactly</span><span class="l-ar" dir="auto">كلمة أنجولار — اكتبها زي ما هي بالظبط</span></span>
+      <span><b class="nm nm-mine">total</b><span class="l-en">Your name — rename it freely</span><span class="l-ar" dir="auto">اسمك انت — غيّره براحتك</span></span>
+      <span><b class="nm nm-pub">deleted</b><span class="l-en">Your name, but shared — rename both sides</span><span class="l-ar" dir="auto">اسمك انت بس متشارك — غيّره في الناحيتين</span></span>
+    </div>
+    <p class="nmhint nmh-color"><span class="l-en">Hover any coloured name to light up every other place it appears, in every file. Those places are what has to change together.</span><span class="l-ar" dir="auto">قف بالماوس على أي اسم ملوّن وهتنوّر كل الأماكن التانية اللي هو فيها، في كل الملفات. الأماكن دي هي اللي لازم تتغير مع بعض.</span></p>
+    <p class="nmhint nmh-rename"><span class="l-en">Every name you own has been swapped for a made-up word. Angular’s words did not move. This code still compiles and still works. That is the proof of which names are yours.</span><span class="l-ar" dir="auto">كل اسم انت اللي اخترته اتبدّل بكلمة عشوائية. كلمات أنجولار فضلت مكانها. الكود ده لسه بيشتغل عادي. وده الدليل إن الأسماء دي بتاعتك.</span></p>
+  </div>
   <div class="files">
       <div class="fc" data-file="ts" data-lang="ts">
         <div class="fc-h"><span class="d"></span>search-panel.ts<span class="tag"><span class="l-en">every form</span><span class="l-ar" dir="auto">كل الأشكال</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Component</i>, viewChild, viewChildren, contentChild,</span><span class="ln" data-l="2">         <i class="t-type">ElementRef</i>, afterNextRender } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">SearchPanel</i> {</span><span class="ln" data-l="5">  <i class="t-com">// may be undefined — Signal&lt;ElementRef | undefined&gt;</i></span><span class="ln" data-l="6">  <i class="t-key">readonly</i> box = viewChild&lt;<i class="t-type">ElementRef</i>&lt;<i class="t-type">HTMLInputElement</i>&gt;&gt;(<i class="t-str">'box'</i>);</span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-com">// guaranteed — Signal&lt;ElementRef&gt;. throws at startup if missing.</i></span><span class="ln" data-l="9">  <i class="t-key">readonly</i> input = viewChild.required&lt;<i class="t-type">ElementRef</i>&lt;<i class="t-type">HTMLInputElement</i>&gt;&gt;(<i class="t-str">'box'</i>);</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">  <i class="t-com">// a child COMPONENT instance, by its class</i></span><span class="ln" data-l="12">  <i class="t-key">readonly</i> list = <i class="t-fn">viewChild</i>(<i class="t-type">ResultList</i>);</span><span class="ln" data-l="13"> </span><span class="ln" data-l="14">  <i class="t-com">// all of them — Signal&lt;readonly ElementRef[]&gt;</i></span><span class="ln" data-l="15">  <i class="t-key">readonly</i> chips = viewChildren&lt;<i class="t-type">ElementRef</i>&gt;(<i class="t-str">'chip'</i>);</span><span class="ln" data-l="16"> </span><span class="ln" data-l="17">  <i class="t-com">// the DOM element of a component tag, not the component instance</i></span><span class="ln" data-l="18">  <i class="t-key">readonly</i> listEl = <i class="t-fn">viewChild</i>(<i class="t-type">ResultList</i>, { read: <i class="t-type">ElementRef</i> });</span><span class="ln" data-l="19"> </span><span class="ln" data-l="20">  <i class="t-fn">clearAndFocus</i>() {</span><span class="ln" data-l="21">    <i class="t-key">this</i>.<i class="t-fn">input</i>().nativeElement.value = <i class="t-str">''</i>;</span><span class="ln" data-l="22">    <i class="t-key">this</i>.<i class="t-fn">input</i>().nativeElement.<i class="t-fn">focus</i>();</span><span class="ln" data-l="23">    <i class="t-key">this</i>.<i class="t-fn">list</i>()?.<i class="t-fn">scrollToTop</i>();</span><span class="ln" data-l="24">  }</span><span class="ln" data-l="25">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-key">import</i> { <i class="t-type">Component</i>, <b class="nm nm-ng" data-nm="viewChild">viewChild</b>, <b class="nm nm-ng" data-nm="viewChildren">viewChildren</b>, <b class="nm nm-ng" data-nm="contentChild">contentChild</b>,</span><span class="ln" data-l="2">         <i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>, afterNextRender } <i class="t-key">from</i> <i class="t-str">'@angular/core'</i>;</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">SearchPanel</i> {</span><span class="ln" data-l="5">  <i class="t-com">// may be undefined — Signal&lt;ElementRef | undefined&gt;</i></span><span class="ln" data-l="6"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="box">box</b> = <b class="nm nm-ng" data-nm="viewChild">viewChild</b>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="HTMLInputElement">HTMLInputElement</b></i>&gt;&gt;(<i class="t-str">'<b class="nm nm-pub" data-nm="#box">box</b>'</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="box">mango</b> = <b class="nm nm-ng" data-nm="viewChild">viewChild</b>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="HTMLInputElement">HTMLInputElement</b></i>&gt;&gt;(<i class="t-str">'<b class="nm nm-pub" data-nm="#box">banana</b>'</i>);</span></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8">  <i class="t-com">// guaranteed — Signal&lt;ElementRef&gt;. throws at startup if missing.</i></span><span class="ln" data-l="9"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="input">input</b> = <b class="nm nm-ng" data-nm="viewChild">viewChild</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="HTMLInputElement">HTMLInputElement</b></i>&gt;&gt;(<i class="t-str">'<b class="nm nm-pub" data-nm="#box">box</b>'</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="input">pickle</b> = <b class="nm nm-ng" data-nm="viewChild">viewChild</b>.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="HTMLInputElement">HTMLInputElement</b></i>&gt;&gt;(<i class="t-str">'<b class="nm nm-pub" data-nm="#box">banana</b>'</i>);</span></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11">  <i class="t-com">// a child COMPONENT instance, by its class</i></span><span class="ln" data-l="12"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="list">list</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="viewChild">viewChild</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="ResultList">ResultList</b></i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="list">waffle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="viewChild">viewChild</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="ResultList">Taco</b></i>);</span></span><span class="ln" data-l="13"> </span><span class="ln" data-l="14">  <i class="t-com">// all of them — Signal&lt;readonly ElementRef[]&gt;</i></span><span class="ln" data-l="15"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="chips">chips</b> = <b class="nm nm-ng" data-nm="viewChildren">viewChildren</b>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&gt;(<i class="t-str">'<b class="nm nm-pub" data-nm="#chip">chip</b>'</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="chips">pumpkin</b> = <b class="nm nm-ng" data-nm="viewChildren">viewChildren</b>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&gt;(<i class="t-str">'<b class="nm nm-pub" data-nm="#chip">potato</b>'</i>);</span></span><span class="ln" data-l="16"> </span><span class="ln" data-l="17">  <i class="t-com">// the DOM element of a component tag, not the component instance</i></span><span class="ln" data-l="18"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="listEl">listEl</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="viewChild">viewChild</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="ResultList">ResultList</b></i>, { <b class="nm nm-ng" data-nm="read">read</b>: <i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i> });</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="listEl">noodle</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="viewChild">viewChild</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="ResultList">Taco</b></i>, { <b class="nm nm-ng" data-nm="read">read</b>: <i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i> });</span></span><span class="ln" data-l="19"> </span><span class="ln" data-l="20"><span class="v0">  <i class="t-fn"><b class="nm nm-mine" data-nm="clearAndFocus">clearAndFocus</b></i>() {</span><span class="v1">  <i class="t-fn"><b class="nm nm-mine" data-nm="clearAndFocus">turnip</b></i>() {</span></span><span class="ln" data-l="21"><span class="v0">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="input">input</b></i>().<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<b class="nm nm-ng" data-nm="value">value</b> = <i class="t-str">''</i>;</span><span class="v1">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="input">pickle</b></i>().<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<b class="nm nm-ng" data-nm="value">value</b> = <i class="t-str">''</i>;</span></span><span class="ln" data-l="22"><span class="v0">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="input">input</b></i>().<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="focus">focus</b></i>();</span><span class="v1">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="input">pickle</b></i>().<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="focus">focus</b></i>();</span></span><span class="ln" data-l="23"><span class="v0">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="list">list</b></i>()?.<i class="t-fn"><b class="nm nm-pub" data-nm="scrollToTop">scrollToTop</b></i>();</span><span class="v1">    <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="list">waffle</b></i>()?.<i class="t-fn"><b class="nm nm-pub" data-nm="scrollToTop">kiwi</b></i>();</span></span><span class="ln" data-l="24">  }</span><span class="ln" data-l="25">}</span></pre>
       </div>
       <div class="fc" data-file="tpl" data-lang="html">
         <div class="fc-h"><span class="d"></span>search-panel.html<span class="tag"><span class="l-en">the targets</span><span class="l-ar" dir="auto">الأهداف</span></span></div>
-        <pre><span class="ln" data-l="1">&lt;!-- <i class="t-bind">#box</i> is a TEMPLATE REFERENCE VARIABLE. it is what the</span><span class="ln" data-l="2">     string in viewChild(<i class="t-str">'box'</i>) is matching against.        --<i class="t-tag">&gt;</i></span><span class="ln" data-l="3"><i class="t-tag">&lt;input</i> <i class="t-bind">#box</i> <i class="t-bind">(input)</i>=<i class="t-str">"onType($event)"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"clearAndFocus()"</i><i class="t-tag">&gt;</i>Clear<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-key">@for</i> (t of tags(); track t) {</span><span class="ln" data-l="8">  <i class="t-tag">&lt;span</i> <i class="t-bind">#chip</i> <i class="t-attr">class</i>=<i class="t-str">"chip"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="9">}</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-tag">&lt;app-result-list</i> <i class="t-bind">[results]</i>=<i class="t-str">"results()"</i> <i class="t-tag">/&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1">&lt;!-- <i class="t-bind">#box</i> is a TEMPLATE REFERENCE VARIABLE. it is what the</span><span class="ln" data-l="2">     string in viewChild(<i class="t-str">'box'</i>) is matching against.        --<i class="t-tag">&gt;</i></span><span class="ln" data-l="3"><span class="v0"><i class="t-tag">&lt;input</i> <i class="t-bind">#<b class="nm nm-pub" data-nm="#box">box</b></i> <i class="t-bind">(input)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="onType">onType</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;input</i> <i class="t-bind">#<b class="nm nm-pub" data-nm="#box">banana</b></i> <i class="t-bind">(input)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="onType">muffin</b>(<b class="nm nm-ng" data-nm="$event">$event</b>)"</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="4"> </span><span class="ln" data-l="5"><span class="v0"><i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="clearAndFocus">clearAndFocus</b>()"</i><i class="t-tag">&gt;</i>Clear<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;button</i> <i class="t-bind">(click)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="clearAndFocus">turnip</b>()"</i><i class="t-tag">&gt;</i>Clear<i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-key">@for</i> (t of tags(); track t) {</span><span class="ln" data-l="8"><span class="v0">  <i class="t-tag">&lt;span</i> <i class="t-bind">#<b class="nm nm-pub" data-nm="#chip">chip</b></i> <i class="t-attr">class</i>=<i class="t-str">"chip"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;span</i> <i class="t-bind">#<b class="nm nm-pub" data-nm="#chip">potato</b></i> <i class="t-attr">class</i>=<i class="t-str">"chip"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t }}</i><i class="t-tag">&lt;/span</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="9">}</span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><span class="v0"><i class="t-tag">&lt;app-result-list</i> <i class="t-bind">[<b class="nm nm-pub" data-nm="results">results</b>]</i>=<i class="t-str">"results()"</i> <i class="t-tag">/&gt;</i></span><span class="v1"><i class="t-tag">&lt;app-result-list</i> <i class="t-bind">[<b class="nm nm-pub" data-nm="results">donut</b>]</i>=<i class="t-str">"results()"</i> <i class="t-tag">/&gt;</i></span></span></pre>
       </div>
       <div class="fc" data-file="child" data-lang="ts">
         <div class="fc-h"><span class="d"></span>result-list.ts<span class="tag"><span class="l-en">the child</span><span class="l-ar" dir="auto">الابن</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">ResultList</i> {</span><span class="ln" data-l="2">  <i class="t-key">readonly</i> results = input&lt;<i class="t-type">Result</i>[]&gt;([]);</span><span class="ln" data-l="3">  <i class="t-key">private</i> <i class="t-key">readonly</i> host = <i class="t-fn">inject</i>(<i class="t-type">ElementRef</i>&lt;<i class="t-type">HTMLElement</i>&gt;);</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5">  <i class="t-com">// a public method the parent is allowed to call.</i></span><span class="ln" data-l="6">  <i class="t-com">// keep this surface small — it is an API, not an escape hatch.</i></span><span class="ln" data-l="7">  <i class="t-fn">scrollToTop</i>() {</span><span class="ln" data-l="8">    <i class="t-key">this</i>.host.nativeElement.<i class="t-fn">scrollTo</i>({ top: <i class="t-num">0</i>, behavior: <i class="t-str">'smooth'</i> });</span><span class="ln" data-l="9">  }</span><span class="ln" data-l="10">}</span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="ResultList">ResultList</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="ResultList">Taco</b></i> {</span></span><span class="ln" data-l="2"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="results">results</b> = input&lt;<i class="t-type">Result</i>[]&gt;([]);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="results">donut</b> = input&lt;<i class="t-type">Result</i>[]&gt;([]);</span></span><span class="ln" data-l="3">  <i class="t-key">private</i> <i class="t-key">readonly</i> host = <i class="t-fn"><b class="nm nm-ng" data-nm="inject">inject</b></i>(<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&lt;<i class="t-type">HTMLElement</i>&gt;);</span><span class="ln" data-l="4"> </span><span class="ln" data-l="5">  <i class="t-com">// a public method the parent is allowed to call.</i></span><span class="ln" data-l="6">  <i class="t-com">// keep this surface small — it is an API, not an escape hatch.</i></span><span class="ln" data-l="7"><span class="v0">  <i class="t-fn"><b class="nm nm-pub" data-nm="scrollToTop">scrollToTop</b></i>() {</span><span class="v1">  <i class="t-fn"><b class="nm nm-pub" data-nm="scrollToTop">kiwi</b></i>() {</span></span><span class="ln" data-l="8">    <i class="t-key">this</i>.host.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<i class="t-fn">scrollTo</i>({ top: <i class="t-num">0</i>, behavior: <i class="t-str">'smooth'</i> });</span><span class="ln" data-l="9">  }</span><span class="ln" data-l="10">}</span></pre>
       </div>
       <div class="fc" data-file="when" data-lang="ts">
         <div class="fc-h"><span class="d"></span>when is it actually there?<span class="tag"><span class="l-en">the old bug</span><span class="l-ar" dir="auto">الباج القديم</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">// THE OLD DECORATOR API — the classic beginner trap</i></span><span class="ln" data-l="2"><i class="t-dec">@ViewChild</i>(<i class="t-str">'box'</i>) box!: <i class="t-type">ElementRef</i>;</span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-fn">constructor</i>()   { <i class="t-key">this</i>.box.nativeElement; }   <i class="t-com">// ✗ undefined</i></span><span class="ln" data-l="5"><i class="t-fn">ngOnInit</i>()      { <i class="t-key">this</i>.box.nativeElement; }   <i class="t-com">// ✗ still undefined</i></span><span class="ln" data-l="6"><i class="t-fn">ngAfterViewInit</i>() { <i class="t-key">this</i>.box.nativeElement; } <i class="t-com">// ✓ finally</i></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8"><i class="t-com">// …and undefined AGAIN whenever the element sits inside a</i></span><span class="ln" data-l="9"><i class="t-com">// false @if, with no warning that it went away.</i></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-com">// THE SIGNAL API — you cannot read it at the wrong time,</i></span><span class="ln" data-l="12"><i class="t-com">// because reading it is just calling a signal:</i></span><span class="ln" data-l="13"><i class="t-key">readonly</i> box = viewChild&lt;<i class="t-type">ElementRef</i>&gt;(<i class="t-str">'box'</i>);</span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-com">// undefined while absent, present when present. an effect or</i></span><span class="ln" data-l="16"><i class="t-com">// a computed simply re-runs when that changes.</i></span><span class="ln" data-l="17"><i class="t-fn">constructor</i>() {</span><span class="ln" data-l="18">  <i class="t-fn">effect</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">box</i>()?.nativeElement.<i class="t-fn">focus</i>());</span><span class="ln" data-l="19">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">// THE OLD DECORATOR API — the classic beginner trap</i></span><span class="ln" data-l="2"><span class="v0"><i class="t-dec"><b class="nm nm-ng" data-nm="@ViewChild">@ViewChild</b></i>(<i class="t-str">'<b class="nm nm-pub" data-nm="#box">box</b>'</i>) <b class="nm nm-mine" data-nm="box">box</b>!: <i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>;</span><span class="v1"><i class="t-dec"><b class="nm nm-ng" data-nm="@ViewChild">@ViewChild</b></i>(<i class="t-str">'<b class="nm nm-pub" data-nm="#box">banana</b>'</i>) <b class="nm nm-mine" data-nm="box">mango</b>!: <i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>;</span></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><span class="v0"><i class="t-fn">constructor</i>()   { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="box">box</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>; }   <i class="t-com">// ✗ undefined</i></span><span class="v1"><i class="t-fn">constructor</i>()   { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="box">mango</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>; }   <i class="t-com">// ✗ undefined</i></span></span><span class="ln" data-l="5"><span class="v0"><i class="t-fn"><b class="nm nm-ng" data-nm="ngOnInit">ngOnInit</b></i>()      { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="box">box</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>; }   <i class="t-com">// ✗ still undefined</i></span><span class="v1"><i class="t-fn"><b class="nm nm-ng" data-nm="ngOnInit">ngOnInit</b></i>()      { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="box">mango</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>; }   <i class="t-com">// ✗ still undefined</i></span></span><span class="ln" data-l="6"><span class="v0"><i class="t-fn"><b class="nm nm-ng" data-nm="ngAfterViewInit">ngAfterViewInit</b></i>() { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="box">box</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>; } <i class="t-com">// ✓ finally</i></span><span class="v1"><i class="t-fn"><b class="nm nm-ng" data-nm="ngAfterViewInit">ngAfterViewInit</b></i>() { <i class="t-key">this</i>.<b class="nm nm-mine" data-nm="box">mango</b>.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>; } <i class="t-com">// ✓ finally</i></span></span><span class="ln" data-l="7"> </span><span class="ln" data-l="8"><i class="t-com">// …and undefined AGAIN whenever the element sits inside a</i></span><span class="ln" data-l="9"><i class="t-com">// false @if, with no warning that it went away.</i></span><span class="ln" data-l="10"> </span><span class="ln" data-l="11"><i class="t-com">// THE SIGNAL API — you cannot read it at the wrong time,</i></span><span class="ln" data-l="12"><i class="t-com">// because reading it is just calling a signal:</i></span><span class="ln" data-l="13"><span class="v0"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="box">box</b> = <b class="nm nm-ng" data-nm="viewChild">viewChild</b>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&gt;(<i class="t-str">'<b class="nm nm-pub" data-nm="#box">box</b>'</i>);</span><span class="v1"><i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="box">mango</b> = <b class="nm nm-ng" data-nm="viewChild">viewChild</b>&lt;<i class="t-type"><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></i>&gt;(<i class="t-str">'<b class="nm nm-pub" data-nm="#box">banana</b>'</i>);</span></span><span class="ln" data-l="14"> </span><span class="ln" data-l="15"><i class="t-com">// undefined while absent, present when present. an effect or</i></span><span class="ln" data-l="16"><i class="t-com">// a computed simply re-runs when that changes.</i></span><span class="ln" data-l="17"><i class="t-fn">constructor</i>() {</span><span class="ln" data-l="18"><span class="v0">  <i class="t-fn"><b class="nm nm-ng" data-nm="effect">effect</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="box">box</b></i>()?.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="focus">focus</b></i>());</span><span class="v1">  <i class="t-fn"><b class="nm nm-ng" data-nm="effect">effect</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="box">mango</b></i>()?.<b class="nm nm-ng" data-nm="nativeElement">nativeElement</b>.<i class="t-fn"><b class="nm nm-ng" data-nm="focus">focus</b></i>());</span></span><span class="ln" data-l="19">}</span></pre>
       </div>
       <div class="fc" data-file="content" data-lang="ts">
         <div class="fc-h"><span class="d"></span>viewChild vs contentChild<span class="tag"><span class="l-en">the difference</span><span class="l-ar" dir="auto">الفرق</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-com">// viewChild    → something in MY OWN template</i></span><span class="ln" data-l="2"><i class="t-com">// contentChild → something PROJECTED INTO me by whoever used me</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="5">  selector: <i class="t-str">'app-tabs'</i>,</span><span class="ln" data-l="6">  template: <i class="t-str">`</i></span><span class="ln" data-l="7">    <i class="t-tag">&lt;nav</i><i class="t-tag">&gt;</i><i class="t-key">@for</i> (t of tabs(); track t.id) { <i class="t-tag">&lt;button</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t.label() }}</i><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i> }<i class="t-tag">&lt;/nav</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="8">    <i class="t-tag">&lt;ng-content</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="9">  <i class="t-str">`</i>,</span><span class="ln" data-l="10">})</span><span class="ln" data-l="11"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Tabs</i> {</span><span class="ln" data-l="12">  <i class="t-com">// the &lt;app-tab&gt; elements the CALLER wrote between our tags</i></span><span class="ln" data-l="13">  <i class="t-key">readonly</i> tabs = <i class="t-fn">contentChildren</i>(<i class="t-type">Tab</i>);</span><span class="ln" data-l="14">}</span><span class="ln" data-l="15"> </span><span class="ln" data-l="16"><i class="t-com">// &lt;app-tabs&gt;</i></span><span class="ln" data-l="17"><i class="t-com">//   &lt;app-tab label="One"&gt;…&lt;/app-tab&gt;     ← contentChildren finds these</i></span><span class="ln" data-l="18"><i class="t-com">//   &lt;app-tab label="Two"&gt;…&lt;/app-tab&gt;</i></span><span class="ln" data-l="19"><i class="t-com">// &lt;/app-tabs&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-com">// viewChild    → something in MY OWN template</i></span><span class="ln" data-l="2"><i class="t-com">// contentChild → something PROJECTED INTO me by whoever used me</i></span><span class="ln" data-l="3"> </span><span class="ln" data-l="4"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="5"><span class="v0">  selector: <i class="t-str">'<b class="nm nm-pub" data-nm="app-tabs">app-tabs</b>'</i>,</span><span class="v1">  selector: <i class="t-str">'<b class="nm nm-pub" data-nm="app-tabs">app-carrot</b>'</i>,</span></span><span class="ln" data-l="6">  template: <i class="t-str">`</i></span><span class="ln" data-l="7"><span class="v0">    <i class="t-tag">&lt;nav</i><i class="t-tag">&gt;</i><i class="t-key">@for</i> (t of <b class="nm nm-mine" data-nm="tabs">tabs</b>(); track t.<b class="nm nm-pub" data-nm="id">id</b>) { <i class="t-tag">&lt;button</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t.<b class="nm nm-pub" data-nm="label">label</b>() }}</i><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i> }<i class="t-tag">&lt;/nav</i><i class="t-tag">&gt;</i></span><span class="v1">    <i class="t-tag">&lt;nav</i><i class="t-tag">&gt;</i><i class="t-key">@for</i> (t of <b class="nm nm-mine" data-nm="tabs">olive</b>(); track t.<b class="nm nm-pub" data-nm="id">falafel</b>) { <i class="t-tag">&lt;button</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t.<b class="nm nm-pub" data-nm="label">melon</b>() }}</i><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i> }<i class="t-tag">&lt;/nav</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="8">    <i class="t-tag">&lt;<b class="nm nm-ng" data-nm="ng-content">ng-content</b></i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="9">  <i class="t-str">`</i>,</span><span class="ln" data-l="10">})</span><span class="ln" data-l="11"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Tabs">Tabs</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Tabs">Pepper</b></i> {</span></span><span class="ln" data-l="12">  <i class="t-com">// the &lt;app-tab&gt; elements the CALLER wrote between our tags</i></span><span class="ln" data-l="13"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="tabs">tabs</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="contentChildren">contentChildren</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Tab">Tab</b></i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="tabs">olive</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="contentChildren">contentChildren</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Tab">Lemon</b></i>);</span></span><span class="ln" data-l="14">}</span><span class="ln" data-l="15"> </span><span class="ln" data-l="16"><i class="t-com">// &lt;app-tabs&gt;</i></span><span class="ln" data-l="17"><i class="t-com">//   &lt;app-tab label="One"&gt;…&lt;/app-tab&gt;     ← contentChildren finds these</i></span><span class="ln" data-l="18"><i class="t-com">//   &lt;app-tab label="Two"&gt;…&lt;/app-tab&gt;</i></span><span class="ln" data-l="19"><i class="t-com">// &lt;/app-tabs&gt;</i></span></pre>
       </div></div>
 
   
@@ -688,17 +777,277 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
     <div class="files">
       <div class="fc" data-file="t1" data-lang="ts">
         <div class="fc-h"><span class="d"></span>tabs.ts<span class="tag"><span class="l-en">the container</span><span class="l-ar" dir="auto">الحاوية</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="2">  selector: <i class="t-str">'app-tabs'</i>,</span><span class="ln" data-l="3">  template: <i class="t-str">`</i></span><span class="ln" data-l="4">    <i class="t-tag">&lt;nav</i> <i class="t-attr">role</i>=<i class="t-str">"tablist"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5">      <i class="t-key">@for</i> (t of tabs(); track t.id; let i = $index) {</span><span class="ln" data-l="6">        <i class="t-tag">&lt;button</i> <i class="t-attr">role</i>=<i class="t-str">"tab"</i></span><span class="ln" data-l="7">                <i class="t-bind">[attr.aria-selected]</i>=<i class="t-str">"active() === i"</i></span><span class="ln" data-l="8">                <i class="t-bind">(click)</i>=<i class="t-str">"active.set(i)"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t.label() }}</i><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="9">      }</span><span class="ln" data-l="10">    <i class="t-tag">&lt;/nav</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="11">    <i class="t-tag">&lt;ng-content</i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="12">  <i class="t-str">`</i>,</span><span class="ln" data-l="13">})</span><span class="ln" data-l="14"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Tabs</i> {</span><span class="ln" data-l="15">  <i class="t-key">readonly</i> tabs = <i class="t-fn">contentChildren</i>(<i class="t-type">Tab</i>);</span><span class="ln" data-l="16">  <i class="t-key">readonly</i> active = <i class="t-fn">signal</i>(<i class="t-num">0</i>);</span><span class="ln" data-l="17"> </span><span class="ln" data-l="18">  <i class="t-fn">constructor</i>() {</span><span class="ln" data-l="19">    <i class="t-com">// tell each child whether it is the visible one</i></span><span class="ln" data-l="20">    <i class="t-fn">effect</i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn">tabs</i>().<i class="t-fn">forEach</i>((t, i) =&gt; t.visible.<i class="t-key">set</i>(i === <i class="t-key">this</i>.<i class="t-fn">active</i>())));</span><span class="ln" data-l="21">  }</span><span class="ln" data-l="22">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="2"><span class="v0">  selector: <i class="t-str">'<b class="nm nm-pub" data-nm="app-tabs">app-tabs</b>'</i>,</span><span class="v1">  selector: <i class="t-str">'<b class="nm nm-pub" data-nm="app-tabs">app-carrot</b>'</i>,</span></span><span class="ln" data-l="3">  template: <i class="t-str">`</i></span><span class="ln" data-l="4">    <i class="t-tag">&lt;nav</i> <i class="t-attr">role</i>=<i class="t-str">"tablist"</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5"><span class="v0">      <i class="t-key">@for</i> (t of <b class="nm nm-mine" data-nm="tabs">tabs</b>(); track t.<b class="nm nm-pub" data-nm="id">id</b>; let i = $index) {</span><span class="v1">      <i class="t-key">@for</i> (t of <b class="nm nm-mine" data-nm="tabs">olive</b>(); track t.<b class="nm nm-pub" data-nm="id">falafel</b>; let i = $index) {</span></span><span class="ln" data-l="6">        <i class="t-tag">&lt;button</i> <i class="t-attr">role</i>=<i class="t-str">"tab"</i></span><span class="ln" data-l="7"><span class="v0">                <i class="t-bind">[attr.aria-selected]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="active">active</b>() === i"</i></span><span class="v1">                <i class="t-bind">[attr.aria-selected]</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="active">cookie</b>() === i"</i></span></span><span class="ln" data-l="8"><span class="v0">                <i class="t-bind">(click)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="active">active</b>.set(i)"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t.<b class="nm nm-pub" data-nm="label">label</b>() }}</i><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span><span class="v1">                <i class="t-bind">(click)</i>=<i class="t-str">"<b class="nm nm-mine" data-nm="active">cookie</b>.set(i)"</i><i class="t-tag">&gt;</i><i class="t-bind">{{ t.<b class="nm nm-pub" data-nm="label">melon</b>() }}</i><i class="t-tag">&lt;/button</i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="9">      }</span><span class="ln" data-l="10">    <i class="t-tag">&lt;/nav</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="11">    <i class="t-tag">&lt;<b class="nm nm-ng" data-nm="ng-content">ng-content</b></i> <i class="t-tag">/&gt;</i></span><span class="ln" data-l="12">  <i class="t-str">`</i>,</span><span class="ln" data-l="13">})</span><span class="ln" data-l="14"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Tabs">Tabs</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Tabs">Pepper</b></i> {</span></span><span class="ln" data-l="15"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="tabs">tabs</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="contentChildren">contentChildren</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Tab">Tab</b></i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="tabs">olive</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="contentChildren">contentChildren</b></i>(<i class="t-type"><b class="nm nm-pub" data-nm="Tab">Lemon</b></i>);</span></span><span class="ln" data-l="16"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="active">active</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-num">0</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-mine" data-nm="active">cookie</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-num">0</i>);</span></span><span class="ln" data-l="17"> </span><span class="ln" data-l="18">  <i class="t-fn">constructor</i>() {</span><span class="ln" data-l="19">    <i class="t-com">// tell each child whether it is the visible one</i></span><span class="ln" data-l="20"><span class="v0">    <i class="t-fn"><b class="nm nm-ng" data-nm="effect">effect</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="tabs">tabs</b></i>().<i class="t-fn">forEach</i>((t, i) =&gt; t.<b class="nm nm-pub" data-nm="visible">visible</b>.<i class="t-key">set</i>(i === <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="active">active</b></i>())));</span><span class="v1">    <i class="t-fn"><b class="nm nm-ng" data-nm="effect">effect</b></i>(() =&gt; <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="tabs">olive</b></i>().<i class="t-fn">forEach</i>((t, i) =&gt; t.<b class="nm nm-pub" data-nm="visible">radish</b>.<i class="t-key">set</i>(i === <i class="t-key">this</i>.<i class="t-fn"><b class="nm nm-mine" data-nm="active">cookie</b></i>())));</span></span><span class="ln" data-l="21">  }</span><span class="ln" data-l="22">}</span></pre>
       </div>
       <div class="fc" data-file="t2" data-lang="ts">
         <div class="fc-h"><span class="d"></span>tab.ts<span class="tag"><span class="l-en">the child</span><span class="l-ar" dir="auto">الابن</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="2">  selector: <i class="t-str">'app-tab'</i>,</span><span class="ln" data-l="3">  template: <i class="t-str">`@if (visible()) { &lt;ng-content /&gt; }`</i>,</span><span class="ln" data-l="4">})</span><span class="ln" data-l="5"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type">Tab</i> {</span><span class="ln" data-l="6">  <i class="t-key">readonly</i> id = crypto.<i class="t-fn">randomUUID</i>();</span><span class="ln" data-l="7">  <i class="t-key">readonly</i> label = input.required&lt;<i class="t-key">string</i>&gt;();</span><span class="ln" data-l="8">  <i class="t-key">readonly</i> visible = <i class="t-fn">signal</i>(<i class="t-key">false</i>);</span><span class="ln" data-l="9">}</span></pre>
+        <pre><span class="ln" data-l="1"><i class="t-dec">@Component</i>({</span><span class="ln" data-l="2"><span class="v0">  selector: <i class="t-str">'<b class="nm nm-pub" data-nm="app-tab">app-tab</b>'</i>,</span><span class="v1">  selector: <i class="t-str">'<b class="nm nm-pub" data-nm="app-tab">app-biscuit</b>'</i>,</span></span><span class="ln" data-l="3"><span class="v0">  template: <i class="t-str">`@if (<b class="nm nm-pub" data-nm="visible">visible</b>()) { &lt;<b class="nm nm-ng" data-nm="ng-content">ng-content</b> /&gt; }`</i>,</span><span class="v1">  template: <i class="t-str">`@if (<b class="nm nm-pub" data-nm="visible">radish</b>()) { &lt;<b class="nm nm-ng" data-nm="ng-content">ng-content</b> /&gt; }`</i>,</span></span><span class="ln" data-l="4">})</span><span class="ln" data-l="5"><span class="v0"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Tab">Tab</b></i> {</span><span class="v1"><i class="t-key">export</i> <i class="t-key">class</i> <i class="t-type"><b class="nm nm-pub" data-nm="Tab">Lemon</b></i> {</span></span><span class="ln" data-l="6"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="id">id</b> = crypto.<i class="t-fn">randomUUID</i>();</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="id">falafel</b> = crypto.<i class="t-fn">randomUUID</i>();</span></span><span class="ln" data-l="7"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="label">label</b> = input.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;();</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="label">melon</b> = input.<b class="nm nm-ng" data-nm="required">required</b>&lt;<i class="t-key">string</i>&gt;();</span></span><span class="ln" data-l="8"><span class="v0">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="visible">visible</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span><span class="v1">  <i class="t-key">readonly</i> <b class="nm nm-pub" data-nm="visible">radish</b> = <i class="t-fn"><b class="nm nm-ng" data-nm="signal">signal</b></i>(<i class="t-key">false</i>);</span></span><span class="ln" data-l="9">}</span></pre>
       </div>
       <div class="fc" data-file="t3" data-lang="html">
         <div class="fc-h"><span class="d"></span>settings.html<span class="tag"><span class="l-en">the caller</span><span class="l-ar" dir="auto">المستخدم</span></span></div>
-        <pre><span class="ln" data-l="1"><i class="t-tag">&lt;app-tabs</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="2">  <i class="t-tag">&lt;app-tab</i> <i class="t-attr">label</i>=<i class="t-str">"Profile"</i><i class="t-tag">&gt;</i>   <i class="t-tag">&lt;app-profile-form</i> <i class="t-tag">/&gt;</i><i class="t-tag">&lt;/app-tab</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="3">  <i class="t-tag">&lt;app-tab</i> <i class="t-attr">label</i>=<i class="t-str">"Billing"</i><i class="t-tag">&gt;</i>   <i class="t-tag">&lt;app-billing-form</i> <i class="t-tag">/&gt;</i><i class="t-tag">&lt;/app-tab</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="4">  <i class="t-tag">&lt;app-tab</i> <i class="t-attr">label</i>=<i class="t-str">"Security"</i><i class="t-tag">&gt;</i>  <i class="t-tag">&lt;app-security-form</i> <i class="t-tag">/&gt;</i><i class="t-tag">&lt;/app-tab</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="5"><i class="t-tag">&lt;/app-tabs</i><i class="t-tag">&gt;</i></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">&lt;!-- no array of tab definitions anywhere. --&gt;</i></span></pre>
+        <pre><span class="ln" data-l="1"><span class="v0"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-tabs">app-tabs</b></i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-tabs">app-carrot</b></i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="2"><span class="v0">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-tab">app-tab</b></i> <i class="t-attr"><b class="nm nm-pub" data-nm="label">label</b></i>=<i class="t-str">"Profile"</i><i class="t-tag">&gt;</i>   <i class="t-tag">&lt;app-profile-form</i> <i class="t-tag">/&gt;</i><i class="t-tag">&lt;/<b class="nm nm-pub" data-nm="app-tab">app-tab</b></i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-tab">app-biscuit</b></i> <i class="t-attr"><b class="nm nm-pub" data-nm="label">melon</b></i>=<i class="t-str">"Profile"</i><i class="t-tag">&gt;</i>   <i class="t-tag">&lt;app-profile-form</i> <i class="t-tag">/&gt;</i><i class="t-tag">&lt;/<b class="nm nm-pub" data-nm="app-tab">app-biscuit</b></i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="3"><span class="v0">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-tab">app-tab</b></i> <i class="t-attr"><b class="nm nm-pub" data-nm="label">label</b></i>=<i class="t-str">"Billing"</i><i class="t-tag">&gt;</i>   <i class="t-tag">&lt;app-billing-form</i> <i class="t-tag">/&gt;</i><i class="t-tag">&lt;/<b class="nm nm-pub" data-nm="app-tab">app-tab</b></i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-tab">app-biscuit</b></i> <i class="t-attr"><b class="nm nm-pub" data-nm="label">melon</b></i>=<i class="t-str">"Billing"</i><i class="t-tag">&gt;</i>   <i class="t-tag">&lt;app-billing-form</i> <i class="t-tag">/&gt;</i><i class="t-tag">&lt;/<b class="nm nm-pub" data-nm="app-tab">app-biscuit</b></i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="4"><span class="v0">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-tab">app-tab</b></i> <i class="t-attr"><b class="nm nm-pub" data-nm="label">label</b></i>=<i class="t-str">"Security"</i><i class="t-tag">&gt;</i>  <i class="t-tag">&lt;app-security-form</i> <i class="t-tag">/&gt;</i><i class="t-tag">&lt;/<b class="nm nm-pub" data-nm="app-tab">app-tab</b></i><i class="t-tag">&gt;</i></span><span class="v1">  <i class="t-tag">&lt;<b class="nm nm-pub" data-nm="app-tab">app-biscuit</b></i> <i class="t-attr"><b class="nm nm-pub" data-nm="label">melon</b></i>=<i class="t-str">"Security"</i><i class="t-tag">&gt;</i>  <i class="t-tag">&lt;app-security-form</i> <i class="t-tag">/&gt;</i><i class="t-tag">&lt;/<b class="nm nm-pub" data-nm="app-tab">app-biscuit</b></i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="5"><span class="v0"><i class="t-tag">&lt;/<b class="nm nm-pub" data-nm="app-tabs">app-tabs</b></i><i class="t-tag">&gt;</i></span><span class="v1"><i class="t-tag">&lt;/<b class="nm nm-pub" data-nm="app-tabs">app-carrot</b></i><i class="t-tag">&gt;</i></span></span><span class="ln" data-l="6"> </span><span class="ln" data-l="7"><i class="t-com">&lt;!-- no array of tab definitions anywhere. --&gt;</i></span></pre>
       </div></div>
   </div>
+
+  
+  <p class="sechead"><span class="l-en">Every name on this page — yours or Angular’s?</span><span class="l-ar">كل اسم في الصفحة دي — بتاعك ولا بتاع أنجولار؟</span></p>
+  <p class="nmnote"><span class="l-en">The string inside <code>viewChild('box')</code> is not a property name. It must match a <code>#box</code> in the template, so it is shared. The property on the left of <code>=</code> is a separate name that is only yours. The code below uses <code>box</code> for both, which is common and confusing.</span><span class="l-ar" dir="auto">النص اللي جوه <code>viewChild('box')</code> مش اسم property. لازم يبقى زي <code>#box</code> اللي في التمبلت، فهو متشارك. والـ property اللي على شمال <code>=</code> اسم تاني خالص وبتاعك انت بس. الكود اللي تحت مستخدم <code>box</code> للاتنين، وده شائع وبيلخبط.</span></p>
+  <div class="dtbl-wrap"><table class="dtbl nmtbl">
+    <thead><tr>
+      <th><span class="l-en">Name</span><span class="l-ar">الاسم</span></th>
+      <th><span class="l-en">Can you rename it?</span><span class="l-ar">ينفع تغيّره؟</span></th>
+      <th><span class="l-en">What it is, and what changes with it</span><span class="l-ar">هو إيه، وإيه اللي بيتغير معاه</span></th>
+      <th><span class="l-en">Appears in</span><span class="l-ar">موجود في</span></th>
+    </tr></thead>
+    <tbody>
+      <tr data-nmrow="viewChild">
+        <td><b class="nm nm-ng" data-nm="viewChild">viewChild</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s signal query for one thing in this component’s own template.</span><span class="l-ar" dir="auto">الـ signal query بتاعة أنجولار لحاجة واحدة في التمبلت بتاع الـ component نفسه.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code> <code>when is it actually there?</code></td>
+      </tr>
+      <tr data-nmrow="viewChildren">
+        <td><b class="nm nm-ng" data-nm="viewChildren">viewChildren</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s signal query for every match in the component’s own template.</span><span class="l-ar" dir="auto">الـ signal query بتاعة أنجولار لكل الحاجات اللي بتطابق في تمبلت الـ component نفسه.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code></td>
+      </tr>
+      <tr data-nmrow="contentChild">
+        <td><b class="nm nm-ng" data-nm="contentChild">contentChild</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s query for one thing the parent projected in between your tags.</span><span class="l-ar" dir="auto">الـ query بتاعة أنجولار لحاجة واحدة الأب حطها بين التاجات بتاعتك.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code></td>
+      </tr>
+      <tr data-nmrow="contentChildren">
+        <td><b class="nm nm-ng" data-nm="contentChildren">contentChildren</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s query for every projected match.</span><span class="l-ar" dir="auto">الـ query بتاعة أنجولار لكل الحاجات المتبعتة من الأب اللي بتطابق.</span></td>
+        <td class="nmfiles"><code>viewChild vs contentChild</code> <code>tabs.ts</code></td>
+      </tr>
+      <tr data-nmrow="@ViewChild">
+        <td><b class="nm nm-ng" data-nm="@ViewChild">@ViewChild</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The old decorator version of <code>viewChild</code>. Still Angular’s, still works, but not a signal.</span><span class="l-ar" dir="auto">النسخة القديمة (decorator) من <code>viewChild</code>. لسه بتاعة أنجولار ولسه شغالة، بس مش signal.</span></td>
+        <td class="nmfiles"><code>when is it actually there?</code></td>
+      </tr>
+      <tr data-nmrow="required">
+        <td><b class="nm nm-ng" data-nm="required">required</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Part of Angular’s API: <code>viewChild.required</code>, <code>input.required</code>.</span><span class="l-ar" dir="auto">جزء من API أنجولار: <code>viewChild.required</code> و<code>input.required</code>.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code> <code>tab.ts</code></td>
+      </tr>
+      <tr data-nmrow="read">
+        <td><b class="nm nm-ng" data-nm="read">read</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">An option key Angular reads: “give me this type instead of the default”.</span><span class="l-ar" dir="auto">مفتاح إعداد أنجولار بيقراه: “هاتلي النوع ده بدل الافتراضي”.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code></td>
+      </tr>
+      <tr data-nmrow="ElementRef">
+        <td><b class="nm nm-ng" data-nm="ElementRef">ElementRef</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s wrapper around a real DOM element.</span><span class="l-ar" dir="auto">الـ wrapper بتاع أنجولار حوالين عنصر DOM حقيقي.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code> <code>result-list.ts</code> <code>when is it actually there?</code></td>
+      </tr>
+      <tr data-nmrow="nativeElement">
+        <td><b class="nm nm-ng" data-nm="nativeElement">nativeElement</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The property on <code>ElementRef</code> that holds the real DOM element.</span><span class="l-ar" dir="auto">الـ property في <code>ElementRef</code> اللي شايلة عنصر الـ DOM الحقيقي.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code> <code>result-list.ts</code> <code>when is it actually there?</code></td>
+      </tr>
+      <tr data-nmrow="HTMLInputElement">
+        <td><b class="nm nm-ng" data-nm="HTMLInputElement">HTMLInputElement</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The browser’s type for an <code>&lt;input&gt;</code> element.</span><span class="l-ar" dir="auto">النوع بتاع المتصفح لعنصر <code>&lt;input&gt;</code>.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code></td>
+      </tr>
+      <tr data-nmrow="value">
+        <td><b class="nm nm-ng" data-nm="value">value</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The DOM’s property holding what is typed in the input box.</span><span class="l-ar" dir="auto">الـ property بتاعة الـ DOM اللي فيها المكتوب في خانة الـ input.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code></td>
+      </tr>
+      <tr data-nmrow="focus">
+        <td><b class="nm nm-ng" data-nm="focus">focus</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">The DOM’s method that puts the cursor in the element.</span><span class="l-ar" dir="auto">ميثود الـ DOM اللي بتحط المؤشر في العنصر.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code> <code>when is it actually there?</code></td>
+      </tr>
+      <tr data-nmrow="ngOnInit">
+        <td><b class="nm nm-ng" data-nm="ngOnInit">ngOnInit</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s lifecycle hook. The name is fixed; Angular calls it for you.</span><span class="l-ar" dir="auto">lifecycle hook بتاع أنجولار. الاسم ثابت؛ أنجولار هو اللي بيناديه.</span></td>
+        <td class="nmfiles"><code>when is it actually there?</code></td>
+      </tr>
+      <tr data-nmrow="ngAfterViewInit">
+        <td><b class="nm nm-ng" data-nm="ngAfterViewInit">ngAfterViewInit</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s lifecycle hook for “the template is on the page now”. The name is fixed.</span><span class="l-ar" dir="auto">lifecycle hook بتاع أنجولار لـ “التمبلت بقى على الصفحة خلاص”. الاسم ثابت.</span></td>
+        <td class="nmfiles"><code>when is it actually there?</code></td>
+      </tr>
+      <tr data-nmrow="effect">
+        <td><b class="nm nm-ng" data-nm="effect">effect</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s side-effect function.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار للـ side effects.</span></td>
+        <td class="nmfiles"><code>when is it actually there?</code> <code>tabs.ts</code></td>
+      </tr>
+      <tr data-nmrow="signal">
+        <td><b class="nm nm-ng" data-nm="signal">signal</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s writable signal.</span><span class="l-ar" dir="auto">الـ signal بتاعة أنجولار اللي بتتكتب.</span></td>
+        <td class="nmfiles"><code>tabs.ts</code> <code>tab.ts</code></td>
+      </tr>
+      <tr data-nmrow="inject">
+        <td><b class="nm nm-ng" data-nm="inject">inject</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s function that hands you a dependency.</span><span class="l-ar" dir="auto">الـ function بتاعة أنجولار اللي بتديك dependency.</span></td>
+        <td class="nmfiles"><code>result-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="$event">
+        <td><b class="nm nm-ng" data-nm="$event">$event</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s fixed name for the event object in a template.</span><span class="l-ar" dir="auto">اسم ثابت من أنجولار للـ event object في التمبلت.</span></td>
+        <td class="nmfiles"><code>search-panel.html</code></td>
+      </tr>
+      <tr data-nmrow="ng-content">
+        <td><b class="nm nm-ng" data-nm="ng-content">ng-content</b></td>
+        <td class="nmk nmk-ng"><span class="l-en">No. It is Angular’s, TypeScript’s or the browser’s.</span><span class="l-ar" dir="auto">لأ. ده بتاع أنجولار أو TypeScript أو المتصفح.</span></td>
+        <td><span class="l-en">Angular’s tag for “what the parent wrote goes here”.</span><span class="l-ar" dir="auto">تاج أنجولار لـ “اللي الأب كتبه يتحط هنا”.</span></td>
+        <td class="nmfiles"><code>viewChild vs contentChild</code> <code>tabs.ts</code> <code>tab.ts</code></td>
+      </tr>
+      <tr data-nmrow="#box">
+        <td><b class="nm nm-pub" data-nm="#box">#box</b><span class="nmas">&rarr; <code>#banana</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A template reference variable. The <code>#box</code> in the template and the string <code>'box'</code> in the query must match, or the query finds nothing.</span><span class="l-ar" dir="auto">template reference variable. الـ <code>#box</code> اللي في التمبلت والنص <code>'box'</code> اللي في الـ query لازم يبقوا زي بعض، وإلا الـ query مش هتلاقي حاجة.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code> <code>search-panel.html</code> <code>when is it actually there?</code></td>
+      </tr>
+      <tr data-nmrow="#chip">
+        <td><b class="nm nm-pub" data-nm="#chip">#chip</b><span class="nmas">&rarr; <code>#potato</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Same idea: <code>#chip</code> on every chip and <code>'chip'</code> in <code>viewChildren</code>. (<code>class="chip"</code> is a CSS class, a different thing.)</span><span class="l-ar" dir="auto">نفس الفكرة: <code>#chip</code> على كل chip و<code>'chip'</code> في <code>viewChildren</code>. (<code>class="chip"</code> CSS class، حاجة تانية.)</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code> <code>search-panel.html</code></td>
+      </tr>
+      <tr data-nmrow="box">
+        <td><b class="nm nm-mine" data-nm="box">box</b><span class="nmas">&rarr; <code>mango</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The class property that holds the query result. Nobody outside reads it, so rename it freely; the <code>'box'</code> string stays.</span><span class="l-ar" dir="auto">الـ property في الكلاس اللي شايلة نتيجة الـ query. محدش برّه بيقراها، فغيّرها براحتك؛ والنص <code>'box'</code> يفضل زي ما هو.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code> <code>when is it actually there?</code></td>
+      </tr>
+      <tr data-nmrow="input">
+        <td><b class="nm nm-mine" data-nm="input">input</b><span class="nmas">&rarr; <code>pickle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">A property that happens to be called <code>input</code>. It is not Angular’s <code>input()</code>, it is your name for the query result.</span><span class="l-ar" dir="auto">property صدفة اسمها <code>input</code>. دي مش <code>input()</code> بتاعة أنجولار، ده اسمك انت لنتيجة الـ query.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code></td>
+      </tr>
+      <tr data-nmrow="list">
+        <td><b class="nm nm-mine" data-nm="list">list</b><span class="nmas">&rarr; <code>waffle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The property holding the <code>ResultList</code> instance.</span><span class="l-ar" dir="auto">الـ property اللي شايلة الـ instance بتاع <code>ResultList</code>.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code></td>
+      </tr>
+      <tr data-nmrow="listEl">
+        <td><b class="nm nm-mine" data-nm="listEl">listEl</b><span class="nmas">&rarr; <code>noodle</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your property name.</span><span class="l-ar" dir="auto">اسم الـ property بتاعك.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code></td>
+      </tr>
+      <tr data-nmrow="chips">
+        <td><b class="nm nm-mine" data-nm="chips">chips</b><span class="nmas">&rarr; <code>pumpkin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">Your property name.</span><span class="l-ar" dir="auto">اسم الـ property بتاعك.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code></td>
+      </tr>
+      <tr data-nmrow="clearAndFocus">
+        <td><b class="nm nm-mine" data-nm="clearAndFocus">clearAndFocus</b><span class="nmas">&rarr; <code>turnip</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own method, called from its own template.</span><span class="l-ar" dir="auto">ميثود الـ component نفسه، بيناديها من التمبلت بتاعه.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code> <code>search-panel.html</code></td>
+      </tr>
+      <tr data-nmrow="onType">
+        <td><b class="nm nm-mine" data-nm="onType">onType</b><span class="nmas">&rarr; <code>muffin</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The component’s own method, called from its own template.</span><span class="l-ar" dir="auto">ميثود الـ component نفسه، بيناديها من التمبلت بتاعه.</span></td>
+        <td class="nmfiles"><code>search-panel.html</code></td>
+      </tr>
+      <tr data-nmrow="ResultList">
+        <td><b class="nm nm-pub" data-nm="ResultList">ResultList</b><span class="nmas">&rarr; <code>Taco</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The child’s class name. The query finds the child by this class, so it follows a rename.</span><span class="l-ar" dir="auto">اسم كلاس الابن. الـ query بتلاقي الابن بالكلاس ده، فبيتغير معاه.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code> <code>result-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="scrollToTop">
+        <td><b class="nm nm-pub" data-nm="scrollToTop">scrollToTop</b><span class="nmas">&rarr; <code>kiwi</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A public method on the child that the parent calls. Rename it in both files.</span><span class="l-ar" dir="auto">ميثود public في الابن والأب بيناديها. غيّرها في الملفين.</span></td>
+        <td class="nmfiles"><code>search-panel.ts</code> <code>result-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="results">
+        <td><b class="nm nm-pub" data-nm="results">results</b><span class="nmas">&rarr; <code>donut</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The child’s input, bound by the parent with <code>[results]</code>. The <code>results()</code> on the right is the parent’s own value.</span><span class="l-ar" dir="auto">الـ input بتاع الابن، والأب بيربطه بـ <code>[results]</code>. و<code>results()</code> اللي على اليمين دي قيمة الأب نفسه.</span></td>
+        <td class="nmfiles"><code>search-panel.html</code> <code>result-list.ts</code></td>
+      </tr>
+      <tr data-nmrow="Tabs">
+        <td><b class="nm nm-pub" data-nm="Tabs">Tabs</b><span class="nmas">&rarr; <code>Pepper</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The container’s class name.</span><span class="l-ar" dir="auto">اسم كلاس الـ container.</span></td>
+        <td class="nmfiles"><code>viewChild vs contentChild</code> <code>tabs.ts</code></td>
+      </tr>
+      <tr data-nmrow="Tab">
+        <td><b class="nm nm-pub" data-nm="Tab">Tab</b><span class="nmas">&rarr; <code>Lemon</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The child’s class. <code>contentChildren(Tab)</code> finds children by it, so both files change together.</span><span class="l-ar" dir="auto">كلاس الابن. <code>contentChildren(Tab)</code> بيلاقي الأبناء بيه، فالملفين بيتغيروا مع بعض.</span></td>
+        <td class="nmfiles"><code>viewChild vs contentChild</code> <code>tabs.ts</code> <code>tab.ts</code></td>
+      </tr>
+      <tr data-nmrow="app-tabs">
+        <td><b class="nm nm-pub" data-nm="app-tabs">app-tabs</b><span class="nmas">&rarr; <code>app-carrot</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Selector: the string in <code>Tabs</code> and the tag the caller writes.</span><span class="l-ar" dir="auto">الـ selector: النص في <code>Tabs</code> والتاج اللي بيكتبه اللي بيستخدمه.</span></td>
+        <td class="nmfiles"><code>viewChild vs contentChild</code> <code>tabs.ts</code> <code>settings.html</code></td>
+      </tr>
+      <tr data-nmrow="app-tab">
+        <td><b class="nm nm-pub" data-nm="app-tab">app-tab</b><span class="nmas">&rarr; <code>app-biscuit</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">Selector: the string in <code>Tab</code> and the tag the caller writes.</span><span class="l-ar" dir="auto">الـ selector: النص في <code>Tab</code> والتاج اللي بيكتبه اللي بيستخدمه.</span></td>
+        <td class="nmfiles"><code>tab.ts</code> <code>settings.html</code></td>
+      </tr>
+      <tr data-nmrow="tabs">
+        <td><b class="nm nm-mine" data-nm="tabs">tabs</b><span class="nmas">&rarr; <code>olive</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en">The query result, read only by <code>Tabs</code> itself.</span><span class="l-ar" dir="auto">نتيجة الـ query، و<code>Tabs</code> بس اللي بيقراها.</span></td>
+        <td class="nmfiles"><code>viewChild vs contentChild</code> <code>tabs.ts</code></td>
+      </tr>
+      <tr data-nmrow="active">
+        <td><b class="nm nm-mine" data-nm="active">active</b><span class="nmas">&rarr; <code>cookie</code></span></td>
+        <td class="nmk nmk-mine"><span class="l-en">Yes. Change every use inside this component.</span><span class="l-ar" dir="auto">آه. غيّر كل مكان بيستخدمه جوه الـ component ده.</span></td>
+        <td><span class="l-en"><code>Tabs</code>’ own signal for which tab is showing.</span><span class="l-ar" dir="auto">الـ signal بتاعة <code>Tabs</code> نفسه لأنهي tab ظاهرة.</span></td>
+        <td class="nmfiles"><code>tabs.ts</code></td>
+      </tr>
+      <tr data-nmrow="label">
+        <td><b class="nm nm-pub" data-nm="label">label</b><span class="nmas">&rarr; <code>melon</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">The tab’s input. The caller sets it with <code>label="…"</code> and <code>Tabs</code> reads <code>t.label()</code>: three files.</span><span class="l-ar" dir="auto">الـ input بتاع الـ tab. اللي بيستخدمه بيحطه بـ <code>label="…"</code> و<code>Tabs</code> بيقرا <code>t.label()</code>: تلات ملفات.</span></td>
+        <td class="nmfiles"><code>viewChild vs contentChild</code> <code>tabs.ts</code> <code>tab.ts</code> <code>settings.html</code></td>
+      </tr>
+      <tr data-nmrow="visible">
+        <td><b class="nm nm-pub" data-nm="visible">visible</b><span class="nmas">&rarr; <code>radish</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A signal on <code>Tab</code> that <code>Tabs</code> sets from outside. Rename it in both.</span><span class="l-ar" dir="auto">signal في <code>Tab</code> و<code>Tabs</code> بيغيّرها من برّه. غيّرها في الاتنين.</span></td>
+        <td class="nmfiles"><code>tabs.ts</code> <code>tab.ts</code></td>
+      </tr>
+      <tr data-nmrow="id">
+        <td><b class="nm nm-pub" data-nm="id">id</b><span class="nmas">&rarr; <code>falafel</code></span></td>
+        <td class="nmk nmk-pub"><span class="l-en">Yes, but the other file types it too. Change both.</span><span class="l-ar" dir="auto">آه، بس الملف التاني كاتبه برضه. غيّر الاتنين.</span></td>
+        <td><span class="l-en">A field on <code>Tab</code> that <code>Tabs</code> tracks by.</span><span class="l-ar" dir="auto">field في <code>Tab</code> و<code>Tabs</code> بيعمل بيه track.</span></td>
+        <td class="nmfiles"><code>viewChild vs contentChild</code> <code>tabs.ts</code> <code>tab.ts</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  
+  <a class="deeplink" href="queries-names.html">
+    <span class="dl-k"><span class="l-en">Name by name</span><span class="l-ar" dir="auto">اسم اسم</span></span>
+    <b><span class="l-en"><code>viewChild</code> and <code>contentChild</code>, name by name</span><span class="l-ar" dir="auto"><code>viewChild</code> و<code>contentChild</code>، اسم اسم</span></b>
+    <span class="dl-s"><span class="l-en">The page for when <code>#box</code>, <code>'box'</code> and <code>this.box</code> feel like the same thing. One search panel followed through every file, every name coloured by who owns it: the reference names that must match, the property names that are only yours. Then what breaks when you rename each one.</span><span class="l-ar" dir="auto">الصفحة دي لما <code>#box</code> و<code>'box'</code> و<code>this.box</code> يبانوا كأنهم حاجة واحدة. search panel واحد ماشيين وراه في كل الملفات، وكل اسم ملوّن حسب صاحبه: أسماء الـ references اللي لازم تطابق، وأسماء الـ properties اللي بتاعتك انت بس. وبعدين إيه اللي بيبوظ لما تغيّر كل واحد.</span></span>
+  </a>
 
   <div class="gotchas">
     <h4><span class="l-en">Watch out</span><span class="l-ar">خد بالك</span></h4>
@@ -798,8 +1147,8 @@ r.dataset.theme=localStorage.getItem('tas-theme')==='dark'?'dark':'light';
   </div>
 
   <nav class="pager">
-    <a class="pv" href="../intermediate/19-content-projection.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en"><code>&lt;ng-content&gt;</code>: markup that comes from outside</span><span class="l-ar" dir="auto"><code>&lt;ng-content&gt;</code>: ماركب جاي من بره</span></b></a>
-    <a class="nx" href="../intermediate/21-routing.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en">Routes are data, guards are functions</span><span class="l-ar" dir="auto">الـ routes مجرد داتا، والـ guards مجرد functions</span></b></a>
+    <a class="pv" href="../intermediate/content-projection-names.html"><em>&larr; <span class="l-en">Previous</span><span class="l-ar">السابق</span></em><b><span class="l-en"><code>&lt;ng-content&gt;</code>, name by name</span><span class="l-ar" dir="auto"><code>&lt;ng-content&gt;</code>، اسم اسم</span></b></a>
+    <a class="nx" href="../intermediate/queries-names.html"><em><span class="l-en">Next</span><span class="l-ar">التالي</span> &rarr;</em><b><span class="l-en"><code>viewChild</code> and <code>contentChild</code>, name by name</span><span class="l-ar" dir="auto"><code>viewChild</code> و<code>contentChild</code>، اسم اسم</span></b></a>
   </nav>
 </main>
 
@@ -841,6 +1190,28 @@ _g('b-ar').onclick = () => setLang('ar');
 _g('b-lt').onclick = () => setTheme('light');
 _g('b-dk').onclick = () => setTheme('dark');
 syncUI();
+
+(function(){
+  var r = document.documentElement;
+  function setNames(m){
+    r.dataset.names = m;
+    try { localStorage.setItem('tas-names', m); } catch (e) {}
+    document.querySelectorAll('[data-nmode]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.nmode === m)); });
+  }
+  setNames(r.dataset.names || 'color');
+  document.querySelectorAll('[data-nmode]').forEach(function(b){ b.addEventListener('click', function(){ setNames(b.dataset.nmode); }); });
+  function light(n, on){
+    document.querySelectorAll('[data-nm]').forEach(function(el){ if (el.dataset.nm === n) el.classList.toggle('on', on); });
+    document.querySelectorAll('[data-nmrow]').forEach(function(el){ if (el.dataset.nmrow === n) el.classList.toggle('on', on); });
+  }
+  document.addEventListener('mouseover', function(e){
+    var t = e.target.closest && e.target.closest('[data-nm],[data-nmrow]');
+    if (!t) return;
+    var n = t.dataset.nm || t.dataset.nmrow;
+    light(n, true);
+    t.addEventListener('mouseleave', function off(){ light(n, false); t.removeEventListener('mouseleave', off); });
+  });
+})();
 
 /* ---------- edge geometry ---------- */
 function anchorPt(r, side, base){
